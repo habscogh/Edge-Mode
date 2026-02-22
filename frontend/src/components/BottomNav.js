@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, Activity, Users, Trophy, User } from 'lucide-react';
+import { Home, Activity, Users, Trophy, FileText, User } from 'lucide-react';
 
 export const BottomNav = () => {
   const location = useLocation();
@@ -11,6 +11,7 @@ export const BottomNav = () => {
     { path: '/log', icon: Activity, label: 'Log', testId: 'nav-log' },
     { path: '/groups', icon: Users, label: 'Groups', testId: 'nav-groups' },
     { path: '/leaderboard', icon: Trophy, label: 'Leaderboard', testId: 'nav-leaderboard' },
+    { path: '/review', icon: FileText, label: 'Review', testId: 'nav-review' },
     { path: '/profile', icon: User, label: 'Profile', testId: 'nav-profile' },
   ];
 
