@@ -86,10 +86,12 @@ export const LeaderboardScreen = () => {
       <div className="max-w-2xl mx-auto pt-6">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-heading font-bold uppercase tracking-tight text-white">
-            Global Leaderboard
+            Most Improved
           </h1>
           <Trophy className="w-8 h-8 text-primary" />
         </div>
+
+        <p className="text-zinc-400 text-sm font-body mb-6">This week's top improvers</p>
 
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
           <button
