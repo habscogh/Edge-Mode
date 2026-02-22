@@ -44,7 +44,12 @@ export const OnboardingScreen = () => {
   };
 
   const handleTargetChange = (pillar, value) => {
-    setTargets({ ...targets, [pillar]: parseInt(value) || 0 });
+    const numValue = value === '' ? 0 : parseInt(value);
+    setTargets({ ...targets, [pillar]: numValue });
+  };
+
+  const isStep2Valid = () => {
+    return selectedPillars.every(p => targets[p] && targets[p] > 0);
   };
 
   const handleNext = () => {
