@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AuthScreen } from './pages/AuthScreen';
 import { OnboardingScreen } from './pages/OnboardingScreen';
@@ -10,12 +10,36 @@ import { LeaderboardScreen } from './pages/LeaderboardScreen';
 import { ProfileScreen } from './pages/ProfileScreen';
 import { BottomNav } from './components/BottomNav';
 import { Toaster } from './components/ui/sonner';
+import axios from 'axios';
 import './App.css';
 
-const ProtectedRoute = ({ children }) => {
-  const { user, loading } = useAuth();
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
 
-  if (loading) {
+const ProtectedRoute = ({ children, requiresOnboarding = true }) => {
+  const { user, loading } = useAuth();
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(null);
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    const checkOnboarding = async () => {
+      if (user && requiresOnboarding) {
+        try {
+          const response = await axios.get(`${API}/users/pillars`);
+          setHasCompletedOnboarding(response.data.length > 0);
+        } catch (error) {
+          setHasCompletedOnboarding(false);
+        }
+      }
+      setChecking(false);
+    };
+
+    if (!loading) {
+      checkOnboarding();
+    }
+  }, [user, loading, requiresOnboarding]);
+
+  if (loading || (requiresOnboarding && checking)) {
     return (
       <div className="flex items-center justify-center h-screen bg-[#09090b]">
         <div className="text-zinc-400 font-mono">Loading...</div>
@@ -23,12 +47,20 @@ const ProtectedRoute = ({ children }) => {
     );
   }
 
-  return user ? children : <Navigate to="/" />;
+  if (!user) {
+    return <Navigate to="/" />;
+  }
+
+  if (requiresOnboarding && !hasCompletedOnboarding) {
+    return <Navigate to="/onboarding" />;
+  }
+
+  return children;
 };
 
 const AppRoutes = () => {
   const { user, loading } = useAuth();
-  const location = window.location.pathname;
+  const location = useLocation();
 
   const showBottomNav = [
     '/dashboard',
