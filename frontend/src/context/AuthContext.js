@@ -28,6 +28,20 @@ export const AuthProvider = ({ children }) => {
     } else {
       setLoading(false);
     }
+
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401) {
+          logout();
+        }
+        return Promise.reject(error);
+      }
+    );
+
+    return () => {
+      axios.interceptors.response.eject(interceptor);
+    };
   }, []);
 
   useEffect(() => {
