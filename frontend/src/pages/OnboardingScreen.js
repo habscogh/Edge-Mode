@@ -227,8 +227,8 @@ export const OnboardingScreen = () => {
                     <Input
                       data-testid={`target-${pillar.toLowerCase().replace(/\//g, '-').replace(/\s+/g, '-')}`}
                       type="number"
-                      placeholder="5"
-                      value={targets[pillar] || ''}
+                      placeholder=""
+                      value={targets[pillar] === '' ? '' : targets[pillar]}
                       onChange={(e) => handleTargetChange(pillar, e.target.value)}
                       className="bg-zinc-900 border-zinc-800 text-white font-mono focus:ring-2 focus:ring-primary"
                     />
