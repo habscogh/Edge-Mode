@@ -1,0 +1,186 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Users, Plus, TrendingUp } from 'lucide-react';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
+
+export const GroupsScreen = () => {
+  const [groups, setGroups] = useState([]);
+  const [selectedGroup, setSelectedGroup] = useState(null);
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [newGroupName, setNewGroupName] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchGroups();
+  }, []);
+
+  const fetchGroups = async () => {
+    try {
+      const response = await axios.get(`${API}/groups`);
+      setGroups(response.data);
+      if (response.data.length > 0) {
+        setSelectedGroup(response.data[0]);
+        fetchGroupLeaderboard(response.data[0].id);
+      }
+    } catch (error) {
+      console.error('Failed to fetch groups:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchGroupLeaderboard = async (groupId) => {
+    try {
+      const response = await axios.get(`${API}/groups/${groupId}/leaderboard`);
+      setLeaderboard(response.data);
+    } catch (error) {
+      console.error('Failed to fetch leaderboard:', error);
+    }
+  };
+
+  const handleCreateGroup = async () => {
+    if (!newGroupName) return;
+
+    try {
+      await axios.post(`${API}/groups`, {
+        name: newGroupName,
+        type: 'private'
+      });
+      setNewGroupName('');
+      setIsDialogOpen(false);
+      fetchGroups();
+    } catch (error) {
+      console.error('Failed to create group:', error);
+    }
+  };
+
+  const handleGroupSelect = (group) => {
+    setSelectedGroup(group);
+    fetchGroupLeaderboard(group.id);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-[#09090b]">
+        <div className="text-zinc-400 font-mono">Loading...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#09090b] p-4 pb-24">
+      <div className="max-w-2xl mx-auto pt-6">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-3xl font-heading font-bold uppercase tracking-tight text-white">
+            Groups
+          </h1>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button
+                data-testid="create-group-btn"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 font-heading uppercase"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Create
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="bg-zinc-950 border-zinc-800">
+              <DialogHeader>
+                <DialogTitle className="font-heading uppercase text-white">Create Group</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 mt-4">
+                <Input
+                  data-testid="group-name-input"
+                  placeholder="Group name"
+                  value={newGroupName}
+                  onChange={(e) => setNewGroupName(e.target.value)}
+                  className="bg-zinc-900 border-zinc-800 text-white font-body"
+                />
+                <Button
+                  data-testid="create-group-submit-btn"
+                  onClick={handleCreateGroup}
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading uppercase"
+                >
+                  Create Group
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        {groups.length === 0 ? (
+          <div className="text-center py-12">
+            <Users className="w-16 h-16 text-zinc-700 mx-auto mb-4" />
+            <p className="text-zinc-400 font-body mb-4">No groups yet</p>
+            <p className="text-zinc-500 text-sm font-body">Create a group to compete with friends</p>
+          </div>
+        ) : (
+          <>
+            <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+              {groups.map((group) => (
+                <button
+                  key={group.id}
+                  data-testid={`group-tab-${group.name.toLowerCase().replace(/\s+/g, '-')}`}
+                  onClick={() => handleGroupSelect(group)}
+                  className={`px-4 py-2 rounded-md font-body whitespace-nowrap transition-all duration-200 ${
+                    selectedGroup?.id === group.id
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-zinc-900 text-zinc-400 hover:bg-zinc-800'
+                  }`}
+                >
+                  {group.name}
+                </button>
+              ))}
+            </div>
+
+            <div className="bg-zinc-950 border border-zinc-800 rounded-md">
+              <div className="p-4 border-b border-zinc-800">
+                <h2 className="text-lg font-heading font-bold uppercase tracking-tight text-white">
+                  Leaderboard
+                </h2>
+                <p className="text-zinc-400 text-sm font-body mt-1">This week's rankings</p>
+              </div>
+
+              <div className="divide-y divide-zinc-800">
+                {leaderboard.map((entry, idx) => (
+                  <div
+                    key={idx}
+                    data-testid={`leaderboard-entry-${idx}`}
+                    className="p-4 hover:bg-zinc-900/50 transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-mono font-bold ${
+                          idx === 0 ? 'bg-yellow-500/20 text-yellow-500' :
+                          idx === 1 ? 'bg-zinc-400/20 text-zinc-400' :
+                          idx === 2 ? 'bg-orange-500/20 text-orange-500' :
+                          'bg-zinc-800 text-zinc-400'
+                        }`}>
+                          {idx + 1}
+                        </div>
+                        <div>
+                          <div className="text-white font-body">{entry.username}</div>
+                          <div className="text-zinc-500 text-xs font-body">{entry.current_streak} day streak</div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-primary font-mono font-bold text-lg">{entry.performance_index}%</div>
+                        <div className="text-zinc-500 text-xs font-body">{entry.consistency_pct}% consistent</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
