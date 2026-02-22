@@ -13,18 +13,26 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('forge_token'));
+  const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
   const API = `${BACKEND_URL}/api`;
 
   useEffect(() => {
-    if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    const savedToken = localStorage.getItem('forge_token');
+    if (savedToken) {
+      setToken(savedToken);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${savedToken}`;
       fetchUser();
     } else {
       setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     }
   }, [token]);
 
