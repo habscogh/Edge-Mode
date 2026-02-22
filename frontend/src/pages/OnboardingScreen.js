@@ -19,7 +19,21 @@ export const OnboardingScreen = () => {
 
   useEffect(() => {
     fetchPillars();
+    checkExistingOnboarding();
   }, []);
+
+  const checkExistingOnboarding = async () => {
+    try {
+      const response = await axios.get(`${API}/users/pillars`);
+      if (response.data && response.data.length > 0) {
+        // User has already completed onboarding
+        console.log('User already completed onboarding, redirecting to dashboard');
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      console.log('No existing onboarding found');
+    }
+  };
 
   const fetchPillars = async () => {
     try {
