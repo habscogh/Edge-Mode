@@ -638,7 +638,7 @@ async def get_global_leaderboard(age_group: Optional[str] = None):
         consistency_pct = (days_logged / 7) * 100
         
         total_sessions = len(current_sessions)
-        total_target = sum(p['weekly_target_sessions'] for p in user_pillars)
+        total_target = sum(p.get('weekly_target_sessions', p.get('weekly_target_minutes', 5)) for p in user_pillars)
         target_completion = min((total_sessions / total_target * 100) if total_target > 0 else 0, 100)
         performance_index = min((consistency_pct * 0.7) + (target_completion * 0.3), 100)
         
