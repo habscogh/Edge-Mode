@@ -1,0 +1,139 @@
+{
+  "identity": {
+    "app_name": "Forge",
+    "tagline": "1% Better Every Day",
+    "tone": "Elite, Disciplined, Gritty, High-Performance",
+    "target_audience": "Teens (12-19) - Athletes, Academic Grinders, Builders",
+    "aesthetic": "Dark Mode, Tactical, Data-Driven, Competitive"
+  },
+  "typography": {
+    "font_family": {
+      "headings": "Barlow Condensed, sans-serif",
+      "body": "Manrope, sans-serif",
+      "mono": "JetBrains Mono, monospace"
+    },
+    "google_fonts_import": "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&display=swap",
+    "usage_rules": {
+      "headings": "Uppercase, tracking-tight, font-bold (700) or extra-bold (800). Use for page titles and major stats.",
+      "body": "Clean, legible, tracking-normal. Use for general text and labels.",
+      "mono": "Use for ALL numbers, dates, timers, and data values. This creates the 'dashboard' feel."
+    }
+  },
+  "colors": {
+    "theme": "dark",
+    "palette": {
+      "background": "#09090b",
+      "foreground": "#fafafa",
+      "card": "#121212",
+      "card_foreground": "#fafafa",
+      "popover": "#09090b",
+      "popover_foreground": "#fafafa",
+      "primary": "#22c55e",
+      "primary_foreground": "#052e16",
+      "secondary": "#27272a",
+      "secondary_foreground": "#fafafa",
+      "muted": "#27272a",
+      "muted_foreground": "#a1a1aa",
+      "accent": "#27272a",
+      "accent_foreground": "#fafafa",
+      "destructive": "#ef4444",
+      "destructive_foreground": "#fafafa",
+      "border": "#27272a",
+      "input": "#27272a",
+      "ring": "#22c55e"
+    },
+    "semantic_usage": {
+      "success": "#22c55e (Green-500) - Use for streaks, completed habits, growth.",
+      "focus": "#3b82f6 (Blue-500) - Use for study timers, academic metrics.",
+      "warning": "#eab308 (Yellow-500) - Use for 'at risk' streaks.",
+      "error": "#ef4444 (Red-500) - Use for missed targets.",
+      "neutral": "#52525b (Zinc-600) - Use for inactive states."
+    }
+  },
+  "layout": {
+    "spacing_system": "Generous padding (p-6, p-8) inside containers. Tight gaps (gap-2, gap-4) between data points.",
+    "grid_system": "Bento Grid (Dashboard). Mobile-first single column that expands to 3-column on desktop.",
+    "container_style": "Grid Borders. Avoid shadows. Use 1px borders with zinc-800 color to define areas.",
+    "mobile_navigation": "Fixed bottom navigation bar with 4-5 key icons (Home, Log, Groups, Leaderboard, Profile).",
+    "border_radius": "rounded-md (6px) or rounded-sm (4px). Avoid fully rounded 'pill' shapes unless it's a status badge."
+  },
+  "components": {
+    "buttons": {
+      "style": "Sharp or slightly rounded (rounded-md). High contrast.",
+      "primary": "bg-primary text-primary-foreground hover:bg-primary/90 font-bold uppercase tracking-wide",
+      "secondary": "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+      "ghost": "hover:bg-accent hover:text-accent-foreground"
+    },
+    "cards": {
+      "style": "Flat, dark background (zinc-900/50), 1px border (zinc-800). No shadow.",
+      "hover": "border-zinc-600 transition-colors duration-200"
+    },
+    "inputs": {
+      "style": "bg-zinc-950 border-zinc-800 focus:ring-2 focus:ring-primary focus:border-transparent font-mono"
+    },
+    "charts": {
+      "library": "Recharts (via Shadcn)",
+      "style": "Minimalist. Hide grid lines if possible. Use tooltips for data. Colors must match semantic palette."
+    },
+    "visual_enhancers": {
+      "tracing_beam": "Use for 'Streak' visualization or active timer progress.",
+      "scanlines": "Optional subtle overlay for 'hacker/builder' vibe in specific sections.",
+      "glassmorphism": "Use ONLY for the bottom navigation bar (backdrop-blur-lg bg-black/80 border-t border-white/10)."
+    }
+  },
+  "motion": {
+    "transitions": "transition-all duration-200 ease-out",
+    "micro_interactions": "Scale down (0.98) on button press. Brighten border on input focus.",
+    "page_transitions": "Subtle fade-in (opacity-0 to opacity-100) + slight slide-up (translate-y-4 to translate-y-0).",
+    "numbers": "Animated counters for stats (0 to 100%)."
+  },
+  "media": {
+    "image_style": "High contrast, desaturated or duotone (Black & Primary Color). Dark overlay (bg-black/60) to ensure text readability.",
+    "image_urls": {
+      "fitness_bg": "https://images.unsplash.com/photo-1700784795176-7ff886439d79?q=80&w=1000&auto=format&fit=crop",
+      "study_bg": "https://images.pexels.com/photos/4384147/pexels-photo-4384147.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+      "skill_bg": "https://images.unsplash.com/photo-1632893037506-aac33bf18107?q=80&w=1000&auto=format&fit=crop",
+      "default_avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
+    }
+  },
+  "accessibility": {
+    "contrast": "Ensure text is WCAG AA compliant. Use zinc-400 for secondary text, white for primary.",
+    "focus_states": "Visible ring-2 ring-primary on all interactive elements.",
+    "touch_targets": "Minimum 44px height for all mobile buttons."
+  },
+  "tech_stack_specifics": {
+    "framework": "React (Create React App structure)",
+    "language": "JavaScript (.js, .jsx)",
+    "styling": "Tailwind CSS + Shadcn UI (Radix Primitives)",
+    "icons": "Lucide React (default) or Phosphor Icons (recommended for 'bold' weight)",
+    "state_management": "React Context or Zustand (if needed)",
+    "routing": "React Router DOM"
+  },
+  "instructions_to_main_agent": {
+    "1": "Implement the 'Dark Mode' class in tailwind.config.js and ensure 'dark' class is applied to the root HTML element by default.",
+    "2": "Install the Google Fonts (Barlow Condensed, Manrope, JetBrains Mono) in public/index.html.",
+    "3": "Create a 'Layout' component that handles the mobile bottom navigation and top header.",
+    "4": "Use the 'Bento Grid' pattern for the main dashboard. It should look like a tactical HUD.",
+    "5": "For the 'Performance Index', use a circular progress indicator or a radar chart.",
+    "6": "Ensure all forms (Login, Logging) are validated and have clear error states.",
+    "7": "Mock the backend calls if the API is not ready, but structure the data to match the expected MongoDB schema.",
+    "8": "CRITICAL: Use .js/.jsx extensions. Do not use TypeScript syntax.",
+    "9": "Add 'data-testid' to all interactive elements."
+  },
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients.",
+    "Don't make generic centered layouts. Use grids and asymmetry.",
+    "Create depth through layered design elements with z-index hierarchy.",
+    "Use glass-morphism effects with backdrop filters (12-24px blur) for overlays.",
+    "You MUST NOT apply universal transition. Eg: transition: all.",
+    "You MUST NOT center align the app container.",
+    "Always use modern button styles like pill-shaped, or sharp button with interaction animations.",
+    "NEVER use AI assistant Emoji characters for icons.",
+    "Every interaction needs micro-animations.",
+    "Use 2-3x more spacing than feels comfortable.",
+    "Subtle grain textures and noise overlays separate good from extraordinary.",
+    "Prioritize using pre-existing components from src/components/ui when applicable.",
+    "Components MUST use named exports.",
+    "Use 'sonner' for toasts."
+  ]
+}
