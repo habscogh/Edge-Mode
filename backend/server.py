@@ -689,6 +689,147 @@ async def toggle_subscription(current_user: dict = Depends(get_current_user)):
     )
     return {'subscription_active': new_status}
 
+# Stripe Payment Integration
+STRIPE_API_KEY = os.environ.get('STRIPE_API_KEY')
+SUBSCRIPTION_PRICE = 5.99  # $5.99/month
+
+class CreateCheckoutRequest(BaseModel):
+    origin_url: str
+
+@api_router.post("/payments/create-checkout")
+async def create_checkout(request: CreateCheckoutRequest, current_user: dict = Depends(get_current_user)):
+    try:
+        # Initialize Stripe
+        host_url = request.origin_url
+        webhook_url = f"{host_url}/api/webhook/stripe"
+        stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
+        
+        # Create success and cancel URLs
+        success_url = f"{host_url}/subscription-success?session_id={{CHECKOUT_SESSION_ID}}"
+        cancel_url = f"{host_url}/profile"
+        
+        # Create checkout session
+        checkout_request = CheckoutSessionRequest(
+            amount=SUBSCRIPTION_PRICE,
+            currency="usd",
+            success_url=success_url,
+            cancel_url=cancel_url,
+            metadata={
+                "user_id": current_user['id'],
+                "email": current_user['email'],
+                "username": current_user['username']
+            }
+        )
+        
+        session = await stripe_checkout.create_checkout_session(checkout_request)
+        
+        # Create payment transaction record
+        transaction_doc = {
+            'id': str(uuid.uuid4()),
+            'session_id': session.session_id,
+            'user_id': current_user['id'],
+            'amount': SUBSCRIPTION_PRICE,
+            'currency': 'usd',
+            'payment_status': 'pending',
+            'status': 'initiated',
+            'created_at': datetime.now(timezone.utc).isoformat(),
+            'metadata': {
+                "user_id": current_user['id'],
+                "email": current_user['email']
+            }
+        }
+        await db.payment_transactions.insert_one(transaction_doc)
+        
+        return {'url': session.url, 'session_id': session.session_id}
+    
+    except Exception as e:
+        logger.error(f"Failed to create checkout: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/payments/status/{session_id}")
+async def get_payment_status(session_id: str, current_user: dict = Depends(get_current_user)):
+    try:
+        # Check if we already processed this payment
+        existing_transaction = await db.payment_transactions.find_one({
+            'session_id': session_id,
+            'payment_status': 'paid'
+        }, {'_id': 0})
+        
+        if existing_transaction:
+            return {
+                'status': 'complete',
+                'payment_status': 'paid',
+                'already_processed': True
+            }
+        
+        # Get status from Stripe
+        stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY)
+        checkout_status = await stripe_checkout.get_checkout_status(session_id)
+        
+        # Update transaction record
+        await db.payment_transactions.update_one(
+            {'session_id': session_id},
+            {'$set': {
+                'status': checkout_status.status,
+                'payment_status': checkout_status.payment_status,
+                'updated_at': datetime.now(timezone.utc).isoformat()
+            }}
+        )
+        
+        # If payment successful, activate subscription
+        if checkout_status.payment_status == 'paid':
+            transaction = await db.payment_transactions.find_one({'session_id': session_id}, {'_id': 0})
+            if transaction and transaction.get('payment_status') != 'paid':
+                user_id = transaction.get('metadata', {}).get('user_id')
+                if user_id:
+                    await db.users.update_one(
+                        {'id': user_id},
+                        {'$set': {'subscription_active': True}}
+                    )
+        
+        return {
+            'status': checkout_status.status,
+            'payment_status': checkout_status.payment_status
+        }
+    
+    except Exception as e:
+        logger.error(f"Failed to get payment status: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/webhook/stripe")
+async def stripe_webhook(request: Request):
+    try:
+        body = await request.body()
+        signature = request.headers.get("Stripe-Signature")
+        
+        stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY)
+        webhook_response = await stripe_checkout.handle_webhook(body, signature)
+        
+        # Update transaction record
+        await db.payment_transactions.update_one(
+            {'session_id': webhook_response.session_id},
+            {'$set': {
+                'payment_status': webhook_response.payment_status,
+                'event_type': webhook_response.event_type,
+                'updated_at': datetime.now(timezone.utc).isoformat()
+            }}
+        )
+        
+        # If payment successful, activate subscription
+        if webhook_response.payment_status == 'paid':
+            user_id = webhook_response.metadata.get('user_id')
+            if user_id:
+                await db.users.update_one(
+                    {'id': user_id},
+                    {'$set': {'subscription_active': True}}
+                )
+        
+        return {'status': 'success'}
+    
+    except Exception as e:
+        logger.error(f"Webhook error: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+
 app.include_router(api_router)
 
 app.add_middleware(
