@@ -131,6 +131,14 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/review"
+          element={
+            <ProtectedRoute>
+              <WeeklyReviewScreen />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
       {showBottomNav && <BottomNav />}
       <Toaster />
