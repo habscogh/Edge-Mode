@@ -70,6 +70,14 @@ export const OnboardingScreen = () => {
 
   const handleNext = () => {
     if (step === 1 && selectedPillars.length >= 3 && selectedPillars.length <= 5) {
+      // Initialize targets with empty values for newly selected pillars
+      const newTargets = { ...targets };
+      selectedPillars.forEach(pillar => {
+        if (!newTargets[pillar]) {
+          newTargets[pillar] = '';
+        }
+      });
+      setTargets(newTargets);
       setStep(2);
     }
   };
