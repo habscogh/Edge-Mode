@@ -56,11 +56,35 @@ export const GroupsScreen = () => {
         type: 'private'
       });
       setNewGroupName('');
-      setIsDialogOpen(false);
+      setIsCreateDialogOpen(false);
       fetchGroups();
+      toast.success('Group created successfully!');
     } catch (error) {
       console.error('Failed to create group:', error);
+      toast.error('Failed to create group');
     }
+  };
+
+  const handleJoinGroup = async () => {
+    if (!inviteCode) return;
+
+    try {
+      await axios.post(`${API}/groups/join`, {
+        invite_code: inviteCode.toUpperCase()
+      });
+      setInviteCode('');
+      setIsJoinDialogOpen(false);
+      fetchGroups();
+      toast.success('Joined group successfully!');
+    } catch (error) {
+      console.error('Failed to join group:', error);
+      toast.error('Invalid invite code');
+    }
+  };
+
+  const copyInviteCode = (code) => {
+    navigator.clipboard.writeText(code);
+    toast.success('Invite code copied!');
   };
 
   const handleGroupSelect = (group) => {
