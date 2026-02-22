@@ -66,13 +66,19 @@ export const OnboardingScreen = () => {
         weekly_target_sessions: targets[pillar] || 5
       }));
 
-      await axios.post(`${API}/onboarding/complete`, { pillars });
+      console.log('Sending pillars:', pillars);
+      
+      const response = await axios.post(`${API}/onboarding/complete`, { pillars });
+      console.log('Onboarding response:', response.data);
+      
       setStep(3);
       setTimeout(() => {
         navigate('/dashboard');
       }, 2000);
     } catch (error) {
       console.error('Onboarding failed:', error);
+      console.error('Error details:', error.response?.data);
+      alert('Failed to complete onboarding: ' + (error.response?.data?.detail || 'Please try again'));
       setLoading(false);
     }
   };
