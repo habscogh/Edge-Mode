@@ -142,7 +142,7 @@ export const LeaderboardScreen = () => {
 
         <div className="bg-zinc-950 border border-zinc-800 rounded-md mb-4">
           <div className="p-4 border-b border-zinc-800">
-            <p className="text-zinc-400 text-sm font-body">Top 100 - This week's rankings (resets weekly)</p>
+            <p className="text-zinc-400 text-sm font-body">Top 100 - Ranked by improvement % (resets weekly)</p>
           </div>
 
           <div className="divide-y divide-zinc-800">
@@ -173,8 +173,8 @@ export const LeaderboardScreen = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-primary font-mono font-bold text-lg">{entry.performance_index}%</div>
-                      <div className="text-zinc-500 text-xs font-body">{entry.consistency_pct}% consistent</div>
+                      <div className="text-primary font-mono font-bold text-lg">+{entry.improvement_pct}%</div>
+                      <div className="text-zinc-500 text-xs font-body">{entry.performance_index}% score</div>
                     </div>
                   </div>
                 </div>
