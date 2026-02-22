@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Users, Plus, TrendingUp } from 'lucide-react';
+import { Users, Plus, TrendingUp, Share2, UserPlus } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
+import { toast } from 'sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -13,7 +14,9 @@ export const GroupsScreen = () => {
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
   const [newGroupName, setNewGroupName] = useState('');
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [inviteCode, setInviteCode] = useState('');
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isJoinDialogOpen, setIsJoinDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
