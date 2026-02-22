@@ -12,7 +12,8 @@ import uuid
 from datetime import datetime, timezone, timedelta
 import bcrypt
 import jwt
-from dateutil import parser as date_parser
+import secrets
+import string
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -73,17 +74,18 @@ class User(BaseModel):
     subscription_active: bool = False
     last_log_date: Optional[str] = None
     leaderboard_opt_in: bool = False
+    total_sessions_completed: int = 0
 
 class UserPillar(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str
     user_id: str
     pillar_name: str
-    weekly_target_minutes: int
+    weekly_target_sessions: int
 
 class PillarSetup(BaseModel):
     pillar_name: str
-    weekly_target_minutes: int
+    weekly_target_sessions: int
 
 class OnboardingComplete(BaseModel):
     pillars: List[PillarSetup]
@@ -97,25 +99,48 @@ class OnboardingComplete(BaseModel):
                 raise ValueError(f'Invalid pillar: {pillar.pillar_name}')
         return v
 
-class DailyLog(BaseModel):
+class DailySession(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str
     user_id: str
     pillar: str
     date: str
-    minutes_logged: int
+    timestamp: str
+    minutes_spent: int = 0
 
-class LogEntry(BaseModel):
+class SessionComplete(BaseModel):
     pillar: str
-    minutes_logged: int
+    minutes_spent: Optional[int] = 30
 
 class WeeklyStats(BaseModel):
     consistency_pct: float
     target_completion_pct: float
     performance_index: float
+    total_sessions: int
     total_minutes: int
     days_logged: int
     pillars_data: List[dict]
+
+class DailyComparison(BaseModel):
+    today_sessions: int
+    yesterday_sessions: int
+    today_minutes: int
+    yesterday_minutes: int
+    improvement_pct: float
+
+class PerformanceHistory(BaseModel):
+    dates: List[str]
+    scores: List[float]
+
+class WeeklyReview(BaseModel):
+    week_start: str
+    week_end: str
+    improved_pillars: List[dict]
+    dropped_pillars: List[dict]
+    average_daily_output_change: float
+    total_sessions: int
+    consistency_pct: float
+    performance_index: float
 
 class Group(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -125,16 +150,21 @@ class Group(BaseModel):
     created_by: str
     members: List[str]
     created_at: str
+    invite_code: str
 
 class GroupCreate(BaseModel):
     name: str
     type: str = "private"
+
+class GroupJoin(BaseModel):
+    invite_code: str
 
 class LeaderboardEntry(BaseModel):
     username: str
     consistency_pct: float
     performance_index: float
     age_group: str
+    improvement_pct: float
 
 # Auth helpers
 def hash_password(password: str) -> str:
@@ -149,6 +179,9 @@ def create_token(user_id: str) -> str:
         'exp': datetime.now(timezone.utc) + timedelta(days=30)
     }
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+def generate_invite_code() -> str:
+    return ''.join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(8))
 
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
     try:
@@ -171,7 +204,6 @@ async def update_streak(user_id: str, log_date: str):
         return
     
     log_dt = datetime.fromisoformat(log_date).replace(tzinfo=timezone.utc)
-    today = datetime.now(timezone.utc).date()
     
     if user.get('last_log_date'):
         last_log_dt = datetime.fromisoformat(user['last_log_date']).replace(tzinfo=timezone.utc)
@@ -187,13 +219,15 @@ async def update_streak(user_id: str, log_date: str):
         current_streak = 1
     
     longest_streak = max(current_streak, user.get('longest_streak', 0))
+    total_sessions = user.get('total_sessions_completed', 0) + 1
     
     await db.users.update_one(
         {'id': user_id},
         {'$set': {
             'current_streak': current_streak,
             'longest_streak': longest_streak,
-            'last_log_date': log_date
+            'last_log_date': log_date,
+            'total_sessions_completed': total_sessions
         }}
     )
 
@@ -216,7 +250,8 @@ async def register(user_data: UserRegister):
         'longest_streak': 0,
         'subscription_active': False,
         'last_log_date': None,
-        'leaderboard_opt_in': False
+        'leaderboard_opt_in': False,
+        'total_sessions_completed': 0
     }
     
     await db.users.insert_one(user_doc)
@@ -254,7 +289,7 @@ async def complete_onboarding(data: OnboardingComplete, current_user: dict = Dep
             'id': str(uuid.uuid4()),
             'user_id': user_id,
             'pillar_name': pillar_setup.pillar_name,
-            'weekly_target_minutes': pillar_setup.weekly_target_minutes
+            'weekly_target_sessions': pillar_setup.weekly_target_sessions
         }
         await db.user_pillars.insert_one(pillar_doc)
     
@@ -265,52 +300,40 @@ async def get_user_pillars(current_user: dict = Depends(get_current_user)):
     pillars = await db.user_pillars.find({'user_id': current_user['id']}, {'_id': 0}).to_list(100)
     return [UserPillar(**p) for p in pillars]
 
-@api_router.post("/logs", response_model=DailyLog)
-async def create_log(log_data: LogEntry, current_user: dict = Depends(get_current_user)):
+@api_router.post("/sessions/complete", response_model=DailySession)
+async def complete_session(session_data: SessionComplete, current_user: dict = Depends(get_current_user)):
     user_id = current_user['id']
-    today = datetime.now(timezone.utc).date().isoformat()
+    now = datetime.now(timezone.utc)
+    today = now.date().isoformat()
     
     user_pillars = await db.user_pillars.find({'user_id': user_id}, {'_id': 0}).to_list(100)
     pillar_names = [p['pillar_name'] for p in user_pillars]
     
-    if log_data.pillar not in pillar_names:
+    if session_data.pillar not in pillar_names:
         raise HTTPException(status_code=400, detail='Invalid pillar for this user')
     
-    existing_log = await db.daily_logs.find_one({
+    session_doc = {
+        'id': str(uuid.uuid4()),
         'user_id': user_id,
-        'pillar': log_data.pillar,
-        'date': today
-    }, {'_id': 0})
+        'pillar': session_data.pillar,
+        'date': today,
+        'timestamp': now.isoformat(),
+        'minutes_spent': session_data.minutes_spent or 30
+    }
+    await db.daily_sessions.insert_one(session_doc)
     
-    if existing_log:
-        new_minutes = existing_log['minutes_logged'] + log_data.minutes_logged
-        await db.daily_logs.update_one(
-            {'id': existing_log['id']},
-            {'$set': {'minutes_logged': new_minutes}}
-        )
-        log_doc = {**existing_log, 'minutes_logged': new_minutes}
-    else:
-        log_doc = {
-            'id': str(uuid.uuid4()),
-            'user_id': user_id,
-            'pillar': log_data.pillar,
-            'date': today,
-            'minutes_logged': log_data.minutes_logged
-        }
-        await db.daily_logs.insert_one(log_doc)
+    await update_streak(user_id, now.isoformat())
     
-    await update_streak(user_id, datetime.now(timezone.utc).isoformat())
-    
-    return DailyLog(**log_doc)
+    return DailySession(**session_doc)
 
-@api_router.get("/logs/today")
-async def get_today_logs(current_user: dict = Depends(get_current_user)):
+@api_router.get("/sessions/today")
+async def get_today_sessions(current_user: dict = Depends(get_current_user)):
     today = datetime.now(timezone.utc).date().isoformat()
-    logs = await db.daily_logs.find({
+    sessions = await db.daily_sessions.find({
         'user_id': current_user['id'],
         'date': today
     }, {'_id': 0}).to_list(100)
-    return logs
+    return sessions
 
 @api_router.get("/stats/weekly", response_model=WeeklyStats)
 async def get_weekly_stats(current_user: dict = Depends(get_current_user)):
@@ -318,41 +341,179 @@ async def get_weekly_stats(current_user: dict = Depends(get_current_user)):
     today = datetime.now(timezone.utc).date()
     week_start = today - timedelta(days=today.weekday())
     
-    logs = await db.daily_logs.find({
+    sessions = await db.daily_sessions.find({
         'user_id': user_id,
         'date': {'$gte': week_start.isoformat()}
     }, {'_id': 0}).to_list(1000)
     
     user_pillars = await db.user_pillars.find({'user_id': user_id}, {'_id': 0}).to_list(100)
     
-    unique_days = set(log['date'] for log in logs)
+    unique_days = set(s['date'] for s in sessions)
     days_logged = len(unique_days)
     consistency_pct = (days_logged / 7) * 100
     
-    total_minutes = sum(log['minutes_logged'] for log in logs)
-    total_target = sum(p['weekly_target_minutes'] for p in user_pillars)
-    target_completion_pct = min((total_minutes / total_target * 100) if total_target > 0 else 0, 100)
+    total_sessions = len(sessions)
+    total_minutes = sum(s.get('minutes_spent', 30) for s in sessions)
+    total_target = sum(p['weekly_target_sessions'] for p in user_pillars)
+    target_completion_pct = min((total_sessions / total_target * 100) if total_target > 0 else 0, 100)
     
     performance_index = min((consistency_pct * 0.7) + (target_completion_pct * 0.3), 100)
     
     pillars_data = []
     for pillar in user_pillars:
-        pillar_logs = [l for l in logs if l['pillar'] == pillar['pillar_name']]
-        pillar_minutes = sum(l['minutes_logged'] for l in pillar_logs)
+        pillar_sessions = [s for s in sessions if s['pillar'] == pillar['pillar_name']]
+        pillar_count = len(pillar_sessions)
         pillars_data.append({
             'pillar_name': pillar['pillar_name'],
-            'minutes_logged': pillar_minutes,
-            'target_minutes': pillar['weekly_target_minutes'],
-            'completion_pct': min((pillar_minutes / pillar['weekly_target_minutes'] * 100) if pillar['weekly_target_minutes'] > 0 else 0, 100)
+            'sessions_completed': pillar_count,
+            'target_sessions': pillar['weekly_target_sessions'],
+            'completion_pct': min((pillar_count / pillar['weekly_target_sessions'] * 100) if pillar['weekly_target_sessions'] > 0 else 0, 100)
         })
     
     return WeeklyStats(
         consistency_pct=round(consistency_pct, 1),
         target_completion_pct=round(target_completion_pct, 1),
         performance_index=round(performance_index, 1),
+        total_sessions=total_sessions,
         total_minutes=total_minutes,
         days_logged=days_logged,
         pillars_data=pillars_data
+    )
+
+@api_router.get("/stats/comparison", response_model=DailyComparison)
+async def get_daily_comparison(current_user: dict = Depends(get_current_user)):
+    user_id = current_user['id']
+    today = datetime.now(timezone.utc).date()
+    yesterday = today - timedelta(days=1)
+    
+    today_sessions = await db.daily_sessions.find({
+        'user_id': user_id,
+        'date': today.isoformat()
+    }, {'_id': 0}).to_list(100)
+    
+    yesterday_sessions = await db.daily_sessions.find({
+        'user_id': user_id,
+        'date': yesterday.isoformat()
+    }, {'_id': 0}).to_list(100)
+    
+    today_count = len(today_sessions)
+    yesterday_count = len(yesterday_sessions)
+    today_minutes = sum(s.get('minutes_spent', 30) for s in today_sessions)
+    yesterday_minutes = sum(s.get('minutes_spent', 30) for s in yesterday_sessions)
+    
+    improvement_pct = 0
+    if yesterday_count > 0:
+        improvement_pct = ((today_count - yesterday_count) / yesterday_count) * 100
+    elif today_count > 0:
+        improvement_pct = 100
+    
+    return DailyComparison(
+        today_sessions=today_count,
+        yesterday_sessions=yesterday_count,
+        today_minutes=today_minutes,
+        yesterday_minutes=yesterday_minutes,
+        improvement_pct=round(improvement_pct, 1)
+    )
+
+@api_router.get("/stats/history", response_model=PerformanceHistory)
+async def get_performance_history(current_user: dict = Depends(get_current_user), days: int = 30):
+    user_id = current_user['id']
+    end_date = datetime.now(timezone.utc).date()
+    start_date = end_date - timedelta(days=days-1)
+    
+    user_pillars = await db.user_pillars.find({'user_id': user_id}, {'_id': 0}).to_list(100)
+    total_target = sum(p['weekly_target_sessions'] for p in user_pillars)
+    
+    dates = []
+    scores = []
+    
+    for i in range(days):
+        date = start_date + timedelta(days=i)
+        week_start = date - timedelta(days=date.weekday())
+        week_end = week_start + timedelta(days=6)
+        
+        sessions = await db.daily_sessions.find({
+            'user_id': user_id,
+            'date': {'$gte': week_start.isoformat(), '$lte': week_end.isoformat()}
+        }, {'_id': 0}).to_list(1000)
+        
+        unique_days = set(s['date'] for s in sessions)
+        days_logged = len(unique_days)
+        consistency_pct = (days_logged / 7) * 100
+        
+        total_sessions = len(sessions)
+        target_completion_pct = min((total_sessions / total_target * 100) if total_target > 0 else 0, 100)
+        
+        performance_index = min((consistency_pct * 0.7) + (target_completion_pct * 0.3), 100)
+        
+        dates.append(date.isoformat())
+        scores.append(round(performance_index, 1))
+    
+    return PerformanceHistory(dates=dates, scores=scores)
+
+@api_router.get("/stats/weekly-review", response_model=WeeklyReview)
+async def get_weekly_review(current_user: dict = Depends(get_current_user)):
+    user_id = current_user['id']
+    today = datetime.now(timezone.utc).date()
+    current_week_start = today - timedelta(days=today.weekday())
+    last_week_start = current_week_start - timedelta(days=7)
+    last_week_end = current_week_start - timedelta(days=1)
+    
+    current_sessions = await db.daily_sessions.find({
+        'user_id': user_id,
+        'date': {'$gte': current_week_start.isoformat()}
+    }, {'_id': 0}).to_list(1000)
+    
+    last_sessions = await db.daily_sessions.find({
+        'user_id': user_id,
+        'date': {'$gte': last_week_start.isoformat(), '$lte': last_week_end.isoformat()}
+    }, {'_id': 0}).to_list(1000)
+    
+    user_pillars = await db.user_pillars.find({'user_id': user_id}, {'_id': 0}).to_list(100)
+    
+    improved_pillars = []
+    dropped_pillars = []
+    
+    for pillar in user_pillars:
+        current_count = len([s for s in current_sessions if s['pillar'] == pillar['pillar_name']])
+        last_count = len([s for s in last_sessions if s['pillar'] == pillar['pillar_name']])
+        change = current_count - last_count
+        
+        if change > 0:
+            improved_pillars.append({
+                'pillar_name': pillar['pillar_name'],
+                'change': change,
+                'current_sessions': current_count
+            })
+        elif change < 0:
+            dropped_pillars.append({
+                'pillar_name': pillar['pillar_name'],
+                'change': abs(change),
+                'current_sessions': current_count
+            })
+    
+    current_daily_avg = len(current_sessions) / max(len(set(s['date'] for s in current_sessions)), 1)
+    last_daily_avg = len(last_sessions) / max(len(set(s['date'] for s in last_sessions)), 1)
+    avg_change = 0
+    if last_daily_avg > 0:
+        avg_change = ((current_daily_avg - last_daily_avg) / last_daily_avg) * 100
+    
+    unique_days = set(s['date'] for s in current_sessions)
+    consistency_pct = (len(unique_days) / 7) * 100
+    
+    total_target = sum(p['weekly_target_sessions'] for p in user_pillars)
+    target_completion = min((len(current_sessions) / total_target * 100) if total_target > 0 else 0, 100)
+    performance_index = min((consistency_pct * 0.7) + (target_completion * 0.3), 100)
+    
+    return WeeklyReview(
+        week_start=current_week_start.isoformat(),
+        week_end=today.isoformat(),
+        improved_pillars=improved_pillars,
+        dropped_pillars=dropped_pillars,
+        average_daily_output_change=round(avg_change, 1),
+        total_sessions=len(current_sessions),
+        consistency_pct=round(consistency_pct, 1),
+        performance_index=round(performance_index, 1)
     )
 
 @api_router.get("/groups", response_model=List[Group])
@@ -371,10 +532,28 @@ async def create_group(group_data: GroupCreate, current_user: dict = Depends(get
         'type': group_data.type,
         'created_by': current_user['id'],
         'members': [current_user['id']],
-        'created_at': datetime.now(timezone.utc).isoformat()
+        'created_at': datetime.now(timezone.utc).isoformat(),
+        'invite_code': generate_invite_code()
     }
     await db.groups.insert_one(group_doc)
     return Group(**group_doc)
+
+@api_router.post("/groups/join")
+async def join_group(join_data: GroupJoin, current_user: dict = Depends(get_current_user)):
+    group = await db.groups.find_one({'invite_code': join_data.invite_code}, {'_id': 0})
+    if not group:
+        raise HTTPException(status_code=404, detail='Invalid invite code')
+    
+    if current_user['id'] in group['members']:
+        return {'message': 'Already a member', 'group': group}
+    
+    await db.groups.update_one(
+        {'id': group['id']},
+        {'$push': {'members': current_user['id']}}
+    )
+    
+    group['members'].append(current_user['id'])
+    return {'message': 'Joined successfully', 'group': group}
 
 @api_router.get("/groups/{group_id}/leaderboard")
 async def get_group_leaderboard(group_id: str, current_user: dict = Depends(get_current_user)):
@@ -383,28 +562,28 @@ async def get_group_leaderboard(group_id: str, current_user: dict = Depends(get_
         raise HTTPException(status_code=404, detail='Group not found')
     
     leaderboard = []
+    today = datetime.now(timezone.utc).date()
+    week_start = today - timedelta(days=today.weekday())
+    
     for member_id in group['members']:
         user = await db.users.find_one({'id': member_id}, {'_id': 0, 'password': 0})
         if not user:
             continue
         
-        today = datetime.now(timezone.utc).date()
-        week_start = today - timedelta(days=today.weekday())
-        
-        logs = await db.daily_logs.find({
+        sessions = await db.daily_sessions.find({
             'user_id': member_id,
             'date': {'$gte': week_start.isoformat()}
         }, {'_id': 0}).to_list(1000)
         
         user_pillars = await db.user_pillars.find({'user_id': member_id}, {'_id': 0}).to_list(100)
         
-        unique_days = set(log['date'] for log in logs)
+        unique_days = set(s['date'] for s in sessions)
         days_logged = len(unique_days)
         consistency_pct = (days_logged / 7) * 100
         
-        total_minutes = sum(log['minutes_logged'] for log in logs)
-        total_target = sum(p['weekly_target_minutes'] for p in user_pillars)
-        target_completion_pct = min((total_minutes / total_target * 100) if total_target > 0 else 0, 100)
+        total_sessions = len(sessions)
+        total_target = sum(p['weekly_target_sessions'] for p in user_pillars)
+        target_completion_pct = min((total_sessions / total_target * 100) if total_target > 0 else 0, 100)
         
         performance_index = min((consistency_pct * 0.7) + (target_completion_pct * 0.3), 100)
         
@@ -412,14 +591,15 @@ async def get_group_leaderboard(group_id: str, current_user: dict = Depends(get_
             'username': user['username'],
             'consistency_pct': round(consistency_pct, 1),
             'performance_index': round(performance_index, 1),
-            'current_streak': user.get('current_streak', 0)
+            'current_streak': user.get('current_streak', 0),
+            'total_sessions': total_sessions
         })
     
     leaderboard.sort(key=lambda x: x['performance_index'], reverse=True)
     return leaderboard
 
 @api_router.get("/leaderboard/global")
-async def get_global_leaderboard(age_group: Optional[str] = None, category: Optional[str] = None):
+async def get_global_leaderboard(age_group: Optional[str] = None):
     query = {'leaderboard_opt_in': True}
     
     if age_group:
@@ -437,24 +617,37 @@ async def get_global_leaderboard(age_group: Optional[str] = None, category: Opti
     leaderboard = []
     today = datetime.now(timezone.utc).date()
     week_start = today - timedelta(days=today.weekday())
+    last_week_start = week_start - timedelta(days=7)
+    last_week_end = week_start - timedelta(days=1)
     
     for user in users:
-        logs = await db.daily_logs.find({
+        current_sessions = await db.daily_sessions.find({
             'user_id': user['id'],
             'date': {'$gte': week_start.isoformat()}
         }, {'_id': 0}).to_list(1000)
         
+        last_sessions = await db.daily_sessions.find({
+            'user_id': user['id'],
+            'date': {'$gte': last_week_start.isoformat(), '$lte': last_week_end.isoformat()}
+        }, {'_id': 0}).to_list(1000)
+        
         user_pillars = await db.user_pillars.find({'user_id': user['id']}, {'_id': 0}).to_list(100)
         
-        unique_days = set(log['date'] for log in logs)
+        unique_days = set(s['date'] for s in current_sessions)
         days_logged = len(unique_days)
         consistency_pct = (days_logged / 7) * 100
         
-        total_minutes = sum(log['minutes_logged'] for log in logs)
-        total_target = sum(p['weekly_target_minutes'] for p in user_pillars)
-        target_completion_pct = min((total_minutes / total_target * 100) if total_target > 0 else 0, 100)
+        total_sessions = len(current_sessions)
+        total_target = sum(p['weekly_target_sessions'] for p in user_pillars)
+        target_completion = min((total_sessions / total_target * 100) if total_target > 0 else 0, 100)
+        performance_index = min((consistency_pct * 0.7) + (target_completion * 0.3), 100)
         
-        performance_index = min((consistency_pct * 0.7) + (target_completion_pct * 0.3), 100)
+        last_total = len(last_sessions)
+        improvement_pct = 0
+        if last_total > 0:
+            improvement_pct = ((total_sessions - last_total) / last_total) * 100
+        elif total_sessions > 0:
+            improvement_pct = 100
         
         age = user['age']
         if age <= 14:
@@ -468,10 +661,11 @@ async def get_global_leaderboard(age_group: Optional[str] = None, category: Opti
             'username': user['username'],
             'consistency_pct': round(consistency_pct, 1),
             'performance_index': round(performance_index, 1),
-            'age_group': user_age_group
+            'age_group': user_age_group,
+            'improvement_pct': round(improvement_pct, 1)
         })
     
-    leaderboard.sort(key=lambda x: x['performance_index'], reverse=True)
+    leaderboard.sort(key=lambda x: x['improvement_pct'], reverse=True)
     return leaderboard[:100]
 
 @api_router.post("/users/leaderboard-opt-in")
