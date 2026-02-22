@@ -49,7 +49,9 @@ export const OnboardingScreen = () => {
   };
 
   const isStep2Valid = () => {
-    return selectedPillars.every(p => targets[p] && targets[p] > 0);
+    const valid = selectedPillars.every(p => targets[p] && targets[p] > 0);
+    console.log('Step 2 validation:', { selectedPillars, targets, valid });
+    return valid;
   };
 
   const handleNext = () => {
