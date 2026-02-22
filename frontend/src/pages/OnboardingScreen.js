@@ -193,7 +193,7 @@ export const OnboardingScreen = () => {
               <Button
                 data-testid="onboarding-complete-btn"
                 onClick={handleComplete}
-                disabled={loading || selectedPillars.some(p => !targets[p] || targets[p] <= 0)}
+                disabled={loading || !isStep2Valid()}
                 className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 font-heading uppercase tracking-wide font-bold"
               >
                 {loading ? 'Building...' : 'Complete'}
