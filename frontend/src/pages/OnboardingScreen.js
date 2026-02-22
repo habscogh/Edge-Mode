@@ -90,7 +90,9 @@ export const OnboardingScreen = () => {
   };
 
   const handleComplete = async () => {
+    console.log('=== STARTING ONBOARDING COMPLETE ===');
     setLoading(true);
+    
     try {
       const pillars = selectedPillars.map(pillar => ({
         pillar_name: pillar,
@@ -100,24 +102,33 @@ export const OnboardingScreen = () => {
       console.log('Sending pillars:', pillars);
       
       const response = await axios.post(`${API}/onboarding/complete`, { pillars });
-      console.log('Onboarding response:', response.data);
+      console.log('✓ Onboarding response:', response.data);
       
+      // Show success screen
       setStep(3);
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 2000);
+      
+      // Wait 2 seconds then navigate
+      console.log('Waiting 2 seconds before redirect...');
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      console.log('Navigating to dashboard...');
+      navigate('/dashboard', { replace: true });
+      
     } catch (error) {
-      console.error('Onboarding failed:', error);
+      console.error('✗ Onboarding failed:', error);
       console.error('Error details:', error.response?.data);
       
       // If onboarding already completed, just go to dashboard
-      if (error.response?.status === 400 && error.response?.data?.detail?.includes('already completed')) {
-        console.log('Onboarding already completed, redirecting to dashboard');
-        navigate('/dashboard');
-        return;
+      if (error.response?.status === 400) {
+        const errorMsg = JSON.stringify(error.response?.data);
+        if (errorMsg.includes('already completed')) {
+          console.log('Onboarding already completed, redirecting to dashboard');
+          navigate('/dashboard', { replace: true });
+          return;
+        }
       }
       
-      alert('Failed to complete onboarding: ' + (error.response?.data?.detail || 'Please try again'));
+      alert('Failed to complete onboarding. Please try again or contact support.');
       setLoading(false);
     }
   };
