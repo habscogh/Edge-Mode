@@ -68,6 +68,7 @@ const AppRoutes = () => {
     '/log',
     '/groups',
     '/leaderboard',
+    '/review',
     '/profile',
   ].includes(location.pathname);
 
