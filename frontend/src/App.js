@@ -68,7 +68,7 @@ const AppRoutes = () => {
     '/groups',
     '/leaderboard',
     '/profile',
-  ].includes(location);
+  ].includes(location.pathname);
 
   if (loading) {
     return (
