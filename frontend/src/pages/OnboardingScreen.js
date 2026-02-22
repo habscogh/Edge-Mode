@@ -80,6 +80,14 @@ export const OnboardingScreen = () => {
     } catch (error) {
       console.error('Onboarding failed:', error);
       console.error('Error details:', error.response?.data);
+      
+      // If onboarding already completed, just go to dashboard
+      if (error.response?.status === 400 && error.response?.data?.detail?.includes('already completed')) {
+        console.log('Onboarding already completed, redirecting to dashboard');
+        navigate('/dashboard');
+        return;
+      }
+      
       alert('Failed to complete onboarding: ' + (error.response?.data?.detail || 'Please try again'));
       setLoading(false);
     }
