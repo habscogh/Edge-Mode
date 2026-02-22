@@ -58,7 +58,7 @@ export const OnboardingScreen = () => {
     try {
       const pillars = selectedPillars.map(pillar => ({
         pillar_name: pillar,
-        weekly_target_minutes: targets[pillar] || 300
+        weekly_target_sessions: targets[pillar] || 5
       }));
 
       await axios.post(`${API}/onboarding/complete`, { pillars });
@@ -105,7 +105,7 @@ export const OnboardingScreen = () => {
         {step === 1 && (
           <div>
             <h2 className="text-2xl font-heading font-bold uppercase tracking-tight text-white mb-2">
-              SELECT YOUR PILLARS
+              WHAT DO YOU WANT TO IMPROVE?
             </h2>
             <p className="text-zinc-400 font-body mb-6">Choose 3-5 areas to focus on</p>
 
@@ -113,7 +113,7 @@ export const OnboardingScreen = () => {
               {availablePillars.map((pillar) => (
                 <div
                   key={pillar}
-                  data-testid={`pillar-${pillar.toLowerCase().replace(/\//g, '-')}`}
+                  data-testid={`pillar-${pillar.toLowerCase().replace(/\//g, '-').replace(/\s+/g, '-')}`}
                   onClick={() => togglePillar(pillar)}
                   className={`p-4 border rounded-md cursor-pointer transition-all duration-200 ${
                     selectedPillars.includes(pillar)
@@ -152,7 +152,7 @@ export const OnboardingScreen = () => {
             <h2 className="text-2xl font-heading font-bold uppercase tracking-tight text-white mb-2">
               SET WEEKLY TARGETS
             </h2>
-            <p className="text-zinc-400 font-body mb-6">How many minutes per week for each pillar?</p>
+            <p className="text-zinc-400 font-body mb-6">How many sessions per week for each area?</p>
 
             <div className="space-y-4 mb-6">
               {selectedPillars.map((pillar) => (
@@ -160,15 +160,18 @@ export const OnboardingScreen = () => {
                   <label className="block text-white font-body mb-2">{pillar}</label>
                   <div className="flex items-center gap-3">
                     <Input
-                      data-testid={`target-${pillar.toLowerCase().replace(/\//g, '-')}`}
+                      data-testid={`target-${pillar.toLowerCase().replace(/\//g, '-').replace(/\s+/g, '-')}`}
                       type="number"
-                      placeholder="300"
+                      placeholder="5"
                       value={targets[pillar] || ''}
                       onChange={(e) => handleTargetChange(pillar, e.target.value)}
                       className="bg-zinc-900 border-zinc-800 text-white font-mono focus:ring-2 focus:ring-primary"
                     />
-                    <span className="text-zinc-400 font-body whitespace-nowrap">min/week</span>
+                    <span className="text-zinc-400 font-body whitespace-nowrap">sessions/week</span>
                   </div>
+                  <p className="text-zinc-500 text-xs font-body mt-2">
+                    Example: 5 workouts, 6 study sessions, 3 skill practices
+                  </p>
                 </div>
               ))}
             </div>
