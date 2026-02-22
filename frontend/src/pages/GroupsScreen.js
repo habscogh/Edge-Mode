@@ -107,38 +107,74 @@ export const GroupsScreen = () => {
           <h1 className="text-3xl font-heading font-bold uppercase tracking-tight text-white">
             Groups
           </h1>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button
-                data-testid="create-group-btn"
-                className="bg-primary text-primary-foreground hover:bg-primary/90 font-heading uppercase"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Create
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="bg-zinc-950 border-zinc-800">
-              <DialogHeader>
-                <DialogTitle className="font-heading uppercase text-white">Create Group</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 mt-4">
-                <Input
-                  data-testid="group-name-input"
-                  placeholder="Group name"
-                  value={newGroupName}
-                  onChange={(e) => setNewGroupName(e.target.value)}
-                  className="bg-zinc-900 border-zinc-800 text-white font-body"
-                />
+          <div className="flex gap-2">
+            <Dialog open={isJoinDialogOpen} onOpenChange={setIsJoinDialogOpen}>
+              <DialogTrigger asChild>
                 <Button
-                  data-testid="create-group-submit-btn"
-                  onClick={handleCreateGroup}
-                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading uppercase"
+                  data-testid="join-group-btn"
+                  variant="ghost"
+                  className="bg-zinc-900 text-white hover:bg-zinc-800 font-heading uppercase"
                 >
-                  Create Group
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Join
                 </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+              </DialogTrigger>
+              <DialogContent className="bg-zinc-950 border-zinc-800">
+                <DialogHeader>
+                  <DialogTitle className="font-heading uppercase text-white">Join Group</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 mt-4">
+                  <Input
+                    data-testid="invite-code-input"
+                    placeholder="Enter invite code"
+                    value={inviteCode}
+                    onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+                    className="bg-zinc-900 border-zinc-800 text-white font-mono uppercase"
+                  />
+                  <Button
+                    data-testid="join-group-submit-btn"
+                    onClick={handleJoinGroup}
+                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading uppercase"
+                  >
+                    Join Group
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  data-testid="create-group-btn"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 font-heading uppercase"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-zinc-950 border-zinc-800">
+                <DialogHeader>
+                  <DialogTitle className="font-heading uppercase text-white">Create Group</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 mt-4">
+                  <Input
+                    data-testid="group-name-input"
+                    placeholder="Group name"
+                    value={newGroupName}
+                    onChange={(e) => setNewGroupName(e.target.value)}
+                    className="bg-zinc-900 border-zinc-800 text-white font-body"
+                  />
+                  <Button
+                    data-testid="create-group-submit-btn"
+                    onClick={handleCreateGroup}
+                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading uppercase"
+                  >
+                    Create Group
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
         {groups.length === 0 ? (
