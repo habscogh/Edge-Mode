@@ -202,6 +202,25 @@ export const GroupsScreen = () => {
               ))}
             </div>
 
+            {selectedGroup && (
+              <div className="bg-zinc-950 border border-zinc-800 rounded-md p-4 mb-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-zinc-400 text-xs font-body uppercase tracking-wide mb-1\">Invite Code</div>
+                    <div className="text-white font-mono text-xl font-bold\">{selectedGroup.invite_code}</div>
+                  </div>
+                  <Button
+                    data-testid="copy-invite-code-btn"
+                    onClick={() => copyInviteCode(selectedGroup.invite_code)}
+                    variant="ghost"
+                    className="text-primary hover:text-primary/80"
+                  >
+                    <Share2 className="w-5 h-5" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
             <div className="bg-zinc-950 border border-zinc-800 rounded-md">
               <div className="p-4 border-b border-zinc-800">
                 <h2 className="text-lg font-heading font-bold uppercase tracking-tight text-white">
