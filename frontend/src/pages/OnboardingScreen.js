@@ -58,8 +58,12 @@ export const OnboardingScreen = () => {
   };
 
   const handleTargetChange = (pillar, value) => {
-    const numValue = value === '' ? 0 : parseInt(value);
-    setTargets({ ...targets, [pillar]: numValue });
+    if (value === '') {
+      setTargets({ ...targets, [pillar]: '' });
+    } else {
+      const numValue = parseInt(value);
+      setTargets({ ...targets, [pillar]: isNaN(numValue) ? '' : numValue });
+    }
   };
 
   const isStep2Valid = () => {
