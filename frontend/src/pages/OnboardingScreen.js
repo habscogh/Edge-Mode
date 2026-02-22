@@ -95,6 +95,7 @@ export const OnboardingScreen = () => {
 
   const handleComplete = async () => {
     console.log('=== STARTING ONBOARDING COMPLETE ===');
+    setIsCompleting(true);
     setLoading(true);
     
     try {
@@ -134,6 +135,7 @@ export const OnboardingScreen = () => {
       
       alert('Failed to complete onboarding. Please try again or contact support.');
       setLoading(false);
+      setIsCompleting(false);
     }
   };
 
