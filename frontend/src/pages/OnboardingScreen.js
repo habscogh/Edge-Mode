@@ -15,11 +15,15 @@ export const OnboardingScreen = () => {
   const [selectedPillars, setSelectedPillars] = useState([]);
   const [targets, setTargets] = useState({});
   const [loading, setLoading] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Don't check for existing onboarding if we're in the middle of completing it
+    if (!isCompleting) {
+      checkExistingOnboarding();
+    }
     fetchPillars();
-    checkExistingOnboarding();
   }, []);
 
   const checkExistingOnboarding = async () => {
