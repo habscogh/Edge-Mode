@@ -200,7 +200,10 @@ export const OnboardingScreen = () => {
               </Button>
               <Button
                 data-testid="onboarding-complete-btn"
-                onClick={handleComplete}
+                onClick={() => {
+                  console.log('Complete button clicked!', { loading, valid: isStep2Valid() });
+                  handleComplete();
+                }}
                 disabled={loading || !isStep2Valid()}
                 className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 font-heading uppercase tracking-wide font-bold"
               >
