@@ -691,10 +691,14 @@ async def toggle_subscription(current_user: dict = Depends(get_current_user)):
 
 # Stripe Payment Integration
 STRIPE_API_KEY = os.environ.get('STRIPE_API_KEY')
-SUBSCRIPTION_PRICE = 5.99  # $5.99/month
+SUBSCRIPTION_PRICES = {
+    'monthly': 5.99,
+    'yearly': 59.99
+}
 
 class CreateCheckoutRequest(BaseModel):
     origin_url: str
+    plan: str = 'monthly'
 
 @api_router.post("/payments/create-checkout")
 async def create_checkout(request: CreateCheckoutRequest, current_user: dict = Depends(get_current_user)):
