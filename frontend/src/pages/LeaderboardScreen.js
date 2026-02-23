@@ -55,7 +55,7 @@ export const LeaderboardScreen = () => {
     fetchLeaderboard(filter);
   };
 
-  if (!optedIn) {
+  if (!optedIn && optedIn !== null) {
     return (
       <div className="min-h-screen bg-[#09090b] p-4 pb-24 flex items-center justify-center">
         <div className="text-center max-w-md">
