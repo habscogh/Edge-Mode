@@ -141,6 +141,14 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/subscription-success"
+          element={
+            <ProtectedRoute>
+              <SubscriptionSuccessScreen />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
       {showBottomNav && <BottomNav />}
       <Toaster />
