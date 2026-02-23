@@ -9,6 +9,7 @@ import { GroupsScreen } from './pages/GroupsScreen';
 import { LeaderboardScreen } from './pages/LeaderboardScreen';
 import { ProfileScreen } from './pages/ProfileScreen';
 import { WeeklyReviewScreen } from './pages/WeeklyReviewScreen';
+import { SubscriptionSuccessScreen } from './pages/SubscriptionSuccessScreen';
 import { BottomNav } from './components/BottomNav';
 import { Toaster } from './components/ui/sonner';
 import axios from 'axios';
