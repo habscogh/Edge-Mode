@@ -97,7 +97,8 @@ export const ProfileScreen = () => {
             <div className="flex items-center gap-3">
               <CreditCard className="w-5 h-5 text-primary" />
               <div>
-                <div className="text-white font-body">Subscription</div>\n                <div className="text-zinc-400 text-sm font-body">$5.99/month</div>
+                <div className="text-white font-body">Subscription</div>
+                <div className="text-zinc-400 text-sm font-body">$5.99/month</div>
               </div>
             </div>
             <div className={`px-3 py-1 rounded-full text-xs font-mono font-bold ${
