@@ -148,6 +148,9 @@ export const GroupsScreen = () => {
   const handleGroupSelect = (group) => {
     setSelectedGroup(group);
     fetchGroupLeaderboard(group.id);
+    if (group.created_by === user?.id) {
+      fetchGroupMembers(group.id);
+    }
   };
 
   if (loading) {
