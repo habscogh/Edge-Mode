@@ -16,6 +16,9 @@ import secrets
 import string
 from emergentintegrations.payments.stripe.checkout import StripeCheckout, CheckoutSessionResponse, CheckoutStatusResponse, CheckoutSessionRequest
 
+# Password reset tokens storage (in production, use Redis or similar)
+password_reset_tokens = {}
+
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
