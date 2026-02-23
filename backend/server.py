@@ -825,6 +825,8 @@ async def create_checkout(request: CreateCheckoutRequest, current_user: dict = D
 @api_router.get("/payments/status/{session_id}")
 async def get_payment_status(session_id: str, current_user: dict = Depends(get_current_user)):
     try:
+        logger.info(f"Checking payment status for session: {session_id}")
+        
         # Check if we already processed this payment
         existing_transaction = await db.payment_transactions.find_one({
             'session_id': session_id,
@@ -832,6 +834,7 @@ async def get_payment_status(session_id: str, current_user: dict = Depends(get_c
         }, {'_id': 0})
         
         if existing_transaction:
+            logger.info(f"Transaction already processed and paid for session: {session_id}")
             return {
                 'status': 'complete',
                 'payment_status': 'paid',
@@ -841,6 +844,8 @@ async def get_payment_status(session_id: str, current_user: dict = Depends(get_c
         # Get status from Stripe
         stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY)
         checkout_status = await stripe_checkout.get_checkout_status(session_id)
+        
+        logger.info(f"Stripe status for {session_id}: {checkout_status.payment_status}")
         
         # Update transaction record
         await db.payment_transactions.update_one(
@@ -859,11 +864,19 @@ async def get_payment_status(session_id: str, current_user: dict = Depends(get_c
                 user_id = transaction.get('metadata', {}).get('user_id')
                 if user_id:
                     # Update user subscription status
-                    await db.users.update_one(
+                    update_result = await db.users.update_one(
                         {'id': user_id},
                         {'$set': {'subscription_active': True}}
                     )
-                    logger.info(f"Activated subscription for user {user_id}")
+                    logger.info(f"Activated subscription for user {user_id} - matched: {update_result.matched_count}, modified: {update_result.modified_count}")
+                    
+                    # Verify it was actually updated
+                    user = await db.users.find_one({'id': user_id}, {'_id': 0, 'username': 1, 'subscription_active': 1})
+                    logger.info(f"User {user.get('username')} subscription_active is now: {user.get('subscription_active')}")
+                else:
+                    logger.error(f"No user_id found in transaction metadata for session {session_id}")
+            else:
+                logger.error(f"Transaction not found for session {session_id}")
         
         return {
             'status': checkout_status.status,
