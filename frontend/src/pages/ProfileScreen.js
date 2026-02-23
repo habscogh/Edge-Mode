@@ -1,17 +1,40 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
-import { User, LogOut, CreditCard, Trophy } from 'lucide-react';
+import { User, LogOut, CreditCard, Trophy, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
+import axios from 'axios';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
 
 export const ProfileScreen = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, fetchUser } = useAuth();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const handleLogout = () => {
     logout();
     navigate('/');
+  };
+
+  const handleSubscribe = async () => {
+    setLoading(true);
+    try {
+      const originUrl = window.location.origin;
+      const response = await axios.post(`${API}/payments/create-checkout`, {
+        origin_url: originUrl
+      });
+      
+      if (response.data.url) {
+        window.location.href = response.data.url;
+      }
+    } catch (error) {
+      console.error('Failed to create checkout:', error);
+      alert('Failed to start subscription process. Please try again.');
+      setLoading(false);
+    }
   };
 
   if (!user) return null;
