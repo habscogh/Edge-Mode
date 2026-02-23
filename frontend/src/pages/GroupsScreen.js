@@ -122,7 +122,12 @@ export const GroupsScreen = () => {
   const fetchGroupMembers = async (groupId) => {
     try {
       const response = await axios.get(`${API}/groups/${groupId}/leaderboard`);
-      setGroupMembers(response.data);
+      // Store with user mapping for transfer
+      const membersWithIds = response.data.map(member => ({
+        username: member.username,
+        user_id: member.user_id || null
+      }));
+      setGroupMembers(membersWithIds);
     } catch (error) {
       console.error('Failed to fetch members:', error);
     }
