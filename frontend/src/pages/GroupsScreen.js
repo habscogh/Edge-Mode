@@ -258,7 +258,12 @@ export const GroupsScreen = () => {
                       : 'bg-zinc-900 text-zinc-400 hover:bg-zinc-800'
                   }`}
                 >
-                  {group.name}
+                  <div className="flex items-center gap-2">
+                    <span>{group.name}</span>
+                    <span className={`text-xs font-mono ${selectedGroup?.id === group.id ? 'text-primary-foreground/70' : 'text-zinc-600'}`}>
+                      ({group.members.length})
+                    </span>
+                  </div>
                 </button>
               ))}
             </div>
