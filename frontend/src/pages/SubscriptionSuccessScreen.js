@@ -34,10 +34,7 @@ export const SubscriptionSuccessScreen = () => {
       
       if (response.data.payment_status === 'paid') {
         setStatus('success');
-        setTimeout(() => {
-          navigate('/profile');
-        }, 3000);
-        return;
+        return; // Stop polling, don't auto-redirect
       }
 
       // Continue polling
