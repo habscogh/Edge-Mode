@@ -28,6 +28,7 @@ export const GroupsScreen = () => {
   const fetchGroups = async () => {
     try {
       const response = await axios.get(`${API}/groups`);
+      console.log('Fetched groups:', response.data.length, 'groups');
       setGroups(response.data);
       if (response.data.length > 0) {
         setSelectedGroup(response.data[0]);
