@@ -556,6 +556,33 @@ async def join_group(join_data: GroupJoin, current_user: dict = Depends(get_curr
     group['members'].append(current_user['id'])
     return {'message': 'Joined successfully', 'group': group}
 
+@api_router.post("/groups/{group_id}/leave")
+async def leave_group(group_id: str, current_user: dict = Depends(get_current_user)):
+    group = await db.groups.find_one({'id': group_id}, {'_id': 0})
+    if not group:
+        raise HTTPException(status_code=404, detail='Group not found')
+    
+    # Can't leave if you're the creator and there are other members
+    if group['created_by'] == current_user['id'] and len(group['members']) > 1:
+        raise HTTPException(status_code=400, detail='Transfer ownership or remove all members before leaving')
+    
+    # Can't leave if you're not a member
+    if current_user['id'] not in group['members']:
+        raise HTTPException(status_code=400, detail='Not a member of this group')
+    
+    # Remove user from members
+    await db.groups.update_one(
+        {'id': group_id},
+        {'$pull': {'members': current_user['id']}}
+    )
+    
+    # If creator left and they were the only member, delete the group
+    if group['created_by'] == current_user['id'] and len(group['members']) == 1:
+        await db.groups.delete_one({'id': group_id})
+        return {'message': 'Group deleted (you were the only member)'}
+    
+    return {'message': 'Left group successfully'}
+
 @api_router.get("/groups/{group_id}/leaderboard")
 async def get_group_leaderboard(group_id: str, current_user: dict = Depends(get_current_user)):
     group = await db.groups.find_one({'id': group_id}, {'_id': 0})
