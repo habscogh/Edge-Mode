@@ -63,6 +63,7 @@ export const WeeklyReviewScreen = () => {
           <div className="bg-zinc-950 border border-zinc-800 rounded-md p-4">
             <div className="text-zinc-400 text-xs font-body uppercase tracking-wide mb-1">Consistency</div>
             <div className="text-2xl font-mono font-bold text-white">{review.consistency_pct}%</div>
+            <ConsistencyRatingBadge consistencyPct={review.consistency_pct} />
           </div>
         </div>
 
