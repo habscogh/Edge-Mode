@@ -564,7 +564,7 @@ async def leave_group(group_id: str, current_user: dict = Depends(get_current_us
     
     # Can't leave if you're the creator and there are other members
     if group['created_by'] == current_user['id'] and len(group['members']) > 1:
-        raise HTTPException(status_code=400, detail='Transfer ownership or remove all members before leaving')
+        raise HTTPException(status_code=400, detail='Transfer ownership before leaving')
     
     # Can't leave if you're not a member
     if current_user['id'] not in group['members']:
@@ -582,6 +582,41 @@ async def leave_group(group_id: str, current_user: dict = Depends(get_current_us
         return {'message': 'Group deleted (you were the only member)'}
     
     return {'message': 'Left group successfully'}
+
+class TransferOwnership(BaseModel):
+    new_owner_id: str
+
+@api_router.post("/groups/{group_id}/transfer")
+async def transfer_ownership(group_id: str, transfer_data: TransferOwnership, current_user: dict = Depends(get_current_user)):
+    group = await db.groups.find_one({'id': group_id}, {'_id': 0})
+    if not group:
+        raise HTTPException(status_code=404, detail='Group not found')
+    
+    # Only creator can transfer ownership
+    if group['created_by'] != current_user['id']:
+        raise HTTPException(status_code=403, detail='Only the group creator can transfer ownership')
+    
+    # New owner must be a member
+    if transfer_data.new_owner_id not in group['members']:
+        raise HTTPException(status_code=400, detail='New owner must be a member of the group')
+    
+    # Can't transfer to yourself
+    if transfer_data.new_owner_id == current_user['id']:
+        raise HTTPException(status_code=400, detail='You are already the owner')
+    
+    # Transfer ownership
+    await db.groups.update_one(
+        {'id': group_id},
+        {'$set': {'created_by': transfer_data.new_owner_id}}
+    )
+    
+    # Get new owner info for response
+    new_owner = await db.users.find_one({'id': transfer_data.new_owner_id}, {'_id': 0, 'password': 0})
+    
+    return {
+        'message': f'Ownership transferred to {new_owner.get("username", "user")}',
+        'new_owner': new_owner.get('username')
+    }
 
 @api_router.get("/groups/{group_id}/leaderboard")
 async def get_group_leaderboard(group_id: str, current_user: dict = Depends(get_current_user)):
