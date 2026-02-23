@@ -91,12 +91,11 @@ export const ProfileScreen = () => {
         </div>
 
         <div className="bg-zinc-950 border border-zinc-800 rounded-md p-6 mb-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <CreditCard className="w-5 h-5 text-primary" />
               <div>
-                <div className="text-white font-body">Subscription</div>
-                <div className="text-zinc-400 text-sm font-body">$5.99/month</div>
+                <div className="text-white font-body">Subscription</div>\n                <div className="text-zinc-400 text-sm font-body">$5.99/month</div>
               </div>
             </div>
             <div className={`px-3 py-1 rounded-full text-xs font-mono font-bold ${
@@ -107,6 +106,30 @@ export const ProfileScreen = () => {
               {user.subscription_active ? 'ACTIVE' : 'INACTIVE'}
             </div>
           </div>
+          
+          {!user.subscription_active && (
+            <Button
+              data-testid="subscribe-btn"
+              onClick={handleSubscribe}
+              disabled={loading}
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading uppercase tracking-wide"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                'Subscribe Now'
+              )}
+            </Button>
+          )}
+          
+          {user.subscription_active && (
+            <p className="text-zinc-500 text-sm font-body text-center">
+              Thank you for being a Forge Premium member!
+            </p>
+          )}
         </div>
 
         <Button
