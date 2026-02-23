@@ -651,6 +651,7 @@ async def get_group_leaderboard(group_id: str, current_user: dict = Depends(get_
         performance_index = min((consistency_pct * 0.7) + (target_completion_pct * 0.3), 100)
         
         leaderboard.append({
+            'user_id': user['id'],
             'username': user['username'],
             'consistency_pct': round(consistency_pct, 1),
             'performance_index': round(performance_index, 1),
