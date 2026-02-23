@@ -71,12 +71,15 @@ export const GroupsScreen = () => {
     if (!inviteCode) return;
 
     try {
-      await axios.post(`${API}/groups/join`, {
+      const response = await axios.post(`${API}/groups/join`, {
         invite_code: inviteCode.toUpperCase()
       });
       setInviteCode('');
       setIsJoinDialogOpen(false);
-      fetchGroups();
+      
+      // Force refresh groups to ensure we only see the newly joined group
+      await fetchGroups();
+      
       toast.success('Joined group successfully!');
     } catch (error) {
       console.error('Failed to join group:', error);
