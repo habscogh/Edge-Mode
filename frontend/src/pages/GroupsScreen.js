@@ -322,7 +322,7 @@ export const GroupsScreen = () => {
                               .map((member, idx) => (
                                 <button
                                   key={idx}
-                                  onClick={() => setSelectedMemberForTransfer(leaderboard.find(l => l.username === member.username)?.user_id || '')}
+                                  onClick={() => setSelectedMemberForTransfer(member.user_id)}
                                   className={`w-full p-3 border rounded-md text-left transition-all duration-200 ${
                                     selectedMemberForTransfer === member.user_id
                                       ? 'bg-primary/10 border-primary'
