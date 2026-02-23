@@ -792,13 +792,15 @@ async def get_payment_status(session_id: str, current_user: dict = Depends(get_c
         # If payment successful, activate subscription
         if checkout_status.payment_status == 'paid':
             transaction = await db.payment_transactions.find_one({'session_id': session_id}, {'_id': 0})
-            if transaction and transaction.get('payment_status') != 'paid':
+            if transaction:
                 user_id = transaction.get('metadata', {}).get('user_id')
                 if user_id:
+                    # Update user subscription status
                     await db.users.update_one(
                         {'id': user_id},
                         {'$set': {'subscription_active': True}}
                     )
+                    logger.info(f"Activated subscription for user {user_id}")
         
         return {
             'status': checkout_status.status,
