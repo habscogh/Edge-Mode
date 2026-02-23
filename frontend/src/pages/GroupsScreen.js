@@ -288,6 +288,61 @@ export const GroupsScreen = () => {
                   </div>
                 </div>
 
+                {/* Transfer Ownership (only for creators) */}
+                {selectedGroup.created_by === user?.id && selectedGroup.members.length > 1 && (
+                  <div className="mb-4">
+                    <Dialog open={isTransferDialogOpen} onOpenChange={setIsTransferDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button
+                          data-testid="transfer-ownership-btn"
+                          variant="ghost"
+                          className="w-full text-yellow-500 hover:text-yellow-400 hover:bg-yellow-500/10 font-body"
+                          onClick={() => fetchGroupMembers(selectedGroup.id)}
+                        >
+                          <Crown className="w-4 h-4 mr-2" />
+                          Transfer Ownership
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="bg-zinc-950 border-zinc-800">
+                        <DialogHeader>
+                          <DialogTitle className="font-heading uppercase text-white">Transfer Ownership</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4 mt-4">
+                          <p className="text-zinc-400 text-sm font-body">
+                            Select a member to become the new owner of this group:
+                          </p>
+                          <div className="space-y-2">
+                            {groupMembers
+                              .filter(member => member.username !== user?.username)
+                              .map((member, idx) => (
+                                <button
+                                  key={idx}
+                                  onClick={() => setSelectedMemberForTransfer(leaderboard.find(l => l.username === member.username)?.user_id || '')}
+                                  className={`w-full p-3 border rounded-md text-left transition-all duration-200 ${
+                                    selectedMemberForTransfer === member.user_id
+                                      ? 'bg-primary/10 border-primary'
+                                      : 'bg-zinc-900 border-zinc-800 hover:border-zinc-600'
+                                  }`}
+                                >
+                                  <div className="text-white font-body">{member.username}</div>
+                                </button>
+                              ))}
+                          </div>
+                          <Button
+                            data-testid="confirm-transfer-btn"
+                            onClick={handleTransferOwnership}
+                            disabled={!selectedMemberForTransfer}
+                            className="w-full bg-yellow-500 text-black hover:bg-yellow-400 font-heading uppercase"
+                          >
+                            Confirm Transfer
+                          </Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                )}
+
+                {/* Leave Group (only for non-creators) */}
                 {selectedGroup.created_by !== user?.id && (
                   <div className="mb-4">
                     <Button
