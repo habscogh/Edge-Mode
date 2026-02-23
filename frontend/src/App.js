@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { LandingPage } from './pages/LandingPage';
 import { AuthScreen } from './pages/AuthScreen';
 import { OnboardingScreen } from './pages/OnboardingScreen';
 import { Dashboard } from './pages/Dashboard';
