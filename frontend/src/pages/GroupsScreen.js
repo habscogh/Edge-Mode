@@ -19,6 +19,9 @@ export const GroupsScreen = () => {
   const [inviteCode, setInviteCode] = useState('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isJoinDialogOpen, setIsJoinDialogOpen] = useState(false);
+  const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false);
+  const [selectedMemberForTransfer, setSelectedMemberForTransfer] = useState('');
+  const [groupMembers, setGroupMembers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
