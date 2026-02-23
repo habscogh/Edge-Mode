@@ -133,11 +133,13 @@ export const WeeklyReviewScreen = () => {
         )}
 
         {review.improved_pillars.length === 0 && review.dropped_pillars.length === 0 && (
-          <div className="bg-zinc-950 border border-zinc-800 rounded-md p-6 text-center">
+          <div className="bg-zinc-950 border border-zinc-800 rounded-md p-6 text-center mb-6">
             <Calendar className="w-12 h-12 text-zinc-600 mx-auto mb-3" />
             <p className="text-zinc-400 font-body">No changes from last week</p>
           </div>
         )}
+
+        <ConsistencyRatingScale />
       </div>
     </div>
   );
