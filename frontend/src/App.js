@@ -85,7 +85,8 @@ const AppRoutes = () => {
   return (
     <>
       <Routes>
-        <Route path="/" element={user ? <Navigate to="/dashboard" /> : <AuthScreen />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/auth" element={user ? <Navigate to="/dashboard" /> : <AuthScreen />} />
         <Route
           path="/onboarding"
           element={
