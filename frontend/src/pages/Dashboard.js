@@ -179,6 +179,7 @@ export const Dashboard = () => {
             <div>
               <div className="text-zinc-400 text-xs font-body uppercase tracking-wide mb-1">Consistency</div>
               <div className="text-2xl font-mono font-bold text-white">{stats?.consistency_pct || 0}%</div>
+              <ConsistencyRatingBadge consistencyPct={stats?.consistency_pct || 0} />
             </div>
             <div>
               <div className="text-zinc-400 text-xs font-body uppercase tracking-wide mb-1">Days</div>
