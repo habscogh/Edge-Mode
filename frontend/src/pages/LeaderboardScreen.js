@@ -12,7 +12,7 @@ export const LeaderboardScreen = () => {
   const [leaderboard, setLeaderboard] = useState([]);
   const [ageFilter, setAgeFilter] = useState('');
   const [loading, setLoading] = useState(true);
-  const [optedIn, setOptedIn] = useState(false);
+  const [optedIn, setOptedIn] = useState(null); // Changed to null to distinguish between unloaded and false
 
   useEffect(() => {
     if (user) {
@@ -20,9 +20,10 @@ export const LeaderboardScreen = () => {
       // Only fetch leaderboard if user has opted in
       if (user.leaderboard_opt_in) {
         fetchLeaderboard();
+      } else {
+        setLoading(false);
       }
     }
-    setLoading(false);
   }, [user]);
 
   const fetchLeaderboard = async (filter = '') => {
