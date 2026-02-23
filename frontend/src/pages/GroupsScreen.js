@@ -223,23 +223,39 @@ export const GroupsScreen = () => {
             </div>
 
             {selectedGroup && (
-              <div className="bg-zinc-950 border border-zinc-800 rounded-md p-4 mb-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="text-zinc-400 text-xs font-body uppercase tracking-wide mb-1">Invite Code</div>
-                    <div className="text-white font-mono text-xl font-bold">{selectedGroup.invite_code}</div>
-                    <p className="text-zinc-500 text-xs font-body mt-1">Share this code with friends to join</p>
+              <>
+                <div className="bg-zinc-950 border border-zinc-800 rounded-md p-4 mb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="text-zinc-400 text-xs font-body uppercase tracking-wide mb-1">Invite Code</div>
+                      <div className="text-white font-mono text-xl font-bold">{selectedGroup.invite_code}</div>
+                      <p className="text-zinc-500 text-xs font-body mt-1">Share this code with friends to join</p>
+                    </div>
+                    <Button
+                      data-testid="copy-invite-code-btn"
+                      onClick={() => copyInviteCode(selectedGroup.invite_code)}
+                      variant="ghost"
+                      className="text-primary hover:text-primary/80"
+                    >
+                      <Share2 className="w-5 h-5" />
+                    </Button>
                   </div>
-                  <Button
-                    data-testid="copy-invite-code-btn"
-                    onClick={() => copyInviteCode(selectedGroup.invite_code)}
-                    variant="ghost"
-                    className="text-primary hover:text-primary/80"
-                  >
-                    <Share2 className="w-5 h-5" />
-                  </Button>
                 </div>
-              </div>
+
+                {selectedGroup.created_by !== user?.id && (
+                  <div className="mb-4">
+                    <Button
+                      data-testid="leave-group-btn"
+                      onClick={() => handleLeaveGroup(selectedGroup.id, selectedGroup.name)}
+                      variant="ghost"
+                      className="w-full text-red-500 hover:text-red-400 hover:bg-red-500/10 font-body"
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Leave Group
+                    </Button>
+                  </div>
+                )}
+              </>
             )}
 
             <div className="bg-zinc-950 border border-zinc-800 rounded-md">
