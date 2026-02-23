@@ -98,7 +98,9 @@ export const ProfileScreen = () => {
               <CreditCard className="w-5 h-5 text-primary" />
               <div>
                 <div className="text-white font-body">Subscription</div>
-                <div className="text-zinc-400 text-sm font-body">$5.99/month</div>
+                <div className="text-zinc-400 text-sm font-body">
+                  {user.subscription_active ? 'Premium Member' : 'Choose your plan'}
+                </div>
               </div>
             </div>
             <div className={`px-3 py-1 rounded-full text-xs font-mono font-bold ${
@@ -111,26 +113,57 @@ export const ProfileScreen = () => {
           </div>
           
           {!user.subscription_active && (
-            <Button
-              data-testid="subscribe-btn"
-              onClick={handleSubscribe}
-              disabled={loading}
-              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading uppercase tracking-wide"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                'Subscribe Now'
-              )}
-            </Button>
+            <>
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <button
+                  onClick={() => setSelectedPlan('monthly')}
+                  className={`p-4 border rounded-md transition-all duration-200 ${
+                    selectedPlan === 'monthly'
+                      ? 'bg-primary/10 border-primary'
+                      : 'bg-zinc-900 border-zinc-800 hover:border-zinc-600'
+                  }`}
+                >
+                  <div className="text-white font-body font-bold mb-1">Monthly</div>
+                  <div className="text-2xl font-mono font-bold text-primary">$5.99</div>
+                  <div className="text-zinc-500 text-xs font-body">per month</div>
+                </button>
+                
+                <button
+                  onClick={() => setSelectedPlan('yearly')}
+                  className={`p-4 border rounded-md transition-all duration-200 ${
+                    selectedPlan === 'yearly'
+                      ? 'bg-primary/10 border-primary'
+                      : 'bg-zinc-900 border-zinc-800 hover:border-zinc-600'
+                  }`}
+                >
+                  <div className="text-white font-body font-bold mb-1">Yearly</div>
+                  <div className="text-2xl font-mono font-bold text-primary">$59.99</div>
+                  <div className="text-zinc-500 text-xs font-body">per year</div>
+                  <div className="text-xs font-mono text-primary mt-1">Save 17%</div>
+                </button>
+              </div>
+              
+              <Button
+                data-testid="subscribe-btn"
+                onClick={handleSubscribe}
+                disabled={loading}
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading uppercase tracking-wide"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  `Subscribe ${selectedPlan === 'monthly' ? 'Monthly' : 'Yearly'}`
+                )}
+              </Button>
+            </>
           )}
           
           {user.subscription_active && (
             <p className="text-zinc-500 text-sm font-body text-center">
-              Thank you for being a Forge Premium member!
+              Thank you for being an Edge Mode Premium member!
             </p>
           )}
         </div>
