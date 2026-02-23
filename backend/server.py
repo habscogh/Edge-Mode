@@ -703,6 +703,12 @@ class CreateCheckoutRequest(BaseModel):
 @api_router.post("/payments/create-checkout")
 async def create_checkout(request: CreateCheckoutRequest, current_user: dict = Depends(get_current_user)):
     try:
+        # Validate plan
+        if request.plan not in SUBSCRIPTION_PRICES:
+            raise HTTPException(status_code=400, detail='Invalid subscription plan')
+        
+        amount = SUBSCRIPTION_PRICES[request.plan]
+        
         # Initialize Stripe
         host_url = request.origin_url
         webhook_url = f"{host_url}/api/webhook/stripe"
@@ -714,14 +720,15 @@ async def create_checkout(request: CreateCheckoutRequest, current_user: dict = D
         
         # Create checkout session
         checkout_request = CheckoutSessionRequest(
-            amount=SUBSCRIPTION_PRICE,
+            amount=amount,
             currency="usd",
             success_url=success_url,
             cancel_url=cancel_url,
             metadata={
                 "user_id": current_user['id'],
                 "email": current_user['email'],
-                "username": current_user['username']
+                "username": current_user['username'],
+                "plan": request.plan
             }
         )
         
@@ -732,14 +739,16 @@ async def create_checkout(request: CreateCheckoutRequest, current_user: dict = D
             'id': str(uuid.uuid4()),
             'session_id': session.session_id,
             'user_id': current_user['id'],
-            'amount': SUBSCRIPTION_PRICE,
+            'amount': amount,
             'currency': 'usd',
+            'plan': request.plan,
             'payment_status': 'pending',
             'status': 'initiated',
             'created_at': datetime.now(timezone.utc).isoformat(),
             'metadata': {
                 "user_id": current_user['id'],
-                "email": current_user['email']
+                "email": current_user['email'],
+                "plan": request.plan
             }
         }
         await db.payment_transactions.insert_one(transaction_doc)
