@@ -110,7 +110,38 @@ export const GroupsScreen = () => {
       }
     } catch (error) {
       console.error('Failed to leave group:', error);
-      toast.error(error.response?.data?.detail || 'Failed to leave group');
+      const errorMsg = error.response?.data?.detail || 'Failed to leave group';
+      if (errorMsg.includes('Transfer ownership')) {
+        toast.error('You must transfer ownership before leaving');
+      } else {
+        toast.error(errorMsg);
+      }
+    }
+  };
+
+  const fetchGroupMembers = async (groupId) => {
+    try {
+      const response = await axios.get(`${API}/groups/${groupId}/leaderboard`);
+      setGroupMembers(response.data);
+    } catch (error) {
+      console.error('Failed to fetch members:', error);
+    }
+  };
+
+  const handleTransferOwnership = async () => {
+    if (!selectedMemberForTransfer) return;
+
+    try {
+      const response = await axios.post(`${API}/groups/${selectedGroup.id}/transfer`, {
+        new_owner_id: selectedMemberForTransfer
+      });
+      toast.success(response.data.message);
+      setIsTransferDialogOpen(false);
+      setSelectedMemberForTransfer('');
+      fetchGroups();
+    } catch (error) {
+      console.error('Failed to transfer ownership:', error);
+      toast.error(error.response?.data?.detail || 'Failed to transfer ownership');
     }
   };
 
