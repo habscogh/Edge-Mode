@@ -72,7 +72,7 @@ export const Dashboard = () => {
             <h1 className="text-3xl font-heading font-bold uppercase tracking-tight text-white mb-1">
               {user?.username}
             </h1>
-            <p className="text-zinc-400 text-sm font-body">1% Better Every Day</p>
+            <p className="text-zinc-400 text-sm font-body">Log your effort daily. Review your performance weekly</p>
           </div>
           <Flame className="w-8 h-8 text-primary" />
         </div>
