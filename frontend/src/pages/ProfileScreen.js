@@ -13,6 +13,7 @@ export const ProfileScreen = () => {
   const { user, logout, fetchUser } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState('monthly');
 
   const handleLogout = () => {
     logout();
@@ -24,7 +25,8 @@ export const ProfileScreen = () => {
     try {
       const originUrl = window.location.origin;
       const response = await axios.post(`${API}/payments/create-checkout`, {
-        origin_url: originUrl
+        origin_url: originUrl,
+        plan: selectedPlan
       });
       
       if (response.data.url) {
