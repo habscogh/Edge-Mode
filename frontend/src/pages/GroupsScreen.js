@@ -205,9 +205,10 @@ export const GroupsScreen = () => {
             {selectedGroup && (
               <div className="bg-zinc-950 border border-zinc-800 rounded-md p-4 mb-4">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-zinc-400 text-xs font-body uppercase tracking-wide mb-1\">Invite Code</div>
-                    <div className="text-white font-mono text-xl font-bold\">{selectedGroup.invite_code}</div>
+                  <div className="flex-1">
+                    <div className="text-zinc-400 text-xs font-body uppercase tracking-wide mb-1">Invite Code</div>
+                    <div className="text-white font-mono text-xl font-bold">{selectedGroup.invite_code}</div>
+                    <p className="text-zinc-500 text-xs font-body mt-1">Share this code with friends to join</p>
                   </div>
                   <Button
                     data-testid="copy-invite-code-btn"
