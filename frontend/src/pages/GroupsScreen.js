@@ -89,6 +89,24 @@ export const GroupsScreen = () => {
     toast.success('Invite code copied!');
   };
 
+  const handleLeaveGroup = async (groupId, groupName) => {
+    if (!window.confirm(`Are you sure you want to leave "${groupName}"?`)) {
+      return;
+    }
+
+    try {
+      const response = await axios.post(`${API}/groups/${groupId}/leave`);
+      toast.success(response.data.message);
+      fetchGroups();
+      if (selectedGroup?.id === groupId) {
+        setSelectedGroup(null);
+      }
+    } catch (error) {
+      console.error('Failed to leave group:', error);
+      toast.error(error.response?.data?.detail || 'Failed to leave group');
+    }
+  };
+
   const handleGroupSelect = (group) => {
     setSelectedGroup(group);
     fetchGroupLeaderboard(group.id);
