@@ -17,8 +17,12 @@ export const LeaderboardScreen = () => {
   useEffect(() => {
     if (user) {
       setOptedIn(user.leaderboard_opt_in);
+      // Only fetch leaderboard if user has opted in
+      if (user.leaderboard_opt_in) {
+        fetchLeaderboard();
+      }
     }
-    fetchLeaderboard();
+    setLoading(false);
   }, [user]);
 
   const fetchLeaderboard = async (filter = '') => {
