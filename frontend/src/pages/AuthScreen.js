@@ -46,9 +46,9 @@ export const AuthScreen = () => {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-4">
             <Flame className="w-10 h-10 text-primary" />
-            <h1 className="text-4xl font-heading font-bold uppercase tracking-tight text-white">FORGE</h1>
+            <h1 className="text-4xl font-heading font-bold uppercase tracking-tight text-white">EDGE MODE</h1>
           </div>
-          <p className="text-zinc-400 text-sm font-body">1% Better Every Day</p>
+          <p className="text-zinc-400 text-sm font-body">Be Better Than Yesterday</p>
         </div>
 
         <div className="bg-zinc-950 border border-zinc-800 rounded-md p-6">
