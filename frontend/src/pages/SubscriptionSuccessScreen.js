@@ -67,10 +67,23 @@ export const SubscriptionSuccessScreen = () => {
           <>
             <CheckCircle2 className="w-16 h-16 text-primary mx-auto mb-4" />
             <h2 className="text-2xl font-heading font-bold uppercase text-white mb-2">
-              Subscription Active!
+              Payment Complete!
             </h2>
-            <p className="text-zinc-400 font-body mb-2">Welcome to Forge Premium</p>
-            <p className="text-zinc-500 text-sm font-body">Redirecting to your profile...</p>
+            <p className="text-zinc-400 font-body mb-4">Your subscription is being activated</p>
+            <div className="bg-zinc-900 border border-zinc-800 rounded-md p-4 mb-4">
+              <p className="text-zinc-300 font-body text-sm mb-2">
+                Please refresh your profile page to see your active subscription status.
+              </p>
+              <p className="text-zinc-500 text-xs font-body">
+                Go to Profile → Pull down to refresh (or reload the page)
+              </p>
+            </div>
+            <button
+              onClick={() => navigate('/profile')}
+              className="px-6 py-2 bg-primary text-primary-foreground rounded-md font-heading uppercase"
+            >
+              Go to Profile
+            </button>
           </>
         )}
 
