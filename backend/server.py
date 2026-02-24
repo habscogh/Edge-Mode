@@ -99,6 +99,8 @@ class User(BaseModel):
     current_streak: int = 0
     longest_streak: int = 0
     subscription_active: bool = False
+    trial_ends_at: Optional[str] = None
+    is_trial: bool = False
     last_log_date: Optional[str] = None
     leaderboard_opt_in: bool = False
     total_sessions_completed: int = 0
