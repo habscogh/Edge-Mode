@@ -268,16 +268,21 @@ async def register(user_data: UserRegister):
         raise HTTPException(status_code=400, detail='Email already registered')
     
     user_id = str(uuid.uuid4())
+    now = datetime.now(timezone.utc)
+    trial_end = now + timedelta(days=7)
+    
     user_doc = {
         'id': user_id,
         'email': user_data.email,
         'username': user_data.username,
         'password': hash_password(user_data.password),
         'age': user_data.age,
-        'join_date': datetime.now(timezone.utc).isoformat(),
+        'join_date': now.isoformat(),
         'current_streak': 0,
         'longest_streak': 0,
-        'subscription_active': False,
+        'subscription_active': True,  # Active during trial
+        'is_trial': True,
+        'trial_ends_at': trial_end.isoformat(),
         'last_log_date': None,
         'leaderboard_opt_in': False,
         'total_sessions_completed': 0
@@ -286,7 +291,7 @@ async def register(user_data: UserRegister):
     await db.users.insert_one(user_doc)
     token = create_token(user_id)
     
-    return {'token': token, 'user_id': user_id}
+    return {'token': token, 'user_id': user_id, 'trial_ends_at': trial_end.isoformat()}
 
 @api_router.post("/auth/login")
 async def login(credentials: UserLogin):
