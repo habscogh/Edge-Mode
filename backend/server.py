@@ -295,6 +295,112 @@ async def login(credentials: UserLogin):
     token = create_token(user['id'])
     return {'token': token, 'user_id': user['id']}
 
+@api_router.post("/auth/forgot-password")
+async def forgot_password(request: PasswordResetRequest):
+    user = await db.users.find_one({'email': request.email}, {'_id': 0})
+    if not user:
+        # Don't reveal if email exists or not (security)
+        return {'message': 'If that email exists, a reset link has been sent'}
+    
+    # Generate reset token
+    reset_token = secrets.token_urlsafe(32)
+    password_reset_tokens[reset_token] = {
+        'user_id': user['id'],
+        'expires': datetime.now(timezone.utc) + timedelta(hours=1)
+    }
+    
+    # In production, send email with reset link
+    # For now, return token (in production this would be in email)
+    logger.info(f"Password reset token for {request.email}: {reset_token}")
+    
+    return {
+        'message': 'If that email exists, a reset link has been sent',
+        'reset_token': reset_token  # Remove this in production
+    }
+
+@api_router.post("/auth/reset-password")
+async def reset_password(request: PasswordResetConfirm):
+    # Check if token exists and is valid
+    token_data = password_reset_tokens.get(request.token)
+    if not token_data:
+        raise HTTPException(status_code=400, detail='Invalid or expired reset token')
+    
+    # Check if expired
+    if datetime.now(timezone.utc) > token_data['expires']:
+        del password_reset_tokens[request.token]
+        raise HTTPException(status_code=400, detail='Reset token has expired')
+    
+    # Update password
+    new_password_hash = hash_password(request.new_password)
+    await db.users.update_one(
+        {'id': token_data['user_id']},
+        {'$set': {'password': new_password_hash}}
+    )
+    
+    # Remove used token
+    del password_reset_tokens[request.token]
+    
+    return {'message': 'Password reset successfully'}
+
+@api_router.post("/users/change-password")
+async def change_password(request: PasswordChange, current_user: dict = Depends(get_current_user)):
+    user = await db.users.find_one({'id': current_user['id']}, {'_id': 0})
+    
+    # Verify current password
+    if not verify_password(request.current_password, user['password']):
+        raise HTTPException(status_code=400, detail='Current password is incorrect')
+    
+    # Update to new password
+    new_password_hash = hash_password(request.new_password)
+    await db.users.update_one(
+        {'id': current_user['id']},
+        {'$set': {'password': new_password_hash}}
+    )
+    
+    return {'message': 'Password changed successfully'}
+
+@api_router.post("/users/change-email")
+async def change_email(request: EmailChange, current_user: dict = Depends(get_current_user)):
+    user = await db.users.find_one({'id': current_user['id']}, {'_id': 0})
+    
+    # Verify password
+    if not verify_password(request.password, user['password']):
+        raise HTTPException(status_code=400, detail='Password is incorrect')
+    
+    # Check if new email already exists
+    existing = await db.users.find_one({'email': request.new_email}, {'_id': 0})
+    if existing:
+        raise HTTPException(status_code=400, detail='Email already in use')
+    
+    # Update email
+    await db.users.update_one(
+        {'id': current_user['id']},
+        {'$set': {'email': request.new_email}}
+    )
+    
+    return {'message': 'Email changed successfully'}
+
+@api_router.delete("/users/account")
+async def delete_account(current_user: dict = Depends(get_current_user)):
+    user_id = current_user['id']
+    
+    # Delete user's data
+    await db.users.delete_one({'id': user_id})
+    await db.user_pillars.delete_many({'user_id': user_id})
+    await db.daily_sessions.delete_many({'user_id': user_id})
+    await db.payment_transactions.delete_many({'metadata.user_id': user_id})
+    
+    # Remove from groups
+    await db.groups.update_many(
+        {'members': user_id},
+        {'$pull': {'members': user_id}}
+    )
+    
+    # Delete groups they created with no other members
+    await db.groups.delete_many({'created_by': user_id, 'members': {'$size': 0}})
+    
+    return {'message': 'Account deleted successfully'}
+
 @api_router.get("/users/me", response_model=User)
 async def get_me(current_user: dict = Depends(get_current_user)):
     return User(**current_user)
