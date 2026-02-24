@@ -442,6 +442,12 @@ async def get_user_pillars(current_user: dict = Depends(get_current_user)):
 
 @api_router.post("/sessions/complete", response_model=DailySession)
 async def complete_session(session_data: SessionComplete, current_user: dict = Depends(get_current_user)):
+    # Check trial status
+    if current_user.get('is_trial') and current_user.get('trial_ends_at'):
+        trial_end = datetime.fromisoformat(current_user['trial_ends_at'])
+        if datetime.now(timezone.utc) > trial_end:
+            raise HTTPException(status_code=403, detail='Trial expired. Please subscribe to continue.')
+    
     user_id = current_user['id']
     now = datetime.now(timezone.utc)
     today = now.date().isoformat()
@@ -465,6 +471,44 @@ async def complete_session(session_data: SessionComplete, current_user: dict = D
     await update_streak(user_id, now.isoformat())
     
     return DailySession(**session_doc)
+
+@api_router.put("/sessions/edit")
+async def edit_session(edit_data: EditSession, current_user: dict = Depends(get_current_user)):
+    session = await db.daily_sessions.find_one({'id': edit_data.session_id, 'user_id': current_user['id']}, {'_id': 0})
+    if not session:
+        raise HTTPException(status_code=404, detail='Session not found')
+    
+    update_fields = {'minutes_spent': edit_data.minutes_spent}
+    if edit_data.pillar:
+        update_fields['pillar'] = edit_data.pillar
+    
+    await db.daily_sessions.update_one(
+        {'id': edit_data.session_id},
+        {'$set': update_fields}
+    )
+    
+    return {'message': 'Session updated successfully'}
+
+@api_router.delete("/sessions/{session_id}")
+async def delete_session(session_id: str, current_user: dict = Depends(get_current_user)):
+    result = await db.daily_sessions.delete_one({'id': session_id, 'user_id': current_user['id']})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail='Session not found')
+    
+    return {'message': 'Session deleted successfully'}
+
+@api_router.get("/sessions/history")
+async def get_session_history(current_user: dict = Depends(get_current_user), days: int = 30):
+    end_date = datetime.now(timezone.utc).date()
+    start_date = end_date - timedelta(days=days)
+    
+    sessions = await db.daily_sessions.find({
+        'user_id': current_user['id'],
+        'date': {'$gte': start_date.isoformat()}
+    }, {'_id': 0}).sort('date', -1).to_list(1000)
+    
+    return sessions
 
 @api_router.get("/sessions/today")
 async def get_today_sessions(current_user: dict = Depends(get_current_user)):
