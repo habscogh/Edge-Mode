@@ -139,6 +139,16 @@ export const AuthScreen = () => {
             >
               {loading ? 'Processing...' : isLogin ? 'Login' : 'Create Account'}
             </Button>
+
+            {isLogin && (
+              <button
+                type="button"
+                onClick={() => navigate('/forgot-password')}
+                className="w-full text-center text-sm text-zinc-400 hover:text-primary transition-colors mt-2"
+              >
+                Forgot password?
+              </button>
+            )}
           </form>
         </div>
       </div>
