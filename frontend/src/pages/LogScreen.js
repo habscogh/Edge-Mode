@@ -294,7 +294,7 @@ export const LogScreen = () => {
         {/* Edit Modal */}
         {editingSession && (
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-            <div className="bg-zinc-950 border border-zinc-800 rounded-lg w-full max-w-md p-6">
+            <div className="bg-zinc-950 border border-zinc-800 rounded-lg w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-heading font-bold uppercase text-white">Edit Session</h3>
                 <button
@@ -332,6 +332,17 @@ export const LogScreen = () => {
                     onChange={(e) => setEditMinutes(e.target.value)}
                     min="1"
                     className="bg-zinc-900 border-zinc-800 text-white font-mono text-xl focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-zinc-400 text-sm font-body mb-2">Note (optional)</label>
+                  <textarea
+                    data-testid="edit-note-input"
+                    value={editNote}
+                    onChange={(e) => setEditNote(e.target.value)}
+                    placeholder="Add a note about this session..."
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded-md p-3 text-white font-body focus:ring-2 focus:ring-primary focus:outline-none resize-none h-20"
                   />
                 </div>
 
