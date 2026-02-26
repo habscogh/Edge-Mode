@@ -1,23 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { Flame, TrendingUp, Calendar, Zap, Clock, ArrowUp, ArrowDown, Minus } from 'lucide-react';
+import { Flame, TrendingUp, Zap, ArrowUp, ArrowDown, Minus, CheckCircle2, X } from 'lucide-react';
 import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
 import { useNavigate } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { format, parseISO } from 'date-fns';
 import { ConsistencyRatingBadge } from '../components/ConsistencyRating';
+import { toast } from 'sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 export const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [comparison, setComparison] = useState(null);
   const [history, setHistory] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [quickLogPillar, setQuickLogPillar] = useState(null);
+  const [quickLogMinutes, setQuickLogMinutes] = useState('30');
+  const [quickLogLoading, setQuickLogLoading] = useState(false);
 
   useEffect(() => {
     fetchAllData();
@@ -37,6 +42,29 @@ export const Dashboard = () => {
       console.error('Failed to fetch data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleQuickLog = async () => {
+    if (!quickLogPillar) return;
+    
+    setQuickLogLoading(true);
+    try {
+      await axios.post(`${API}/sessions/complete`, {
+        pillar: quickLogPillar,
+        minutes_spent: parseInt(quickLogMinutes) || 30
+      });
+      toast.success(`Logged ${quickLogMinutes} min of ${quickLogPillar}!`);
+      setQuickLogPillar(null);
+      setQuickLogMinutes('30');
+      // Refresh data
+      fetchAllData();
+      if (refreshUser) refreshUser();
+    } catch (error) {
+      console.error('Failed to quick log:', error);
+      toast.error('Failed to log session');
+    } finally {
+      setQuickLogLoading(false);
     }
   };
 
