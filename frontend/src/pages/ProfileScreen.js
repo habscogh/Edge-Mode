@@ -261,6 +261,52 @@ export const ProfileScreen = () => {
           )}
         </div>
 
+        {/* Notification Settings */}
+        <div className="bg-zinc-950 border border-zinc-800 rounded-md p-6 mb-4">
+          <div className="flex items-center gap-3 mb-4">
+            <Bell className="w-5 h-5 text-zinc-400" />
+            <span className="text-white font-body font-bold">Notifications</span>
+          </div>
+          
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-white font-body">Streak Reminders</div>
+                <div className="text-zinc-500 text-xs font-body">Get reminded to keep your streak alive</div>
+              </div>
+              <button
+                data-testid="toggle-streak-reminders"
+                onClick={() => handleNotificationToggle('streak_reminders')}
+                className={`w-12 h-6 rounded-full transition-colors relative ${
+                  notificationSettings.streak_reminders ? 'bg-primary' : 'bg-zinc-700'
+                }`}
+              >
+                <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${
+                  notificationSettings.streak_reminders ? 'translate-x-6' : 'translate-x-0.5'
+                }`} />
+              </button>
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-white font-body">Weekly Summary</div>
+                <div className="text-zinc-500 text-xs font-body">Receive your progress report every week</div>
+              </div>
+              <button
+                data-testid="toggle-weekly-summary"
+                onClick={() => handleNotificationToggle('weekly_summary')}
+                className={`w-12 h-6 rounded-full transition-colors relative ${
+                  notificationSettings.weekly_summary ? 'bg-primary' : 'bg-zinc-700'
+                }`}
+              >
+                <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${
+                  notificationSettings.weekly_summary ? 'translate-x-6' : 'translate-x-0.5'
+                }`} />
+              </button>
+            </div>
+          </div>
+        </div>
+
         <div className="bg-zinc-950 border border-zinc-800 rounded-md p-6 mb-4">
           <button
             onClick={() => setShowAccountSettings(!showAccountSettings)}
