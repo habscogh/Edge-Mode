@@ -68,9 +68,14 @@ export const LandingPage = () => {
 
         {/* Support Email */}
         <div className="text-center">
-          <p className="text-zinc-500 text-sm font-body">
+          <p className="text-zinc-500 text-sm font-body mb-4">
             Support: <a href="mailto:admin@edgemodeapp.com" className="text-zinc-400 hover:text-primary transition-colors">admin@edgemodeapp.com</a>
           </p>
+          <div className="flex justify-center gap-4 text-xs text-zinc-600">
+            <a href="/privacy" className="hover:text-zinc-400 transition-colors">Privacy Policy</a>
+            <span>•</span>
+            <a href="/terms" className="hover:text-zinc-400 transition-colors">Terms of Service</a>
+          </div>
         </div>
       </div>
     </div>
