@@ -246,6 +246,96 @@ export const Dashboard = () => {
           </div>
         </div>
 
+        {/* Quick Log Section */}
+        <div data-testid="quick-log-section" className="bg-zinc-950 border border-zinc-800 rounded-md p-4 mb-6">
+          <h3 className="text-sm font-heading uppercase tracking-wide text-white mb-3">
+            <Zap className="w-4 h-4 inline mr-2 text-yellow-500" />
+            Quick Log
+          </h3>
+          <p className="text-zinc-500 text-xs font-body mb-3">Tap a pillar to log 30 min instantly</p>
+          <div className="flex flex-wrap gap-2">
+            {stats?.pillars_data?.map((pillar, idx) => (
+              <button
+                key={idx}
+                data-testid={`quick-log-${pillar.pillar_name.toLowerCase().replace(/\//g, '-').replace(/\s+/g, '-')}`}
+                onClick={() => setQuickLogPillar(pillar.pillar_name)}
+                className="px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-full text-sm font-body text-white hover:bg-primary/20 hover:border-primary transition-all duration-200"
+              >
+                {pillar.pillar_name.split('/')[0]}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Quick Log Modal */}
+        {quickLogPillar && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+            <div className="bg-zinc-950 border border-zinc-800 rounded-lg w-full max-w-sm p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-heading font-bold uppercase text-white">Quick Log</h3>
+                <button
+                  data-testid="close-quick-log-modal"
+                  onClick={() => setQuickLogPillar(null)}
+                  className="text-zinc-400 hover:text-white"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <div className="bg-primary/10 border border-primary/30 rounded-md p-3 mb-4">
+                <div className="text-primary font-body font-bold">{quickLogPillar}</div>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-zinc-400 text-sm font-body mb-2">Minutes</label>
+                <div className="flex gap-2">
+                  {['15', '30', '45', '60'].map((mins) => (
+                    <button
+                      key={mins}
+                      data-testid={`quick-log-${mins}-min`}
+                      onClick={() => setQuickLogMinutes(mins)}
+                      className={`flex-1 py-2 rounded-md font-mono text-sm transition-all ${
+                        quickLogMinutes === mins
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-zinc-900 border border-zinc-700 text-white hover:border-zinc-500'
+                      }`}
+                    >
+                      {mins}
+                    </button>
+                  ))}
+                </div>
+                <div className="mt-2">
+                  <Input
+                    data-testid="quick-log-custom-minutes"
+                    type="number"
+                    placeholder="Custom minutes"
+                    value={quickLogMinutes}
+                    onChange={(e) => setQuickLogMinutes(e.target.value)}
+                    min="1"
+                    className="bg-zinc-900 border-zinc-700 text-white font-mono text-center"
+                  />
+                </div>
+              </div>
+
+              <Button
+                data-testid="confirm-quick-log-btn"
+                onClick={handleQuickLog}
+                disabled={quickLogLoading}
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading uppercase"
+              >
+                {quickLogLoading ? (
+                  'Logging...'
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 mr-2" />
+                    Log {quickLogMinutes} min
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
+
         <Button
           data-testid="log-activity-btn"
           onClick={() => navigate('/log')}
