@@ -35,6 +35,12 @@ security = HTTPBearer()
 JWT_SECRET = os.environ.get('JWT_SECRET', 'forge-secret-key-change-in-production')
 JWT_ALGORITHM = 'HS256'
 
+# Resend email configuration
+RESEND_API_KEY = os.environ.get('RESEND_API_KEY')
+SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'onboarding@resend.dev')
+if RESEND_API_KEY:
+    resend.api_key = RESEND_API_KEY
+
 PILLARS = [
     "Fitness/Training",
     "Sports Practice",
