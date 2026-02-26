@@ -24,6 +24,7 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
 - **Database:** MongoDB
 - **Authentication:** JWT tokens
 - **Payments:** Stripe (TEST mode)
+- **Email:** Resend (requires RESEND_API_KEY configuration)
 
 ## What's Been Implemented
 
@@ -43,8 +44,14 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
 - [x] Change password/email functionality
 - [x] Delete account functionality
 - [x] Privacy Policy & Terms of Service pages
-- [x] **Edit/Delete Sessions UI** - Frontend UI for editing and deleting logged sessions (Feb 26, 2026)
-- [x] **Quick Log Feature** - Log sessions directly from dashboard with one tap (Feb 26, 2026)
+- [x] **Edit/Delete Sessions UI** (Feb 26, 2026)
+- [x] **Quick Log Feature** - Log sessions from dashboard (Feb 26, 2026)
+
+### Phase 2 - Completed (Feb 26, 2026)
+- [x] **Session History Page** - Full calendar view of past sessions
+- [x] **Notes on Sessions** - Add text notes to any session
+- [x] **Email Notifications Backend** - Streak reminders & weekly summaries (requires RESEND_API_KEY)
+- [x] **Notification Settings** - Toggle streak reminders and weekly summaries in Profile
 
 ### Backend Endpoints
 - `/api/auth/register`, `/api/auth/login`
@@ -57,18 +64,23 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
 - `/api/leaderboard/global`
 - `/api/payments/create-checkout`, `/api/payments/status/{session_id}`
 - `/api/users/change-password`, `/api/users/change-email`, `/api/users/account` (DELETE)
+- `/api/notifications/settings` (GET/PUT)
+- `/api/notifications/send-streak-reminder` (POST)
+- `/api/notifications/send-weekly-summary` (POST)
 
 ## Key Files
 - `/app/backend/server.py` - All backend logic
 - `/app/frontend/src/App.js` - Main router
-- `/app/frontend/src/pages/LogScreen.js` - Session logging + Edit/Delete UI
-- `/app/frontend/src/pages/Dashboard.js` - Main dashboard + Quick Log feature
+- `/app/frontend/src/pages/LogScreen.js` - Session logging + Edit/Delete + Notes
+- `/app/frontend/src/pages/Dashboard.js` - Main dashboard + Quick Log
+- `/app/frontend/src/pages/HistoryScreen.js` - Session history with calendar
+- `/app/frontend/src/pages/ProfileScreen.js` - Profile + Notification settings
 - `/app/frontend/src/context/AuthContext.js` - Auth state management
 
 ## Database Schema
-- **users:** `{id, email, username, age, password_hash, join_date, current_streak, longest_streak, subscription_active, trial_ends_at, leaderboard_opt_in}`
+- **users:** `{id, email, username, age, password_hash, join_date, current_streak, longest_streak, subscription_active, trial_ends_at, leaderboard_opt_in, streak_reminders, weekly_summary}`
 - **user_pillars:** `{user_id, pillar_name, weekly_target_sessions}`
-- **daily_sessions:** `{id, user_id, pillar, date, timestamp, minutes_spent}`
+- **daily_sessions:** `{id, user_id, pillar, date, timestamp, minutes_spent, note}`
 - **groups:** `{id, name, type, created_by, members[], invite_code, created_at}`
 - **payment_transactions:** `{id, session_id, user_id, amount, plan, payment_status}`
 
@@ -76,17 +88,20 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
 - App deployed to `edgemodeapp.com` (DNS configured)
 - Stripe in TEST mode (card: 4242 4242 4242 4242)
 
+## Configuration Required
+- **RESEND_API_KEY** - Add to `/app/backend/.env` for email notifications to work
+- **SENDER_EMAIL** - Optional, defaults to `onboarding@resend.dev`
+
 ## Prioritized Backlog
 
 ### P0 - Critical (None remaining)
-All critical Phase 1 features are complete.
+All critical features are complete.
 
-### P1 - High Priority (Phase 2)
-- [ ] Session History/Timeline page with calendar view
-- [ ] Email notifications (streak reminders, weekly summaries)
+### P1 - High Priority
+- [ ] Automated email scheduling (cron job for streak reminders)
+- [ ] Mobile PWA optimization
 
-### P2 - Medium Priority (Phase 2-3)
-- [ ] Notes on Sessions feature
+### P2 - Medium Priority (Phase 3)
 - [ ] FAQ/Help Section
 - [ ] Achievements/Badges system
 - [ ] Social Sharing buttons
