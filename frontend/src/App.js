@@ -13,6 +13,7 @@ import { WeeklyReviewScreen } from './pages/WeeklyReviewScreen';
 import { SubscriptionSuccessScreen } from './pages/SubscriptionSuccessScreen';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { TermsOfService } from './pages/TermsOfService';
+import { ForgotPassword } from './pages/ForgotPassword';
 import { BottomNav } from './components/BottomNav';
 import { Toaster } from './components/ui/sonner';
 import axios from 'axios';
