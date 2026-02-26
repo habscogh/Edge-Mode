@@ -251,31 +251,39 @@ export const LogScreen = () => {
                 <div
                   key={session.id}
                   data-testid={`session-item-${session.id}`}
-                  className="bg-zinc-950 border border-zinc-800 rounded-md p-4 flex items-center justify-between"
+                  className="bg-zinc-950 border border-zinc-800 rounded-md p-4"
                 >
-                  <div className="flex-1">
-                    <div className="text-white font-body font-medium">{session.pillar}</div>
-                    <div className="flex items-center gap-3 text-zinc-400 text-sm">
-                      <span className="font-mono">{session.minutes_spent} min</span>
-                      <span>•</span>
-                      <span>{formatTime(session.timestamp)}</span>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="text-white font-body font-medium">{session.pillar}</div>
+                      <div className="flex items-center gap-3 text-zinc-400 text-sm">
+                        <span className="font-mono">{session.minutes_spent} min</span>
+                        <span>•</span>
+                        <span>{formatTime(session.timestamp)}</span>
+                      </div>
+                      {session.note && (
+                        <div className="mt-2 flex items-start gap-2 text-zinc-400 text-sm">
+                          <StickyNote className="w-4 h-4 mt-0.5 text-yellow-500 flex-shrink-0" />
+                          <span className="italic">{session.note}</span>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      data-testid={`edit-session-${session.id}`}
-                      onClick={() => handleEditSession(session)}
-                      className="p-2 text-zinc-400 hover:text-primary hover:bg-zinc-800 rounded-md transition-colors"
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </button>
-                    <button
-                      data-testid={`delete-session-${session.id}`}
-                      onClick={() => setDeleteConfirm(session.id)}
-                      className="p-2 text-zinc-400 hover:text-red-500 hover:bg-zinc-800 rounded-md transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        data-testid={`edit-session-${session.id}`}
+                        onClick={() => handleEditSession(session)}
+                        className="p-2 text-zinc-400 hover:text-primary hover:bg-zinc-800 rounded-md transition-colors"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button
+                        data-testid={`delete-session-${session.id}`}
+                        onClick={() => setDeleteConfirm(session.id)}
+                        className="p-2 text-zinc-400 hover:text-red-500 hover:bg-zinc-800 rounded-md transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
