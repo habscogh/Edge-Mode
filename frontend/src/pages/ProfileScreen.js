@@ -165,20 +165,21 @@ export const ProfileScreen = () => {
               <div>
                 <div className="text-white font-body">Subscription</div>
                 <div className="text-zinc-400 text-sm font-body">
-                  {user.subscription_active ? 'Premium Member' : 'Choose your plan'}
+                  {isTrialActive ? `${trialDaysLeft} days left in trial` : 
+                   user.subscription_active ? 'Premium Member' : 'Choose your plan'}
                 </div>
               </div>
             </div>
             <div className={`px-3 py-1 rounded-full text-xs font-mono font-bold ${
-              user.subscription_active
+              user.subscription_active || isTrialActive
                 ? 'bg-primary/20 text-primary'
                 : 'bg-zinc-800 text-zinc-400'
             }`}>
-              {user.subscription_active ? 'ACTIVE' : 'INACTIVE'}
+              {isTrialActive ? 'TRIAL' : user.subscription_active ? 'ACTIVE' : 'INACTIVE'}
             </div>
           </div>
           
-          {!user.subscription_active && (
+          {!user.subscription_active && !isTrialActive && (
             <>
               <div className="grid grid-cols-2 gap-3 mb-4">
                 <button
@@ -215,22 +216,110 @@ export const ProfileScreen = () => {
                 disabled={loading}
                 className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading uppercase tracking-wide"
               >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  `Subscribe ${selectedPlan === 'monthly' ? 'Monthly' : 'Yearly'}`
-                )}
+                {loading ? 'Processing...' : `Subscribe ${selectedPlan === 'monthly' ? 'Monthly' : 'Yearly'}`}
               </Button>
             </>
           )}
           
-          {user.subscription_active && (
+          {(user.subscription_active || isTrialActive) && (
             <p className="text-zinc-500 text-sm font-body text-center">
-              Thank you for being an Edge Mode Premium member!
+              {isTrialActive ? 'Enjoying your trial? Subscribe to continue after trial ends.' : 'Thank you for being an Edge Mode Premium member!'}
             </p>
+          )}
+        </div>
+
+        <div className="bg-zinc-950 border border-zinc-800 rounded-md p-6 mb-4">
+          <button
+            onClick={() => setShowAccountSettings(!showAccountSettings)}
+            className="flex items-center gap-3 w-full"
+          >
+            <Settings className="w-5 h-5 text-zinc-400" />
+            <span className="text-white font-body">Account Settings</span>
+          </button>
+
+          {showAccountSettings && (
+            <div className="mt-6 space-y-6">
+              <div>
+                <h3 className="text-white font-body font-bold mb-3 flex items-center gap-2">
+                  <Lock className="w-4 h-4" />
+                  Change Password
+                </h3>
+                <div className="space-y-2">
+                  <Input
+                    type="password"
+                    placeholder="Current password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    className="bg-zinc-900 border-zinc-800 text-white"
+                  />
+                  <Input
+                    type="password"
+                    placeholder="New password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="bg-zinc-900 border-zinc-800 text-white"
+                  />
+                  <Button
+                    onClick={handleChangePassword}
+                    className="w-full bg-zinc-800 hover:bg-zinc-700"
+                  >
+                    Update Password
+                  </Button>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-white font-body font-bold mb-3 flex items-center gap-2">
+                  <Mail className="w-4 h-4" />
+                  Change Email
+                </h3>
+                <div className="space-y-2">
+                  <Input
+                    type="email"
+                    placeholder="New email"
+                    value={newEmail}
+                    onChange={(e) => setNewEmail(e.target.value)}
+                    className="bg-zinc-900 border-zinc-800 text-white"
+                  />
+                  <Input
+                    type="password"
+                    placeholder="Current password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    className="bg-zinc-900 border-zinc-800 text-white"
+                  />
+                  <Button
+                    onClick={handleChangeEmail}
+                    className="w-full bg-zinc-800 hover:bg-zinc-700"
+                  >
+                    Update Email
+                  </Button>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-red-500 font-body font-bold mb-3 flex items-center gap-2">
+                  <Trash2 className="w-4 h-4" />
+                  Delete Account
+                </h3>
+                <p className="text-zinc-500 text-sm mb-3">This action cannot be undone.</p>
+                <div className="space-y-2">
+                  <Input
+                    type="password"
+                    placeholder="Enter password to confirm"
+                    value={deletePassword}
+                    onChange={(e) => setDeletePassword(e.target.value)}
+                    className="bg-zinc-900 border-zinc-800 text-white"
+                  />
+                  <Button
+                    onClick={handleDeleteAccount}
+                    className="w-full bg-red-500 hover:bg-red-600"
+                  >
+                    Delete My Account
+                  </Button>
+                </div>
+              </div>
+            </div>
           )}
         </div>
 
