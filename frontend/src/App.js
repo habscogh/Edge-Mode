@@ -90,6 +90,7 @@ const AppRoutes = () => {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/auth" element={user ? <Navigate to="/dashboard" /> : <AuthScreen />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route
           path="/onboarding"
           element={
