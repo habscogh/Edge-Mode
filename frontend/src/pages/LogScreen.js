@@ -57,9 +57,11 @@ export const LogScreen = () => {
     try {
       await axios.post(`${API}/sessions/complete`, {
         pillar: selectedPillar,
-        minutes_spent: parseInt(minutes) || 30
+        minutes_spent: parseInt(minutes) || 30,
+        note: note || null
       });
       setSuccess(true);
+      setNote('');
       fetchTodaySessions();
       setTimeout(() => {
         setSuccess(false);
