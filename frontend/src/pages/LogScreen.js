@@ -3,7 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { CheckCircle2, ArrowLeft, Clock } from 'lucide-react';
+import { CheckCircle2, ArrowLeft, Clock, Pencil, Trash2, X } from 'lucide-react';
+import { toast } from 'sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -15,6 +16,10 @@ export const LogScreen = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [todaySessions, setTodaySessions] = useState([]);
+  const [editingSession, setEditingSession] = useState(null);
+  const [editMinutes, setEditMinutes] = useState('');
+  const [editPillar, setEditPillar] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
