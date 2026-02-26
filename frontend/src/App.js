@@ -156,6 +156,14 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/history"
+          element={
+            <ProtectedRoute>
+              <HistoryScreen />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
       </Routes>
