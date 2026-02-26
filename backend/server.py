@@ -88,6 +88,7 @@ class EditSession(BaseModel):
     session_id: str
     minutes_spent: int
     pillar: Optional[str] = None
+    note: Optional[str] = None
 
 class User(BaseModel):
     model_config = ConfigDict(extra="ignore")
