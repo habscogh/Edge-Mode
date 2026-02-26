@@ -874,25 +874,47 @@ async def get_global_leaderboard(age_group: Optional[str] = None):
             query['age'] = {'$gte': min_age, '$lte': max_age}
     
     users = await db.users.find(query, {'_id': 0, 'password': 0}).to_list(1000)
+    user_ids = [user['id'] for user in users]
     
-    leaderboard = []
+    if not user_ids:
+        return []
+    
     today = datetime.now(timezone.utc).date()
     week_start = today - timedelta(days=today.weekday())
     last_week_start = week_start - timedelta(days=7)
     last_week_end = week_start - timedelta(days=1)
     
+    # Batch fetch all sessions for current and last week
+    all_current_sessions = await db.daily_sessions.find({
+        'user_id': {'$in': user_ids},
+        'date': {'$gte': week_start.isoformat()}
+    }, {'_id': 0}).to_list(10000)
+    
+    all_last_sessions = await db.daily_sessions.find({
+        'user_id': {'$in': user_ids},
+        'date': {'$gte': last_week_start.isoformat(), '$lte': last_week_end.isoformat()}
+    }, {'_id': 0}).to_list(10000)
+    
+    all_pillars = await db.user_pillars.find({'user_id': {'$in': user_ids}}, {'_id': 0}).to_list(5000)
+    
+    # Group data by user_id
+    current_sessions_by_user = {}
+    for session in all_current_sessions:
+        current_sessions_by_user.setdefault(session['user_id'], []).append(session)
+    
+    last_sessions_by_user = {}
+    for session in all_last_sessions:
+        last_sessions_by_user.setdefault(session['user_id'], []).append(session)
+    
+    pillars_by_user = {}
+    for pillar in all_pillars:
+        pillars_by_user.setdefault(pillar['user_id'], []).append(pillar)
+    
+    leaderboard = []
     for user in users:
-        current_sessions = await db.daily_sessions.find({
-            'user_id': user['id'],
-            'date': {'$gte': week_start.isoformat()}
-        }, {'_id': 0}).to_list(1000)
-        
-        last_sessions = await db.daily_sessions.find({
-            'user_id': user['id'],
-            'date': {'$gte': last_week_start.isoformat(), '$lte': last_week_end.isoformat()}
-        }, {'_id': 0}).to_list(1000)
-        
-        user_pillars = await db.user_pillars.find({'user_id': user['id']}, {'_id': 0}).to_list(100)
+        current_sessions = current_sessions_by_user.get(user['id'], [])
+        last_sessions = last_sessions_by_user.get(user['id'], [])
+        user_pillars = pillars_by_user.get(user['id'], [])
         
         unique_days = set(s['date'] for s in current_sessions)
         days_logged = len(unique_days)
