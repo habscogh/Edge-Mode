@@ -216,6 +216,20 @@ export const LogScreen = () => {
             <p className="text-zinc-500 text-xs font-body mt-2">Track time for better insights</p>
           </div>
 
+          <div className="bg-zinc-950 border border-zinc-800 rounded-md p-6">
+            <label className="block text-white font-body mb-3">
+              <StickyNote className="w-4 h-4 inline mr-2 text-yellow-500" />
+              Add Note (Optional)
+            </label>
+            <textarea
+              data-testid="session-note-input"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="What did you work on? Any reflections?"
+              className="w-full bg-zinc-900 border border-zinc-800 rounded-md p-3 text-white font-body focus:ring-2 focus:ring-primary focus:outline-none resize-none h-20"
+            />
+          </div>
+
           <Button
             data-testid="submit-log-btn"
             type="submit"
