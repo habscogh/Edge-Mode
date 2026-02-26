@@ -14,7 +14,7 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 export const Dashboard = () => {
-  const { user, refreshUser } = useAuth();
+  const { user, fetchUser } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [comparison, setComparison] = useState(null);
@@ -59,7 +59,7 @@ export const Dashboard = () => {
       setQuickLogMinutes('30');
       // Refresh data
       fetchAllData();
-      if (refreshUser) refreshUser();
+      if (fetchUser) fetchUser();
     } catch (error) {
       console.error('Failed to quick log:', error);
       toast.error('Failed to log session');
