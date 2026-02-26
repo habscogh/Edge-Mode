@@ -807,21 +807,35 @@ async def get_group_leaderboard(group_id: str, current_user: dict = Depends(get_
     if not group or current_user['id'] not in group['members']:
         raise HTTPException(status_code=404, detail='Group not found')
     
-    leaderboard = []
+    member_ids = group['members']
     today = datetime.now(timezone.utc).date()
     week_start = today - timedelta(days=today.weekday())
     
-    for member_id in group['members']:
-        user = await db.users.find_one({'id': member_id}, {'_id': 0, 'password': 0})
+    # Batch fetch all data at once
+    users = await db.users.find({'id': {'$in': member_ids}}, {'_id': 0, 'password': 0}).to_list(100)
+    users_by_id = {user['id']: user for user in users}
+    
+    all_sessions = await db.daily_sessions.find({
+        'user_id': {'$in': member_ids},
+        'date': {'$gte': week_start.isoformat()}
+    }, {'_id': 0}).to_list(5000)
+    sessions_by_user = {}
+    for session in all_sessions:
+        sessions_by_user.setdefault(session['user_id'], []).append(session)
+    
+    all_pillars = await db.user_pillars.find({'user_id': {'$in': member_ids}}, {'_id': 0}).to_list(500)
+    pillars_by_user = {}
+    for pillar in all_pillars:
+        pillars_by_user.setdefault(pillar['user_id'], []).append(pillar)
+    
+    leaderboard = []
+    for member_id in member_ids:
+        user = users_by_id.get(member_id)
         if not user:
             continue
         
-        sessions = await db.daily_sessions.find({
-            'user_id': member_id,
-            'date': {'$gte': week_start.isoformat()}
-        }, {'_id': 0}).to_list(1000)
-        
-        user_pillars = await db.user_pillars.find({'user_id': member_id}, {'_id': 0}).to_list(100)
+        sessions = sessions_by_user.get(member_id, [])
+        user_pillars = pillars_by_user.get(member_id, [])
         
         unique_days = set(s['date'] for s in sessions)
         days_logged = len(unique_days)
