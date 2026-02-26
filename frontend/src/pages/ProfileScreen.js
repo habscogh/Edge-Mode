@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { User, LogOut, CreditCard, Trophy, Settings, Mail, Lock, Trash2 } from 'lucide-react';
+import { User, LogOut, CreditCard, Trophy, Settings, Mail, Lock, Trash2, Bell } from 'lucide-react';
 import { format } from 'date-fns';
 import axios from 'axios';
 import { toast } from 'sonner';
@@ -22,6 +22,39 @@ export const ProfileScreen = () => {
   const [newPassword, setNewPassword] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [deletePassword, setDeletePassword] = useState('');
+  const [notificationSettings, setNotificationSettings] = useState({
+    streak_reminders: true,
+    weekly_summary: true
+  });
+
+  useEffect(() => {
+    fetchNotificationSettings();
+  }, []);
+
+  const fetchNotificationSettings = async () => {
+    try {
+      const response = await axios.get(`${API}/notifications/settings`);
+      setNotificationSettings(response.data);
+    } catch (error) {
+      console.error('Failed to fetch notification settings:', error);
+    }
+  };
+
+  const handleNotificationToggle = async (setting) => {
+    const newSettings = {
+      ...notificationSettings,
+      [setting]: !notificationSettings[setting]
+    };
+    
+    try {
+      await axios.put(`${API}/notifications/settings`, newSettings);
+      setNotificationSettings(newSettings);
+      toast.success('Notification settings updated');
+    } catch (error) {
+      console.error('Failed to update notifications:', error);
+      toast.error('Failed to update settings');
+    }
+  };
 
   const handleLogout = () => {
     logout();
