@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
-import { User, LogOut, CreditCard, Trophy, Loader2 } from 'lucide-react';
+import { Input } from '../components/ui/input';
+import { User, LogOut, CreditCard, Trophy, Settings, Mail, Lock, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import axios from 'axios';
+import { toast } from 'sonner';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -14,6 +17,11 @@ export const ProfileScreen = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState('monthly');
+  const [showAccountSettings, setShowAccountSettings] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [newEmail, setNewEmail] = useState('');
+  const [deletePassword, setDeletePassword] = useState('');
 
   const handleLogout = () => {
     logout();
@@ -34,12 +42,70 @@ export const ProfileScreen = () => {
       }
     } catch (error) {
       console.error('Failed to create checkout:', error);
-      alert('Failed to start subscription process. Please try again.');
+      toast.error('Failed to start subscription process');
       setLoading(false);
     }
   };
 
+  const handleChangePassword = async () => {
+    if (!currentPassword || !newPassword) {
+      toast.error('Please fill all fields');
+      return;
+    }
+    try {
+      await axios.post(`${API}/users/change-password`, {
+        current_password: currentPassword,
+        new_password: newPassword
+      });
+      toast.success('Password changed successfully');
+      setCurrentPassword('');
+      setNewPassword('');
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to change password');
+    }
+  };
+
+  const handleChangeEmail = async () => {
+    if (!newEmail || !currentPassword) {
+      toast.error('Please fill all fields');
+      return;
+    }
+    try {
+      await axios.post(`${API}/users/change-email`, {
+        new_email: newEmail,
+        password: currentPassword
+      });
+      toast.success('Email changed successfully');
+      setNewEmail('');
+      setCurrentPassword('');
+      await fetchUser();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to change email');
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!deletePassword) {
+      toast.error('Please enter your password');
+      return;
+    }
+    if (!window.confirm('Are you sure? This action cannot be undone.')) {
+      return;
+    }
+    try {
+      await axios.delete(`${API}/users/account`);
+      toast.success('Account deleted');
+      logout();
+      navigate('/');
+    } catch (error) {
+      toast.error('Failed to delete account');
+    }
+  };
+
   if (!user) return null;
+
+  const isTrialActive = user.is_trial && user.trial_ends_at && new Date(user.trial_ends_at) > new Date();
+  const trialDaysLeft = isTrialActive ? Math.ceil((new Date(user.trial_ends_at) - new Date()) / (1000 * 60 * 60 * 24)) : 0;
 
   return (
     <div className="min-h-screen bg-[#09090b] p-4 pb-24">
