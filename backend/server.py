@@ -137,10 +137,12 @@ class DailySession(BaseModel):
     date: str
     timestamp: str
     minutes_spent: int = 0
+    note: Optional[str] = None
 
 class SessionComplete(BaseModel):
     pillar: str
     minutes_spent: Optional[int] = 30
+    note: Optional[str] = None
 
 class WeeklyStats(BaseModel):
     consistency_pct: float
