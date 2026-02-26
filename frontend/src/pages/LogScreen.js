@@ -219,6 +219,146 @@ export const LogScreen = () => {
             {loading ? 'Saving...' : 'Complete Session'}
           </Button>
         </form>
+
+        {/* Today's Sessions List with Edit/Delete */}
+        {todaySessions.length > 0 && (
+          <div className="mt-8">
+            <h2 className="text-xl font-heading font-bold uppercase text-white mb-4">
+              Today's Sessions
+            </h2>
+            <div className="space-y-3">
+              {todaySessions.map((session) => (
+                <div
+                  key={session.id}
+                  data-testid={`session-item-${session.id}`}
+                  className="bg-zinc-950 border border-zinc-800 rounded-md p-4 flex items-center justify-between"
+                >
+                  <div className="flex-1">
+                    <div className="text-white font-body font-medium">{session.pillar}</div>
+                    <div className="flex items-center gap-3 text-zinc-400 text-sm">
+                      <span className="font-mono">{session.minutes_spent} min</span>
+                      <span>•</span>
+                      <span>{formatTime(session.timestamp)}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      data-testid={`edit-session-${session.id}`}
+                      onClick={() => handleEditSession(session)}
+                      className="p-2 text-zinc-400 hover:text-primary hover:bg-zinc-800 rounded-md transition-colors"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button
+                      data-testid={`delete-session-${session.id}`}
+                      onClick={() => setDeleteConfirm(session.id)}
+                      className="p-2 text-zinc-400 hover:text-red-500 hover:bg-zinc-800 rounded-md transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Edit Modal */}
+        {editingSession && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+            <div className="bg-zinc-950 border border-zinc-800 rounded-lg w-full max-w-md p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-heading font-bold uppercase text-white">Edit Session</h3>
+                <button
+                  data-testid="close-edit-modal"
+                  onClick={() => setEditingSession(null)}
+                  className="text-zinc-400 hover:text-white"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-zinc-400 text-sm font-body mb-2">Activity</label>
+                  <select
+                    data-testid="edit-pillar-select"
+                    value={editPillar}
+                    onChange={(e) => setEditPillar(e.target.value)}
+                    className="w-full bg-zinc-900 border border-zinc-800 rounded-md p-3 text-white font-body focus:ring-2 focus:ring-primary focus:outline-none"
+                  >
+                    {pillars.map((pillar) => (
+                      <option key={pillar.id} value={pillar.pillar_name}>
+                        {pillar.pillar_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-zinc-400 text-sm font-body mb-2">Minutes</label>
+                  <Input
+                    data-testid="edit-minutes-input"
+                    type="number"
+                    value={editMinutes}
+                    onChange={(e) => setEditMinutes(e.target.value)}
+                    min="1"
+                    className="bg-zinc-900 border-zinc-800 text-white font-mono text-xl focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    data-testid="cancel-edit-btn"
+                    variant="outline"
+                    onClick={() => setEditingSession(null)}
+                    className="flex-1 border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    data-testid="save-edit-btn"
+                    onClick={handleSaveEdit}
+                    disabled={loading}
+                    className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                  >
+                    {loading ? 'Saving...' : 'Save Changes'}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {deleteConfirm && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+            <div className="bg-zinc-950 border border-zinc-800 rounded-lg w-full max-w-sm p-6">
+              <h3 className="text-xl font-heading font-bold uppercase text-white mb-2">Delete Session?</h3>
+              <p className="text-zinc-400 font-body mb-6">
+                This action cannot be undone. The session will be permanently removed.
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  data-testid="cancel-delete-btn"
+                  variant="outline"
+                  onClick={() => setDeleteConfirm(null)}
+                  className="flex-1 border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  data-testid="confirm-delete-btn"
+                  onClick={() => handleDeleteSession(deleteConfirm)}
+                  disabled={loading}
+                  className="flex-1 bg-red-600 text-white hover:bg-red-700"
+                >
+                  {loading ? 'Deleting...' : 'Delete'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
