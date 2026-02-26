@@ -44,6 +44,7 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
 - [x] Delete account functionality
 - [x] Privacy Policy & Terms of Service pages
 - [x] **Edit/Delete Sessions UI** - Frontend UI for editing and deleting logged sessions (Feb 26, 2026)
+- [x] **Quick Log Feature** - Log sessions directly from dashboard with one tap (Feb 26, 2026)
 
 ### Backend Endpoints
 - `/api/auth/register`, `/api/auth/login`
@@ -61,7 +62,7 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
 - `/app/backend/server.py` - All backend logic
 - `/app/frontend/src/App.js` - Main router
 - `/app/frontend/src/pages/LogScreen.js` - Session logging + Edit/Delete UI
-- `/app/frontend/src/pages/Dashboard.js` - Main dashboard
+- `/app/frontend/src/pages/Dashboard.js` - Main dashboard + Quick Log feature
 - `/app/frontend/src/context/AuthContext.js` - Auth state management
 
 ## Database Schema
