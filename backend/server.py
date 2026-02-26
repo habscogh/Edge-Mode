@@ -485,6 +485,8 @@ async def edit_session(edit_data: EditSession, current_user: dict = Depends(get_
     update_fields = {'minutes_spent': edit_data.minutes_spent}
     if edit_data.pillar:
         update_fields['pillar'] = edit_data.pillar
+    if edit_data.note is not None:
+        update_fields['note'] = edit_data.note if edit_data.note else None
     
     await db.daily_sessions.update_one(
         {'id': edit_data.session_id},
