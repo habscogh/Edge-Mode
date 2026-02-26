@@ -467,7 +467,8 @@ async def complete_session(session_data: SessionComplete, current_user: dict = D
         'pillar': session_data.pillar,
         'date': today,
         'timestamp': now.isoformat(),
-        'minutes_spent': session_data.minutes_spent or 30
+        'minutes_spent': session_data.minutes_spent or 30,
+        'note': session_data.note
     }
     await db.daily_sessions.insert_one(session_doc)
     
