@@ -87,6 +87,53 @@ export const LogScreen = () => {
     return todaySessions.filter(s => s.pillar === pillarName).length;
   };
 
+  const handleEditSession = (session) => {
+    setEditingSession(session);
+    setEditMinutes(session.minutes_spent.toString());
+    setEditPillar(session.pillar);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingSession) return;
+    
+    setLoading(true);
+    try {
+      await axios.put(`${API}/sessions/edit`, {
+        session_id: editingSession.id,
+        minutes_spent: parseInt(editMinutes) || 30,
+        pillar: editPillar
+      });
+      toast.success('Session updated successfully');
+      setEditingSession(null);
+      fetchTodaySessions();
+    } catch (error) {
+      console.error('Failed to edit session:', error);
+      toast.error('Failed to update session');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteSession = async (sessionId) => {
+    setLoading(true);
+    try {
+      await axios.delete(`${API}/sessions/${sessionId}`);
+      toast.success('Session deleted');
+      setDeleteConfirm(null);
+      fetchTodaySessions();
+    } catch (error) {
+      console.error('Failed to delete session:', error);
+      toast.error('Failed to delete session');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatTime = (timestamp) => {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
   return (
     <div className="min-h-screen bg-[#09090b] p-4 pb-24">
       <div className="max-w-2xl mx-auto pt-6">
