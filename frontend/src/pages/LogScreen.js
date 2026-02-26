@@ -95,6 +95,7 @@ export const LogScreen = () => {
     setEditingSession(session);
     setEditMinutes(session.minutes_spent.toString());
     setEditPillar(session.pillar);
+    setEditNote(session.note || '');
   };
 
   const handleSaveEdit = async () => {
@@ -105,7 +106,8 @@ export const LogScreen = () => {
       await axios.put(`${API}/sessions/edit`, {
         session_id: editingSession.id,
         minutes_spent: parseInt(editMinutes) || 30,
-        pillar: editPillar
+        pillar: editPillar,
+        note: editNote || null
       });
       toast.success('Session updated successfully');
       setEditingSession(null);
