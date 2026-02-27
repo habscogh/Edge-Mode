@@ -1531,7 +1531,7 @@ async def root_health_check():
 @app.on_event("startup")
 async def startup_scheduler():
     """Start the scheduler when app starts"""
-    # Streak reminders - daily at 8 PM UTC (adjust timezone as needed)
+    # Streak reminders - daily at 8 PM UTC (3 PM Eastern)
     scheduler.add_job(
         send_streak_reminders_job,
         CronTrigger(hour=20, minute=0),  # 8 PM UTC
@@ -1539,16 +1539,24 @@ async def startup_scheduler():
         replace_existing=True
     )
     
-    # Weekly summaries - every Sunday at 9 AM UTC
+    # Weekly summaries - every Sunday at 2 PM UTC (10 AM Eastern)
     scheduler.add_job(
         send_weekly_summaries_job,
-        CronTrigger(day_of_week='sun', hour=9, minute=0),
+        CronTrigger(day_of_week='sun', hour=14, minute=0),  # 2 PM UTC = 10 AM Eastern
         id="weekly_summaries",
         replace_existing=True
     )
     
+    # Inactive user reminders - daily at 6 PM UTC (2 PM Eastern)
+    scheduler.add_job(
+        send_inactive_reminders_job,
+        CronTrigger(hour=18, minute=0),  # 6 PM UTC = 2 PM Eastern
+        id="inactive_reminders",
+        replace_existing=True
+    )
+    
     scheduler.start()
-    logger.info("Email scheduler started - Streak reminders: 8 PM UTC daily, Weekly summaries: Sunday 9 AM UTC")
+    logger.info("Email scheduler started - Streak: 8PM UTC, Inactive: 6PM UTC, Weekly: Sun 2PM UTC")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
