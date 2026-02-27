@@ -1323,6 +1323,17 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for deployment"""
+    try:
+        # Check MongoDB connection
+        await client.admin.command('ping')
+        return {"status": "healthy", "database": "connected"}
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
+        return {"status": "unhealthy", "database": "disconnected", "error": str(e)}
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
