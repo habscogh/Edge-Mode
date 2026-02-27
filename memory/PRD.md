@@ -24,7 +24,7 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
 - **Database:** MongoDB
 - **Authentication:** JWT tokens
 - **Payments:** Stripe (TEST mode)
-- **Email:** Resend (requires RESEND_API_KEY configuration)
+- **Email:** Resend (domain verified: edgemodeapp.com)
 
 ## What's Been Implemented
 
@@ -44,14 +44,18 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
 - [x] Change password/email functionality
 - [x] Delete account functionality
 - [x] Privacy Policy & Terms of Service pages
-- [x] **Edit/Delete Sessions UI** (Feb 26, 2026)
-- [x] **Quick Log Feature** - Log sessions from dashboard (Feb 26, 2026)
+- [x] Edit/Delete Sessions UI (Feb 26, 2026)
+- [x] Quick Log Feature - Log sessions from dashboard (Feb 26, 2026)
 
-### Phase 2 - Completed (Feb 26, 2026)
-- [x] **Session History Page** - Full calendar view of past sessions
-- [x] **Notes on Sessions** - Add text notes to any session
-- [x] **Email Notifications Backend** - Streak reminders & weekly summaries (requires RESEND_API_KEY)
-- [x] **Notification Settings** - Toggle streak reminders and weekly summaries in Profile
+### Phase 2 - Completed (Feb 26-27, 2026)
+- [x] Session History Page - Full calendar view of past sessions
+- [x] Notes on Sessions - Add text notes to any session
+- [x] Email Notifications - Resend integration (domain verified)
+  - Streak reminder emails
+  - Weekly summary emails
+  - Sender: noreply@edgemodeapp.com
+- [x] Notification Settings - Toggle in Profile page
+- [x] Performance Ratings - 5-tier system (Elite, High Performer, On Track, Building, Getting Started)
 
 ### Backend Endpoints
 - `/api/auth/register`, `/api/auth/login`
