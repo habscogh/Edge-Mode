@@ -204,6 +204,7 @@ export const Dashboard = () => {
             <div>
               <div className="text-zinc-400 text-xs font-body uppercase tracking-wide mb-1">Performance</div>
               <div className="text-2xl font-mono font-bold text-primary">{stats?.performance_index || 0}%</div>
+              <PerformanceRatingBadge performanceIndex={stats?.performance_index || 0} />
             </div>
             <div>
               <div className="text-zinc-400 text-xs font-body uppercase tracking-wide mb-1">Consistency</div>
