@@ -1328,13 +1328,113 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# ============ Scheduled Email Jobs ============
+
+async def send_streak_reminders_job():
+    """Send streak reminder emails to users who haven't logged today"""
+    if not RESEND_API_KEY:
+        logger.warning("RESEND_API_KEY not set, skipping streak reminders")
+        return
+    
+    logger.info("Running streak reminder job...")
+    today = datetime.now(timezone.utc).date().isoformat()
+    
+    try:
+        # Find users with streak reminders enabled who haven't logged today
+        users = await db.users.find({
+            'streak_reminders': {'$ne': False},  # Default is True
+            'current_streak': {'$gt': 0}  # Only users with active streaks
+        }, {'_id': 0, 'id': 1, 'email': 1, 'username': 1, 'current_streak': 1}).to_list(1000)
+        
+        sent_count = 0
+        for user in users:
+            # Check if user logged today
+            session_today = await db.daily_sessions.find_one({
+                'user_id': user['id'],
+                'date': today
+            })
+            
+            if not session_today:
+                # User hasn't logged today - send reminder
+                html = get_streak_reminder_html(
+                    user.get('username', 'User'),
+                    user.get('current_streak', 0)
+                )
+                
+                try:
+                    await asyncio.to_thread(resend.Emails.send, {
+                        "from": SENDER_EMAIL,
+                        "to": [user['email']],
+                        "subject": "🔥 Don't Break Your Streak! - Edge Mode",
+                        "html": html
+                    })
+                    sent_count += 1
+                except Exception as e:
+                    logger.error(f"Failed to send streak reminder to {user['email']}: {e}")
+        
+        logger.info(f"Streak reminder job complete. Sent {sent_count} emails.")
+    except Exception as e:
+        logger.error(f"Streak reminder job failed: {e}")
+
+async def send_weekly_summaries_job():
+    """Send weekly summary emails to all opted-in users"""
+    if not RESEND_API_KEY:
+        logger.warning("RESEND_API_KEY not set, skipping weekly summaries")
+        return
+    
+    logger.info("Running weekly summary job...")
+    now = datetime.now(timezone.utc)
+    week_start = (now - timedelta(days=7)).isoformat()
+    
+    try:
+        # Find users with weekly summaries enabled
+        users = await db.users.find({
+            'weekly_summary': {'$ne': False}  # Default is True
+        }, {'_id': 0, 'id': 1, 'email': 1, 'username': 1}).to_list(1000)
+        
+        sent_count = 0
+        for user in users:
+            # Get weekly stats
+            sessions = await db.daily_sessions.find({
+                'user_id': user['id'],
+                'timestamp': {'$gte': week_start}
+            }, {'_id': 0}).to_list(100)
+            
+            total_sessions = len(sessions)
+            total_minutes = sum(s.get('minutes_spent', 0) for s in sessions)
+            days_logged = len(set(s.get('date') for s in sessions))
+            consistency_pct = (days_logged / 7) * 100
+            
+            stats = {
+                'total_sessions': total_sessions,
+                'total_minutes': total_minutes,
+                'consistency_pct': consistency_pct
+            }
+            
+            html = get_weekly_summary_html(user.get('username', 'User'), stats)
+            
+            try:
+                await asyncio.to_thread(resend.Emails.send, {
+                    "from": SENDER_EMAIL,
+                    "to": [user['email']],
+                    "subject": "📊 Your Weekly Summary - Edge Mode",
+                    "html": html
+                })
+                sent_count += 1
+            except Exception as e:
+                logger.error(f"Failed to send weekly summary to {user['email']}: {e}")
+        
+        logger.info(f"Weekly summary job complete. Sent {sent_count} emails.")
+    except Exception as e:
+        logger.error(f"Weekly summary job failed: {e}")
+
 @api_router.get("/health")
 async def health_check():
     """Health check endpoint for deployment"""
     try:
         # Check MongoDB connection
         await client.admin.command('ping')
-        return {"status": "healthy", "database": "connected"}
+        return {"status": "healthy", "database": "connected", "scheduler": scheduler.running}
     except Exception as e:
         logger.error(f"Health check failed: {e}")
         return {"status": "unhealthy", "database": "disconnected", "error": str(e)}
@@ -1344,6 +1444,29 @@ async def root_health_check():
     """Root health check endpoint"""
     return {"status": "ok"}
 
+@app.on_event("startup")
+async def startup_scheduler():
+    """Start the scheduler when app starts"""
+    # Streak reminders - daily at 8 PM UTC (adjust timezone as needed)
+    scheduler.add_job(
+        send_streak_reminders_job,
+        CronTrigger(hour=20, minute=0),  # 8 PM UTC
+        id="streak_reminders",
+        replace_existing=True
+    )
+    
+    # Weekly summaries - every Sunday at 9 AM UTC
+    scheduler.add_job(
+        send_weekly_summaries_job,
+        CronTrigger(day_of_week='sun', hour=9, minute=0),
+        id="weekly_summaries",
+        replace_existing=True
+    )
+    
+    scheduler.start()
+    logger.info("Email scheduler started - Streak reminders: 8 PM UTC daily, Weekly summaries: Sunday 9 AM UTC")
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
+    scheduler.shutdown()
     client.close()
