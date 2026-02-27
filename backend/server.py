@@ -485,7 +485,12 @@ async def complete_session(session_data: SessionComplete, current_user: dict = D
     }
     await db.daily_sessions.insert_one(session_doc)
     
+    # Update streak and last_log_date
     await update_streak(user_id, now.isoformat())
+    await db.users.update_one(
+        {'id': user_id},
+        {'$set': {'last_log_date': today}}
+    )
     
     return DailySession(**session_doc)
 
