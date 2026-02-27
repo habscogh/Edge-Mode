@@ -56,6 +56,7 @@ export const WeeklyReviewScreen = () => {
           <div className="bg-zinc-950 border border-zinc-800 rounded-md p-4">
             <div className="text-zinc-400 text-xs font-body uppercase tracking-wide mb-1">Performance</div>
             <div className="text-2xl font-mono font-bold text-primary">{review.performance_index}%</div>
+            <PerformanceRatingBadge performanceIndex={review.performance_index} />
           </div>
           <div className="bg-zinc-950 border border-zinc-800 rounded-md p-4">
             <div className="text-zinc-400 text-xs font-body uppercase tracking-wide mb-1">Sessions</div>
