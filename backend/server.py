@@ -1326,8 +1326,11 @@ async def get_scheduler_status(current_user: dict = Depends(get_current_user)):
     return {
         'scheduler_running': scheduler.running,
         'jobs': job_info,
-        'streak_reminders_time': '8:00 PM UTC daily',
-        'weekly_summary_time': 'Sunday 9:00 AM UTC'
+        'schedule': {
+            'streak_reminders': '8:00 PM UTC daily (3:00 PM Eastern)',
+            'inactive_reminders': '6:00 PM UTC daily (2:00 PM Eastern) - for 3-7 days inactive',
+            'weekly_summary': 'Sunday 2:00 PM UTC (10:00 AM Eastern)'
+        }
     }
 
 app.include_router(api_router)
