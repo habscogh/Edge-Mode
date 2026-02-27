@@ -16,6 +16,8 @@ import jwt
 import secrets
 import string
 import resend
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.cron import CronTrigger
 from emergentintegrations.payments.stripe.checkout import StripeCheckout, CheckoutSessionResponse, CheckoutStatusResponse, CheckoutSessionRequest
 
 # Password reset tokens storage (in production, use Redis or similar)
@@ -27,6 +29,9 @@ load_dotenv(ROOT_DIR / '.env')
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
+
+# Initialize scheduler
+scheduler = AsyncIOScheduler()
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
