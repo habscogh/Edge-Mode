@@ -1446,6 +1446,72 @@ async def send_weekly_summaries_job():
     except Exception as e:
         logger.error(f"Weekly summary job failed: {e}")
 
+def get_inactive_reminder_html(username: str, days_inactive: int) -> str:
+    return f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #09090b; color: white;">
+        <div style="text-align: center; padding: 20px 0;">
+            <h1 style="color: #fff; margin: 0; font-size: 24px;">👋 We Miss You!</h1>
+        </div>
+        <div style="padding: 20px; background: #18181b; border-radius: 8px; margin: 20px 0;">
+            <p style="margin: 0; font-size: 16px;">Hey <strong>{username}</strong>,</p>
+            <p style="margin: 15px 0;">It's been <strong style="color: #f97316;">{days_inactive} days</strong> since your last session.</p>
+            <p style="margin: 15px 0;">Remember: <em>Small steps lead to big changes.</em> Even 15 minutes today counts!</p>
+            <p style="margin: 15px 0;">Your future self will thank you. 💪</p>
+        </div>
+        <div style="text-align: center; padding: 20px;">
+            <p style="color: #71717a; font-size: 12px;">Edge Mode - 1% Better Every Day</p>
+        </div>
+    </div>
+    """
+
+async def send_inactive_reminders_job():
+    """Send reminder emails to users who haven't logged in 3+ days"""
+    if not RESEND_API_KEY:
+        logger.warning("RESEND_API_KEY not set, skipping inactive reminders")
+        return
+    
+    logger.info("Running inactive user reminder job...")
+    now = datetime.now(timezone.utc)
+    three_days_ago = (now - timedelta(days=3)).date().isoformat()
+    
+    try:
+        # Find users with streak reminders enabled
+        users = await db.users.find({
+            'streak_reminders': {'$ne': False}
+        }, {'_id': 0, 'id': 1, 'email': 1, 'username': 1, 'last_log_date': 1}).to_list(1000)
+        
+        sent_count = 0
+        for user in users:
+            last_log = user.get('last_log_date')
+            
+            # Check if user hasn't logged in 3+ days
+            if last_log and last_log <= three_days_ago:
+                # Calculate days inactive
+                last_log_date = datetime.fromisoformat(last_log).date()
+                days_inactive = (now.date() - last_log_date).days
+                
+                # Only send if 3-7 days inactive (don't spam long-inactive users)
+                if 3 <= days_inactive <= 7:
+                    html = get_inactive_reminder_html(
+                        user.get('username', 'User'),
+                        days_inactive
+                    )
+                    
+                    try:
+                        await asyncio.to_thread(resend.Emails.send, {
+                            "from": SENDER_EMAIL,
+                            "to": [user['email']],
+                            "subject": "👋 We Miss You! - Edge Mode",
+                            "html": html
+                        })
+                        sent_count += 1
+                    except Exception as e:
+                        logger.error(f"Failed to send inactive reminder to {user['email']}: {e}")
+        
+        logger.info(f"Inactive reminder job complete. Sent {sent_count} emails.")
+    except Exception as e:
+        logger.error(f"Inactive reminder job failed: {e}")
+
 @api_router.get("/health")
 async def health_check():
     """Health check endpoint for deployment"""
