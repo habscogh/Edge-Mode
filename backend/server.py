@@ -1312,6 +1312,24 @@ async def send_weekly_summary(current_user: dict = Depends(get_current_user)):
         return {'message': 'Weekly summary sent', 'email_id': result.get('id'), 'stats': stats}
     return {'message': 'Email not sent (check configuration)', 'stats': stats}
 
+@api_router.get("/scheduler/status")
+async def get_scheduler_status(current_user: dict = Depends(get_current_user)):
+    """Get the status of the email scheduler"""
+    jobs = scheduler.get_jobs()
+    job_info = []
+    for job in jobs:
+        job_info.append({
+            'id': job.id,
+            'next_run': job.next_run_time.isoformat() if job.next_run_time else None
+        })
+    
+    return {
+        'scheduler_running': scheduler.running,
+        'jobs': job_info,
+        'streak_reminders_time': '8:00 PM UTC daily',
+        'weekly_summary_time': 'Sunday 9:00 AM UTC'
+    }
+
 app.include_router(api_router)
 
 app.add_middleware(
