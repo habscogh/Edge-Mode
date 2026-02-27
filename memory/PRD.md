@@ -91,12 +91,10 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
 - **payment_transactions:** `{id, session_id, user_id, amount, plan, payment_status}`
 
 ## Deployment Status
-- App deployed to `edgemodeapp.com` (DNS configured)
+- App deployed to `edgemodeapp.com`
+- **PENDING:** Latest code changes awaiting deployment (support ticket open)
 - Stripe in TEST mode (card: 4242 4242 4242 4242)
-
-## Configuration Required
-- **RESEND_API_KEY** - Add to `/app/backend/.env` for email notifications to work
-- **SENDER_EMAIL** - Optional, defaults to `onboarding@resend.dev`
+- Resend domain verified (noreply@edgemodeapp.com)
 
 ## Prioritized Backlog
 
