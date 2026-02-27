@@ -1323,7 +1323,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-@app.get("/health")
+@api_router.get("/health")
 async def health_check():
     """Health check endpoint for deployment"""
     try:
@@ -1333,6 +1333,11 @@ async def health_check():
     except Exception as e:
         logger.error(f"Health check failed: {e}")
         return {"status": "unhealthy", "database": "disconnected", "error": str(e)}
+
+@app.get("/health")
+async def root_health_check():
+    """Root health check endpoint"""
+    return {"status": "ok"}
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
