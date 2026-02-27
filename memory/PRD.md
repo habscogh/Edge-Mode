@@ -79,6 +79,8 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
 - `/app/frontend/src/pages/Dashboard.js` - Main dashboard + Quick Log
 - `/app/frontend/src/pages/HistoryScreen.js` - Session history with calendar
 - `/app/frontend/src/pages/ProfileScreen.js` - Profile + Notification settings
+- `/app/frontend/src/components/PerformanceRating.js` - Performance rating component
+- `/app/frontend/src/components/ConsistencyRating.js` - Consistency rating component
 - `/app/frontend/src/context/AuthContext.js` - Auth state management
 
 ## Database Schema
