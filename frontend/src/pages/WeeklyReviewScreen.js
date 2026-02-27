@@ -140,7 +140,10 @@ export const WeeklyReviewScreen = () => {
           </div>
         )}
 
-        <ConsistencyRatingScale />
+        <div className="space-y-6">
+          <PerformanceRatingScale />
+          <ConsistencyRatingScale />
+        </div>
       </div>
     </div>
   );
