@@ -217,7 +217,10 @@ export const OnboardingScreen = () => {
             <h2 className="text-2xl font-heading font-bold uppercase tracking-tight text-white mb-2">
               SET WEEKLY TARGETS
             </h2>
-            <p className="text-zinc-400 font-body mb-6">How many sessions per week for each area?</p>
+            <p className="text-zinc-400 font-body mb-2">How many sessions per week for each area?</p>
+            <p className="text-primary text-sm font-body mb-6 bg-primary/10 border border-primary/30 rounded-md px-3 py-2">
+              💡 1 session = 30 minutes of focused work
+            </p>
 
             <div className="space-y-4 mb-6">
               {selectedPillars.map((pillar) => (
@@ -235,7 +238,7 @@ export const OnboardingScreen = () => {
                     <span className="text-zinc-400 font-body whitespace-nowrap">sessions/week</span>
                   </div>
                   <p className="text-zinc-500 text-xs font-body mt-2">
-                    Example: 5 workouts, 6 study sessions, 3 skill practices
+                    Example: 5 sessions = 2.5 hours/week
                   </p>
                 </div>
               ))}
