@@ -246,6 +246,7 @@ export const Dashboard = () => {
               </div>
             ))}
           </div>
+          <p className="text-zinc-500 text-xs font-body mt-3 text-center">1 session = 30 minutes</p>
         </div>
 
         {/* Quick Log Section */}
