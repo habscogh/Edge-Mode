@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { User, LogOut, CreditCard, Trophy, Settings, Mail, Lock, Trash2, Bell, Shield } from 'lucide-react';
+import { User, LogOut, CreditCard, Trophy, Settings, Mail, Lock, Trash2, Bell, Shield, UserPlus, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import axios from 'axios';
 import { toast } from 'sonner';
