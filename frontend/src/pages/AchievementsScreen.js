@@ -187,11 +187,22 @@ export const AchievementsScreen = () => {
                 <div className="text-zinc-500 text-xs font-body">Badges Earned</div>
               </div>
             </div>
-            <div className="text-right">
-              <div className="text-lg font-mono font-bold text-primary">
-                {badges?.total_available ? Math.round((badges.total_earned / badges.total_available) * 100) : 0}%
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <div className="text-lg font-mono font-bold text-primary">
+                  {badges?.total_available ? Math.round((badges.total_earned / badges.total_available) * 100) : 0}%
+                </div>
+                <div className="text-zinc-500 text-xs font-body">Complete</div>
               </div>
-              <div className="text-zinc-500 text-xs font-body">Complete</div>
+              {badges?.total_earned > 0 && (
+                <ShareButton 
+                  type="badge_summary" 
+                  data={{ earned: badges.total_earned, total: badges.total_available }}
+                  variant="outline"
+                  size="sm"
+                  className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+                />
+              )}
             </div>
           </div>
         </div>
@@ -213,6 +224,37 @@ export const AchievementsScreen = () => {
             </button>
           ))}
         </div>
+
+        {/* Share Modal for individual badge */}
+        {shareMenuBadge && (
+          <>
+            <div 
+              className="fixed inset-0 bg-black/60 z-40"
+              onClick={() => setShareMenuBadge(null)}
+            />
+            <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-zinc-900 border border-zinc-700 rounded-lg p-6 w-[90%] max-w-sm">
+              <div className="text-center mb-4">
+                <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-4xl">{shareMenuBadge.icon}</span>
+                </div>
+                <h3 className="text-white font-heading font-bold uppercase">{shareMenuBadge.name}</h3>
+                <p className="text-zinc-400 text-sm">{shareMenuBadge.description}</p>
+              </div>
+              <p className="text-zinc-500 text-xs text-center mb-4">Share your achievement</p>
+              <ShareIcons 
+                type="badge" 
+                data={shareMenuBadge} 
+                className="justify-center"
+              />
+              <button
+                onClick={() => setShareMenuBadge(null)}
+                className="w-full mt-4 py-2 text-zinc-400 text-sm hover:text-white transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </>
+        )}
 
         {/* Badge Categories */}
         {Object.entries(categories).map(([key, category]) => (
