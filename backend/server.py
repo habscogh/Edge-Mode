@@ -2097,14 +2097,14 @@ def get_inactive_reminder_html(username: str, days_inactive: int) -> str:
     """
 
 async def send_inactive_reminders_job():
-    """Send reminder emails to users who haven't logged in 3+ days"""
+    """Send reminder emails to users who haven't logged in 2+ days"""
     if not RESEND_API_KEY:
         logger.warning("RESEND_API_KEY not set, skipping inactive reminders")
         return
     
     logger.info("Running inactive user reminder job...")
     now = datetime.now(timezone.utc)
-    three_days_ago = (now - timedelta(days=3)).date().isoformat()
+    two_days_ago = (now - timedelta(days=2)).date().isoformat()
     
     try:
         # Find users with streak reminders enabled
@@ -2116,8 +2116,8 @@ async def send_inactive_reminders_job():
         for user in users:
             last_log = user.get('last_log_date')
             
-            # Check if user hasn't logged in 3+ days
-            if last_log and last_log <= three_days_ago:
+            # Check if user hasn't logged in 2+ days
+            if last_log and last_log <= two_days_ago:
                 # Calculate days inactive
                 last_log_date = datetime.fromisoformat(last_log).date()
                 days_inactive = (now.date() - last_log_date).days
