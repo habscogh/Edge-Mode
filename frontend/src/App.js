@@ -190,6 +190,14 @@ const AppRoutes = () => {
           }
         />
         <Route
+          path="/achievements"
+          element={
+            <ProtectedRoute>
+              <AchievementsScreen />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/trial-expired"
           element={
             <ProtectedRoute requiresOnboarding={false} allowExpiredTrial={true}>
