@@ -1334,9 +1334,53 @@ async def get_scheduler_status(current_user: dict = Depends(get_current_user)):
         'schedule': {
             'streak_reminders': '8:00 PM UTC daily (3:00 PM Eastern)',
             'inactive_reminders': '6:00 PM UTC daily (2:00 PM Eastern) - for 3-7 days inactive',
+            'trial_ending_reminders': '4:00 PM UTC daily (12:00 PM Eastern) - for users with 1-3 days left',
             'weekly_summary': 'Sunday 2:00 PM UTC (10:00 AM Eastern)'
         }
     }
+
+@api_router.post("/notifications/send-trial-ending")
+async def send_trial_ending_reminder(current_user: dict = Depends(get_current_user)):
+    """Send trial ending reminder email to the current user (for testing)"""
+    if not current_user.get('is_trial'):
+        return {'message': 'User is not on trial'}
+    
+    if not current_user.get('streak_reminders', True):
+        return {'message': 'Streak reminders disabled for this user'}
+    
+    # Calculate days left
+    now = datetime.now(timezone.utc)
+    trial_end = datetime.fromisoformat(current_user['trial_ends_at'].replace('Z', '+00:00'))
+    days_left = max(1, (trial_end.date() - now.date()).days)
+    
+    # Get weekly stats
+    user_id = current_user['id']
+    week_start = now.date() - timedelta(days=now.weekday())
+    
+    sessions = await db.daily_sessions.find({
+        'user_id': user_id,
+        'date': {'$gte': week_start.isoformat()}
+    }, {'_id': 0}).to_list(100)
+    
+    unique_days = set(s['date'] for s in sessions)
+    consistency_pct = (len(unique_days) / 7) * 100
+    
+    html = get_trial_ending_html(
+        current_user.get('username', 'User'),
+        days_left,
+        current_user.get('current_streak', 0),
+        consistency_pct
+    )
+    
+    result = await send_email_async(
+        current_user['email'],
+        f"⏰ Your Edge Mode Trial Ends {'Tomorrow' if days_left == 1 else f'in {days_left} Days'}",
+        html
+    )
+    
+    if result:
+        return {'message': 'Trial ending reminder sent', 'email_id': result.get('id'), 'days_left': days_left}
+    return {'message': 'Email not sent (check configuration)', 'days_left': days_left}
 
 # ============ Admin Endpoints ============
 
