@@ -95,8 +95,15 @@ export const Dashboard = () => {
     return 'text-zinc-500';
   };
 
+  const handleSubscribe = () => {
+    navigate('/profile'); // Navigate to profile where they can subscribe
+  };
+
   return (
     <div className="min-h-screen bg-[#09090b] pb-24">
+      {/* Trial Ending Banner - shows when 3 days or less remaining */}
+      <TrialEndingBanner onSubscribe={handleSubscribe} />
+      
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
