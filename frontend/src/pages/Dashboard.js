@@ -9,6 +9,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'rec
 import { format, parseISO } from 'date-fns';
 import { ConsistencyRatingBadge } from '../components/ConsistencyRating';
 import { PerformanceRatingBadge } from '../components/PerformanceRating';
+import { TrialEndingBanner } from '../components/TrialEndingBanner';
 import { toast } from 'sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
