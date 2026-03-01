@@ -624,7 +624,7 @@ async def get_user_pillars(current_user: dict = Depends(get_current_user)):
     pillars = await db.user_pillars.find({'user_id': current_user['id']}, {'_id': 0}).to_list(100)
     return [UserPillar(**p) for p in pillars]
 
-@api_router.post("/sessions/complete", response_model=DailySession)
+@api_router.post("/sessions/complete")
 async def complete_session(session_data: SessionComplete, current_user: dict = Depends(get_current_user)):
     # Check trial status
     if current_user.get('is_trial') and current_user.get('trial_ends_at'):
@@ -660,7 +660,13 @@ async def complete_session(session_data: SessionComplete, current_user: dict = D
         {'$set': {'last_log_date': today}}
     )
     
-    return DailySession(**session_doc)
+    # Check for newly earned badges
+    new_badges = await check_and_award_badges(user_id)
+    
+    return {
+        'session': DailySession(**session_doc).model_dump(),
+        'new_badges': new_badges
+    }
 
 @api_router.put("/sessions/edit")
 async def edit_session(edit_data: EditSession, current_user: dict = Depends(get_current_user)):
