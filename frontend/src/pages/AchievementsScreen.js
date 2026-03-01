@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { Trophy, Lock, CheckCircle, TrendingUp, Clock, Flame, Target, Star } from 'lucide-react';
+import { Trophy, Lock, CheckCircle, TrendingUp, Clock, Flame, Target, Star, Share2 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
+import { ShareButton, ShareIcons } from '../components/ShareButton';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -16,7 +17,7 @@ const BADGE_ICONS = {
   '🎯': Target
 };
 
-const BadgeCard = ({ badge, progress }) => {
+const BadgeCard = ({ badge, progress, onShare }) => {
   const isEarned = badge.earned;
   const IconComponent = BADGE_ICONS[badge.icon] || Trophy;
   const progressData = progress?.find(p => p.badge_id === badge.id);
