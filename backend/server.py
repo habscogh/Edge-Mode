@@ -1646,6 +1646,110 @@ async def send_inactive_reminders_job():
     except Exception as e:
         logger.error(f"Inactive reminder job failed: {e}")
 
+def get_trial_ending_html(username: str, days_left: int, streak: int, consistency_pct: float) -> str:
+    """Generate HTML for trial ending reminder email"""
+    days_text = "tomorrow" if days_left == 1 else f"in {days_left} days"
+    
+    streak_section = ""
+    if streak > 0:
+        streak_section = f"""
+            <div style="text-align: center; padding: 15px; background: #27272a; border-radius: 8px; margin: 10px 0;">
+                <div style="font-size: 32px; font-weight: bold; color: #f97316;">🔥 {streak}</div>
+                <div style="color: #71717a; font-size: 12px;">Day Streak</div>
+            </div>
+        """
+    
+    consistency_section = ""
+    if consistency_pct > 0:
+        consistency_section = f"""
+            <div style="text-align: center; padding: 15px; background: #27272a; border-radius: 8px; margin: 10px 0;">
+                <div style="font-size: 32px; font-weight: bold; color: #22c55e;">📈 {consistency_pct:.0f}%</div>
+                <div style="color: #71717a; font-size: 12px;">Consistency Score</div>
+            </div>
+        """
+    
+    return f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #09090b; color: white;">
+        <div style="text-align: center; padding: 20px 0;">
+            <h1 style="color: #fff; margin: 0; font-size: 24px;">⏰ Your Trial Ends {days_text.title()}</h1>
+        </div>
+        <div style="padding: 20px; background: #18181b; border-radius: 8px; margin: 20px 0;">
+            <p style="margin: 0; font-size: 16px;">Hey <strong>{username}</strong>,</p>
+            <p style="margin: 15px 0;">Your 14-day free trial ends <strong style="color: #f97316;">{days_text}</strong>.</p>
+            
+            {streak_section}
+            {consistency_section}
+            
+            <p style="margin: 15px 0; padding: 15px; background: #7f1d1d40; border: 1px solid #7f1d1d; border-radius: 8px; text-align: center;">
+                <strong style="color: #fca5a5;">Don't lose your progress.</strong><br/>
+                <span style="color: #a1a1aa; font-size: 14px;">Subscribe now to keep your momentum going.</span>
+            </p>
+        </div>
+        <div style="text-align: center; padding: 20px;">
+            <p style="color: #71717a; font-size: 12px;">Edge Mode - 1% Better Every Day</p>
+        </div>
+    </div>
+    """
+
+async def send_trial_ending_reminders_job():
+    """Send reminder emails to trial users with 2-3 days left"""
+    if not RESEND_API_KEY:
+        logger.warning("RESEND_API_KEY not set, skipping trial ending reminders")
+        return
+    
+    logger.info("Running trial ending reminder job...")
+    now = datetime.now(timezone.utc)
+    
+    try:
+        # Find trial users
+        users = await db.users.find({
+            'is_trial': True,
+            'trial_ends_at': {'$exists': True},
+            'streak_reminders': {'$ne': False}
+        }, {'_id': 0}).to_list(1000)
+        
+        sent_count = 0
+        for user in users:
+            trial_end = datetime.fromisoformat(user['trial_ends_at'].replace('Z', '+00:00'))
+            days_left = (trial_end.date() - now.date()).days
+            
+            # Only send if 2-3 days remaining (day 12 and 13 of trial)
+            if 1 <= days_left <= 3:
+                # Get user's weekly stats for consistency
+                user_id = user['id']
+                week_start = now.date() - timedelta(days=now.weekday())
+                
+                sessions = await db.daily_sessions.find({
+                    'user_id': user_id,
+                    'date': {'$gte': week_start.isoformat()}
+                }, {'_id': 0}).to_list(100)
+                
+                unique_days = set(s['date'] for s in sessions)
+                consistency_pct = (len(unique_days) / 7) * 100
+                
+                html = get_trial_ending_html(
+                    user.get('username', 'User'),
+                    days_left,
+                    user.get('current_streak', 0),
+                    consistency_pct
+                )
+                
+                try:
+                    await asyncio.to_thread(resend.Emails.send, {
+                        "from": SENDER_EMAIL,
+                        "to": [user['email']],
+                        "subject": f"⏰ Your Edge Mode Trial Ends {'Tomorrow' if days_left == 1 else f'in {days_left} Days'}",
+                        "html": html
+                    })
+                    sent_count += 1
+                    logger.info(f"Sent trial ending reminder to {user['email']} ({days_left} days left)")
+                except Exception as e:
+                    logger.error(f"Failed to send trial ending reminder to {user['email']}: {e}")
+        
+        logger.info(f"Trial ending reminder job complete. Sent {sent_count} emails.")
+    except Exception as e:
+        logger.error(f"Trial ending reminder job failed: {e}")
+
 @api_router.get("/health")
 async def health_check():
     """Health check endpoint for deployment"""
