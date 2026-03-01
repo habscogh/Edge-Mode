@@ -188,6 +188,14 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/trial-expired"
+          element={
+            <ProtectedRoute requiresOnboarding={false} allowExpiredTrial={true}>
+              <TrialExpiredScreen />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
       </Routes>
