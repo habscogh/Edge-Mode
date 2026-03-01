@@ -4,6 +4,7 @@ import { TrendingUp, TrendingDown, Award, Calendar } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { ConsistencyRatingBadge, ConsistencyRatingScale } from '../components/ConsistencyRating';
 import { PerformanceRatingBadge, PerformanceRatingScale } from '../components/PerformanceRating';
+import { ShareButton } from '../components/ShareButton';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -37,19 +38,35 @@ export const WeeklyReviewScreen = () => {
 
   if (!review) return null;
 
+  // Calculate total minutes from sessions this week
+  const totalMinutes = review.total_sessions * 30; // Assuming average 30 min per session
+
   return (
     <div className="min-h-screen bg-[#09090b] p-4 pb-24">
       <div className="max-w-2xl mx-auto pt-6">
-        <div className="flex items-center gap-3 mb-6">
-          <Award className="w-8 h-8 text-primary" />
-          <div>
-            <h1 className="text-3xl font-heading font-bold uppercase tracking-tight text-white">
-              Weekly Review
-            </h1>
-            <p className="text-zinc-400 text-sm font-body">
-              {format(parseISO(review.week_start), 'MMM d')} - {format(parseISO(review.week_end), 'MMM d')}
-            </p>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <Award className="w-8 h-8 text-primary" />
+            <div>
+              <h1 className="text-3xl font-heading font-bold uppercase tracking-tight text-white">
+                Weekly Review
+              </h1>
+              <p className="text-zinc-400 text-sm font-body">
+                {format(parseISO(review.week_start), 'MMM d')} - {format(parseISO(review.week_end), 'MMM d')}
+              </p>
+            </div>
           </div>
+          <ShareButton 
+            type="weekly_stats" 
+            data={{ 
+              sessions: review.total_sessions, 
+              minutes: totalMinutes,
+              consistency: Math.round(review.consistency_pct)
+            }}
+            variant="outline"
+            size="sm"
+            className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+          />
         </div>
 
         <div className="grid grid-cols-3 gap-3 mb-6">
