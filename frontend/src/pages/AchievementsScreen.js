@@ -63,9 +63,22 @@ const BadgeCard = ({ badge, progress, onShare }) => {
       
       {/* Earned date or progress */}
       {isEarned && badge.earned_at && (
-        <p className="text-center text-xs text-primary mt-2 font-mono">
-          {format(parseISO(badge.earned_at), 'MMM d, yyyy')}
-        </p>
+        <div className="flex items-center justify-center gap-2 mt-2">
+          <p className="text-xs text-primary font-mono">
+            {format(parseISO(badge.earned_at), 'MMM d, yyyy')}
+          </p>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onShare && onShare(badge);
+            }}
+            className="p-1 rounded-full hover:bg-zinc-800 transition-colors"
+            title="Share this badge"
+            data-testid={`share-badge-${badge.id}`}
+          >
+            <Share2 className="w-3.5 h-3.5 text-zinc-500 hover:text-primary" />
+          </button>
+        </div>
       )}
       
       {/* Progress bar for unearned badges */}
