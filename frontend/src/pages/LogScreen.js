@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { CheckCircle2, ArrowLeft, Clock, Pencil, Trash2, X, StickyNote } from 'lucide-react';
 import { toast } from 'sonner';
+import { MilestoneCelebration, checkMilestoneHit } from '../components/MilestoneCelebration';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 export const LogScreen = () => {
+  const { user, fetchUser } = useAuth();
   const [pillars, setPillars] = useState([]);
   const [selectedPillar, setSelectedPillar] = useState('');
   const [minutes, setMinutes] = useState('30');
@@ -22,6 +25,7 @@ export const LogScreen = () => {
   const [editPillar, setEditPillar] = useState('');
   const [editNote, setEditNote] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [milestoneToShow, setMilestoneToShow] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
