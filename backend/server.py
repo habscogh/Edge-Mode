@@ -285,7 +285,7 @@ async def register(user_data: UserRegister):
     
     user_id = str(uuid.uuid4())
     now = datetime.now(timezone.utc)
-    trial_end = now + timedelta(days=7)
+    trial_end = now + timedelta(days=14)
     
     user_doc = {
         'id': user_id,
