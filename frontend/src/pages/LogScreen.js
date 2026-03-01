@@ -56,6 +56,10 @@ export const LogScreen = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Store previous streak to check for milestones
+    const previousStreak = user?.current_streak || 0;
+    
     setLoading(true);
 
     try {
@@ -84,10 +88,25 @@ export const LogScreen = () => {
       setSuccess(true);
       setNote('');
       fetchTodaySessions();
-      setTimeout(() => {
+      
+      // Refresh user data and check for milestone
+      if (fetchUser) await fetchUser();
+      
+      // Get updated streak
+      const updatedUserRes = await axios.get(`${API}/auth/me`);
+      const newStreak = updatedUserRes.data?.current_streak || 0;
+      
+      const milestone = checkMilestoneHit(previousStreak, newStreak);
+      if (milestone) {
+        // Show milestone celebration instead of navigating away immediately
         setSuccess(false);
-        navigate('/dashboard');
-      }, 1500);
+        setMilestoneToShow({ milestone, streak: newStreak });
+      } else {
+        setTimeout(() => {
+          setSuccess(false);
+          navigate('/dashboard');
+        }, 1500);
+      }
     } catch (error) {
       console.error('Failed to log session:', error);
       alert('Failed to log session');
