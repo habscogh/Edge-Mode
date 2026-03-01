@@ -4,6 +4,7 @@
 Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Every Day"
 
 **Live URL:** https://edgemodeapp.com
+**Preview URL:** https://daily-improvement-1.preview.emergentagent.com
 
 ## Tech Stack
 - **Backend:** FastAPI (Python), APScheduler
@@ -17,7 +18,8 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 
 ### Core
 - User auth (signup/login)
-- 7-day free trial
+- 14-day free trial (updated from 7 days)
+- Trial Expired screen with subscription prompt (auto-redirect for expired trials)
 - Onboarding (select 3-5 pillars, set weekly targets)
 - Dashboard with metrics & 30-day graph
 - Session logging with notes
