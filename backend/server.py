@@ -460,6 +460,16 @@ async def register(user_data: UserRegister):
     now = datetime.now(timezone.utc)
     trial_end = now + timedelta(days=14)
     
+    # Generate unique referral code for this user
+    referral_code = f"{user_data.username[:4].upper()}{secrets.token_hex(3).upper()}"
+    
+    # Check if referred by someone
+    referred_by = None
+    if user_data.referral_code:
+        referrer = await db.users.find_one({'referral_code': user_data.referral_code}, {'_id': 0, 'id': 1})
+        if referrer:
+            referred_by = referrer['id']
+    
     user_doc = {
         'id': user_id,
         'email': user_data.email,
@@ -474,10 +484,23 @@ async def register(user_data: UserRegister):
         'trial_ends_at': trial_end.isoformat(),
         'last_log_date': None,
         'leaderboard_opt_in': False,
-        'total_sessions_completed': 0
+        'total_sessions_completed': 0,
+        'referral_code': referral_code,
+        'referred_by': referred_by
     }
     
     await db.users.insert_one(user_doc)
+    
+    # If referred, record the referral
+    if referred_by:
+        await db.referrals.insert_one({
+            'id': str(uuid.uuid4()),
+            'referrer_id': referred_by,
+            'referred_id': user_id,
+            'referred_email': user_data.email,
+            'created_at': now.isoformat()
+        })
+    
     token = create_token(user_id)
     
     return {'token': token, 'user_id': user_id, 'trial_ends_at': trial_end.isoformat()}
