@@ -52,11 +52,30 @@ export const Dashboard = () => {
     
     setQuickLogLoading(true);
     try {
-      await axios.post(`${API}/sessions/complete`, {
+      const response = await axios.post(`${API}/sessions/complete`, {
         pillar: quickLogPillar,
         minutes_spent: parseInt(quickLogMinutes) || 30
       });
       toast.success(`Logged ${quickLogMinutes} min of ${quickLogPillar}!`);
+      
+      // Check for newly earned badges and show toast notifications
+      if (response.data.new_badges && response.data.new_badges.length > 0) {
+        response.data.new_badges.forEach(badge => {
+          setTimeout(() => {
+            toast.success(
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">{badge.icon}</span>
+                <div>
+                  <div className="font-bold">Badge Unlocked!</div>
+                  <div className="text-sm opacity-80">{badge.name}</div>
+                </div>
+              </div>,
+              { duration: 5000 }
+            );
+          }, 500);
+        });
+      }
+      
       setQuickLogPillar(null);
       setQuickLogMinutes('30');
       // Refresh data
