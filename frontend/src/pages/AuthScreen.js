@@ -121,6 +121,22 @@ export const AuthScreen = () => {
                     className="bg-zinc-900 border-zinc-800 text-white font-mono focus:ring-2 focus:ring-primary"
                   />
                 </div>
+                <div>
+                  <Input
+                    data-testid="referral-code-input"
+                    type="text"
+                    placeholder="Referral code (optional)"
+                    value={referralCode}
+                    onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                    className="bg-zinc-900 border-zinc-800 text-white font-mono focus:ring-2 focus:ring-primary uppercase"
+                  />
+                  {referralCode && (
+                    <p className="text-xs text-primary mt-1 flex items-center gap-1">
+                      <UserPlus className="w-3 h-3" />
+                      Invited by a friend
+                    </p>
+                  )}
+                </div>
               </>
             )}
 
