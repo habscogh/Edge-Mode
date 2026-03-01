@@ -215,6 +215,7 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
+        <Route path="/faq" element={<FAQScreen />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
       </Routes>
