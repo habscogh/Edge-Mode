@@ -10,6 +10,7 @@ import { format, parseISO } from 'date-fns';
 import { ConsistencyRatingBadge } from '../components/ConsistencyRating';
 import { PerformanceRatingBadge } from '../components/PerformanceRating';
 import { TrialEndingBanner } from '../components/TrialEndingBanner';
+import { MilestoneCelebration, checkMilestoneHit } from '../components/MilestoneCelebration';
 import { toast } from 'sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -25,6 +26,7 @@ export const Dashboard = () => {
   const [quickLogPillar, setQuickLogPillar] = useState(null);
   const [quickLogMinutes, setQuickLogMinutes] = useState('30');
   const [quickLogLoading, setQuickLogLoading] = useState(false);
+  const [milestoneToShow, setMilestoneToShow] = useState(null);
 
   useEffect(() => {
     fetchAllData();
