@@ -69,6 +69,11 @@ const ProtectedRoute = ({ children, requiresOnboarding = true, allowExpiredTrial
     return <Navigate to="/" />;
   }
 
+  // Check for expired trial (redirect to trial-expired page)
+  if (!allowExpiredTrial && isTrialExpired(user)) {
+    return <Navigate to="/trial-expired" />;
+  }
+
   if (requiresOnboarding && !hasCompletedOnboarding) {
     return <Navigate to="/onboarding" />;
   }
