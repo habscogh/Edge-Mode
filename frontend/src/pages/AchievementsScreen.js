@@ -269,6 +269,7 @@ export const AchievementsScreen = () => {
                     key={badge.id} 
                     badge={badge} 
                     progress={progress}
+                    onShare={handleShareBadge}
                   />
                 ))}
               </div>
