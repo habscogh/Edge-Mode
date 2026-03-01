@@ -122,6 +122,7 @@ class UserRegister(BaseModel):
     username: str
     password: str
     age: int
+    referral_code: Optional[str] = None  # Optional referral code from inviter
 
     @validator('age')
     def validate_age(cls, v):
@@ -134,6 +135,10 @@ class UserRegister(BaseModel):
         if len(v) < 3:
             raise ValueError('Username must be at least 3 characters')
         return v
+
+class EmailInvite(BaseModel):
+    friend_email: EmailStr
+    friend_name: Optional[str] = None
 
 class UserLogin(BaseModel):
     email: EmailStr
