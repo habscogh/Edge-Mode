@@ -60,6 +60,15 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
   - Streak milestones
 - All shares include app link (edgemodeapp.com) for user acquisition
 - Native Web Share API support for mobile devices
+
+### Milestone Celebrations
+- Automatic popup when users hit streak milestones (7, 14, 30, 50, 100 days)
+- Celebratory modal with confetti animation
+- Shows streak count and motivational message
+- Built-in share buttons (Twitter, Facebook, Copy)
+- "Keep Going!" button to continue
+
+### Email Notifications (Automatic)
 - Streak reminders: 3 PM Eastern daily (for users with active streaks who haven't logged)
 - Inactive reminders: 2 PM Eastern (for 3-7 days inactive users)
 - **Trial ending reminders: 12 PM Eastern daily (for users with 1-3 days left on trial)**
