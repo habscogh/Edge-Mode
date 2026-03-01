@@ -68,6 +68,16 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 - Built-in share buttons (Twitter, Facebook, Copy)
 - "Keep Going!" button to continue
 
+### Invite Friends / Referrals
+- Unique referral code for each user (auto-generated)
+- Shareable invite link: `edgemodeapp.com/auth?ref=CODE`
+- Copy link/code to clipboard
+- Email invite: sends branded email to friend with invite link
+- Tracks successful referrals (friend signups)
+- Referral code input field on signup form
+- Accessible from Profile page at `/invite`
+- No limits on referrals
+
 ### Email Notifications (Automatic)
 - Streak reminders: 3 PM Eastern daily (for users with active streaks who haven't logged)
 - Inactive reminders: 2 PM Eastern (for 3-7 days inactive users)
