@@ -15,6 +15,7 @@ import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { TermsOfService } from './pages/TermsOfService';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { HistoryScreen } from './pages/HistoryScreen';
+import { AdminDashboard } from './pages/AdminDashboard';
 import { BottomNav } from './components/BottomNav';
 import { Toaster } from './components/ui/sonner';
 import axios from 'axios';
