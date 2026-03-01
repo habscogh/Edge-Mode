@@ -1793,8 +1793,16 @@ async def startup_scheduler():
         replace_existing=True
     )
     
+    # Trial ending reminders - daily at 4 PM UTC (12 PM Eastern)
+    scheduler.add_job(
+        send_trial_ending_reminders_job,
+        CronTrigger(hour=16, minute=0),  # 4 PM UTC = 12 PM Eastern
+        id="trial_ending_reminders",
+        replace_existing=True
+    )
+    
     scheduler.start()
-    logger.info("Email scheduler started - Streak: 8PM UTC, Inactive: 6PM UTC, Weekly: Sun 2PM UTC")
+    logger.info("Email scheduler started - Streak: 8PM UTC, Inactive: 6PM UTC, Trial Ending: 4PM UTC, Weekly: Sun 2PM UTC")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
