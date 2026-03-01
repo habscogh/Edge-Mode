@@ -1354,7 +1354,6 @@ async def get_admin_stats(admin_user: dict = Depends(require_admin)):
     now = datetime.now(timezone.utc)
     today = now.date().isoformat()
     week_ago = (now - timedelta(days=7)).isoformat()
-    month_ago = (now - timedelta(days=30)).isoformat()
     
     # User stats
     total_users = await db.users.count_documents({})
