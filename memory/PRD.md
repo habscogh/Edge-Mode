@@ -78,6 +78,16 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 - Accessible from Profile page at `/invite`
 - No limits on referrals
 
+### FAQ / Help Center
+- Comprehensive FAQ page at `/faq`
+- 6 categories: Getting Started, Streaks & Progress, Badges & Achievements, Subscription & Pricing, Groups & Social, Account & Privacy
+- Accordion-style expandable questions
+- Contact support link (support@edgemodeapp.com)
+- Links to Privacy Policy and Terms of Service
+- Accessible from:
+  - Landing page footer
+  - Profile page
+
 ### Email Notifications (Automatic)
 - Streak reminders: 3 PM Eastern daily (for users with active streaks who haven't logged)
 - Inactive reminders: 2 PM Eastern (for 3-7 days inactive users)
