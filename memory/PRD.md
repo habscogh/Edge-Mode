@@ -20,6 +20,8 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 - User auth (signup/login)
 - 14-day free trial (updated from 7 days)
 - Trial Expired screen with subscription prompt (auto-redirect for expired trials)
+  - "What You Accomplished" stats display
+  - "What You'll Lose" personalized warning (streak, hours, pillars, records)
 - Onboarding (select 3-5 pillars, set weekly targets)
 - Dashboard with metrics & 30-day graph
 - Session logging with notes
