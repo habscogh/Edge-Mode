@@ -199,6 +199,14 @@ const AppRoutes = () => {
           }
         />
         <Route
+          path="/invite"
+          element={
+            <ProtectedRoute>
+              <InviteFriendsScreen />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/trial-expired"
           element={
             <ProtectedRoute requiresOnboarding={false} allowExpiredTrial={true}>
