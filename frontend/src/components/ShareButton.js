@@ -77,7 +77,7 @@ const copyToClipboard = async (text) => {
 };
 
 // Use native Web Share API if available
-const useNativeShare = async (text, title) => {
+const nativeShare = async (text, title) => {
   if (navigator.share) {
     try {
       await navigator.share({
@@ -105,7 +105,7 @@ export const ShareButton = ({ type, data, variant = 'default', size = 'default',
   
   const handleShare = async () => {
     // Try native share first (mobile)
-    const shared = await useNativeShare(text, 'Edge Mode');
+    const shared = await nativeShare(text, 'Edge Mode');
     if (!shared) {
       setShowMenu(true);
     }
