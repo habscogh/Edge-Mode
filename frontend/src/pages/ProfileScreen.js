@@ -237,6 +237,26 @@ export const ProfileScreen = () => {
           </div>
         </div>
 
+        {/* Help & FAQ Button */}
+        <div 
+          className="bg-zinc-950 border border-zinc-800 rounded-lg p-4 mb-4 cursor-pointer hover:border-zinc-700 transition-colors"
+          onClick={() => navigate('/faq')}
+          data-testid="faq-btn"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center">
+                <HelpCircle className="w-5 h-5 text-zinc-400" />
+              </div>
+              <div>
+                <div className="text-white font-body font-medium">Help & FAQ</div>
+                <div className="text-zinc-500 text-sm font-body">Find answers to common questions</div>
+              </div>
+            </div>
+            <ChevronRight className="w-5 h-5 text-zinc-500" />
+          </div>
+        </div>
+
         <div className="bg-zinc-950 border border-zinc-800 rounded-md p-6 mb-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
