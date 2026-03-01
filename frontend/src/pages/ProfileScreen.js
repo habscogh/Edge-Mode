@@ -151,6 +151,22 @@ export const ProfileScreen = () => {
           Profile
         </h1>
 
+        {/* Admin Dashboard Link */}
+        {isAdmin && (
+          <div 
+            onClick={() => navigate('/admin')}
+            className="bg-purple-500/10 border border-purple-500/30 rounded-md p-4 mb-4 cursor-pointer hover:bg-purple-500/20 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <Shield className="w-5 h-5 text-purple-400" />
+              <div>
+                <div className="text-purple-400 font-body font-bold">Admin Dashboard</div>
+                <div className="text-purple-400/70 text-sm font-body">View user stats and activity</div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="bg-zinc-950 border border-zinc-800 rounded-md p-6 mb-4">
           <div className="flex items-center gap-4 mb-6">
             <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
