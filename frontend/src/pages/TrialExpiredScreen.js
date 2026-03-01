@@ -97,7 +97,7 @@ export const TrialExpiredScreen = () => {
 
         {/* Trial Accomplishments */}
         {stats && (stats.totalSessions > 0 || stats.longestStreak > 0) && (
-          <div className="bg-zinc-950 border border-zinc-800 rounded-md p-6 mb-6">
+          <div className="bg-zinc-950 border border-zinc-800 rounded-md p-6 mb-4">
             <h3 className="text-sm font-heading uppercase tracking-wide text-zinc-400 mb-4">
               What You Accomplished
             </h3>
@@ -119,11 +119,56 @@ export const TrialExpiredScreen = () => {
                 <div className="text-zinc-500 text-xs font-body">Longest Streak</div>
               </div>
             </div>
-            {stats.totalSessions > 0 && (
-              <p className="text-center text-primary text-sm font-body mt-4">
-                Don't lose this progress! 💪
-              </p>
-            )}
+          </div>
+        )}
+
+        {/* What You'll Lose - Only show if user has meaningful progress */}
+        {stats && (stats.totalSessions > 0 || stats.currentStreak > 0 || pillars.length > 0) && (
+          <div className="bg-red-950/30 border border-red-900/50 rounded-md p-4 mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <AlertTriangle className="w-4 h-4 text-red-400" />
+              <h3 className="text-sm font-heading uppercase tracking-wide text-red-400">
+                What You'll Lose
+              </h3>
+            </div>
+            <div className="space-y-2">
+              {stats.currentStreak > 0 && (
+                <div className="flex items-center gap-2 text-sm">
+                  <XCircle className="w-4 h-4 text-red-400/70" />
+                  <span className="text-zinc-300 font-body">
+                    Your <span className="text-red-400 font-bold">{stats.currentStreak}-day streak</span> will be lost
+                  </span>
+                </div>
+              )}
+              {stats.totalMinutes > 0 && (
+                <div className="flex items-center gap-2 text-sm">
+                  <XCircle className="w-4 h-4 text-red-400/70" />
+                  <span className="text-zinc-300 font-body">
+                    <span className="text-red-400 font-bold">{Math.round(stats.totalMinutes / 60)}+ hours</span> of tracked progress
+                  </span>
+                </div>
+              )}
+              {pillars.length > 0 && (
+                <div className="flex items-center gap-2 text-sm">
+                  <XCircle className="w-4 h-4 text-red-400/70" />
+                  <span className="text-zinc-300 font-body">
+                    Your progress in <span className="text-red-400 font-bold">{pillars.map(p => p.name).slice(0, 2).join(', ')}</span>
+                    {pillars.length > 2 && ` +${pillars.length - 2} more`}
+                  </span>
+                </div>
+              )}
+              {stats.longestStreak >= 7 && (
+                <div className="flex items-center gap-2 text-sm">
+                  <XCircle className="w-4 h-4 text-red-400/70" />
+                  <span className="text-zinc-300 font-body">
+                    Your <span className="text-red-400 font-bold">{stats.longestStreak}-day record</span> streak achievement
+                  </span>
+                </div>
+              )}
+            </div>
+            <p className="text-red-400/80 text-xs font-body mt-3 text-center">
+              Don't let your hard work disappear
+            </p>
           </div>
         )}
 
