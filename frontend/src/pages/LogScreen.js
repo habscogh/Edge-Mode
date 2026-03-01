@@ -55,11 +55,28 @@ export const LogScreen = () => {
     setLoading(true);
 
     try {
-      await axios.post(`${API}/sessions/complete`, {
+      const response = await axios.post(`${API}/sessions/complete`, {
         pillar: selectedPillar,
         minutes_spent: parseInt(minutes) || 30,
         note: note || null
       });
+      
+      // Check for newly earned badges and show toast notifications
+      if (response.data.new_badges && response.data.new_badges.length > 0) {
+        response.data.new_badges.forEach(badge => {
+          toast.success(
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">{badge.icon}</span>
+              <div>
+                <div className="font-bold">Badge Unlocked!</div>
+                <div className="text-sm opacity-80">{badge.name}</div>
+              </div>
+            </div>,
+            { duration: 5000 }
+          );
+        });
+      }
+      
       setSuccess(true);
       setNote('');
       fetchTodaySessions();
