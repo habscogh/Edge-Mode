@@ -2122,8 +2122,8 @@ async def send_inactive_reminders_job():
                 last_log_date = datetime.fromisoformat(last_log).date()
                 days_inactive = (now.date() - last_log_date).days
                 
-                # Only send if 3-7 days inactive (don't spam long-inactive users)
-                if 3 <= days_inactive <= 7:
+                # Only send if 2-7 days inactive (don't spam long-inactive users)
+                if 2 <= days_inactive <= 7:
                     html = get_inactive_reminder_html(
                         user.get('username', 'User'),
                         days_inactive
