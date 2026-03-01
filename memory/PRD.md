@@ -1,62 +1,61 @@
 # Edge Mode - Product Requirements Document
 
-## Original Problem Statement
-Build a mobile-first, full-stack application named "Edge Mode" to help teens (12-19) systematically improve themselves. The core idea is "1% Better Every Day," turning self-improvement into a data-driven, game-like experience.
+## Overview
+Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Every Day"
+
+**Live URL:** https://edgemodeapp.com
 
 ## Tech Stack
-- **Backend:** FastAPI (Python)
-- **Frontend:** React, JavaScript, Tailwind CSS, Shadcn UI
-- **Database:** MongoDB Atlas (production)
-- **Authentication:** JWT tokens
+- **Backend:** FastAPI (Python), APScheduler
+- **Frontend:** React, Tailwind CSS, Shadcn UI
+- **Database:** MongoDB Atlas
+- **Auth:** JWT tokens
 - **Payments:** Stripe (TEST mode)
 - **Email:** Resend (noreply@edgemodeapp.com)
-- **Scheduler:** APScheduler (automatic emails)
 
-## What's Been Implemented (All Complete)
+## Features (All Complete)
 
-### Phase 1 - Core Features
-- [x] Landing page with Edge Mode branding
-- [x] User authentication (signup, login, logout)
-- [x] 7-day app-based free trial
-- [x] Multi-step onboarding (pillar/target selection)
-- [x] Dashboard with performance metrics and 30-day graph
-- [x] Session logging
-- [x] Weekly review page
-- [x] Profile with account management
-- [x] Private groups with invite codes
-- [x] Global leaderboard (opt-in)
-- [x] Stripe subscription (monthly/yearly)
-- [x] Password reset flow
-- [x] Privacy Policy & Terms of Service
+### Core
+- User auth (signup/login)
+- 7-day free trial
+- Onboarding (select 3-5 pillars, set weekly targets)
+- Dashboard with metrics & 30-day graph
+- Session logging with notes
+- Session history (calendar view)
+- Edit/delete sessions
+- Quick Log on dashboard
 
-### Phase 2 - Engagement Features
-- [x] Edit/Delete Sessions UI
-- [x] Quick Log on Dashboard
-- [x] Session History page (calendar view)
-- [x] Notes on sessions
-- [x] Performance Ratings (Elite, High Performer, On Track, Building, Getting Started)
-- [x] Notification settings in Profile
+### Social
+- Private groups with invite codes
+- Global leaderboard (opt-in)
 
-### Phase 3 - Automatic Email Notifications
-- [x] Streak reminders (3:00 PM Eastern daily)
-- [x] Inactive user reminders (2:00 PM Eastern, 3-7 days inactive)
-- [x] Weekly summaries (Sunday 10:00 AM Eastern)
-- [x] APScheduler integration for automatic sending
-- [x] User toggle controls in Profile
+### Ratings
+- Performance Rating (Elite → Getting Started)
+- Consistency Rating
 
-## Deployment
-- **Live URL:** https://edgemodeapp.com
-- **Email Domain:** Verified (noreply@edgemodeapp.com)
-- **Stripe:** TEST mode (card: 4242 4242 4242 4242)
+### Email Notifications (Automatic)
+- Streak reminders: 3 PM Eastern daily
+- Inactive reminders: 2 PM Eastern (3-7 days inactive)
+- Weekly summaries: Sunday 10 AM Eastern
 
-## Prioritized Backlog
+### Admin
+- Admin Dashboard at `/admin`
+- Stats: users, sessions, subscriptions
+- Recent signups & activity
+- Access: admin@edgemodeapp.com only
 
-### P2 - Future Enhancements
+### Other
+- Stripe subscriptions ($5.99/mo, $59.99/yr)
+- Password reset
+- Profile settings
+- Privacy Policy & Terms of Service
+- "1 session = 30 minutes" guidance
+
+## Future Enhancements
 - [ ] FAQ/Help Section
-- [ ] Achievements/Badges system
-- [ ] Social Sharing buttons
-- [ ] Mobile PWA optimization
+- [ ] Achievements/Badges
+- [ ] Social Sharing
+- [ ] Mobile PWA
 
 ## Test Credentials
-- Create new user via signup
-- Stripe Test Card: 4242 4242 4242 4242 (any future expiry, any CVC)
+- Stripe Test Card: 4242 4242 4242 4242
