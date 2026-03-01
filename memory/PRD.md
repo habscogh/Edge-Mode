@@ -38,8 +38,9 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 - Consistency Rating
 
 ### Email Notifications (Automatic)
-- Streak reminders: 3 PM Eastern daily
-- Inactive reminders: 2 PM Eastern (3-7 days inactive)
+- Streak reminders: 3 PM Eastern daily (for users with active streaks who haven't logged)
+- Inactive reminders: 2 PM Eastern (for 3-7 days inactive users)
+- **Trial ending reminders: 12 PM Eastern daily (for users with 1-3 days left on trial)**
 - Weekly summaries: Sunday 10 AM Eastern
 
 ### Admin
