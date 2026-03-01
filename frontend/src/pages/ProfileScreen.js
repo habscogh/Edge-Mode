@@ -217,6 +217,26 @@ export const ProfileScreen = () => {
           <BadgeSummary />
         </div>
 
+        {/* Invite Friends Button */}
+        <div 
+          className="bg-zinc-950 border border-zinc-800 rounded-lg p-4 mb-4 cursor-pointer hover:border-zinc-700 transition-colors"
+          onClick={() => navigate('/invite')}
+          data-testid="invite-friends-btn"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
+                <UserPlus className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <div className="text-white font-body font-medium">Invite Friends</div>
+                <div className="text-zinc-500 text-sm font-body">Share Edge Mode with friends</div>
+              </div>
+            </div>
+            <ChevronRight className="w-5 h-5 text-zinc-500" />
+          </div>
+        </div>
+
         <div className="bg-zinc-950 border border-zinc-800 rounded-md p-6 mb-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
