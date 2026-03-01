@@ -71,12 +71,13 @@ export const AuthProvider = ({ children }) => {
     await fetchUser();
   };
 
-  const register = async (email, username, password, age) => {
+  const register = async (email, username, password, age, referralCode = null) => {
     const response = await axios.post(`${API}/auth/register`, {
       email,
       username,
       password,
-      age: parseInt(age)
+      age: parseInt(age),
+      referral_code: referralCode
     });
     const { token: newToken } = response.data;
     localStorage.setItem('forge_token', newToken);
