@@ -98,9 +98,9 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 - "1 session = 30 minutes" guidance
 
 ## Future Enhancements
-- [ ] FAQ/Help Section
 - [ ] Mobile PWA optimization
 - [ ] Refactor server.py into separate routers (auth, sessions, badges, groups, admin)
+- [ ] Add referral rewards (optional - currently no rewards)
 
 ## Test Credentials
 - Stripe Test Card: 4242 4242 4242 4242
