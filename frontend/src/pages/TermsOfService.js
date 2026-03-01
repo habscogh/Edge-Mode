@@ -35,7 +35,7 @@ export const TermsOfService = () => {
 
           <section>
             <h2 className="text-2xl font-heading font-bold text-white mb-3">Free Trial</h2>
-            <p>New users receive a 7-day free trial with full access to all features. No payment is required during the trial period. You may cancel at any time during the trial without being charged.</p>
+            <p>New users receive a 14-day free trial with full access to all features. No payment is required during the trial period. You may cancel at any time during the trial without being charged.</p>
           </section>
 
           <section>
