@@ -196,7 +196,7 @@ export const ProfileScreen = () => {
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <Trophy className="w-4 h-4 text-primary" />
-                <span className="text-white font-body">Achievements</span>
+                <span className="text-white font-body">Streaks</span>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2 text-center">
@@ -210,6 +210,11 @@ export const ProfileScreen = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Badge Summary - links to full achievements page */}
+        <div className="mb-4">
+          <BadgeSummary />
         </div>
 
         <div className="bg-zinc-950 border border-zinc-800 rounded-md p-6 mb-4">
