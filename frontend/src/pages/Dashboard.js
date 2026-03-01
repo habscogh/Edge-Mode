@@ -394,6 +394,15 @@ export const Dashboard = () => {
           Log Session
         </Button>
       </div>
+      
+      {/* Milestone Celebration Modal */}
+      {milestoneToShow && (
+        <MilestoneCelebration
+          milestone={milestoneToShow.milestone}
+          streak={milestoneToShow.streak}
+          onClose={() => setMilestoneToShow(null)}
+        />
+      )}
     </div>
   );
 };
