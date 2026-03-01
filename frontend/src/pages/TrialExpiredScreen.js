@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
-import { Clock, TrendingUp, Flame, Target, CreditCard, CheckCircle } from 'lucide-react';
+import { Clock, TrendingUp, Flame, Target, CreditCard, CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -12,6 +12,7 @@ export const TrialExpiredScreen = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
+  const [pillars, setPillars] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState('monthly');
 
@@ -22,25 +23,39 @@ export const TrialExpiredScreen = () => {
   const fetchTrialStats = async () => {
     try {
       // Get user's accomplishments during trial
-      const [sessionsRes, statsRes] = await Promise.all([
+      const [sessionsRes, statsRes, pillarsRes] = await Promise.all([
         axios.get(`${API}/sessions/history?days=30`).catch(() => ({ data: [] })),
-        axios.get(`${API}/stats/weekly`).catch(() => ({ data: {} }))
+        axios.get(`${API}/stats/weekly`).catch(() => ({ data: {} })),
+        axios.get(`${API}/users/pillars`).catch(() => ({ data: [] }))
       ]);
       
       const sessions = sessionsRes.data || [];
       const totalMinutes = sessions.reduce((sum, s) => sum + (s.minutes_spent || 0), 0);
       const totalSessions = sessions.length;
-      const pillarsWorked = [...new Set(sessions.map(s => s.pillar))].length;
+      const pillarsWorked = [...new Set(sessions.map(s => s.pillar))];
       
+      // Get pillar progress
+      const pillarProgress = pillarsRes.data?.map(p => {
+        const pillarSessions = sessions.filter(s => s.pillar === p.pillar_name);
+        return {
+          name: p.pillar_name,
+          sessions: pillarSessions.length,
+          target: p.weekly_target_sessions
+        };
+      }) || [];
+      
+      setPillars(pillarProgress);
       setStats({
         totalSessions,
         totalMinutes,
-        pillarsWorked,
-        longestStreak: user?.longest_streak || 0
+        pillarsWorked: pillarsWorked.length,
+        pillarNames: pillarsWorked,
+        longestStreak: user?.longest_streak || 0,
+        currentStreak: user?.current_streak || 0
       });
     } catch (error) {
       console.error('Failed to fetch stats:', error);
-      setStats({ totalSessions: 0, totalMinutes: 0, pillarsWorked: 0, longestStreak: 0 });
+      setStats({ totalSessions: 0, totalMinutes: 0, pillarsWorked: 0, pillarNames: [], longestStreak: 0, currentStreak: 0 });
     }
   };
 
