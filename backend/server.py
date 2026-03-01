@@ -56,6 +56,66 @@ PILLARS = [
     "Discipline Habits"
 ]
 
+# Badge Definitions
+BADGES = {
+    "first_session": {
+        "id": "first_session",
+        "name": "First Step",
+        "description": "Log your first session",
+        "icon": "🏆",
+        "category": "milestone"
+    },
+    "streak_7": {
+        "id": "streak_7",
+        "name": "Week Warrior",
+        "description": "Maintain a 7-day streak",
+        "icon": "🔥",
+        "category": "streak"
+    },
+    "streak_14": {
+        "id": "streak_14",
+        "name": "Fortnight Fighter",
+        "description": "Maintain a 14-day streak",
+        "icon": "🔥",
+        "category": "streak"
+    },
+    "streak_30": {
+        "id": "streak_30",
+        "name": "Monthly Master",
+        "description": "Maintain a 30-day streak",
+        "icon": "🔥",
+        "category": "streak"
+    },
+    "sessions_100": {
+        "id": "sessions_100",
+        "name": "Century Club",
+        "description": "Complete 100 sessions",
+        "icon": "💯",
+        "category": "milestone"
+    },
+    "hours_50": {
+        "id": "hours_50",
+        "name": "50 Hour Club",
+        "description": "Log 50+ hours total",
+        "icon": "⏱️",
+        "category": "milestone"
+    },
+    "perfect_week": {
+        "id": "perfect_week",
+        "name": "Perfect Week",
+        "description": "Log every day for a week",
+        "icon": "✨",
+        "category": "consistency"
+    },
+    "pillar_master": {
+        "id": "pillar_master",
+        "name": "Pillar Master",
+        "description": "Hit target on all pillars in a week",
+        "icon": "🎯",
+        "category": "mastery"
+    }
+}
+
 # Models
 class UserRegister(BaseModel):
     email: EmailStr
