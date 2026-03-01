@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { Flame } from 'lucide-react';
+import { Flame, UserPlus } from 'lucide-react';
 
 export const AuthScreen = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -11,10 +11,21 @@ export const AuthScreen = () => {
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
   const [age, setAge] = useState('');
+  const [referralCode, setReferralCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login, register } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Check for referral code in URL
+  useEffect(() => {
+    const refCode = searchParams.get('ref');
+    if (refCode) {
+      setReferralCode(refCode);
+      setIsLogin(false); // Switch to signup mode if referred
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,7 +42,7 @@ export const AuthScreen = () => {
           setLoading(false);
           return;
         }
-        await register(email, username, password, age);
+        await register(email, username, password, age, referralCode || null);
         navigate('/onboarding');
       }
     } catch (err) {
