@@ -438,6 +438,18 @@ export const LogScreen = () => {
             </div>
           </div>
         )}
+        
+        {/* Milestone Celebration Modal */}
+        {milestoneToShow && (
+          <MilestoneCelebration
+            milestone={milestoneToShow.milestone}
+            streak={milestoneToShow.streak}
+            onClose={() => {
+              setMilestoneToShow(null);
+              navigate('/dashboard');
+            }}
+          />
+        )}
       </div>
     </div>
   );
