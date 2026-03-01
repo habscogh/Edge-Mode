@@ -80,9 +80,8 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 
 ## Future Enhancements
 - [ ] FAQ/Help Section
-- [ ] Social Sharing (share achievements on social media)
-- [ ] Mobile PWA
-- [ ] Refactor server.py into separate routers
+- [ ] Mobile PWA optimization
+- [ ] Refactor server.py into separate routers (auth, sessions, badges, groups, admin)
 
 ## Test Credentials
 - Stripe Test Card: 4242 4242 4242 4242
