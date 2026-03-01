@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { User, LogOut, CreditCard, Trophy, Settings, Mail, Lock, Trash2, Bell } from 'lucide-react';
+import { User, LogOut, CreditCard, Trophy, Settings, Mail, Lock, Trash2, Bell, Shield } from 'lucide-react';
 import { format } from 'date-fns';
 import axios from 'axios';
 import { toast } from 'sonner';
@@ -11,6 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
+
+const ADMIN_EMAILS = ['admin@edgemodeapp.com'];
 
 export const ProfileScreen = () => {
   const { user, logout, fetchUser } = useAuth();
@@ -26,6 +28,8 @@ export const ProfileScreen = () => {
     streak_reminders: true,
     weekly_summary: true
   });
+
+  const isAdmin = user && ADMIN_EMAILS.includes(user.email);
 
   useEffect(() => {
     fetchNotificationSettings();
