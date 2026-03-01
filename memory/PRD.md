@@ -51,7 +51,15 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 - Performance Rating (Elite → Getting Started)
 - Consistency Rating
 
-### Email Notifications (Automatic)
+### Social Sharing
+- Share to Twitter/X, Facebook, or copy to clipboard
+- Shareable content:
+  - Individual badges (from Achievements page)
+  - Badge collection summary
+  - Weekly stats (from Weekly Review page)
+  - Streak milestones
+- All shares include app link (edgemodeapp.com) for user acquisition
+- Native Web Share API support for mobile devices
 - Streak reminders: 3 PM Eastern daily (for users with active streaks who haven't logged)
 - Inactive reminders: 2 PM Eastern (for 3-7 days inactive users)
 - **Trial ending reminders: 12 PM Eastern daily (for users with 1-3 days left on trial)**
