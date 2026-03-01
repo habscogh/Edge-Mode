@@ -16,6 +16,7 @@ import { TermsOfService } from './pages/TermsOfService';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { HistoryScreen } from './pages/HistoryScreen';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { TrialExpiredScreen } from './pages/TrialExpiredScreen';
 import { BottomNav } from './components/BottomNav';
 import { Toaster } from './components/ui/sonner';
 import axios from 'axios';
@@ -24,7 +25,16 @@ import './App.css';
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-const ProtectedRoute = ({ children, requiresOnboarding = true }) => {
+// Check if trial is expired
+const isTrialExpired = (user) => {
+  if (!user) return false;
+  if (user.subscription_active && !user.is_trial) return false; // Paid subscriber
+  if (!user.is_trial) return false; // Not a trial user
+  if (!user.trial_ends_at) return false;
+  return new Date(user.trial_ends_at) < new Date();
+};
+
+const ProtectedRoute = ({ children, requiresOnboarding = true, allowExpiredTrial = false }) => {
   const { user, loading } = useAuth();
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(null);
   const [checking, setChecking] = useState(true);
