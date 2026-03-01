@@ -17,6 +17,7 @@ import { ForgotPassword } from './pages/ForgotPassword';
 import { HistoryScreen } from './pages/HistoryScreen';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { TrialExpiredScreen } from './pages/TrialExpiredScreen';
+import { AchievementsScreen } from './pages/AchievementsScreen';
 import { BottomNav } from './components/BottomNav';
 import { Toaster } from './components/ui/sonner';
 import axios from 'axios';
