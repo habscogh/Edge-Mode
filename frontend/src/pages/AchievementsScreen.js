@@ -106,6 +106,7 @@ export const AchievementsScreen = () => {
   const [progress, setProgress] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all'); // all, earned, locked
+  const [shareMenuBadge, setShareMenuBadge] = useState(null);
 
   useEffect(() => {
     fetchBadges();
@@ -124,6 +125,10 @@ export const AchievementsScreen = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleShareBadge = (badge) => {
+    setShareMenuBadge(badge);
   };
 
   if (loading) {
