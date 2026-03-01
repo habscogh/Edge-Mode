@@ -19,21 +19,29 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 ### Core
 - User auth (signup/login)
 - 14-day free trial (updated from 7 days)
-- **Trial Ending Banner** - Shows on dashboard when 3 days or less remaining:
-  - "Your 14-day trial ends in X days"
-  - Current streak display
-  - Consistency score percentage
-  - "Don't lose your progress" CTA
-  - Dismissible (per session)
-- Trial Expired screen with subscription prompt (auto-redirect for expired trials)
-  - "What You Accomplished" stats display
-  - "What You'll Lose" personalized warning (streak, hours, pillars, records)
+- **Trial Ending Banner** - Shows on dashboard when 3 days or less remaining
+- Trial Expired screen with "What You'll Lose" personalized warning
 - Onboarding (select 3-5 pillars, set weekly targets)
 - Dashboard with metrics & 30-day graph
 - Session logging with notes
 - Session history (calendar view)
 - Edit/delete sessions
 - Quick Log on dashboard
+
+### Achievements/Badges System
+- **8 badges available:**
+  - 🏆 First Step - Log your first session
+  - 🔥 Week Warrior - Maintain a 7-day streak
+  - 🔥 Fortnight Fighter - Maintain a 14-day streak
+  - 🔥 Monthly Master - Maintain a 30-day streak
+  - 💯 Century Club - Complete 100 sessions
+  - ⏱️ 50 Hour Club - Log 50+ hours total
+  - ✨ Perfect Week - Log every day for a week
+  - 🎯 Pillar Master - Hit target on all pillars in a week
+- Dedicated Achievements page at `/achievements`
+- Badge summary on Profile page (links to full achievements)
+- Toast notifications when new badges are earned
+- Progress bars showing progress toward locked badges
 
 ### Social
 - Private groups with invite codes
