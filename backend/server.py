@@ -1000,8 +1000,17 @@ async def get_session_history(current_user: dict = Depends(get_current_user), da
     return sessions
 
 @api_router.get("/sessions/today")
-async def get_today_sessions(current_user: dict = Depends(get_current_user)):
-    today = datetime.now(timezone.utc).date().isoformat()
+async def get_today_sessions(current_user: dict = Depends(get_current_user), local_date: Optional[str] = None):
+    # Use client's local date if provided, otherwise fall back to UTC
+    if local_date:
+        try:
+            datetime.strptime(local_date, '%Y-%m-%d')
+            today = local_date
+        except ValueError:
+            today = datetime.now(timezone.utc).date().isoformat()
+    else:
+        today = datetime.now(timezone.utc).date().isoformat()
+    
     sessions = await db.daily_sessions.find({
         'user_id': current_user['id'],
         'date': today
