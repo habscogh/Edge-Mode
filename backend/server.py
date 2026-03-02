@@ -221,6 +221,7 @@ class SessionComplete(BaseModel):
     pillar: str
     minutes_spent: Optional[int] = 30
     note: Optional[str] = None
+    local_date: Optional[str] = None  # Client's local date (YYYY-MM-DD) to handle timezone correctly
 
 class WeeklyStats(BaseModel):
     consistency_pct: float
