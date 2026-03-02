@@ -60,13 +60,17 @@ export const LogScreen = () => {
     // Store previous streak to check for milestones
     const previousStreak = user?.current_streak || 0;
     
+    // Get client's local date
+    const localDate = new Date().toISOString().split('T')[0];
+    
     setLoading(true);
 
     try {
       const response = await axios.post(`${API}/sessions/complete`, {
         pillar: selectedPillar,
         minutes_spent: parseInt(minutes) || 30,
-        note: note || null
+        note: note || null,
+        local_date: localDate
       });
       
       // Check for newly earned badges and show toast notifications
