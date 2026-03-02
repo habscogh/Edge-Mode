@@ -55,11 +55,15 @@ export const Dashboard = () => {
     // Store previous streak to check for milestones
     const previousStreak = user?.current_streak || 0;
     
+    // Get client's local date
+    const localDate = new Date().toISOString().split('T')[0];
+    
     setQuickLogLoading(true);
     try {
       const response = await axios.post(`${API}/sessions/complete`, {
         pillar: quickLogPillar,
-        minutes_spent: parseInt(quickLogMinutes) || 30
+        minutes_spent: parseInt(quickLogMinutes) || 30,
+        local_date: localDate
       });
       toast.success(`Logged ${quickLogMinutes} min of ${quickLogPillar}!`);
       
