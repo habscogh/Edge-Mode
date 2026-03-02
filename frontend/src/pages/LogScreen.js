@@ -47,7 +47,9 @@ export const LogScreen = () => {
 
   const fetchTodaySessions = async () => {
     try {
-      const response = await axios.get(`${API}/sessions/today`);
+      // Send client's local date to get accurate "today" sessions
+      const localDate = new Date().toISOString().split('T')[0];
+      const response = await axios.get(`${API}/sessions/today?local_date=${localDate}`);
       setTodaySessions(response.data);
     } catch (error) {
       console.error('Failed to fetch today sessions:', error);
