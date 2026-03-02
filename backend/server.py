@@ -915,7 +915,17 @@ async def complete_session(session_data: SessionComplete, current_user: dict = D
     
     user_id = current_user['id']
     now = datetime.now(timezone.utc)
-    today = now.date().isoformat()
+    
+    # Use client's local date if provided, otherwise fall back to UTC date
+    if session_data.local_date:
+        # Validate the date format
+        try:
+            datetime.strptime(session_data.local_date, '%Y-%m-%d')
+            today = session_data.local_date
+        except ValueError:
+            today = now.date().isoformat()
+    else:
+        today = now.date().isoformat()
     
     user_pillars = await db.user_pillars.find({'user_id': user_id}, {'_id': 0}).to_list(100)
     pillar_names = [p['pillar_name'] for p in user_pillars]
