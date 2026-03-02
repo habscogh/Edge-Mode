@@ -178,7 +178,9 @@ export const LeaderboardScreen = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-primary font-mono font-bold text-lg">+{entry.improvement_pct}%</div>
+                      <div className={`font-mono font-bold text-lg ${entry.improvement_pct >= 0 ? 'text-primary' : 'text-red-400'}`}>
+                        {entry.improvement_pct >= 0 ? '+' : ''}{entry.improvement_pct}%
+                      </div>
                       <div className="text-zinc-500 text-xs font-body">{entry.performance_index}% score</div>
                     </div>
                   </div>
