@@ -139,7 +139,7 @@ export const FAQScreen = () => {
         },
         {
           q: "What are the subscription options?",
-          a: "We offer two plans: Monthly at $5.99/month, or Yearly at $59.99/year (save 17%). Both plans include unlimited session tracking, all badges, groups, leaderboards, and email reminders."
+          a: "We offer two plans: Monthly at $4.99/month, or Yearly at $49.99/year (save 17%). Both plans include unlimited session tracking, all badges, groups, leaderboards, and email reminders."
         },
         {
           q: "How do I cancel my subscription?",

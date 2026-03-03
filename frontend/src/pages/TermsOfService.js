@@ -41,8 +41,8 @@ export const TermsOfService = () => {
           <section>
             <h2 className="text-2xl font-heading font-bold text-white mb-3">Subscription and Payment</h2>
             <ul className="list-disc list-inside space-y-2 ml-4">
-              <li>Monthly subscription: $5.99/month</li>
-              <li>Yearly subscription: $59.99/year</li>
+              <li>Monthly subscription: $4.99/month</li>
+              <li>Yearly subscription: $49.99/year</li>
               <li>Payments are processed securely through Stripe</li>
               <li>Subscriptions automatically renew unless cancelled</li>
               <li>You can cancel at any time from your profile settings</li>

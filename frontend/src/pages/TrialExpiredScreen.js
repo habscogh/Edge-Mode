@@ -188,7 +188,7 @@ export const TrialExpiredScreen = () => {
                 <div className="text-zinc-400 text-sm font-body">Flexible, cancel anytime</div>
               </div>
               <div className="text-right">
-                <div className="text-white font-mono font-bold">$5.99</div>
+                <div className="text-white font-mono font-bold">$4.99</div>
                 <div className="text-zinc-500 text-xs font-body">/month</div>
               </div>
             </div>
@@ -211,7 +211,7 @@ export const TrialExpiredScreen = () => {
                 <div className="text-zinc-400 text-sm font-body">Best value for committed users</div>
               </div>
               <div className="text-right">
-                <div className="text-white font-mono font-bold">$59.99</div>
+                <div className="text-white font-mono font-bold">$49.99</div>
                 <div className="text-zinc-500 text-xs font-body">/year</div>
               </div>
             </div>

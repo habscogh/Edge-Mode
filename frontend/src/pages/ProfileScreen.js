@@ -290,7 +290,7 @@ export const ProfileScreen = () => {
                   }`}
                 >
                   <div className="text-white font-body font-bold mb-1">Monthly</div>
-                  <div className="text-2xl font-mono font-bold text-primary">$5.99</div>
+                  <div className="text-2xl font-mono font-bold text-primary">$4.99</div>
                   <div className="text-zinc-500 text-xs font-body">per month</div>
                 </button>
                 
@@ -303,7 +303,7 @@ export const ProfileScreen = () => {
                   }`}
                 >
                   <div className="text-white font-body font-bold mb-1">Yearly</div>
-                  <div className="text-2xl font-mono font-bold text-primary">$59.99</div>
+                  <div className="text-2xl font-mono font-bold text-primary">$49.99</div>
                   <div className="text-zinc-500 text-xs font-body">per year</div>
                   <div className="text-xs font-mono text-primary mt-1">Save 17%</div>
                 </button>
