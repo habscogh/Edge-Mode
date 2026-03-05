@@ -62,12 +62,14 @@ export const GroupsScreen = () => {
     try {
       await axios.post(`${API}/groups`, {
         name: newGroupName,
-        type: 'private'
+        type: 'private',
+        is_coach: isCoachGroup
       });
       setNewGroupName('');
+      setIsCoachGroup(false);
       setIsCreateDialogOpen(false);
       fetchGroups();
-      toast.success('Group created successfully!');
+      toast.success(isCoachGroup ? 'Team created! You are the coach.' : 'Group created successfully!');
     } catch (error) {
       console.error('Failed to create group:', error);
       toast.error('Failed to create group');
