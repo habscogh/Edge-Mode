@@ -229,6 +229,28 @@ export const ProfileScreen = () => {
           <BadgeSummary />
         </div>
 
+        {/* Parent Dashboard Button (only for parents) */}
+        {isParent && (
+          <div 
+            className="bg-zinc-950 border border-blue-500/30 rounded-lg p-4 mb-4 cursor-pointer hover:border-blue-500/50 transition-colors"
+            onClick={() => navigate('/parent-dashboard')}
+            data-testid="parent-dashboard-btn"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
+                  <Users className="w-5 h-5 text-blue-500" />
+                </div>
+                <div>
+                  <div className="text-white font-body font-medium">Parent Dashboard</div>
+                  <div className="text-zinc-500 text-sm font-body">View your linked students' progress</div>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-blue-500" />
+            </div>
+          </div>
+        )}
+
         {/* Manage Pillars Button */}
         <div 
           className="bg-zinc-950 border border-zinc-800 rounded-lg p-4 mb-4 cursor-pointer hover:border-zinc-700 transition-colors"
