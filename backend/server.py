@@ -277,6 +277,77 @@ class LeaderboardEntry(BaseModel):
     age_group: str
     improvement_pct: float
 
+# Challenge Models
+class Challenge(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    name: str
+    description: str
+    challenge_type: str  # 'weekly' or 'monthly'
+    metric_type: str  # 'pillar_sessions', 'pillar_minutes', 'total_sessions', 'total_minutes', 'consistency'
+    pillar: Optional[str] = None  # For pillar-specific challenges
+    start_date: str
+    end_date: str
+    status: str  # 'upcoming', 'active', 'completed'
+    created_at: str
+    created_by: str  # 'system' or admin user_id
+    participant_count: int = 0
+
+class ChallengeParticipant(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    challenge_id: str
+    user_id: str
+    username: str
+    joined_at: str
+    current_score: float = 0
+    rank: int = 0
+
+class ChallengeJoin(BaseModel):
+    challenge_id: str
+
+class ChallengeCreate(BaseModel):
+    name: str
+    description: str
+    challenge_type: str  # 'weekly' or 'monthly'
+    metric_type: str  # 'pillar_sessions', 'pillar_minutes', 'total_sessions', 'total_minutes', 'consistency'
+    pillar: Optional[str] = None
+
+# Challenge Badge definitions
+CHALLENGE_BADGES = {
+    "weekly_champion": {
+        "id": "weekly_champion",
+        "name": "Weekly Champion",
+        "description": "Win a weekly challenge",
+        "icon": "🏅",
+        "category": "challenge"
+    },
+    "monthly_champion": {
+        "id": "monthly_champion",
+        "name": "Monthly Champion",
+        "description": "Win a monthly challenge",
+        "icon": "🥇",
+        "category": "challenge"
+    },
+    "challenge_streak_3": {
+        "id": "challenge_streak_3",
+        "name": "Challenge Streak",
+        "description": "Win 3 challenges",
+        "icon": "🏆",
+        "category": "challenge"
+    },
+    "podium_finish": {
+        "id": "podium_finish",
+        "name": "Podium Finish",
+        "description": "Finish in top 3 of a challenge",
+        "icon": "🎖️",
+        "category": "challenge"
+    }
+}
+
+# Add challenge badges to main BADGES dict
+BADGES.update(CHALLENGE_BADGES)
+
 # Auth helpers
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
