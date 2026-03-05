@@ -20,6 +20,7 @@ import { TrialExpiredScreen } from './pages/TrialExpiredScreen';
 import { AchievementsScreen } from './pages/AchievementsScreen';
 import { InviteFriendsScreen } from './pages/InviteFriendsScreen';
 import { FAQScreen } from './pages/FAQScreen';
+import { ManagePillarsScreen } from './pages/ManagePillarsScreen';
 import { BottomNav } from './components/BottomNav';
 import { Toaster } from './components/ui/sonner';
 import axios from 'axios';
