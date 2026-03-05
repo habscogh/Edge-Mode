@@ -653,6 +653,99 @@ async def get_user_pillars(current_user: dict = Depends(get_current_user)):
     pillars = await db.user_pillars.find({'user_id': current_user['id']}, {'_id': 0}).to_list(100)
     return [UserPillar(**p) for p in pillars]
 
+# ============ Pillar Management Endpoints ============
+
+class PillarAdd(BaseModel):
+    pillar_name: str
+    weekly_target_sessions: int = 3
+
+class PillarUpdate(BaseModel):
+    weekly_target_sessions: int
+
+@api_router.post("/users/pillars/add")
+async def add_pillar(data: PillarAdd, current_user: dict = Depends(get_current_user)):
+    """Add a new pillar for the user (max 5 pillars)"""
+    user_id = current_user['id']
+    
+    # Check current pillar count
+    current_pillars = await db.user_pillars.find({'user_id': user_id}, {'_id': 0}).to_list(100)
+    if len(current_pillars) >= 5:
+        raise HTTPException(status_code=400, detail='Maximum of 5 pillars allowed')
+    
+    # Validate pillar name
+    if data.pillar_name not in PILLARS:
+        raise HTTPException(status_code=400, detail='Invalid pillar name')
+    
+    # Check if already has this pillar
+    existing = await db.user_pillars.find_one({
+        'user_id': user_id,
+        'pillar_name': data.pillar_name
+    })
+    if existing:
+        raise HTTPException(status_code=400, detail='You already have this pillar')
+    
+    # Validate target
+    if data.weekly_target_sessions < 1 or data.weekly_target_sessions > 14:
+        raise HTTPException(status_code=400, detail='Weekly target must be between 1 and 14')
+    
+    # Add the pillar
+    pillar_doc = {
+        'id': str(uuid.uuid4()),
+        'user_id': user_id,
+        'pillar_name': data.pillar_name,
+        'weekly_target_sessions': data.weekly_target_sessions
+    }
+    await db.user_pillars.insert_one(pillar_doc)
+    
+    return {'message': 'Pillar added', 'pillar': UserPillar(**pillar_doc).model_dump()}
+
+@api_router.put("/users/pillars/{pillar_id}")
+async def update_pillar(pillar_id: str, data: PillarUpdate, current_user: dict = Depends(get_current_user)):
+    """Update a pillar's weekly target"""
+    user_id = current_user['id']
+    
+    # Find the pillar
+    pillar = await db.user_pillars.find_one({
+        'id': pillar_id,
+        'user_id': user_id
+    })
+    if not pillar:
+        raise HTTPException(status_code=404, detail='Pillar not found')
+    
+    # Validate target
+    if data.weekly_target_sessions < 1 or data.weekly_target_sessions > 14:
+        raise HTTPException(status_code=400, detail='Weekly target must be between 1 and 14')
+    
+    # Update
+    await db.user_pillars.update_one(
+        {'id': pillar_id},
+        {'$set': {'weekly_target_sessions': data.weekly_target_sessions}}
+    )
+    
+    return {'message': 'Pillar updated'}
+
+@api_router.delete("/users/pillars/{pillar_id}")
+async def delete_pillar(pillar_id: str, current_user: dict = Depends(get_current_user)):
+    """Remove a pillar (minimum 1 pillar required)"""
+    user_id = current_user['id']
+    
+    # Check current pillar count
+    current_pillars = await db.user_pillars.find({'user_id': user_id}, {'_id': 0}).to_list(100)
+    if len(current_pillars) <= 1:
+        raise HTTPException(status_code=400, detail='You must have at least 1 pillar')
+    
+    # Find and delete the pillar
+    pillar = await db.user_pillars.find_one({
+        'id': pillar_id,
+        'user_id': user_id
+    })
+    if not pillar:
+        raise HTTPException(status_code=404, detail='Pillar not found')
+    
+    await db.user_pillars.delete_one({'id': pillar_id})
+    
+    return {'message': 'Pillar removed'}
+
 # ============ Badges/Achievements Endpoints ============
 
 @api_router.get("/badges/all")
