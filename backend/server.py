@@ -1215,8 +1215,8 @@ async def get_performance_history(current_user: dict = Depends(get_current_user)
     scores = []
     
     for i in range(days):
-        date = start_date + timedelta(days=i)
-        week_start = date - timedelta(days=date.weekday())
+        current_date = start_date + timedelta(days=i)
+        week_start = current_date - timedelta(days=current_date.weekday())
         week_end = week_start + timedelta(days=6)
         
         sessions = await db.daily_sessions.find({
@@ -1233,7 +1233,7 @@ async def get_performance_history(current_user: dict = Depends(get_current_user)
         
         performance_index = min((consistency_pct * 0.7) + (target_completion_pct * 0.3), 100)
         
-        dates.append(date.isoformat())
+        dates.append(current_date.isoformat())
         scores.append(round(performance_index, 1))
     
     return PerformanceHistory(dates=dates, scores=scores)
