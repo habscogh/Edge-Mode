@@ -1111,9 +1111,13 @@ async def get_today_sessions(current_user: dict = Depends(get_current_user), loc
     return sessions
 
 @api_router.get("/stats/weekly", response_model=WeeklyStats)
-async def get_weekly_stats(current_user: dict = Depends(get_current_user)):
+async def get_weekly_stats(current_user: dict = Depends(get_current_user), local_date: str = None):
     user_id = current_user['id']
-    today = datetime.now(timezone.utc).date()
+    # Use client's local date if provided, otherwise fall back to UTC
+    if local_date:
+        today = date.fromisoformat(local_date)
+    else:
+        today = datetime.now(timezone.utc).date()
     week_start = today - timedelta(days=today.weekday())
     
     sessions = await db.daily_sessions.find({
@@ -1156,9 +1160,13 @@ async def get_weekly_stats(current_user: dict = Depends(get_current_user)):
     )
 
 @api_router.get("/stats/comparison", response_model=DailyComparison)
-async def get_daily_comparison(current_user: dict = Depends(get_current_user)):
+async def get_daily_comparison(current_user: dict = Depends(get_current_user), local_date: str = None):
     user_id = current_user['id']
-    today = datetime.now(timezone.utc).date()
+    # Use client's local date if provided, otherwise fall back to UTC
+    if local_date:
+        today = date.fromisoformat(local_date)
+    else:
+        today = datetime.now(timezone.utc).date()
     yesterday = today - timedelta(days=1)
     
     today_sessions = await db.daily_sessions.find({
@@ -1191,9 +1199,13 @@ async def get_daily_comparison(current_user: dict = Depends(get_current_user)):
     )
 
 @api_router.get("/stats/history", response_model=PerformanceHistory)
-async def get_performance_history(current_user: dict = Depends(get_current_user), days: int = 30):
+async def get_performance_history(current_user: dict = Depends(get_current_user), days: int = 30, local_date: str = None):
     user_id = current_user['id']
-    end_date = datetime.now(timezone.utc).date()
+    # Use client's local date if provided, otherwise fall back to UTC
+    if local_date:
+        end_date = date.fromisoformat(local_date)
+    else:
+        end_date = datetime.now(timezone.utc).date()
     start_date = end_date - timedelta(days=days-1)
     
     user_pillars = await db.user_pillars.find({'user_id': user_id}, {'_id': 0}).to_list(100)
@@ -1227,9 +1239,13 @@ async def get_performance_history(current_user: dict = Depends(get_current_user)
     return PerformanceHistory(dates=dates, scores=scores)
 
 @api_router.get("/stats/weekly-review", response_model=WeeklyReview)
-async def get_weekly_review(current_user: dict = Depends(get_current_user)):
+async def get_weekly_review(current_user: dict = Depends(get_current_user), local_date: str = None):
     user_id = current_user['id']
-    today = datetime.now(timezone.utc).date()
+    # Use client's local date if provided, otherwise fall back to UTC
+    if local_date:
+        today = date.fromisoformat(local_date)
+    else:
+        today = datetime.now(timezone.utc).date()
     current_week_start = today - timedelta(days=today.weekday())
     last_week_start = current_week_start - timedelta(days=7)
     last_week_end = current_week_start - timedelta(days=1)
