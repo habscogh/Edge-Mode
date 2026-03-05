@@ -108,6 +108,29 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 - "1 session = 30 minutes" guidance
 - **Pillar Management** - Users can add/remove/edit pillars from Profile page
 
+### Opt-In Challenges (NEW - March 2026)
+- **Challenge Types:**
+  - Weekly challenges (Monday-Sunday)
+  - Monthly challenges (1st of month to end of month)
+- **Competition Categories:**
+  - Pillar-specific: Most sessions in a specific pillar (e.g., Fitness, Study)
+  - General: Highest consistency %, most total minutes, most total sessions
+- **Features:**
+  - Browse all available challenges at `/challenges`
+  - Join/leave challenges freely
+  - Real-time leaderboard rankings
+  - View participants and their scores
+  - Filter by: All, My Challenges, Weekly, Monthly
+- **Rewards/Badges:**
+  - 🏅 Weekly Champion - Win a weekly challenge
+  - 🥇 Monthly Champion - Win a monthly challenge
+  - 🎖️ Podium Finish - Finish in top 3
+  - 🏆 Challenge Streak - Win 3 challenges
+- **Automation:**
+  - Challenges auto-created via scheduled job (12:05 AM UTC daily)
+  - Badges auto-awarded when challenges complete
+- **Visibility:** Everyone can view, only participants compete
+
 ## Bug Fixes (March 2026)
 - **Timezone Bug Fixed**: All stats endpoints (`/api/stats/comparison`, `/api/stats/weekly`, `/api/stats/weekly-review`, `/api/stats/history`) now accept `local_date` parameter from frontend to ensure dashboard shows correct "today" and "yesterday" counts based on user's local timezone
 - **Variable Shadowing Bug Fixed**: Fixed issue in `/api/stats/history` where loop variable `date` shadowed the `date` class, causing errors when `local_date` parameter was provided
