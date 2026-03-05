@@ -85,7 +85,7 @@ export const FAQScreen = () => {
         },
         {
           q: "Can I change my pillars later?",
-          a: "Currently, pillars are set during onboarding. If you need to change them, you can contact support for assistance."
+          a: "Yes! Go to Profile > Manage Pillars to add new pillars, remove existing ones, or adjust your weekly targets. You can have between 1-5 active pillars at any time. Removing a pillar won't delete your logged sessions."
         }
       ]
     },
