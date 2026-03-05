@@ -101,11 +101,16 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 - Access: admin@edgemodeapp.com only
 
 ### Other
-- Stripe subscriptions ($5.99/mo, $59.99/yr)
+- Stripe subscriptions ($4.99/mo, $49.99/yr) - TEST MODE
 - Password reset
 - Profile settings
 - Privacy Policy & Terms of Service
 - "1 session = 30 minutes" guidance
+- **Pillar Management** - Users can add/remove/edit pillars from Profile page
+
+## Bug Fixes (March 2026)
+- **Timezone Bug Fixed**: All stats endpoints (`/api/stats/comparison`, `/api/stats/weekly`, `/api/stats/weekly-review`, `/api/stats/history`) now accept `local_date` parameter from frontend to ensure dashboard shows correct "today" and "yesterday" counts based on user's local timezone
+- **Variable Shadowing Bug Fixed**: Fixed issue in `/api/stats/history` where loop variable `date` shadowed the `date` class, causing errors when `local_date` parameter was provided
 
 ## Future Enhancements
 - [ ] Mobile PWA optimization
