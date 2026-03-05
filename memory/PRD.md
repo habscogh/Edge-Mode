@@ -113,8 +113,8 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 - **Variable Shadowing Bug Fixed**: Fixed issue in `/api/stats/history` where loop variable `date` shadowed the `date` class, causing errors when `local_date` parameter was provided
 
 ## Future Enhancements
+- [ ] **P1: Refactor server.py** into separate routers (auth, sessions, badges, groups, admin) - File is 2400+ lines
 - [ ] Mobile PWA optimization
-- [ ] Refactor server.py into separate routers (auth, sessions, badges, groups, admin)
 - [ ] Add referral rewards (optional - currently no rewards)
 
 ## Test Credentials
