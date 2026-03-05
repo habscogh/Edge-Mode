@@ -2911,8 +2911,16 @@ async def startup_scheduler():
         replace_existing=True
     )
     
+    # Challenges daily job - at 12:05 AM UTC to create new challenges and finalize old ones
+    scheduler.add_job(
+        challenges_daily_job,
+        CronTrigger(hour=0, minute=5),  # 12:05 AM UTC
+        id="challenges_daily",
+        replace_existing=True
+    )
+    
     scheduler.start()
-    logger.info("Email scheduler started - Streak: 8PM UTC, Inactive: 6PM UTC, Trial Ending: 4PM UTC, Weekly: Sun 2PM UTC")
+    logger.info("Email scheduler started - Streak: 8PM UTC, Inactive: 6PM UTC, Trial Ending: 4PM UTC, Weekly: Sun 2PM UTC, Challenges: 12:05AM UTC")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
