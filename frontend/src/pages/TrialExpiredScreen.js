@@ -23,9 +23,10 @@ export const TrialExpiredScreen = () => {
   const fetchTrialStats = async () => {
     try {
       // Get user's accomplishments during trial
+      const localDate = new Date().toISOString().split('T')[0];
       const [sessionsRes, statsRes, pillarsRes] = await Promise.all([
         axios.get(`${API}/sessions/history?days=30`).catch(() => ({ data: [] })),
-        axios.get(`${API}/stats/weekly`).catch(() => ({ data: {} })),
+        axios.get(`${API}/stats/weekly?local_date=${localDate}`).catch(() => ({ data: {} })),
         axios.get(`${API}/users/pillars`).catch(() => ({ data: [] }))
       ]);
       

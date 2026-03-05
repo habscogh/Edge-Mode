@@ -19,7 +19,8 @@ export const WeeklyReviewScreen = () => {
 
   const fetchReview = async () => {
     try {
-      const response = await axios.get(`${API}/stats/weekly-review`);
+      const localDate = new Date().toISOString().split('T')[0];
+      const response = await axios.get(`${API}/stats/weekly-review?local_date=${localDate}`);
       setReview(response.data);
     } catch (error) {
       console.error('Failed to fetch review:', error);

@@ -30,7 +30,8 @@ export const TrialEndingBanner = ({ onSubscribe }) => {
 
   const fetchStats = async () => {
     try {
-      const response = await axios.get(`${API}/stats/weekly`);
+      const localDate = new Date().toISOString().split('T')[0];
+      const response = await axios.get(`${API}/stats/weekly?local_date=${localDate}`);
       setStats(response.data);
     } catch (error) {
       console.error('Failed to fetch stats:', error);
