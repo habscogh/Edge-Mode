@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Users, Plus, TrendingUp, Share2, UserPlus, LogOut, Crown } from 'lucide-react';
+import { Users, Plus, TrendingUp, Share2, UserPlus, LogOut, Crown, ClipboardList } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
@@ -12,10 +13,12 @@ const API = `${BACKEND_URL}/api`;
 
 export const GroupsScreen = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [groups, setGroups] = useState([]);
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
   const [newGroupName, setNewGroupName] = useState('');
+  const [isCoachGroup, setIsCoachGroup] = useState(false);
   const [inviteCode, setInviteCode] = useState('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isJoinDialogOpen, setIsJoinDialogOpen] = useState(false);
