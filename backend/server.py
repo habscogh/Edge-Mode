@@ -2582,7 +2582,28 @@ async def get_recent_activity(admin_user: dict = Depends(require_admin)):
         'recent_sessions': recent_sessions
     }
 
+# Health check endpoints - defined before router inclusion
+@api_router.get("/health")
+async def health_check():
+    """Health check endpoint for deployment"""
+    try:
+        # Check MongoDB connection with timeout
+        await asyncio.wait_for(client.admin.command('ping'), timeout=5.0)
+        return {"status": "healthy", "database": "connected", "scheduler": scheduler.running}
+    except asyncio.TimeoutError:
+        logger.warning("Health check: Database ping timed out")
+        return {"status": "degraded", "database": "timeout", "scheduler": scheduler.running}
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
+        return {"status": "unhealthy", "database": "disconnected", "error": str(e)}
+
 app.include_router(api_router)
+
+# Root health check - always returns ok for load balancer (must be after router inclusion)
+@app.get("/health")
+async def root_health_check():
+    """Root health check endpoint - always returns ok for load balancer"""
+    return {"status": "ok"}
 
 app.add_middleware(
     CORSMiddleware,
