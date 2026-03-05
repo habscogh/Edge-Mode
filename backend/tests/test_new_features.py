@@ -177,10 +177,13 @@ class TestSessionNotes:
         )
         assert response.status_code == 200
         data = response.json()
-        assert data["note"] is None
+        # API returns {"session": {...}, "new_badges": [...]}
+        assert "session" in data
+        session = data["session"]
+        assert session["note"] is None
         
-        authenticated_user["session_without_note_id"] = data["id"]
-        print(f"Created session without note: {data['id']}")
+        authenticated_user["session_without_note_id"] = session["id"]
+        print(f"Created session without note: {session['id']}")
     
     def test_verify_note_in_today_sessions(self, authenticated_user):
         """Test that notes are returned in today's sessions"""
