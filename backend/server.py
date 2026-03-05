@@ -1668,6 +1668,433 @@ async def toggle_leaderboard_opt_in(current_user: dict = Depends(get_current_use
     )
     return {'leaderboard_opt_in': new_status}
 
+# ==================== COACH DASHBOARD ENDPOINTS ====================
+
+@api_router.get("/groups/{group_id}/coach/dashboard")
+async def get_coach_dashboard(group_id: str, current_user: dict = Depends(get_current_user)):
+    """Get detailed stats for all players in a group (coach view only)"""
+    group = await db.groups.find_one({'id': group_id}, {'_id': 0})
+    if not group:
+        raise HTTPException(status_code=404, detail='Group not found')
+    
+    # Check if user is the coach
+    if group.get('coach_id') != current_user['id']:
+        raise HTTPException(status_code=403, detail='Only the coach can access this dashboard')
+    
+    member_ids = [m for m in group['members'] if m != current_user['id']]  # Exclude coach
+    
+    if not member_ids:
+        return {
+            'group': group,
+            'players': [],
+            'team_stats': {
+                'total_players': 0,
+                'avg_consistency': 0,
+                'avg_performance': 0,
+                'total_sessions_this_week': 0
+            }
+        }
+    
+    today = datetime.now(timezone.utc).date()
+    week_start = today - timedelta(days=today.weekday())
+    
+    # Fetch all data
+    users = await db.users.find({'id': {'$in': member_ids}}, {'_id': 0, 'password': 0}).to_list(100)
+    users_by_id = {u['id']: u for u in users}
+    
+    all_sessions = await db.daily_sessions.find({
+        'user_id': {'$in': member_ids},
+        'date': {'$gte': week_start.isoformat()}
+    }, {'_id': 0}).to_list(5000)
+    sessions_by_user = {}
+    for s in all_sessions:
+        sessions_by_user.setdefault(s['user_id'], []).append(s)
+    
+    all_pillars = await db.user_pillars.find({'user_id': {'$in': member_ids}}, {'_id': 0}).to_list(500)
+    pillars_by_user = {}
+    for p in all_pillars:
+        pillars_by_user.setdefault(p['user_id'], []).append(p)
+    
+    players = []
+    total_consistency = 0
+    total_performance = 0
+    total_sessions = 0
+    
+    for member_id in member_ids:
+        user = users_by_id.get(member_id)
+        if not user:
+            continue
+        
+        sessions = sessions_by_user.get(member_id, [])
+        pillars = pillars_by_user.get(member_id, [])
+        
+        unique_days = set(s['date'] for s in sessions)
+        consistency_pct = (len(unique_days) / 7) * 100
+        
+        total_target = sum(p.get('weekly_target_sessions', 0) for p in pillars)
+        target_completion = min((len(sessions) / total_target * 100) if total_target > 0 else 0, 100)
+        performance_index = min((consistency_pct * 0.7) + (target_completion * 0.3), 100)
+        
+        # Get pillar breakdown
+        pillar_stats = []
+        for pillar in pillars:
+            pillar_sessions = [s for s in sessions if s['pillar'] == pillar['pillar_name']]
+            pillar_stats.append({
+                'pillar_name': pillar['pillar_name'],
+                'sessions': len(pillar_sessions),
+                'target': pillar.get('weekly_target_sessions', 0),
+                'minutes': sum(s.get('minutes_spent', 30) for s in pillar_sessions)
+            })
+        
+        players.append({
+            'id': member_id,
+            'username': user.get('username'),
+            'age': user.get('age'),
+            'current_streak': user.get('current_streak', 0),
+            'sessions_this_week': len(sessions),
+            'consistency_pct': round(consistency_pct, 1),
+            'performance_index': round(performance_index, 1),
+            'pillar_breakdown': pillar_stats,
+            'last_active': max([s['date'] for s in sessions]) if sessions else None
+        })
+        
+        total_consistency += consistency_pct
+        total_performance += performance_index
+        total_sessions += len(sessions)
+    
+    # Sort by performance
+    players.sort(key=lambda x: x['performance_index'], reverse=True)
+    
+    return {
+        'group': group,
+        'players': players,
+        'team_stats': {
+            'total_players': len(players),
+            'avg_consistency': round(total_consistency / len(players), 1) if players else 0,
+            'avg_performance': round(total_performance / len(players), 1) if players else 0,
+            'total_sessions_this_week': total_sessions
+        }
+    }
+
+@api_router.get("/groups/{group_id}/coach/player/{player_id}")
+async def get_player_details(group_id: str, player_id: str, current_user: dict = Depends(get_current_user)):
+    """Get detailed stats for a specific player (coach view only)"""
+    group = await db.groups.find_one({'id': group_id}, {'_id': 0})
+    if not group:
+        raise HTTPException(status_code=404, detail='Group not found')
+    
+    if group.get('coach_id') != current_user['id']:
+        raise HTTPException(status_code=403, detail='Only the coach can access player details')
+    
+    if player_id not in group['members']:
+        raise HTTPException(status_code=404, detail='Player not in this group')
+    
+    player = await db.users.find_one({'id': player_id}, {'_id': 0, 'password': 0})
+    if not player:
+        raise HTTPException(status_code=404, detail='Player not found')
+    
+    today = datetime.now(timezone.utc).date()
+    
+    # Get last 30 days of sessions
+    start_date = (today - timedelta(days=30)).isoformat()
+    sessions = await db.daily_sessions.find({
+        'user_id': player_id,
+        'date': {'$gte': start_date}
+    }, {'_id': 0}).sort('date', -1).to_list(1000)
+    
+    pillars = await db.user_pillars.find({'user_id': player_id}, {'_id': 0}).to_list(20)
+    badges = await db.earned_badges.find({'user_id': player_id}, {'_id': 0}).to_list(100)
+    
+    # Calculate weekly stats
+    week_start = today - timedelta(days=today.weekday())
+    week_sessions = [s for s in sessions if s['date'] >= week_start.isoformat()]
+    
+    unique_days = set(s['date'] for s in week_sessions)
+    consistency_pct = (len(unique_days) / 7) * 100
+    
+    return {
+        'player': {
+            'id': player['id'],
+            'username': player.get('username'),
+            'age': player.get('age'),
+            'current_streak': player.get('current_streak', 0),
+            'longest_streak': player.get('longest_streak', 0)
+        },
+        'pillars': pillars,
+        'recent_sessions': sessions[:50],
+        'weekly_stats': {
+            'sessions': len(week_sessions),
+            'consistency_pct': round(consistency_pct, 1),
+            'unique_days': len(unique_days),
+            'minutes': sum(s.get('minutes_spent', 30) for s in week_sessions)
+        },
+        'badges_earned': len(badges)
+    }
+
+# ==================== PARENT-STUDENT LINKING ENDPOINTS ====================
+
+@api_router.post("/parent/invite")
+async def invite_parent(invite_data: ParentInvite, current_user: dict = Depends(get_current_user)):
+    """Student invites a parent via email"""
+    # Check if student already has 2 parents linked
+    existing_links = await db.parent_links.count_documents({
+        'student_id': current_user['id'],
+        'status': {'$in': ['pending', 'active']}
+    })
+    
+    if existing_links >= 2:
+        raise HTTPException(status_code=400, detail='Maximum of 2 parents can be linked')
+    
+    # Check if this email is already invited
+    existing_invite = await db.parent_links.find_one({
+        'student_id': current_user['id'],
+        'parent_email': invite_data.parent_email.lower()
+    })
+    
+    if existing_invite:
+        if existing_invite['status'] == 'active':
+            raise HTTPException(status_code=400, detail='This parent is already linked')
+        else:
+            raise HTTPException(status_code=400, detail='Invitation already sent to this email')
+    
+    # Generate unique invite code
+    invite_code = f"PARENT-{generate_invite_code()}"
+    
+    link_doc = {
+        'id': str(uuid.uuid4()),
+        'student_id': current_user['id'],
+        'student_username': current_user['username'],
+        'parent_id': None,
+        'parent_email': invite_data.parent_email.lower(),
+        'status': 'pending',
+        'invite_code': invite_code,
+        'invited_at': datetime.now(timezone.utc).isoformat(),
+        'accepted_at': None
+    }
+    
+    await db.parent_links.insert_one(link_doc)
+    
+    # Send invitation email
+    try:
+        resend_api_key = os.environ.get('RESEND_API_KEY')
+        if resend_api_key:
+            import resend
+            resend.api_key = resend_api_key
+            
+            resend.Emails.send({
+                "from": "Edge Mode <noreply@edgemodeapp.com>",
+                "to": invite_data.parent_email,
+                "subject": f"{current_user['username']} invited you to track their progress on Edge Mode",
+                "html": f"""
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <h2 style="color: #10b981;">You've Been Invited! 🎉</h2>
+                    <p><strong>{current_user['username']}</strong> wants you to track their self-improvement journey on Edge Mode.</p>
+                    <p>As a parent, you'll be able to:</p>
+                    <ul>
+                        <li>View their progress, streaks, and achievements</li>
+                        <li>Receive notifications about milestones</li>
+                        <li>See their weekly consistency and performance</li>
+                    </ul>
+                    <p>To accept this invitation, create an account or log in and use this code:</p>
+                    <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
+                        <span style="font-size: 24px; font-weight: bold; color: #10b981; letter-spacing: 2px;">{invite_code}</span>
+                    </div>
+                    <p style="color: #666;">This invitation was sent by {current_user['username']} from Edge Mode.</p>
+                </div>
+                """
+            })
+            logger.info(f"Parent invitation email sent to {invite_data.parent_email}")
+    except Exception as e:
+        logger.error(f"Failed to send parent invitation email: {e}")
+    
+    return {
+        'message': 'Invitation sent successfully',
+        'invite_code': invite_code,
+        'parent_email': invite_data.parent_email
+    }
+
+@api_router.post("/parent/accept")
+async def accept_parent_invite(accept_data: ParentAccept, current_user: dict = Depends(get_current_user)):
+    """Parent accepts an invitation using invite code"""
+    link = await db.parent_links.find_one({
+        'invite_code': accept_data.invite_code,
+        'status': 'pending'
+    })
+    
+    if not link:
+        raise HTTPException(status_code=404, detail='Invalid or expired invite code')
+    
+    # Update the link
+    await db.parent_links.update_one(
+        {'id': link['id']},
+        {
+            '$set': {
+                'parent_id': current_user['id'],
+                'status': 'active',
+                'accepted_at': datetime.now(timezone.utc).isoformat()
+            }
+        }
+    )
+    
+    # Mark user as a parent
+    await db.users.update_one(
+        {'id': current_user['id']},
+        {'$set': {'is_parent': True}}
+    )
+    
+    student = await db.users.find_one({'id': link['student_id']}, {'_id': 0, 'password': 0})
+    
+    return {
+        'message': f'Successfully linked to {link["student_username"]}',
+        'student': {
+            'id': student['id'],
+            'username': student.get('username')
+        }
+    }
+
+@api_router.get("/parent/linked-students")
+async def get_linked_students(current_user: dict = Depends(get_current_user)):
+    """Get all students linked to this parent"""
+    links = await db.parent_links.find({
+        'parent_id': current_user['id'],
+        'status': 'active'
+    }, {'_id': 0}).to_list(10)
+    
+    if not links:
+        return {'students': []}
+    
+    student_ids = [link['student_id'] for link in links]
+    students = await db.users.find(
+        {'id': {'$in': student_ids}},
+        {'_id': 0, 'password': 0}
+    ).to_list(10)
+    
+    return {'students': students, 'links': links}
+
+@api_router.get("/parent/student/{student_id}/dashboard")
+async def get_student_dashboard_for_parent(student_id: str, current_user: dict = Depends(get_current_user)):
+    """Parent views their linked student's dashboard"""
+    # Verify parent is linked to this student
+    link = await db.parent_links.find_one({
+        'parent_id': current_user['id'],
+        'student_id': student_id,
+        'status': 'active'
+    })
+    
+    if not link:
+        raise HTTPException(status_code=403, detail='You are not linked to this student')
+    
+    student = await db.users.find_one({'id': student_id}, {'_id': 0, 'password': 0})
+    if not student:
+        raise HTTPException(status_code=404, detail='Student not found')
+    
+    today = datetime.now(timezone.utc).date()
+    week_start = today - timedelta(days=today.weekday())
+    month_start = today.replace(day=1)
+    
+    # Get sessions
+    sessions = await db.daily_sessions.find({
+        'user_id': student_id,
+        'date': {'$gte': month_start.isoformat()}
+    }, {'_id': 0}).to_list(1000)
+    
+    week_sessions = [s for s in sessions if s['date'] >= week_start.isoformat()]
+    
+    pillars = await db.user_pillars.find({'user_id': student_id}, {'_id': 0}).to_list(20)
+    badges = await db.earned_badges.find({'user_id': student_id}, {'_id': 0}).to_list(100)
+    
+    # Calculate stats
+    unique_days = set(s['date'] for s in week_sessions)
+    consistency_pct = (len(unique_days) / 7) * 100
+    
+    total_target = sum(p.get('weekly_target_sessions', 0) for p in pillars)
+    target_completion = min((len(week_sessions) / total_target * 100) if total_target > 0 else 0, 100)
+    performance_index = min((consistency_pct * 0.7) + (target_completion * 0.3), 100)
+    
+    # Pillar breakdown
+    pillar_stats = []
+    for pillar in pillars:
+        pillar_week_sessions = [s for s in week_sessions if s['pillar'] == pillar['pillar_name']]
+        pillar_stats.append({
+            'pillar_name': pillar['pillar_name'],
+            'sessions_this_week': len(pillar_week_sessions),
+            'target': pillar.get('weekly_target_sessions', 0),
+            'minutes': sum(s.get('minutes_spent', 30) for s in pillar_week_sessions)
+        })
+    
+    return {
+        'student': {
+            'id': student['id'],
+            'username': student.get('username'),
+            'age': student.get('age'),
+            'current_streak': student.get('current_streak', 0),
+            'longest_streak': student.get('longest_streak', 0)
+        },
+        'weekly_stats': {
+            'sessions': len(week_sessions),
+            'consistency_pct': round(consistency_pct, 1),
+            'performance_index': round(performance_index, 1),
+            'days_active': len(unique_days)
+        },
+        'monthly_stats': {
+            'total_sessions': len(sessions),
+            'total_minutes': sum(s.get('minutes_spent', 30) for s in sessions)
+        },
+        'pillars': pillar_stats,
+        'badges_earned': len(badges),
+        'recent_sessions': sessions[:10]
+    }
+
+@api_router.get("/student/linked-parents")
+async def get_linked_parents(current_user: dict = Depends(get_current_user)):
+    """Student views their linked parents"""
+    links = await db.parent_links.find({
+        'student_id': current_user['id']
+    }, {'_id': 0}).to_list(10)
+    
+    active_links = []
+    pending_links = []
+    
+    for link in links:
+        if link['status'] == 'active' and link.get('parent_id'):
+            parent = await db.users.find_one({'id': link['parent_id']}, {'_id': 0, 'password': 0})
+            if parent:
+                active_links.append({
+                    'link_id': link['id'],
+                    'parent_email': link['parent_email'],
+                    'parent_username': parent.get('username'),
+                    'linked_at': link.get('accepted_at')
+                })
+        elif link['status'] == 'pending':
+            pending_links.append({
+                'link_id': link['id'],
+                'parent_email': link['parent_email'],
+                'invited_at': link['invited_at']
+            })
+    
+    return {
+        'active_parents': active_links,
+        'pending_invites': pending_links,
+        'max_parents': 2,
+        'slots_remaining': 2 - len(active_links) - len(pending_links)
+    }
+
+@api_router.delete("/parent/unlink/{link_id}")
+async def unlink_parent(link_id: str, current_user: dict = Depends(get_current_user)):
+    """Student or parent can unlink the relationship"""
+    link = await db.parent_links.find_one({'id': link_id})
+    
+    if not link:
+        raise HTTPException(status_code=404, detail='Link not found')
+    
+    # Either the student or parent can unlink
+    if link['student_id'] != current_user['id'] and link.get('parent_id') != current_user['id']:
+        raise HTTPException(status_code=403, detail='Not authorized to unlink')
+    
+    await db.parent_links.delete_one({'id': link_id})
+    
+    return {'message': 'Successfully unlinked'}
+
 # ==================== CHALLENGES ENDPOINTS ====================
 
 async def calculate_challenge_score(user_id: str, challenge: dict) -> float:
