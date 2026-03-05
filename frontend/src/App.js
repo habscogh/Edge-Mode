@@ -226,6 +226,14 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/challenges"
+          element={
+            <ProtectedRoute>
+              <ChallengesScreen />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
       </Routes>
