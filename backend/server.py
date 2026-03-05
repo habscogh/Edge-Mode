@@ -2892,6 +2892,16 @@ async def send_trial_ending_reminders_job():
 @app.on_event("startup")
 async def startup_scheduler():
     """Start the scheduler when app starts"""
+    
+    # Seed initial challenges if none exist
+    try:
+        active_challenges = await db.challenges.count_documents({'status': 'active'})
+        if active_challenges == 0:
+            logger.info("No active challenges found - seeding initial challenges...")
+            await seed_initial_challenges()
+    except Exception as e:
+        logger.error(f"Failed to seed initial challenges: {e}")
+    
     # Streak reminders - daily at 8 PM UTC (3 PM Eastern)
     scheduler.add_job(
         send_streak_reminders_job,
@@ -2934,6 +2944,119 @@ async def startup_scheduler():
     
     scheduler.start()
     logger.info("Email scheduler started - Streak: 8PM UTC, Inactive: 6PM UTC, Trial Ending: 4PM UTC, Weekly: Sun 2PM UTC, Challenges: 12:05AM UTC")
+
+async def seed_initial_challenges():
+    """Seed initial challenges on first startup"""
+    now = datetime.now(timezone.utc)
+    today = now.date()
+    
+    # Calculate week start (Monday) and end (Sunday)
+    days_since_monday = today.weekday()
+    week_start = today - timedelta(days=days_since_monday)
+    week_end = week_start + timedelta(days=6)
+    
+    # Calculate month start and end
+    month_start = today.replace(day=1)
+    if today.month == 12:
+        month_end = date(today.year + 1, 1, 1) - timedelta(days=1)
+    else:
+        month_end = date(today.year, today.month + 1, 1) - timedelta(days=1)
+    
+    challenges = [
+        # Weekly pillar-specific challenges
+        {
+            'id': str(uuid.uuid4()),
+            'name': 'Weekly Fitness Champion',
+            'description': 'Log the most Fitness sessions this week!',
+            'challenge_type': 'weekly',
+            'metric_type': 'pillar_sessions',
+            'pillar': 'Fitness/Training',
+            'start_date': week_start.isoformat(),
+            'end_date': week_end.isoformat(),
+            'status': 'active',
+            'created_at': now.isoformat(),
+            'created_by': 'system',
+            'participant_count': 0
+        },
+        {
+            'id': str(uuid.uuid4()),
+            'name': 'Weekly Study Star',
+            'description': 'Log the most Study sessions this week!',
+            'challenge_type': 'weekly',
+            'metric_type': 'pillar_sessions',
+            'pillar': 'Study/Academics',
+            'start_date': week_start.isoformat(),
+            'end_date': week_end.isoformat(),
+            'status': 'active',
+            'created_at': now.isoformat(),
+            'created_by': 'system',
+            'participant_count': 0
+        },
+        # Weekly general challenges
+        {
+            'id': str(uuid.uuid4()),
+            'name': 'Weekly Most Consistent',
+            'description': 'Achieve the highest consistency % this week',
+            'challenge_type': 'weekly',
+            'metric_type': 'consistency',
+            'pillar': None,
+            'start_date': week_start.isoformat(),
+            'end_date': week_end.isoformat(),
+            'status': 'active',
+            'created_at': now.isoformat(),
+            'created_by': 'system',
+            'participant_count': 0
+        },
+        {
+            'id': str(uuid.uuid4()),
+            'name': 'Weekly Time Warrior',
+            'description': 'Log the most total minutes this week',
+            'challenge_type': 'weekly',
+            'metric_type': 'total_minutes',
+            'pillar': None,
+            'start_date': week_start.isoformat(),
+            'end_date': week_end.isoformat(),
+            'status': 'active',
+            'created_at': now.isoformat(),
+            'created_by': 'system',
+            'participant_count': 0
+        },
+        # Monthly challenges
+        {
+            'id': str(uuid.uuid4()),
+            'name': 'Monthly Sessions King',
+            'description': 'Log the most sessions this month',
+            'challenge_type': 'monthly',
+            'metric_type': 'total_sessions',
+            'pillar': None,
+            'start_date': month_start.isoformat(),
+            'end_date': month_end.isoformat(),
+            'status': 'active',
+            'created_at': now.isoformat(),
+            'created_by': 'system',
+            'participant_count': 0
+        },
+        {
+            'id': str(uuid.uuid4()),
+            'name': 'Monthly Consistency Master',
+            'description': 'Achieve the highest consistency % this month',
+            'challenge_type': 'monthly',
+            'metric_type': 'consistency',
+            'pillar': None,
+            'start_date': month_start.isoformat(),
+            'end_date': month_end.isoformat(),
+            'status': 'active',
+            'created_at': now.isoformat(),
+            'created_by': 'system',
+            'participant_count': 0
+        }
+    ]
+    
+    for challenge in challenges:
+        await db.challenges.insert_one(challenge)
+        logger.info(f"Seeded challenge: {challenge['name']}")
+    
+    logger.info(f"Successfully seeded {len(challenges)} initial challenges")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
