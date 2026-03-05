@@ -4,7 +4,7 @@
 Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Every Day"
 
 **Live URL:** https://edgemodeapp.com
-**Preview URL:** https://daily-improvement-1.preview.emergentagent.com
+**Preview URL:** https://daily-progress-96.preview.emergentagent.com
 
 ## Tech Stack
 - **Backend:** FastAPI (Python), APScheduler
