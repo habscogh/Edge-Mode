@@ -128,8 +128,45 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
   - 🏆 Challenge Streak - Win 3 challenges
 - **Automation:**
   - Challenges auto-created via scheduled job (12:05 AM UTC daily)
+  - **Auto-seeding on startup**: If no active challenges exist, 6 initial challenges are seeded automatically
   - Badges auto-awarded when challenges complete
 - **Visibility:** Everyone can view, only participants compete
+
+### Coach Mode in Groups (NEW - March 2026)
+- **Coach Role:**
+  - Enable "Coach Mode" when creating a group
+  - Coach can view all players' detailed stats (view-only)
+  - Coach Dashboard shows team overview and individual player details
+- **Team Stats:**
+  - Total players, average consistency, average performance
+  - Total sessions this week across team
+- **Player Details (Coach View):**
+  - Current streak, consistency %, performance index
+  - Pillar breakdown with sessions vs targets
+  - Last active date
+  - Detailed player modal with weekly stats, pillars, badges
+- **Access:**
+  - Only coach can access coach dashboard (403 for others)
+  - Players see regular group leaderboard
+
+### Parent-Student Linking (NEW - March 2026)
+- **Student Actions:**
+  - Invite parents from Profile > Family Access
+  - Enter parent's email address
+  - Maximum 2 parents per student
+  - View pending/active parent links
+  - Unlink parents at any time
+- **Parent Actions:**
+  - Receive email invitation with code (PARENT-XXXXXX format)
+  - Create account and accept invite with code
+  - View linked students' dashboards
+- **Parent Dashboard:**
+  - View student's current streak, weekly stats, monthly stats
+  - See pillar breakdown with progress bars
+  - View badges earned count
+  - See recent activity (last 5 sessions)
+- **Notifications:**
+  - Parents receive progress notifications (via email)
 
 ## Bug Fixes (March 2026)
 - **Timezone Bug Fixed**: All stats endpoints (`/api/stats/comparison`, `/api/stats/weekly`, `/api/stats/weekly-review`, `/api/stats/history`) now accept `local_date` parameter from frontend to ensure dashboard shows correct "today" and "yesterday" counts based on user's local timezone
