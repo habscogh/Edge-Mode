@@ -25,16 +25,28 @@ export const ProfileScreen = () => {
   const [newPassword, setNewPassword] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [deletePassword, setDeletePassword] = useState('');
+  const [linkedStudents, setLinkedStudents] = useState([]);
   const [notificationSettings, setNotificationSettings] = useState({
     streak_reminders: true,
     weekly_summary: true
   });
 
   const isAdmin = user && ADMIN_EMAILS.includes(user.email);
+  const isParent = user?.is_parent || linkedStudents.length > 0;
 
   useEffect(() => {
     fetchNotificationSettings();
+    fetchLinkedStudents();
   }, []);
+
+  const fetchLinkedStudents = async () => {
+    try {
+      const response = await axios.get(`${API}/parent/linked-students`);
+      setLinkedStudents(response.data.students || []);
+    } catch (error) {
+      // Not a parent or no linked students - that's fine
+    }
+  };
 
   const fetchNotificationSettings = async () => {
     try {
