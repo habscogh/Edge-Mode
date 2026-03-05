@@ -217,6 +217,26 @@ export const ProfileScreen = () => {
           <BadgeSummary />
         </div>
 
+        {/* Manage Pillars Button */}
+        <div 
+          className="bg-zinc-950 border border-zinc-800 rounded-lg p-4 mb-4 cursor-pointer hover:border-zinc-700 transition-colors"
+          onClick={() => navigate('/pillars')}
+          data-testid="manage-pillars-btn"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-orange-500/20 rounded-full flex items-center justify-center">
+                <Target className="w-5 h-5 text-orange-500" />
+              </div>
+              <div>
+                <div className="text-white font-body font-medium">Manage Pillars</div>
+                <div className="text-zinc-500 text-sm font-body">Add, remove, or adjust your pillars</div>
+              </div>
+            </div>
+            <ChevronRight className="w-5 h-5 text-zinc-500" />
+          </div>
+        </div>
+
         {/* Invite Friends Button */}
         <div 
           className="bg-zinc-950 border border-zinc-800 rounded-lg p-4 mb-4 cursor-pointer hover:border-zinc-700 transition-colors"
