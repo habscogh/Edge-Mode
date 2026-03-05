@@ -1423,7 +1423,8 @@ async def create_group(group_data: GroupCreate, current_user: dict = Depends(get
         'created_by': current_user['id'],
         'members': [current_user['id']],
         'created_at': datetime.now(timezone.utc).isoformat(),
-        'invite_code': generate_invite_code()
+        'invite_code': generate_invite_code(),
+        'coach_id': current_user['id'] if group_data.is_coach else None
     }
     await db.groups.insert_one(group_doc)
     return Group(**group_doc)
