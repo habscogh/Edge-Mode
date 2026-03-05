@@ -217,6 +217,14 @@ const AppRoutes = () => {
           }
         />
         <Route path="/faq" element={<FAQScreen />} />
+        <Route
+          path="/pillars"
+          element={
+            <ProtectedRoute>
+              <ManagePillarsScreen />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
       </Routes>
