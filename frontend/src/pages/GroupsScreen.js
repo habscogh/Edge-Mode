@@ -235,12 +235,25 @@ export const GroupsScreen = () => {
                     onChange={(e) => setNewGroupName(e.target.value)}
                     className="bg-zinc-900 border-zinc-800 text-white font-body"
                   />
+                  <label className="flex items-center gap-3 cursor-pointer p-3 bg-zinc-900 rounded-lg border border-zinc-800 hover:border-zinc-700 transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={isCoachGroup}
+                      onChange={(e) => setIsCoachGroup(e.target.checked)}
+                      className="w-5 h-5 rounded border-zinc-700 bg-zinc-800 text-primary focus:ring-primary"
+                      data-testid="coach-mode-checkbox"
+                    />
+                    <div>
+                      <div className="text-white font-medium">Coach Mode</div>
+                      <div className="text-zinc-500 text-sm">View all players' detailed stats</div>
+                    </div>
+                  </label>
                   <Button
                     data-testid="create-group-submit-btn"
                     onClick={handleCreateGroup}
                     className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading uppercase"
                   >
-                    Create Group
+                    {isCoachGroup ? 'Create Team' : 'Create Group'}
                   </Button>
                 </div>
               </DialogContent>
