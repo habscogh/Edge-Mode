@@ -251,7 +251,8 @@ class TestOnboardingAndSessions:
             headers=authenticated_user["headers"]
         )
         assert create_response.status_code == 200
-        session_to_delete = create_response.json()["id"]
+        # API returns {"session": {...}, "new_badges": [...]}
+        session_to_delete = create_response.json()["session"]["id"]
         print(f"Created session to delete: {session_to_delete}")
         
         # Delete the session
