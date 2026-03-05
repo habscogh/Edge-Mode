@@ -173,10 +173,11 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 - **Variable Shadowing Bug Fixed**: Fixed issue in `/api/stats/history` where loop variable `date` shadowed the `date` class, causing errors when `local_date` parameter was provided
 
 ## Future Enhancements
-- [ ] **P1: Refactor server.py** into separate routers (auth, sessions, badges, groups, admin, challenges) - File is now 2900+ lines
+- [ ] **P1: Refactor server.py** into separate routers (auth, sessions, badges, groups, admin, challenges, coach, parent) - File is now 3100+ lines
 - [ ] Mobile PWA optimization
 - [ ] Add referral rewards (e.g., free month for 3+ referrals)
 - [ ] Admin challenge management UI (manual challenge creation)
+- [ ] Parent progress notifications (email alerts for milestones)
 
 ## Test Credentials
 - Stripe Test Card: 4242 4242 4242 4242
