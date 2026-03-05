@@ -152,13 +152,16 @@ class TestSessionNotes:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "id" in data
-        assert data["pillar"] == "Fitness/Training"
-        assert data["minutes_spent"] == 45
-        assert data["note"] == "Great workout today! Focused on cardio."
+        # API returns {"session": {...}, "new_badges": [...]}
+        assert "session" in data
+        session = data["session"]
+        assert "id" in session
+        assert session["pillar"] == "Fitness/Training"
+        assert session["minutes_spent"] == 45
+        assert session["note"] == "Great workout today! Focused on cardio."
         
-        authenticated_user["session_with_note_id"] = data["id"]
-        print(f"Created session with note: {data['id']}")
+        authenticated_user["session_with_note_id"] = session["id"]
+        print(f"Created session with note: {session['id']}")
     
     def test_create_session_without_note(self, authenticated_user):
         """Test creating a session without a note"""
