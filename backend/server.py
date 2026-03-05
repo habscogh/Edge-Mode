@@ -10,7 +10,7 @@ from pathlib import Path
 from pydantic import BaseModel, Field, EmailStr, ConfigDict, validator
 from typing import List, Optional, Dict
 import uuid
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone, timedelta, date
 import bcrypt
 import jwt
 import secrets
