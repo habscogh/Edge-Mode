@@ -237,6 +237,26 @@ export const ProfileScreen = () => {
           </div>
         </div>
 
+        {/* Challenges Button */}
+        <div 
+          className="bg-zinc-950 border border-zinc-800 rounded-lg p-4 mb-4 cursor-pointer hover:border-zinc-700 transition-colors"
+          onClick={() => navigate('/challenges')}
+          data-testid="challenges-btn"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-amber-500/20 rounded-full flex items-center justify-center">
+                <Swords className="w-5 h-5 text-amber-500" />
+              </div>
+              <div>
+                <div className="text-white font-body font-medium">Challenges</div>
+                <div className="text-zinc-500 text-sm font-body">Compete in weekly & monthly challenges</div>
+              </div>
+            </div>
+            <ChevronRight className="w-5 h-5 text-zinc-500" />
+          </div>
+        </div>
+
         {/* Invite Friends Button */}
         <div 
           className="bg-zinc-950 border border-zinc-800 rounded-lg p-4 mb-4 cursor-pointer hover:border-zinc-700 transition-colors"
