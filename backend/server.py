@@ -270,12 +270,32 @@ class Group(BaseModel):
     members: List[str]
     created_at: str
     invite_code: str
+    coach_id: Optional[str] = None  # Coach role - can view all member stats
 
 class GroupCreate(BaseModel):
     name: str
     type: str = "private"
+    is_coach: bool = False  # If true, creator becomes coach
 
 class GroupJoin(BaseModel):
+    invite_code: str
+
+# Parent-Student Linking Models
+class ParentLink(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    student_id: str
+    student_username: str
+    parent_id: Optional[str] = None
+    parent_email: str
+    status: str  # 'pending', 'active'
+    invited_at: str
+    accepted_at: Optional[str] = None
+
+class ParentInvite(BaseModel):
+    parent_email: EmailStr
+
+class ParentAccept(BaseModel):
     invite_code: str
 
 class LeaderboardEntry(BaseModel):
