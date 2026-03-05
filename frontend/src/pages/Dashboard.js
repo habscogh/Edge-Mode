@@ -34,10 +34,13 @@ export const Dashboard = () => {
 
   const fetchAllData = async () => {
     try {
+      // Get client's local date for consistent stats
+      const localDate = new Date().toISOString().split('T')[0];
+      
       const [statsRes, comparisonRes, historyRes] = await Promise.all([
-        axios.get(`${API}/stats/weekly`),
-        axios.get(`${API}/stats/comparison`),
-        axios.get(`${API}/stats/history?days=30`)
+        axios.get(`${API}/stats/weekly?local_date=${localDate}`),
+        axios.get(`${API}/stats/comparison?local_date=${localDate}`),
+        axios.get(`${API}/stats/history?days=30&local_date=${localDate}`)
       ]);
       setStats(statsRes.data);
       setComparison(comparisonRes.data);
