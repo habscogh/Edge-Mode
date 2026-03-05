@@ -635,7 +635,209 @@ async def login(credentials: UserLogin):
         raise HTTPException(status_code=401, detail='Invalid credentials')
     
     token = create_token(user['id'])
-    return {'token': token, 'user_id': user['id']}
+    return {'token': token, 'user_id': user['id'], 'is_coach': user.get('is_coach', False)}
+
+# Valid special codes for extended 30-day trials
+VALID_COACH_CODES = {'EDGE30', 'COACH2024', 'TEAMEDGE', 'PROMO30'}
+
+@api_router.post("/auth/coach/register")
+async def register_coach(coach_data: CoachRegister):
+    """Register a new coach account - coaches are always free"""
+    existing = await db.users.find_one({'email': coach_data.email}, {'_id': 0})
+    if existing:
+        raise HTTPException(status_code=400, detail='Email already registered')
+    
+    coach_id = str(uuid.uuid4())
+    team_id = str(uuid.uuid4())
+    now = datetime.now(timezone.utc)
+    
+    # Check if special code is valid for extended trials
+    has_extended_trial = False
+    if coach_data.special_code and coach_data.special_code.upper() in VALID_COACH_CODES:
+        has_extended_trial = True
+    
+    # Generate team invite code
+    team_invite_code = f"TEAM-{secrets.token_hex(4).upper()}"
+    
+    # Create coach user (always free, no trial needed)
+    coach_doc = {
+        'id': coach_id,
+        'email': coach_data.email,
+        'name': coach_data.name,
+        'password': hash_password(coach_data.password),
+        'join_date': now.isoformat(),
+        'is_coach': True,
+        'subscription_active': True,  # Coaches are always active (free)
+        'is_trial': False,
+        'trial_ends_at': None,
+        'team_id': team_id,
+        'special_code': coach_data.special_code.upper() if coach_data.special_code else None,
+        'has_extended_trial': has_extended_trial,  # For their players
+        'onboarding_complete': True  # Coaches skip onboarding
+    }
+    
+    await db.users.insert_one(coach_doc)
+    
+    # Create the team group
+    team_doc = {
+        'id': team_id,
+        'name': coach_data.team_name,
+        'type': 'team',
+        'created_by': coach_id,
+        'coach_id': coach_id,
+        'members': [coach_id],
+        'created_at': now.isoformat(),
+        'invite_code': team_invite_code,
+        'has_extended_trial': has_extended_trial
+    }
+    
+    await db.groups.insert_one(team_doc)
+    
+    token = create_token(coach_id)
+    
+    # Generate the shareable invite link
+    invite_link = f"/join/{team_invite_code}"
+    
+    return {
+        'token': token,
+        'coach_id': coach_id,
+        'team_id': team_id,
+        'team_name': coach_data.team_name,
+        'invite_code': team_invite_code,
+        'invite_link': invite_link,
+        'has_extended_trial': has_extended_trial,
+        'message': 'Coach account created successfully! Share your invite link with players.'
+    }
+
+@api_router.get("/team/{team_code}")
+async def get_team_info(team_code: str):
+    """Get team info for players joining via invite link (public endpoint)"""
+    team = await db.groups.find_one({'invite_code': team_code}, {'_id': 0})
+    if not team:
+        raise HTTPException(status_code=404, detail='Team not found')
+    
+    coach = await db.users.find_one({'id': team['coach_id']}, {'_id': 0, 'password': 0})
+    
+    return {
+        'team_name': team['name'],
+        'coach_name': coach.get('name', 'Coach'),
+        'member_count': len(team.get('members', [])) - 1,  # Exclude coach
+        'has_extended_trial': team.get('has_extended_trial', False),
+        'trial_days': 30 if team.get('has_extended_trial') else 14
+    }
+
+@api_router.post("/auth/player/join-team")
+async def register_player_with_team(user_data: UserRegister, team_code: str):
+    """Register a new player and automatically add them to a coach's team"""
+    # Verify team exists
+    team = await db.groups.find_one({'invite_code': team_code}, {'_id': 0})
+    if not team:
+        raise HTTPException(status_code=404, detail='Invalid team code')
+    
+    existing = await db.users.find_one({'email': user_data.email}, {'_id': 0})
+    if existing:
+        raise HTTPException(status_code=400, detail='Email already registered')
+    
+    user_id = str(uuid.uuid4())
+    now = datetime.now(timezone.utc)
+    
+    # Determine trial length based on team's extended trial status
+    trial_days = 30 if team.get('has_extended_trial') else 14
+    trial_end = now + timedelta(days=trial_days)
+    
+    # Generate unique referral code for this user
+    referral_code = f"{user_data.username[:4].upper()}{secrets.token_hex(3).upper()}"
+    
+    user_doc = {
+        'id': user_id,
+        'email': user_data.email,
+        'username': user_data.username,
+        'password': hash_password(user_data.password),
+        'age': user_data.age,
+        'join_date': now.isoformat(),
+        'current_streak': 0,
+        'longest_streak': 0,
+        'subscription_active': True,  # Active during trial
+        'is_trial': True,
+        'trial_ends_at': trial_end.isoformat(),
+        'last_log_date': None,
+        'leaderboard_opt_in': False,
+        'total_sessions_completed': 0,
+        'referral_code': referral_code,
+        'team_id': team['id'],  # Link to team
+        'joined_via_coach': True
+    }
+    
+    await db.users.insert_one(user_doc)
+    
+    # Add player to team
+    await db.groups.update_one(
+        {'id': team['id']},
+        {'$addToSet': {'members': user_id}}
+    )
+    
+    token = create_token(user_id)
+    
+    return {
+        'token': token,
+        'user_id': user_id,
+        'trial_ends_at': trial_end.isoformat(),
+        'trial_days': trial_days,
+        'team_name': team['name'],
+        'message': f'Welcome to {team["name"]}! You have a {trial_days}-day free trial.'
+    }
+
+@api_router.get("/coach/dashboard")
+async def get_coach_home_dashboard(current_user: dict = Depends(get_current_user)):
+    """Get coach's home dashboard with team overview"""
+    if not current_user.get('is_coach'):
+        raise HTTPException(status_code=403, detail='Coach access required')
+    
+    team_id = current_user.get('team_id')
+    if not team_id:
+        raise HTTPException(status_code=404, detail='No team found for this coach')
+    
+    team = await db.groups.find_one({'id': team_id}, {'_id': 0})
+    if not team:
+        raise HTTPException(status_code=404, detail='Team not found')
+    
+    # Get player count (exclude coach)
+    player_ids = [m for m in team.get('members', []) if m != current_user['id']]
+    
+    # Get team stats
+    today = datetime.now(timezone.utc).date()
+    week_start = today - timedelta(days=today.weekday())
+    
+    total_sessions_this_week = 0
+    active_players = 0
+    
+    for player_id in player_ids:
+        sessions = await db.daily_sessions.find({
+            'user_id': player_id,
+            'date': {'$gte': week_start.isoformat()}
+        }).to_list(100)
+        total_sessions_this_week += len(sessions)
+        if sessions:
+            active_players += 1
+    
+    return {
+        'team': {
+            'id': team['id'],
+            'name': team['name'],
+            'invite_code': team['invite_code'],
+            'invite_link': f"/join/{team['invite_code']}",
+            'has_extended_trial': team.get('has_extended_trial', False)
+        },
+        'stats': {
+            'total_players': len(player_ids),
+            'active_players_this_week': active_players,
+            'total_sessions_this_week': total_sessions_this_week
+        },
+        'coach': {
+            'name': current_user.get('name'),
+            'email': current_user.get('email')
+        }
+    }
 
 @api_router.post("/auth/forgot-password")
 async def forgot_password(request: PasswordResetRequest):
