@@ -152,6 +152,29 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
+# Coach Registration Models
+class CoachRegister(BaseModel):
+    email: EmailStr
+    password: str
+    name: str  # Coach's name
+    team_name: str  # Team/group name
+    special_code: Optional[str] = None  # Optional promo code for 30-day player trials
+
+class CoachProfile(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    email: str
+    name: str
+    team_name: str
+    team_id: str
+    invite_link: str
+    special_code: Optional[str] = None
+    has_extended_trial: bool = False  # True if valid special code was used
+    created_at: str
+
+class PlayerJoinTeam(BaseModel):
+    team_code: str  # The invite code from the coach's link
+
 class PasswordResetRequest(BaseModel):
     email: EmailStr
 
