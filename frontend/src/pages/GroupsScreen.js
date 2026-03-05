@@ -311,6 +311,20 @@ export const GroupsScreen = () => {
                   </div>
                 </div>
 
+                {/* Coach Dashboard Button (only for coaches) */}
+                {selectedGroup.coach_id === user?.id && (
+                  <div className="mb-4">
+                    <Button
+                      data-testid="coach-dashboard-btn"
+                      onClick={() => navigate(`/coach/${selectedGroup.id}`)}
+                      className="w-full bg-amber-500/20 text-amber-500 hover:bg-amber-500/30 font-heading uppercase"
+                    >
+                      <ClipboardList className="w-4 h-4 mr-2" />
+                      Open Coach Dashboard
+                    </Button>
+                  </div>
+                )}
+
                 {/* Transfer Ownership (only for creators) */}
                 {selectedGroup.created_by === user?.id && selectedGroup.members.length > 1 && (
                   <div className="mb-4">
