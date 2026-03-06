@@ -266,6 +266,18 @@ const AppRoutes = () => {
         />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
+        
+        {/* Coach Routes */}
+        <Route path="/coach-signup" element={<CoachSignup />} />
+        <Route path="/join/:teamCode" element={<JoinTeam />} />
+        <Route
+          path="/coach-home"
+          element={
+            <ProtectedRoute>
+              <CoachHome />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
       {showBottomNav && <BottomNav />}
       <Toaster />
