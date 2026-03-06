@@ -22,6 +22,7 @@ const API = `${BACKEND_URL}/api`;
 export const Dashboard = () => {
   const { user, fetchUser } = useAuth();
   const navigate = useNavigate();
+  const { isOnline, saveOffline, pendingCount } = useOfflineSync();
   const [stats, setStats] = useState(null);
   const [comparison, setComparison] = useState(null);
   const [history, setHistory] = useState(null);
