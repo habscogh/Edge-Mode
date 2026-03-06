@@ -168,6 +168,7 @@ async def send_streak_reminders_job():
                     user.get('current_streak', 0)
                 )
                 
+                # Send email
                 try:
                     await asyncio.to_thread(resend.Emails.send, {
                         "from": SENDER_EMAIL,
@@ -178,6 +179,16 @@ async def send_streak_reminders_job():
                     sent_count += 1
                 except Exception as e:
                     logger.error(f"Failed to send streak reminder to {user['email']}: {e}")
+                
+                # Send push notification
+                if user.get('push_enabled'):
+                    await send_push(
+                        user['id'],
+                        "🔥 Don't Break Your Streak!",
+                        f"You're on a {user.get('current_streak', 0)}-day streak! Log a session today.",
+                        "/dashboard",
+                        "streak-reminder"
+                    )
         
         logger.info(f"Streak reminder job complete. Sent {sent_count} emails.")
     except Exception as e:
