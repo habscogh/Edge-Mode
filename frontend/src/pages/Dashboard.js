@@ -208,7 +208,14 @@ export const Dashboard = () => {
         </div>
 
         <div className="grid grid-cols-3 gap-3 mb-6">
-          <div data-testid="current-streak-card" className="bg-zinc-950 border border-zinc-800 rounded-md p-4">
+          <div data-testid="current-streak-card" className="bg-zinc-950 border border-zinc-800 rounded-md p-4 relative group cursor-pointer" onClick={() => setShowShareModal(true)}>
+            <button 
+              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full bg-zinc-800 hover:bg-zinc-700"
+              onClick={(e) => { e.stopPropagation(); setShowShareModal(true); }}
+              data-testid="share-streak-btn"
+            >
+              <Share2 className="w-3 h-3 text-zinc-400" />
+            </button>
             <div className="flex items-center gap-2 mb-2">
               <Flame className="w-4 h-4 text-primary" />
               <span className="text-zinc-400 text-xs font-body uppercase tracking-wide">Streak</span>
