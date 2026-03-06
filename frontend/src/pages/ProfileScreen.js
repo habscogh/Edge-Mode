@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { User, LogOut, CreditCard, Trophy, Settings, Mail, Lock, Trash2, Bell, Shield, UserPlus, ChevronRight, HelpCircle, Target, Swords, Users } from 'lucide-react';
+import { User, LogOut, CreditCard, Trophy, Settings, Mail, Lock, Trash2, Bell, Shield, UserPlus, ChevronRight, HelpCircle, Target, Swords, Users, Sun, Moon } from 'lucide-react';
 import { format } from 'date-fns';
 import axios from 'axios';
 import { toast } from 'sonner';
@@ -20,6 +21,7 @@ const ADMIN_EMAILS = ['admin@edgemodeapp.com'];
 
 export const ProfileScreen = () => {
   const { user, logout, fetchUser } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState('monthly');
