@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Flame, X, Trophy } from 'lucide-react';
 import { Button } from './ui/button';
 import { ShareIcons } from './ShareButton';
+import confetti from 'canvas-confetti';
 
 const MILESTONES = [7, 14, 30, 50, 100];
 
@@ -35,6 +36,50 @@ const MILESTONE_DATA = {
     emoji: "👑",
     message: "100 days! You're a true legend!",
     color: "from-yellow-400 to-amber-500"
+  }
+};
+
+// Trigger real confetti
+const triggerConfetti = (intensity = 'normal') => {
+  const colors = ['#22c55e', '#f97316', '#eab308', '#3b82f6', '#ec4899'];
+  
+  if (intensity === 'epic') {
+    // Epic confetti for big milestones (30+)
+    const duration = 2000;
+    const end = Date.now() + duration;
+    
+    const frame = () => {
+      confetti({
+        particleCount: 4,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0 },
+        colors: colors,
+        zIndex: 9999,
+      });
+      confetti({
+        particleCount: 4,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1 },
+        colors: colors,
+        zIndex: 9999,
+      });
+
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    };
+    frame();
+  } else {
+    // Normal burst
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: colors,
+      zIndex: 9999,
+    });
   }
 };
 
