@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { TrendingUp, TrendingDown, Award, Calendar } from 'lucide-react';
+import { TrendingUp, TrendingDown, Award, Calendar, ArrowLeft } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { ConsistencyRatingBadge, ConsistencyRatingScale } from '../components/ConsistencyRating';
 import { PerformanceRatingBadge, PerformanceRatingScale } from '../components/PerformanceRating';
@@ -10,6 +11,7 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 export const WeeklyReviewScreen = () => {
+  const navigate = useNavigate();
   const [review, setReview] = useState(null);
   const [loading, setLoading] = useState(true);
 

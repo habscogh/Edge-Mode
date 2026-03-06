@@ -28,6 +28,8 @@ export const HistoryScreen = () => {
     fetchData();
   }, []);
 
+  const handleBack = () => navigate(-1);
+
   const fetchData = async () => {
     try {
       const [sessionsRes, pillarsRes] = await Promise.all([
