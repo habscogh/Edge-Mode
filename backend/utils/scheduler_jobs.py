@@ -8,6 +8,21 @@ import resend
 from config import db, logger, RESEND_API_KEY, SENDER_EMAIL
 
 
+# Import push notification functions (lazy import to avoid circular imports)
+async def send_push(user_id: str, title: str, body: str, url: str = "/dashboard", tag: str = None):
+    """Helper to send push notification"""
+    try:
+        from routes.push import send_push_to_user, PushMessage
+        await send_push_to_user(user_id, PushMessage(
+            title=title,
+            body=body,
+            url=url,
+            tag=tag
+        ))
+    except Exception as e:
+        logger.error(f"Failed to send push to {user_id}: {e}")
+
+
 # ============ Email HTML Templates ============
 
 def get_streak_reminder_html(username: str, streak: int) -> str:
