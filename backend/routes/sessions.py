@@ -29,6 +29,20 @@ async def notify_parents_of_new_badge(student_id: str, student_username: str, ba
     await notify(student_id, student_username, badge_name, badge_icon)
 
 
+async def send_badge_push(user_id: str, badge_name: str, badge_icon: str):
+    """Send push notification for new badge"""
+    try:
+        from routes.push import send_push_to_user, PushMessage
+        await send_push_to_user(user_id, PushMessage(
+            title=f"{badge_icon} New Badge Earned!",
+            body=f"Congratulations! You earned the '{badge_name}' badge!",
+            url="/achievements",
+            tag=f"badge-{badge_name.lower().replace(' ', '-')}"
+        ))
+    except Exception:
+        pass  # Push is non-critical
+
+
 @router.post("/complete")
 async def complete_session(session_data: SessionComplete, current_user: dict = Depends(get_current_user)):
     # Check trial status
