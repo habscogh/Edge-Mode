@@ -14,6 +14,7 @@ import PushNotificationSettings from '../components/PushNotificationSettings';
 import { InstallAppSettings } from '../components/InstallPrompt';
 import { SyncStatusCard } from '../components/OfflineIndicator';
 import { SchoolSelector } from '../components/SchoolSelector';
+import { AmbassadorCard, AmbassadorBadge } from '../components/AmbassadorBadge';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
