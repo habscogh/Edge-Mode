@@ -75,7 +75,7 @@ export const CoachSignup = () => {
       setResult(response.data);
       
       // Log the coach in
-      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('forge_token', response.data.token);
       axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
       
       setStep(3);
