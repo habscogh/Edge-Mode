@@ -12,7 +12,9 @@ import {
   Users, 
   Send,
   ChevronRight,
-  ArrowLeft
+  ArrowLeft,
+  Gift,
+  Trophy
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -22,7 +24,7 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 export const InviteFriendsScreen = () => {
-  const { user } = useAuth();
+  const { user, fetchUser } = useAuth();
   const navigate = useNavigate();
   const [referralInfo, setReferralInfo] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -32,6 +34,7 @@ export const InviteFriendsScreen = () => {
   const [friendName, setFriendName] = useState('');
   const [sending, setSending] = useState(false);
   const [showInviteForm, setShowInviteForm] = useState(false);
+  const [claimingReward, setClaimingReward] = useState(false);
 
   useEffect(() => {
     fetchReferralInfo();
