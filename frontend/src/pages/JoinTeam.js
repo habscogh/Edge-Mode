@@ -82,7 +82,7 @@ export const JoinTeam = () => {
       });
 
       // Store token
-      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('forge_token', response.data.token);
       axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
 
       toast.success(response.data.message);
