@@ -130,11 +130,17 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 - [x] ✅ **Added offline session logging** with IndexedDB & auto-sync
 - [x] ✅ **Fixed Achievements back button** - Added navigation back arrow (Dec 2025)
 - [x] ✅ **Added consistent back navigation** - Weekly Review, History pages now have back buttons (Dec 2025)
-- [x] ✅ **Added Quick Actions FAB** - Floating action button on Dashboard with 6 shortcuts: Log Session, Challenges, History, Achievements, Weekly Review, Groups (Dec 2025)
+- [x] ✅ **Added Quick Actions FAB** - Floating action button on Dashboard with 6 shortcuts (Dec 2025)
+- [x] ✅ **Added Pricing Section** - Landing page now shows pricing with monthly/yearly toggle (Dec 2025)
+- [x] ✅ **Push Notification Prompt** - Shows after first session logged (Dec 2025)
+- [x] ✅ **Enhanced Onboarding Progress** - Visual step indicators with progress bar (Dec 2025)
+- [x] ✅ **Confetti Celebrations** - Real canvas-confetti on milestones (Dec 2025)
+- [x] ✅ **Dark/Light Mode Toggle** - Theme switcher in Profile settings (Dec 2025)
+- [x] ✅ **Share Streak Cards** - Generate shareable images for Instagram/TikTok (Dec 2025)
+- [x] ✅ **Referral Rewards** - Invite 3 friends → Get 30 days free (Dec 2025)
 
 ## Future Enhancements
 - [ ] **P2:** Admin UI for managing coach special codes
-- [ ] **P3:** Referral rewards
 - [ ] **P3:** Admin challenge management UI
 
 ## Test Credentials
