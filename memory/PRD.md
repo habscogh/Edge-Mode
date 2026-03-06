@@ -14,36 +14,47 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 - **Payments:** Stripe (TEST mode)
 - **Email:** Resend (noreply@edgemodeapp.com)
 - **Push Notifications:** Web Push API with VAPID
+- **PWA:** Service Worker, manifest.json
 
 ## Code Architecture (Refactored - March 2026)
 ```
 /app/backend/
-├── server.py              # Main server (~230 lines) - includes router registration & scheduler
-├── config.py              # Configuration & shared dependencies (db, VAPID keys, constants)
-├── models/
-│   └── schemas.py         # Pydantic models for all endpoints
+├── server.py              # Main server (~230 lines)
+├── config.py              # Configuration (db, VAPID keys, constants)
 ├── routes/
-│   ├── auth.py            # Authentication (register, login, coach signup, password reset)
-│   ├── users.py           # User management (profile, pillars, settings)
-│   ├── sessions.py        # Session logging (complete, edit, delete, history)
-│   ├── stats.py           # Statistics (weekly, comparison, history, review)
-│   ├── badges.py          # Badges system (all, user, progress)
-│   ├── groups.py          # Groups (create, join, leaderboard)
+│   ├── auth.py            # Authentication
+│   ├── users.py           # User management
+│   ├── sessions.py        # Session logging
+│   ├── stats.py           # Statistics
+│   ├── badges.py          # Badges system
+│   ├── groups.py          # Groups
 │   ├── leaderboard.py     # Global leaderboard
-│   ├── coach.py           # Coach dashboard & player details
-│   ├── parent.py          # Parent-student linking & notifications
-│   ├── challenges.py      # Challenges system (CRUD, leaderboard, automation)
-│   ├── payments.py        # Stripe integration (checkout, webhook)
-│   ├── admin.py           # Admin dashboard (stats, users)
-│   ├── notifications.py   # Email notification routes & settings
-│   ├── referral.py        # Referral system (invite, track)
-│   ├── onboarding.py      # Onboarding (pillars, team info)
-│   └── push.py            # Push notifications (subscribe, unsubscribe, send) ✅ NEW
+│   ├── coach.py           # Coach dashboard
+│   ├── parent.py          # Parent-student linking
+│   ├── challenges.py      # Challenges system
+│   ├── payments.py        # Stripe integration
+│   ├── admin.py           # Admin dashboard
+│   ├── notifications.py   # Email notifications
+│   ├── referral.py        # Referral system
+│   ├── onboarding.py      # Onboarding
+│   └── push.py            # Push notifications
 └── utils/
-    ├── auth.py            # Authentication helpers (JWT, password hashing)
-    ├── badges.py          # Badge checking & awarding logic
-    ├── streaks.py         # Streak calculation utilities
-    └── scheduler_jobs.py  # Scheduled email + push notification jobs
+    ├── auth.py            # JWT, password hashing
+    ├── badges.py          # Badge logic
+    ├── streaks.py         # Streak calculation
+    └── scheduler_jobs.py  # Email + push scheduled jobs
+
+/app/frontend/
+├── public/
+│   ├── manifest.json      # PWA manifest
+│   └── sw.js              # Service worker (push + caching)
+└── src/
+    ├── hooks/
+    │   ├── usePushNotifications.js
+    │   └── useInstallPrompt.js
+    └── components/
+        ├── PushNotificationSettings.jsx
+        └── InstallPrompt.jsx
 ```
 
 ## Features (All Complete)
@@ -57,30 +68,26 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 - Session history (calendar view)
 - Edit/delete sessions
 
+### Push Notifications ✅
+- Web Push API with VAPID authentication
+- Service Worker at `/sw.js`
+- Notifications for: streak reminders, badges, inactivity, trial ending
+- Toggle on/off from Profile page
+- Test notification button
+
+### PWA Install Prompt ✅ NEW
+- **manifest.json** with app name, icons, theme colors
+- **"Add to Home Screen"** functionality
+- **Install Banner** on Dashboard (dismissible)
+- **Install Settings** on Profile page
+- **iOS Safari Guide** - 3-step manual instructions
+- **Offline Support** - Basic caching via Service Worker
+- Benefits shown: Quick access, Push notifications, Full screen mode, Works offline
+
 ### Achievements/Badges System
 - 12 badges available
 - Toast notifications when new badges earned
 - Progress bars for locked badges
-
-### Push Notifications ✅ NEW (March 2026)
-- **Web Push API** with VAPID authentication
-- **Service Worker** at `/sw.js` for handling push events
-- **Notification Types:**
-  - 🔥 Streak reminders (daily)
-  - 🏅 New badge earned (on session complete)
-  - 👋 Inactivity alerts (3+ days)
-  - ⏰ Trial ending reminders
-- **Frontend Integration:**
-  - Toggle on/off from Profile page
-  - Browser permission handling
-  - Test notification button
-  - Pro tips for mobile users
-- **Backend Endpoints:**
-  - `GET /api/push/vapid-key` - Get VAPID public key
-  - `POST /api/push/subscribe` - Subscribe to push
-  - `DELETE /api/push/unsubscribe` - Unsubscribe
-  - `GET /api/push/status` - Check subscription status
-  - `POST /api/push/test` - Send test notification
 
 ### Social
 - Private groups with invite codes
@@ -118,22 +125,22 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 - Password reset
 - Profile settings
 - Privacy Policy & Terms of Service
-- Pillar Management
 
 ## Completed Tasks (This Session)
-- [x] ✅ **Refactored backend** from 4000+ line monolithic server.py into modular routers
+- [x] ✅ **Refactored backend** - 4000+ line monolithic → modular routers
 - [x] ✅ **Integrated parent notification emails** into scheduler
-- [x] ✅ **Added push notifications** with Web Push API and VAPID
-- [x] ✅ **All backend API endpoints tested** - 100% pass rate
+- [x] ✅ **Added push notifications** with Web Push API
+- [x] ✅ **Added PWA install prompt** with "Add to Home Screen"
+- [x] ✅ **All features tested** - 100% pass rate
 
 ## Future Enhancements
-- [ ] **P2: Admin UI for Special Codes** - Manage coach trial codes via dashboard
-- [ ] **P2: Mobile PWA Optimization** - Add offline capabilities, home screen install prompt
+- [ ] **P2: Admin UI for Special Codes** - Manage coach trial codes
 - [ ] **P3: Add Referral Rewards** - Free month for 3+ referrals
 - [ ] **P3: Admin Challenge Management** - Manual challenge creation UI
+- [ ] **P3: Offline Session Logging** - Queue sessions when offline
 
 ## Test Credentials
 - **Admin:** admin@edgemodeapp.com
 - **Test User:** refactortest@example.com / test123
-- **Stripe Test Card:** 4242 4242 4242 4242 | Any future date | Any 3 digits
+- **Stripe Test Card:** 4242 4242 4242 4242
 - **Coach Special Codes:** EDGE30, COACH2024, TEAMEDGE, PROMO30
