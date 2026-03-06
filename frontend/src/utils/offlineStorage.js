@@ -169,20 +169,17 @@ class OfflineStorage {
   async clearSyncedSessions() {
     await this.init();
     
-    const transaction = this.db.transaction([STORE_NAME], 'readwrite');
-    const store = transaction.objectStore(STORE_NAME);
-    const index = store.index('synced');
-    const request = index.openCursor(IDBKeyRange.only(true));
-
     return new Promise((resolve, reject) => {
-      request.onsuccess = (event) => {
-        const cursor = event.target.result;
-        if (cursor) {
-          cursor.delete();
-          cursor.continue();
-        } else {
-          resolve(true);
-        }
+      const transaction = this.db.transaction([STORE_NAME], 'readwrite');
+      const store = transaction.objectStore(STORE_NAME);
+      const request = store.getAll();
+
+      request.onsuccess = () => {
+        const syncedSessions = request.result.filter(session => session.synced === true);
+        syncedSessions.forEach(session => {
+          store.delete(session.localId);
+        });
+        resolve(true);
       };
       request.onerror = () => reject(request.error);
     });
