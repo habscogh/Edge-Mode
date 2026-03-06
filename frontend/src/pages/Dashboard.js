@@ -450,6 +450,9 @@ export const Dashboard = () => {
       {/* Install App Banner */}
       <InstallBanner />
       
+      {/* Quick Actions FAB */}
+      <QuickActionsButton />
+      
       {/* Milestone Celebration Modal */}
       {milestoneToShow && (
         <MilestoneCelebration
