@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { Flame, TrendingUp, Zap, ArrowUp, ArrowDown, Minus, CheckCircle2, X } from 'lucide-react';
+import { Flame, TrendingUp, Zap, ArrowUp, ArrowDown, Minus, CheckCircle2, X, WifiOff } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { useNavigate } from 'react-router-dom';
@@ -12,6 +12,8 @@ import { PerformanceRatingBadge } from '../components/PerformanceRating';
 import { TrialEndingBanner } from '../components/TrialEndingBanner';
 import { MilestoneCelebration, checkMilestoneHit } from '../components/MilestoneCelebration';
 import { InstallBanner } from '../components/InstallPrompt';
+import { OfflineIndicator } from '../components/OfflineIndicator';
+import { useOfflineSync } from '../hooks/useOfflineSync';
 import { toast } from 'sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
