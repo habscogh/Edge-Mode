@@ -41,19 +41,17 @@ export const AmbassadorCard = ({ user, onActivate }) => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [isAmbassador, setIsAmbassador] = useState(user?.is_ambassador || false);
 
   useEffect(() => {
-    if (user?.is_ambassador) {
-      fetchStats();
-    } else {
-      setLoading(false);
-    }
-  }, [user?.is_ambassador]);
+    fetchStats();
+  }, []);
 
   const fetchStats = async () => {
     try {
       const response = await axios.get(`${API}/ambassador/stats`);
       setStats(response.data);
+      setIsAmbassador(response.data.is_ambassador || false);
     } catch (error) {
       console.error('Failed to fetch ambassador stats:', error);
     } finally {
