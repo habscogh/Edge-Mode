@@ -7,18 +7,19 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 **Preview URL:** https://teen-tracker-1.preview.emergentagent.com
 
 ## Tech Stack
-- **Backend:** FastAPI (Python), APScheduler
+- **Backend:** FastAPI (Python), APScheduler, pywebpush
 - **Frontend:** React, Tailwind CSS, Shadcn UI
 - **Database:** MongoDB Atlas
 - **Auth:** JWT tokens
 - **Payments:** Stripe (TEST mode)
 - **Email:** Resend (noreply@edgemodeapp.com)
+- **Push Notifications:** Web Push API with VAPID
 
 ## Code Architecture (Refactored - March 2026)
 ```
 /app/backend/
 ├── server.py              # Main server (~230 lines) - includes router registration & scheduler
-├── config.py              # Configuration & shared dependencies (db, constants)
+├── config.py              # Configuration & shared dependencies (db, VAPID keys, constants)
 ├── models/
 │   └── schemas.py         # Pydantic models for all endpoints
 ├── routes/
@@ -36,105 +37,80 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 │   ├── admin.py           # Admin dashboard (stats, users)
 │   ├── notifications.py   # Email notification routes & settings
 │   ├── referral.py        # Referral system (invite, track)
-│   └── onboarding.py      # Onboarding (pillars, team info)
+│   ├── onboarding.py      # Onboarding (pillars, team info)
+│   └── push.py            # Push notifications (subscribe, unsubscribe, send) ✅ NEW
 └── utils/
     ├── auth.py            # Authentication helpers (JWT, password hashing)
     ├── badges.py          # Badge checking & awarding logic
     ├── streaks.py         # Streak calculation utilities
-    └── scheduler_jobs.py  # Scheduled email jobs (streak, weekly, parent notifications)
+    └── scheduler_jobs.py  # Scheduled email + push notification jobs
 ```
 
 ## Features (All Complete)
 
 ### Core
 - User auth (signup/login)
-- 14-day free trial (updated from 7 days)
-- **Trial Ending Banner** - Shows on dashboard when 3 days or less remaining
-- Trial Expired screen with "What You'll Lose" personalized warning
+- 14-day free trial
 - Onboarding (select 3-5 pillars, set weekly targets)
 - Dashboard with metrics & 30-day graph
 - Session logging with notes
 - Session history (calendar view)
 - Edit/delete sessions
-- Quick Log on dashboard
 
 ### Achievements/Badges System
-- **12 badges available:**
-  - 🏆 First Step - Log your first session
-  - 🔥 Week Warrior - Maintain a 7-day streak
-  - 🔥 Fortnight Fighter - Maintain a 14-day streak
-  - 🔥 Monthly Master - Maintain a 30-day streak
-  - 💯 Century Club - Complete 100 sessions
-  - ⏱️ 50 Hour Club - Log 50+ hours total
-  - ✨ Perfect Week - Log every day for a week
-  - 🎯 Pillar Master - Hit target on all pillars in a week
-  - 🏅 Weekly Champion - Win a weekly challenge
-  - 🥇 Monthly Champion - Win a monthly challenge
-  - 🎖️ Podium Finish - Finish in top 3 of a challenge
-  - 🏆 Challenge Streak - Win 3 challenges
-- Dedicated Achievements page at `/achievements`
-- Badge summary on Profile page
-- Toast notifications when new badges are earned
-- Progress bars showing progress toward locked badges
+- 12 badges available
+- Toast notifications when new badges earned
+- Progress bars for locked badges
+
+### Push Notifications ✅ NEW (March 2026)
+- **Web Push API** with VAPID authentication
+- **Service Worker** at `/sw.js` for handling push events
+- **Notification Types:**
+  - 🔥 Streak reminders (daily)
+  - 🏅 New badge earned (on session complete)
+  - 👋 Inactivity alerts (3+ days)
+  - ⏰ Trial ending reminders
+- **Frontend Integration:**
+  - Toggle on/off from Profile page
+  - Browser permission handling
+  - Test notification button
+  - Pro tips for mobile users
+- **Backend Endpoints:**
+  - `GET /api/push/vapid-key` - Get VAPID public key
+  - `POST /api/push/subscribe` - Subscribe to push
+  - `DELETE /api/push/unsubscribe` - Unsubscribe
+  - `GET /api/push/status` - Check subscription status
+  - `POST /api/push/test` - Send test notification
 
 ### Social
 - Private groups with invite codes
 - Global leaderboard (opt-in)
 
-### Ratings
-- Performance Rating (Elite → Getting Started)
-- Consistency Rating
-
-### Social Sharing
-- Share to Twitter/X, Facebook, or copy to clipboard
-- Shareable content: badges, stats, streaks
-- All shares include app link for user acquisition
-
-### Milestone Celebrations
-- Automatic popup when users hit streak milestones (7, 14, 30, 50, 100 days)
-- Celebratory modal with confetti animation
-
-### Invite Friends / Referrals
-- Unique referral code for each user
-- Shareable invite link: `edgemodeapp.com/auth?ref=CODE`
-- Email invite functionality
-- Tracks successful referrals
-
-### Email Notifications (Automatic via Scheduler)
-- **Streak reminders:** 8 PM UTC daily (3 PM Eastern) - for users with active streaks who haven't logged
-- **Inactive reminders:** 6 PM UTC daily (2 PM Eastern) - for 3-7 days inactive users
-- **Trial ending reminders:** 4 PM UTC daily (12 PM Eastern) - for users with 1-3 days left
-- **Weekly summaries:** Sunday 2 PM UTC (10 AM Eastern)
-- **Parent weekly summaries:** Sunday 3 PM UTC (11 AM Eastern) ✅ INTEGRATED
-- **Parent inactivity alerts:** 7 PM UTC daily (3 PM Eastern) ✅ INTEGRATED
-- **Challenges daily job:** 12:05 AM UTC daily
+### Email Notifications (via Scheduler)
+- Streak reminders: 8 PM UTC daily
+- Inactive reminders: 6 PM UTC daily
+- Trial ending reminders: 4 PM UTC daily
+- Weekly summaries: Sunday 2 PM UTC
+- Parent weekly summaries: Sunday 3 PM UTC
+- Parent inactivity alerts: 7 PM UTC daily
 
 ### Opt-In Challenges
 - Weekly and monthly challenges
 - Auto-created via scheduled job
-- Auto-seeding on startup if no active challenges
 - Real-time leaderboard rankings
-- Filter by: All, My Challenges, Weekly, Monthly
 
-### Coach Mode in Groups
-- Dedicated `/coach-signup` page (FREE)
-- Special codes for extended trials: EDGE30, COACH2024, TEAMEDGE, PROMO30
-- Team invite system with shareable links
-- Coach Dashboard (`/coach-home`) with team stats
+### Coach Mode
+- Dedicated coach signup (FREE)
+- Special codes for extended trials
+- Team dashboard with player stats
 
 ### Parent-Student Linking
 - Student invites up to 2 parents
-- Parent receives email with invite code (PARENT-XXXXXX)
-- Parent Dashboard with student stats view
-- **Parent Notification Emails:** ✅ INTEGRATED
-  - Weekly progress summaries
-  - Inactivity alerts (3+ days)
-  - Streak milestone notifications (7, 14, 30 days)
-  - New badge notifications
+- Parent Dashboard with student stats
+- Parent notification emails
 
 ### Admin
 - Admin Dashboard at `/admin`
-- Stats: users, sessions, subscriptions
 - Access: admin@edgemodeapp.com only
 
 ### Other
@@ -144,22 +120,20 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 - Privacy Policy & Terms of Service
 - Pillar Management
 
-## Bug Fixes (March 2026)
-- **Timezone Bug Fixed**: All stats endpoints accept `local_date` parameter
-- **Coach /api/users/me Fixed**: User model now handles optional username/age for coaches
-
 ## Completed Tasks (This Session)
 - [x] ✅ **Refactored backend** from 4000+ line monolithic server.py into modular routers
-- [x] ✅ **Integrated parent notification emails** into scheduler (weekly summaries, inactivity alerts)
-- [x] ✅ **All 41 API endpoints tested** - 97.6% pass rate (40/41)
+- [x] ✅ **Integrated parent notification emails** into scheduler
+- [x] ✅ **Added push notifications** with Web Push API and VAPID
+- [x] ✅ **All backend API endpoints tested** - 100% pass rate
 
 ## Future Enhancements
 - [ ] **P2: Admin UI for Special Codes** - Manage coach trial codes via dashboard
-- [ ] **P2: Mobile PWA Optimization** - Add offline capabilities, home screen install
+- [ ] **P2: Mobile PWA Optimization** - Add offline capabilities, home screen install prompt
 - [ ] **P3: Add Referral Rewards** - Free month for 3+ referrals
 - [ ] **P3: Admin Challenge Management** - Manual challenge creation UI
 
 ## Test Credentials
 - **Admin:** admin@edgemodeapp.com
+- **Test User:** refactortest@example.com / test123
 - **Stripe Test Card:** 4242 4242 4242 4242 | Any future date | Any 3 digits
 - **Coach Special Codes:** EDGE30, COACH2024, TEAMEDGE, PROMO30
