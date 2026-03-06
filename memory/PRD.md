@@ -138,10 +138,15 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 - [x] ✅ **Dark/Light Mode Toggle** - Theme switcher in Profile settings (Dec 2025)
 - [x] ✅ **Share Streak Cards** - Generate shareable images for Instagram/TikTok (Dec 2025)
 - [x] ✅ **Referral Rewards** - Invite 3 friends → Get 30 days free (Dec 2025)
+- [x] ✅ **School Leaderboard** - US schools (Grades 8-12) with weekly rankings (Dec 2025)
+  - School selector in Profile with autocomplete search
+  - New `/school-leaderboard` page with 3 tabs: Consistency, Performance, Most Users
+  - No student names visible - just school rankings
 
 ## Future Enhancements
 - [ ] **P2:** Admin UI for managing coach special codes
 - [ ] **P3:** Admin challenge management UI
+- [ ] **P3:** Integrate real NCES school database API for complete US school coverage
 
 ## Test Credentials
 - **Admin:** admin@edgemodeapp.com
