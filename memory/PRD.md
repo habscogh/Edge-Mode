@@ -128,6 +128,7 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 - [x] ✅ **Added push notifications** with Web Push API
 - [x] ✅ **Added PWA install prompt**
 - [x] ✅ **Added offline session logging** with IndexedDB & auto-sync
+- [x] ✅ **Fixed Achievements back button** - Added navigation back arrow (Dec 2025)
 
 ## Future Enhancements
 - [ ] **P2:** Admin UI for managing coach special codes
