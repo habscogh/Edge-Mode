@@ -403,6 +403,9 @@ export const Dashboard = () => {
         </Button>
       </div>
       
+      {/* Install App Banner */}
+      <InstallBanner />
+      
       {/* Milestone Celebration Modal */}
       {milestoneToShow && (
         <MilestoneCelebration
