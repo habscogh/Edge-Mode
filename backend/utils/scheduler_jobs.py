@@ -275,6 +275,7 @@ async def send_inactive_reminders_job():
                         days_inactive
                     )
                     
+                    # Send email
                     try:
                         await asyncio.to_thread(resend.Emails.send, {
                             "from": SENDER_EMAIL,
@@ -285,6 +286,16 @@ async def send_inactive_reminders_job():
                         sent_count += 1
                     except Exception as e:
                         logger.error(f"Failed to send inactive reminder to {user['email']}: {e}")
+                    
+                    # Send push notification
+                    if user.get('push_enabled'):
+                        await send_push(
+                            user['id'],
+                            "👋 We Miss You!",
+                            f"It's been {days_inactive} days. Small steps lead to big changes!",
+                            "/dashboard",
+                            "inactivity"
+                        )
         
         logger.info(f"Inactive reminder job complete. Sent {sent_count} emails.")
     except Exception as e:
