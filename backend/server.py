@@ -30,7 +30,8 @@ from routes import (
     notifications,
     referral,
     onboarding,
-    push
+    push,
+    schools
 )
 
 # Import scheduler jobs
