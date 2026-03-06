@@ -203,8 +203,9 @@ class User(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str
     email: str
-    username: str
-    age: int
+    username: Optional[str] = None  # Optional for coaches (they use 'name')
+    name: Optional[str] = None  # For coaches
+    age: Optional[int] = None  # Optional for coaches
     join_date: str
     current_streak: int = 0
     longest_streak: int = 0
@@ -214,6 +215,10 @@ class User(BaseModel):
     last_log_date: Optional[str] = None
     leaderboard_opt_in: bool = False
     total_sessions_completed: int = 0
+    is_coach: bool = False
+    team_id: Optional[str] = None
+    joined_via_coach: bool = False
+    has_extended_trial: bool = False
 
 class UserPillar(BaseModel):
     model_config = ConfigDict(extra="ignore")
