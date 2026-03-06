@@ -18,7 +18,8 @@ from routes import (
     referral,
     onboarding,
     push,
-    schools
+    schools,
+    ambassador
 )
 
 __all__ = [
@@ -38,5 +39,6 @@ __all__ = [
     'referral',
     'onboarding',
     'push',
-    'schools'
+    'schools',
+    'ambassador'
 ]
