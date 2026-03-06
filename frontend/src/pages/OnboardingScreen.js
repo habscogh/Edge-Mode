@@ -160,11 +160,35 @@ export const OnboardingScreen = () => {
         </div>
 
         <div className="mb-8">
-          <div className="flex gap-2 mb-2">
-            <div className={`h-1 flex-1 rounded ${step >= 1 ? 'bg-primary' : 'bg-zinc-800'}`}></div>
-            <div className={`h-1 flex-1 rounded ${step >= 2 ? 'bg-primary' : 'bg-zinc-800'}`}></div>
+          {/* Progress Bar */}
+          <div className="relative mb-4">
+            <div className="flex justify-between mb-2">
+              <div className={`flex flex-col items-center ${step >= 1 ? 'text-primary' : 'text-zinc-600'}`}>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg mb-1 ${
+                  step >= 1 ? 'bg-primary text-primary-foreground' : 'bg-zinc-800 text-zinc-500'
+                }`}>
+                  {step > 1 ? <CheckCircle2 className="w-5 h-5" /> : '1'}
+                </div>
+                <span className="text-xs font-body">Choose Areas</span>
+              </div>
+              <div className={`flex flex-col items-center ${step >= 2 ? 'text-primary' : 'text-zinc-600'}`}>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg mb-1 ${
+                  step >= 2 ? 'bg-primary text-primary-foreground' : 'bg-zinc-800 text-zinc-500'
+                }`}>
+                  {step > 2 ? <CheckCircle2 className="w-5 h-5" /> : '2'}
+                </div>
+                <span className="text-xs font-body">Set Targets</span>
+              </div>
+            </div>
+            {/* Connecting line */}
+            <div className="absolute top-5 left-12 right-12 h-0.5 bg-zinc-800 -z-10">
+              <div 
+                className="h-full bg-primary transition-all duration-500" 
+                style={{ width: step >= 2 ? '100%' : '0%' }}
+              />
+            </div>
           </div>
-          <p className="text-zinc-400 text-sm font-mono">STEP {step}/2</p>
+          <p className="text-center text-zinc-400 text-sm font-mono">STEP {step} OF 2</p>
         </div>
 
         {step === 1 && (
