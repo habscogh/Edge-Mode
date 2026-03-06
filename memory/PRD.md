@@ -133,21 +133,30 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 - **Visibility:** Everyone can view, only participants compete
 
 ### Coach Mode in Groups (NEW - March 2026)
-- **Coach Role:**
-  - Enable "Coach Mode" when creating a group
-  - Coach can view all players' detailed stats (view-only)
-  - Coach Dashboard shows team overview and individual player details
-- **Team Stats:**
-  - Total players, average consistency, average performance
-  - Total sessions this week across team
-- **Player Details (Coach View):**
-  - Current streak, consistency %, performance index
-  - Pillar breakdown with sessions vs targets
-  - Last active date
-  - Detailed player modal with weekly stats, pillars, badges
+- **Coach Signup Flow:**
+  - Dedicated `/coach-signup` page (linked from landing page)
+  - Coach accounts are always FREE (no subscription required)
+  - Coach skips pillars/onboarding - doesn't apply to them
+  - Optional special code field for extended player trials
+- **Special Codes:**
+  - Valid codes: EDGE30, COACH2024, TEAMEDGE, PROMO30
+  - With valid code: players get 30-day trial
+  - Without code: players get standard 14-day trial
+- **Team Invite System:**
+  - Coach gets shareable link: `/join/TEAM-XXXXXXXX`
+  - Players click link → Sign up → Auto-join team
+  - Player trial period based on coach's special code
+- **Coach Dashboard (`/coach-home`):**
+  - Team stats overview (players, active this week, sessions)
+  - Copy/share invite link buttons
+  - Link to detailed team dashboard
+- **Team Dashboard:**
+  - View all players' detailed stats (view-only)
+  - Player cards with streak, consistency, performance
+  - Pillar breakdown per player
 - **Access:**
-  - Only coach can access coach dashboard (403 for others)
-  - Players see regular group leaderboard
+  - Only coach can access coach/team dashboard
+  - Players see regular app experience
 
 ### Parent-Student Linking (NEW - March 2026)
 - **Student Actions:**
