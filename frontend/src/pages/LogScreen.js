@@ -15,6 +15,7 @@ const API = `${BACKEND_URL}/api`;
 
 export const LogScreen = () => {
   const { user, fetchUser } = useAuth();
+  const { isOnline, saveOffline, pendingCount } = useOfflineSync();
   const [pillars, setPillars] = useState([]);
   const [selectedPillar, setSelectedPillar] = useState('');
   const [minutes, setMinutes] = useState('30');
