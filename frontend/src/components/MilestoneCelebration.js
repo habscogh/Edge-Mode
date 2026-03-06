@@ -99,10 +99,14 @@ export const MilestoneCelebration = ({ milestone, streak, onClose, onShare }) =>
   const data = MILESTONE_DATA[milestone] || MILESTONE_DATA[7];
 
   useEffect(() => {
+    // Trigger real canvas confetti
+    const intensity = milestone >= 30 ? 'epic' : 'normal';
+    triggerConfetti(intensity);
+    
     // Auto-hide confetti after animation
     const timer = setTimeout(() => setShowConfetti(false), 3000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [milestone]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
