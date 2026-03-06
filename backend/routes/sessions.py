@@ -109,6 +109,12 @@ async def complete_session(session_data: SessionComplete, current_user: dict = D
                 badge['name'],
                 badge['icon']
             ))
+            # Send push notification for badge
+            asyncio.create_task(send_badge_push(
+                user_id,
+                badge['name'],
+                badge['icon']
+            ))
     
     return {
         'session': DailySession(**session_doc).model_dump(),
