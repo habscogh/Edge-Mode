@@ -12,84 +12,32 @@ from utils.auth import get_current_user
 
 router = APIRouter(prefix="/schools", tags=["Schools"])
 
-# Cache for school search results (simple in-memory cache)
-school_cache = {}
-CACHE_TTL = 3600  # 1 hour
-
-async def search_schools_urban_institute(query: str, state: Optional[str] = None):
-    """
-    Search US schools using Urban Institute Education Data Portal API
-    Filters for grades 8-12 (middle/high schools)
-    """
-    cache_key = f"{query}_{state}"
-    
-    # Check cache
-    if cache_key in school_cache:
-        cached_data, cached_time = school_cache[cache_key]
-        if (datetime.now() - cached_time).seconds < CACHE_TTL:
-            return cached_data
-    
-    try:
-        # Urban Institute API for school directory
-        # Filter for schools that have grades 8-12
-        base_url = "https://educationdata.urban.org/api/v1/schools/ccd/directory"
-        
-        # Get latest year available
-        year = 2022  # Latest stable year in the API
-        
-        params = {
-            "year": year,
-            "school_name": query,
-        }
-        
-        if state:
-            params["state_location"] = state.upper()
-        
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            response = await client.get(base_url, params=params)
-            
-            if response.status_code != 200:
-                logger.error(f"Urban Institute API error: {response.status_code}")
-                return []
-            
-            data = response.json()
-            results = data.get("results", [])
-            
-            # Filter for schools with grades 8-12
-            filtered_schools = []
-            for school in results[:50]:  # Limit to 50 results
-                # Check if school has any grades 8-12
-                lowest_grade = school.get("lowest_grade_offered", 0)
-                highest_grade = school.get("highest_grade_offered", 0)
-                
-                # We want schools that include grades 8-12
-                # Grade codes: 8=8th grade, 9-12 are high school
-                if highest_grade >= 8:
-                    filtered_schools.append({
-                        "nces_id": school.get("ncessch"),
-                        "name": school.get("school_name", "").title(),
-                        "city": school.get("city_location", "").title(),
-                        "state": school.get("state_location", ""),
-                        "zip": school.get("zip_location", ""),
-                        "grades": f"{lowest_grade}-{highest_grade}",
-                        "school_type": school.get("school_type", ""),
-                    })
-            
-            # Cache results
-            school_cache[cache_key] = (filtered_schools, datetime.now())
-            
-            return filtered_schools[:20]  # Return top 20 matches
-            
-    except Exception as e:
-        logger.error(f"School search error: {e}")
-        return []
-
-
-# Fallback: Use a static list of popular schools if API fails
-FALLBACK_SCHOOLS = [
-    {"nces_id": "fallback_1", "name": "Lincoln High School", "city": "Various", "state": "US", "grades": "9-12"},
-    {"nces_id": "fallback_2", "name": "Washington High School", "city": "Various", "state": "US", "grades": "9-12"},
-    {"nces_id": "fallback_3", "name": "Jefferson High School", "city": "Various", "state": "US", "grades": "9-12"},
+# Common US high schools - seed data for autocomplete
+# In production, this would be populated from NCES database
+COMMON_SCHOOLS = [
+    {"nces_id": "hs_001", "name": "Lincoln High School", "city": "Various", "state": "US", "grades": "9-12"},
+    {"nces_id": "hs_002", "name": "Washington High School", "city": "Various", "state": "US", "grades": "9-12"},
+    {"nces_id": "hs_003", "name": "Jefferson High School", "city": "Various", "state": "US", "grades": "9-12"},
+    {"nces_id": "hs_004", "name": "Roosevelt High School", "city": "Various", "state": "US", "grades": "9-12"},
+    {"nces_id": "hs_005", "name": "Kennedy High School", "city": "Various", "state": "US", "grades": "9-12"},
+    {"nces_id": "hs_006", "name": "Central High School", "city": "Various", "state": "US", "grades": "9-12"},
+    {"nces_id": "hs_007", "name": "West High School", "city": "Various", "state": "US", "grades": "9-12"},
+    {"nces_id": "hs_008", "name": "East High School", "city": "Various", "state": "US", "grades": "9-12"},
+    {"nces_id": "hs_009", "name": "North High School", "city": "Various", "state": "US", "grades": "9-12"},
+    {"nces_id": "hs_010", "name": "South High School", "city": "Various", "state": "US", "grades": "9-12"},
+    {"nces_id": "hs_011", "name": "Westview High School", "city": "Various", "state": "US", "grades": "9-12"},
+    {"nces_id": "hs_012", "name": "Eastview High School", "city": "Various", "state": "US", "grades": "9-12"},
+    {"nces_id": "hs_013", "name": "Lakewood High School", "city": "Various", "state": "US", "grades": "9-12"},
+    {"nces_id": "hs_014", "name": "Riverside High School", "city": "Various", "state": "US", "grades": "9-12"},
+    {"nces_id": "hs_015", "name": "Mountain View High School", "city": "Various", "state": "US", "grades": "9-12"},
+    {"nces_id": "hs_016", "name": "Valley High School", "city": "Various", "state": "US", "grades": "9-12"},
+    {"nces_id": "hs_017", "name": "Fairview High School", "city": "Various", "state": "US", "grades": "9-12"},
+    {"nces_id": "hs_018", "name": "Hillcrest High School", "city": "Various", "state": "US", "grades": "9-12"},
+    {"nces_id": "hs_019", "name": "Oakwood High School", "city": "Various", "state": "US", "grades": "9-12"},
+    {"nces_id": "hs_020", "name": "Parkview High School", "city": "Various", "state": "US", "grades": "9-12"},
+    {"nces_id": "ms_001", "name": "Lincoln Middle School", "city": "Various", "state": "US", "grades": "6-8"},
+    {"nces_id": "ms_002", "name": "Washington Middle School", "city": "Various", "state": "US", "grades": "6-8"},
+    {"nces_id": "ms_003", "name": "Jefferson Middle School", "city": "Various", "state": "US", "grades": "6-8"},
 ]
 
 
@@ -105,21 +53,30 @@ async def search_schools(
     if len(q) < 2:
         return {"schools": []}
     
-    # Try Urban Institute API first
-    schools = await search_schools_urban_institute(q, state)
+    query_lower = q.lower()
     
-    # If API fails or returns nothing, search local database
-    if not schools:
-        # Search our own database of schools that users have selected
-        local_schools = await db.schools.find(
+    # First, search common schools list
+    matching_schools = [
+        school for school in COMMON_SCHOOLS
+        if query_lower in school["name"].lower()
+    ]
+    
+    # Then search schools collection in DB (schools added by users)
+    try:
+        db_schools = await db.schools.find(
             {"name": {"$regex": q, "$options": "i"}},
             {"_id": 0, "nces_id": 1, "name": 1, "city": 1, "state": 1, "grades": 1}
         ).limit(20).to_list(20)
         
-        if local_schools:
-            schools = local_schools
+        # Add DB schools that aren't duplicates
+        existing_names = {s["name"].lower() for s in matching_schools}
+        for school in db_schools:
+            if school["name"].lower() not in existing_names:
+                matching_schools.append(school)
+    except Exception as e:
+        logger.error(f"School DB search error: {e}")
     
-    return {"schools": schools}
+    return {"schools": matching_schools[:20]}
 
 
 @router.post("/set-school")
