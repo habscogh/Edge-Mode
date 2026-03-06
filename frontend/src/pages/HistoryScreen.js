@@ -316,8 +316,8 @@ export const HistoryScreen = () => {
     <div className="min-h-screen bg-[#09090b] p-4 pb-24">
       <div className="max-w-2xl mx-auto pt-6">
         <button
-          data-testid="back-btn"
-          onClick={() => navigate('/dashboard')}
+          data-testid="history-back-btn"
+          onClick={handleBack}
           className="flex items-center gap-2 text-zinc-400 hover:text-white mb-6 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
