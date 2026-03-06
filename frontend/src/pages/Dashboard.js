@@ -66,12 +66,31 @@ export const Dashboard = () => {
     const localDate = new Date().toISOString().split('T')[0];
     
     setQuickLogLoading(true);
+    
+    // Prepare session data
+    const sessionData = {
+      pillar: quickLogPillar,
+      minutes_spent: parseInt(quickLogMinutes) || 30,
+      local_date: localDate
+    };
+    
     try {
-      const response = await axios.post(`${API}/sessions/complete`, {
-        pillar: quickLogPillar,
-        minutes_spent: parseInt(quickLogMinutes) || 30,
-        local_date: localDate
-      });
+      // If offline, save locally
+      if (!isOnline) {
+        await saveOffline(sessionData);
+        toast.success(
+          <div className="flex items-center gap-2">
+            <WifiOff className="w-4 h-4" />
+            <span>Saved offline! Will sync when online.</span>
+          </div>
+        );
+        setQuickLogPillar(null);
+        setQuickLogMinutes('30');
+        setQuickLogLoading(false);
+        return;
+      }
+      
+      const response = await axios.post(`${API}/sessions/complete`, sessionData);
       toast.success(`Logged ${quickLogMinutes} min of ${quickLogPillar}!`);
       
       // Check for newly earned badges and show toast notifications
@@ -113,7 +132,25 @@ export const Dashboard = () => {
       }
     } catch (error) {
       console.error('Failed to quick log:', error);
-      toast.error('Failed to log session');
+      
+      // If network error, save offline
+      if (!navigator.onLine || error.message === 'Network Error') {
+        try {
+          await saveOffline(sessionData);
+          toast.success(
+            <div className="flex items-center gap-2">
+              <WifiOff className="w-4 h-4" />
+              <span>Saved offline! Will sync when online.</span>
+            </div>
+          );
+          setQuickLogPillar(null);
+          setQuickLogMinutes('30');
+        } catch (offlineError) {
+          toast.error('Failed to save session');
+        }
+      } else {
+        toast.error('Failed to log session');
+      }
     } finally {
       setQuickLogLoading(false);
     }
