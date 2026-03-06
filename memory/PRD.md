@@ -130,6 +130,7 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 - [x] ✅ **Added offline session logging** with IndexedDB & auto-sync
 - [x] ✅ **Fixed Achievements back button** - Added navigation back arrow (Dec 2025)
 - [x] ✅ **Added consistent back navigation** - Weekly Review, History pages now have back buttons (Dec 2025)
+- [x] ✅ **Added Quick Actions FAB** - Floating action button on Dashboard with shortcuts to Log, History, Achievements, Weekly Review, Groups (Dec 2025)
 
 ## Future Enhancements
 - [ ] **P2:** Admin UI for managing coach special codes
