@@ -139,9 +139,11 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 - [x] ✅ **Share Streak Cards** - Generate shareable images for Instagram/TikTok (Dec 2025)
 - [x] ✅ **Referral Rewards** - Invite 3 friends → Get 30 days free (Dec 2025)
 - [x] ✅ **School Leaderboard** - US schools (Grades 8-12) with weekly rankings (Dec 2025)
-  - School selector in Profile with autocomplete search
-  - New `/school-leaderboard` page with 3 tabs: Consistency, Performance, Most Users
-  - No student names visible - just school rankings
+- [x] ✅ **Founding Ambassador Program** - Special code activation, 1 year free, referral tracking (Dec 2025)
+  - Ambassador badge visible on Profile and Leaderboards
+  - Stats: Total Referrals, Monthly Referrals, Free Access period
+  - Personal referral link with copy button
+  - Codes: EDGEFOUNDER2025, AMBASSADOR1, FOUNDINGMEMBER
 
 ## Future Enhancements
 - [ ] **P2:** Admin UI for managing coach special codes
