@@ -1,0 +1,148 @@
+{
+  "summary": "Backend Refactoring Regression Test - All API routes working correctly after modular refactoring. 40/41 tests passed (97.6%). The only failure is /health at root level which returns frontend HTML (expected behavior in K8s ingress). All critical routes including auth, users, sessions, stats, challenges, groups, leaderboard, coach, parent, badges, notifications, referral, and payments are functioning correctly.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {
+        "endpoint": "GET /health (root level)",
+        "issue": "Returns frontend HTML instead of JSON health check. This is expected behavior as K8s ingress routes non-/api paths to frontend.",
+        "priority": "LOW",
+        "note": "Use /api/health instead for health checks"
+      }
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_backend_refactoring.py",
+    "/app/test_reports/pytest/pytest_refactoring.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Backend refactoring from 4000+ line monolithic server.py to modular routers is complete and working",
+    "User model now correctly supports both regular users and coaches (username/age are optional)",
+    "Scheduler jobs for parent notifications are properly integrated",
+    "All route modules properly imported and registered in server.py"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_backend_refactoring.py"
+  ],
+  "success_rate": {
+    "backend": "97.6% (40/41 tests passed)",
+    "frontend": "Not tested (backend-only testing requested)"
+  },
+  "test_credentials": {
+    "note": "Test users created with unique UUIDs during testing"
+  },
+  "seed_data_creation": "Multiple test users, coaches, and groups created during testing with unique UUIDs",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Backend refactoring is complete and all routes are working. The /api/users/me endpoint now works for both regular users and coaches (issue from iteration 5 is fixed). Scheduler is running with 7 jobs configured. Stripe payments are in test mode.",
+  "features_verified": {
+    "health_endpoints": {
+      "GET /api/health": "PASS - Returns healthy status with database and scheduler info",
+      "GET /api/scheduler/status": "PASS - Returns scheduler status with 7 jobs"
+    },
+    "auth_routes": {
+      "POST /api/auth/register": "PASS - User registration with referral code support",
+      "POST /api/auth/login": "PASS - User login returns token and is_coach flag",
+      "POST /api/auth/coach/register": "PASS - Coach registration with team creation and special codes",
+      "POST /api/auth/player/join-team": "PASS - Player joins team via invite code",
+      "POST /api/auth/forgot-password": "PASS - Password reset flow",
+      "POST /api/auth/reset-password": "PASS - Password reset confirmation"
+    },
+    "user_routes": {
+      "GET /api/users/me": "PASS - Works for both regular users AND coaches (fixed from iteration 5)",
+      "GET /api/users/pillars": "PASS - Returns user's pillars",
+      "POST /api/users/pillars/add": "PASS - Add new pillar",
+      "PUT /api/users/pillars/{id}": "PASS - Update pillar target",
+      "DELETE /api/users/pillars/{id}": "PASS - Remove pillar",
+      "POST /api/users/leaderboard-opt-in": "PASS - Toggle leaderboard visibility"
+    },
+    "session_routes": {
+      "POST /api/sessions/complete": "PASS - Log session with streak update and badge check",
+      "GET /api/sessions/today": "PASS - Get today's sessions",
+      "GET /api/sessions/history": "PASS - Get session history"
+    },
+    "stats_routes": {
+      "GET /api/stats/weekly": "PASS - Weekly stats with pillar breakdown",
+      "GET /api/stats/comparison": "PASS - Today vs yesterday comparison",
+      "GET /api/stats/history": "PASS - Performance history over time",
+      "GET /api/stats/weekly-review": "PASS - Weekly review with improvements"
+    },
+    "challenges_routes": {
+      "GET /api/challenges": "PASS - List challenges with filters",
+      "GET /api/challenges/my": "PASS - User's joined challenges",
+      "POST /api/challenges/join": "PASS - Join a challenge",
+      "POST /api/challenges/leave/{id}": "PASS - Leave a challenge",
+      "GET /api/challenges/{id}/leaderboard": "PASS - Challenge leaderboard"
+    },
+    "groups_routes": {
+      "GET /api/groups": "PASS - User's groups",
+      "POST /api/groups": "PASS - Create group",
+      "POST /api/groups/join": "PASS - Join group via invite code",
+      "GET /api/groups/{id}/leaderboard": "PASS - Group leaderboard"
+    },
+    "leaderboard_routes": {
+      "GET /api/leaderboard/global": "PASS - Global leaderboard with age group filter"
+    },
+    "coach_routes": {
+      "GET /api/coach/dashboard": "PASS - Coach home dashboard with team stats",
+      "GET /api/coach/groups/{id}/dashboard": "PASS - Detailed player stats",
+      "GET /api/coach/groups/{id}/player/{id}": "PASS - Individual player details"
+    },
+    "parent_routes": {
+      "POST /api/parent/invite": "PASS - Student invites parent",
+      "POST /api/parent/accept": "PASS - Parent accepts invite",
+      "GET /api/parent/linked-students": "PASS - Parent's linked students",
+      "GET /api/parent/student/{id}/dashboard": "PASS - Parent views student dashboard",
+      "GET /api/student/linked-parents": "PASS - Student's linked parents"
+    },
+    "badges_routes": {
+      "GET /api/badges/all": "PASS - All available badges (12 badges)",
+      "GET /api/badges/user": "PASS - User's earned badges",
+      "GET /api/badges/progress": "PASS - Progress towards badges"
+    },
+    "notification_routes": {
+      "GET /api/notifications/settings": "PASS - Get notification preferences",
+      "PUT /api/notifications/settings": "PASS - Update notification preferences"
+    },
+    "referral_routes": {
+      "GET /api/referral/info": "PASS - Get referral code and stats",
+      "POST /api/referral/send-invite": "PASS - Send invite email"
+    },
+    "payment_routes": {
+      "POST /api/payments/create-checkout": "PASS - Create Stripe checkout session",
+      "GET /api/payments/status/{id}": "PASS - Check payment status"
+    },
+    "admin_routes": {
+      "GET /api/admin/stats": "PASS - Protected, requires admin email",
+      "GET /api/admin/users": "PASS - Protected, requires admin email"
+    },
+    "onboarding_routes": {
+      "GET /api/pillars": "PASS - Available pillars (7 pillars)",
+      "POST /api/onboarding/complete": "PASS - Complete onboarding with pillars",
+      "GET /api/team/{code}": "PASS - Get team info for join page"
+    },
+    "scheduler_jobs": {
+      "streak_reminders": "Configured - 8:00 PM UTC daily",
+      "weekly_summaries": "Configured - Sunday 2:00 PM UTC",
+      "inactive_reminders": "Configured - 6:00 PM UTC daily",
+      "trial_ending_reminders": "Configured - 4:00 PM UTC daily",
+      "parent_weekly_summaries": "Configured - Sunday 3:00 PM UTC",
+      "parent_inactivity_alerts": "Configured - 7:00 PM UTC daily",
+      "challenges_daily": "Configured - 12:05 AM UTC daily"
+    }
+  },
+  "mocked_api": {
+    "Stripe": "In test mode - checkout sessions created successfully"
+  },
+  "rca_of_previous_issue": {
+    "issue": "Coach /api/users/me returning 500 (from iteration 5)",
+    "status": "FIXED",
+    "fix": "User model in models/schemas.py now has username and age as Optional fields with defaults, allowing coach accounts (which have 'name' instead of 'username' and no 'age') to be serialized correctly"
+  }
+}
