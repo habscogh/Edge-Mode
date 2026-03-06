@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
-import { Zap, CheckCircle2 } from 'lucide-react';
+import { Zap, CheckCircle2, Users } from 'lucide-react';
 
 export const LandingPage = () => {
   const navigate = useNavigate();
