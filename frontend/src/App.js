@@ -14,6 +14,7 @@ import { SubscriptionSuccessScreen } from './pages/SubscriptionSuccessScreen';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { TermsOfService } from './pages/TermsOfService';
 import { ForgotPassword } from './pages/ForgotPassword';
+import ResetPasswordScreen from './pages/ResetPasswordScreen';
 import { HistoryScreen } from './pages/HistoryScreen';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { TrialExpiredScreen } from './pages/TrialExpiredScreen';
