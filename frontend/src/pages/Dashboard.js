@@ -13,6 +13,7 @@ import { TrialEndingBanner } from '../components/TrialEndingBanner';
 import { MilestoneCelebration, checkMilestoneHit } from '../components/MilestoneCelebration';
 import { InstallBanner } from '../components/InstallPrompt';
 import { OfflineIndicator } from '../components/OfflineIndicator';
+import { QuickActionsButton } from '../components/QuickActionsButton';
 import { useOfflineSync } from '../hooks/useOfflineSync';
 import { toast } from 'sonner';
 
