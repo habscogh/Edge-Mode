@@ -236,6 +236,14 @@ export const ProfileScreen = () => {
           <BadgeSummary />
         </div>
 
+        {/* Founding Ambassador Section */}
+        <div className="mb-4">
+          <AmbassadorCard 
+            user={user} 
+            onActivate={() => fetchUser && fetchUser()}
+          />
+        </div>
+
         {/* Parent Dashboard Button (only for parents) */}
         {isParent && (
           <div 
