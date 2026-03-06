@@ -166,6 +166,14 @@ export const AchievementsScreen = () => {
       <div className="p-6">
         {/* Header */}
         <div className="mb-6">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors mb-4"
+            data-testid="achievements-back-btn"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="text-sm font-body">Back</span>
+          </button>
           <h1 className="text-2xl font-heading font-bold uppercase tracking-tight text-white mb-2">
             Achievements
           </h1>
