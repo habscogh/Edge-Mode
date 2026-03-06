@@ -67,19 +67,16 @@ export const LandingPage = () => {
           Activate Edge Mode
         </Button>
 
-        {/* Coach Signup Link */}
-        <div className="text-center mb-6">
-          <p className="text-zinc-400 text-sm font-body">
-            Are you a coach?{' '}
-            <a 
-              href="/coach-signup" 
-              className="text-primary hover:underline font-medium"
-              data-testid="coach-signup-link"
-            >
-              Sign up your team for free
-            </a>
-          </p>
-        </div>
+        {/* Coach Signup Button - More Prominent */}
+        <Button
+          data-testid="coach-signup-btn"
+          onClick={() => navigate('/coach-signup')}
+          variant="outline"
+          className="w-full border-2 border-primary text-primary hover:bg-primary/10 font-heading uppercase tracking-wide font-bold py-6 mb-6"
+        >
+          <Users className="w-5 h-5 mr-2" />
+          Coaches: Sign Up Your Team Free
+        </Button>
 
         {/* Support Email */}
         <div className="text-center">
