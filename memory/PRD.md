@@ -14,6 +14,36 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 - **Payments:** Stripe (TEST mode)
 - **Email:** Resend (noreply@edgemodeapp.com)
 
+## Code Architecture (Refactored - March 2026)
+```
+/app/backend/
+├── server.py              # Main server (~230 lines) - includes router registration & scheduler
+├── config.py              # Configuration & shared dependencies (db, constants)
+├── models/
+│   └── schemas.py         # Pydantic models for all endpoints
+├── routes/
+│   ├── auth.py            # Authentication (register, login, coach signup, password reset)
+│   ├── users.py           # User management (profile, pillars, settings)
+│   ├── sessions.py        # Session logging (complete, edit, delete, history)
+│   ├── stats.py           # Statistics (weekly, comparison, history, review)
+│   ├── badges.py          # Badges system (all, user, progress)
+│   ├── groups.py          # Groups (create, join, leaderboard)
+│   ├── leaderboard.py     # Global leaderboard
+│   ├── coach.py           # Coach dashboard & player details
+│   ├── parent.py          # Parent-student linking & notifications
+│   ├── challenges.py      # Challenges system (CRUD, leaderboard, automation)
+│   ├── payments.py        # Stripe integration (checkout, webhook)
+│   ├── admin.py           # Admin dashboard (stats, users)
+│   ├── notifications.py   # Email notification routes & settings
+│   ├── referral.py        # Referral system (invite, track)
+│   └── onboarding.py      # Onboarding (pillars, team info)
+└── utils/
+    ├── auth.py            # Authentication helpers (JWT, password hashing)
+    ├── badges.py          # Badge checking & awarding logic
+    ├── streaks.py         # Streak calculation utilities
+    └── scheduler_jobs.py  # Scheduled email jobs (streak, weekly, parent notifications)
+```
+
 ## Features (All Complete)
 
 ### Core
@@ -29,7 +59,7 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 - Quick Log on dashboard
 
 ### Achievements/Badges System
-- **8 badges available:**
+- **12 badges available:**
   - 🏆 First Step - Log your first session
   - 🔥 Week Warrior - Maintain a 7-day streak
   - 🔥 Fortnight Fighter - Maintain a 14-day streak
@@ -38,8 +68,12 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
   - ⏱️ 50 Hour Club - Log 50+ hours total
   - ✨ Perfect Week - Log every day for a week
   - 🎯 Pillar Master - Hit target on all pillars in a week
+  - 🏅 Weekly Champion - Win a weekly challenge
+  - 🥇 Monthly Champion - Win a monthly challenge
+  - 🎖️ Podium Finish - Finish in top 3 of a challenge
+  - 🏆 Challenge Streak - Win 3 challenges
 - Dedicated Achievements page at `/achievements`
-- Badge summary on Profile page (links to full achievements)
+- Badge summary on Profile page
 - Toast notifications when new badges are earned
 - Progress bars showing progress toward locked badges
 
@@ -53,51 +87,54 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 
 ### Social Sharing
 - Share to Twitter/X, Facebook, or copy to clipboard
-- Shareable content:
-  - Individual badges (from Achievements page)
-  - Badge collection summary
-  - Weekly stats (from Weekly Review page)
-  - Streak milestones
-- All shares include app link (edgemodeapp.com) for user acquisition
-- Native Web Share API support for mobile devices
+- Shareable content: badges, stats, streaks
+- All shares include app link for user acquisition
 
 ### Milestone Celebrations
 - Automatic popup when users hit streak milestones (7, 14, 30, 50, 100 days)
 - Celebratory modal with confetti animation
-- Shows streak count and motivational message
-- Built-in share buttons (Twitter, Facebook, Copy)
-- "Keep Going!" button to continue
 
 ### Invite Friends / Referrals
-- Unique referral code for each user (auto-generated)
+- Unique referral code for each user
 - Shareable invite link: `edgemodeapp.com/auth?ref=CODE`
-- Copy link/code to clipboard
-- Email invite: sends branded email to friend with invite link
-- Tracks successful referrals (friend signups)
-- Referral code input field on signup form
-- Accessible from Profile page at `/invite`
-- No limits on referrals
+- Email invite functionality
+- Tracks successful referrals
 
-### FAQ / Help Center
-- Comprehensive FAQ page at `/faq`
-- 6 categories: Getting Started, Streaks & Progress, Badges & Achievements, Subscription & Pricing, Groups & Social, Account & Privacy
-- Accordion-style expandable questions
-- Contact support link (support@edgemodeapp.com)
-- Links to Privacy Policy and Terms of Service
-- Accessible from:
-  - Landing page footer
-  - Profile page
+### Email Notifications (Automatic via Scheduler)
+- **Streak reminders:** 8 PM UTC daily (3 PM Eastern) - for users with active streaks who haven't logged
+- **Inactive reminders:** 6 PM UTC daily (2 PM Eastern) - for 3-7 days inactive users
+- **Trial ending reminders:** 4 PM UTC daily (12 PM Eastern) - for users with 1-3 days left
+- **Weekly summaries:** Sunday 2 PM UTC (10 AM Eastern)
+- **Parent weekly summaries:** Sunday 3 PM UTC (11 AM Eastern) ✅ INTEGRATED
+- **Parent inactivity alerts:** 7 PM UTC daily (3 PM Eastern) ✅ INTEGRATED
+- **Challenges daily job:** 12:05 AM UTC daily
 
-### Email Notifications (Automatic)
-- Streak reminders: 3 PM Eastern daily (for users with active streaks who haven't logged)
-- Inactive reminders: 2 PM Eastern (for 3-7 days inactive users)
-- **Trial ending reminders: 12 PM Eastern daily (for users with 1-3 days left on trial)**
-- Weekly summaries: Sunday 10 AM Eastern
+### Opt-In Challenges
+- Weekly and monthly challenges
+- Auto-created via scheduled job
+- Auto-seeding on startup if no active challenges
+- Real-time leaderboard rankings
+- Filter by: All, My Challenges, Weekly, Monthly
+
+### Coach Mode in Groups
+- Dedicated `/coach-signup` page (FREE)
+- Special codes for extended trials: EDGE30, COACH2024, TEAMEDGE, PROMO30
+- Team invite system with shareable links
+- Coach Dashboard (`/coach-home`) with team stats
+
+### Parent-Student Linking
+- Student invites up to 2 parents
+- Parent receives email with invite code (PARENT-XXXXXX)
+- Parent Dashboard with student stats view
+- **Parent Notification Emails:** ✅ INTEGRATED
+  - Weekly progress summaries
+  - Inactivity alerts (3+ days)
+  - Streak milestone notifications (7, 14, 30 days)
+  - New badge notifications
 
 ### Admin
 - Admin Dashboard at `/admin`
 - Stats: users, sessions, subscriptions
-- Recent signups & activity
 - Access: admin@edgemodeapp.com only
 
 ### Other
@@ -105,88 +142,24 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 - Password reset
 - Profile settings
 - Privacy Policy & Terms of Service
-- "1 session = 30 minutes" guidance
-- **Pillar Management** - Users can add/remove/edit pillars from Profile page
-
-### Opt-In Challenges (NEW - March 2026)
-- **Challenge Types:**
-  - Weekly challenges (Monday-Sunday)
-  - Monthly challenges (1st of month to end of month)
-- **Competition Categories:**
-  - Pillar-specific: Most sessions in a specific pillar (e.g., Fitness, Study)
-  - General: Highest consistency %, most total minutes, most total sessions
-- **Features:**
-  - Browse all available challenges at `/challenges`
-  - Join/leave challenges freely
-  - Real-time leaderboard rankings
-  - View participants and their scores
-  - Filter by: All, My Challenges, Weekly, Monthly
-- **Rewards/Badges:**
-  - 🏅 Weekly Champion - Win a weekly challenge
-  - 🥇 Monthly Champion - Win a monthly challenge
-  - 🎖️ Podium Finish - Finish in top 3
-  - 🏆 Challenge Streak - Win 3 challenges
-- **Automation:**
-  - Challenges auto-created via scheduled job (12:05 AM UTC daily)
-  - **Auto-seeding on startup**: If no active challenges exist, 6 initial challenges are seeded automatically
-  - Badges auto-awarded when challenges complete
-- **Visibility:** Everyone can view, only participants compete
-
-### Coach Mode in Groups (NEW - March 2026)
-- **Coach Signup Flow:**
-  - Dedicated `/coach-signup` page (linked from landing page)
-  - Coach accounts are always FREE (no subscription required)
-  - Coach skips pillars/onboarding - doesn't apply to them
-  - Optional special code field for extended player trials
-- **Special Codes:**
-  - Valid codes: EDGE30, COACH2024, TEAMEDGE, PROMO30
-  - With valid code: players get 30-day trial
-  - Without code: players get standard 14-day trial
-- **Team Invite System:**
-  - Coach gets shareable link: `/join/TEAM-XXXXXXXX`
-  - Players click link → Sign up → Auto-join team
-  - Player trial period based on coach's special code
-- **Coach Dashboard (`/coach-home`):**
-  - Team stats overview (players, active this week, sessions)
-  - Copy/share invite link buttons
-  - Link to detailed team dashboard
-- **Team Dashboard:**
-  - View all players' detailed stats (view-only)
-  - Player cards with streak, consistency, performance
-  - Pillar breakdown per player
-- **Access:**
-  - Only coach can access coach/team dashboard
-  - Players see regular app experience
-
-### Parent-Student Linking (NEW - March 2026)
-- **Student Actions:**
-  - Invite parents from Profile > Family Access
-  - Enter parent's email address
-  - Maximum 2 parents per student
-  - View pending/active parent links
-  - Unlink parents at any time
-- **Parent Actions:**
-  - Receive email invitation with code (PARENT-XXXXXX format)
-  - Create account and accept invite with code
-  - View linked students' dashboards
-- **Parent Dashboard:**
-  - View student's current streak, weekly stats, monthly stats
-  - See pillar breakdown with progress bars
-  - View badges earned count
-  - See recent activity (last 5 sessions)
-- **Notifications:**
-  - Parents receive progress notifications (via email)
+- Pillar Management
 
 ## Bug Fixes (March 2026)
-- **Timezone Bug Fixed**: All stats endpoints (`/api/stats/comparison`, `/api/stats/weekly`, `/api/stats/weekly-review`, `/api/stats/history`) now accept `local_date` parameter from frontend to ensure dashboard shows correct "today" and "yesterday" counts based on user's local timezone
-- **Variable Shadowing Bug Fixed**: Fixed issue in `/api/stats/history` where loop variable `date` shadowed the `date` class, causing errors when `local_date` parameter was provided
+- **Timezone Bug Fixed**: All stats endpoints accept `local_date` parameter
+- **Coach /api/users/me Fixed**: User model now handles optional username/age for coaches
+
+## Completed Tasks (This Session)
+- [x] ✅ **Refactored backend** from 4000+ line monolithic server.py into modular routers
+- [x] ✅ **Integrated parent notification emails** into scheduler (weekly summaries, inactivity alerts)
+- [x] ✅ **All 41 API endpoints tested** - 97.6% pass rate (40/41)
 
 ## Future Enhancements
-- [ ] **P1: Refactor server.py** into separate routers (auth, sessions, badges, groups, admin, challenges, coach, parent) - File is now 3100+ lines
-- [ ] Mobile PWA optimization
-- [ ] Add referral rewards (e.g., free month for 3+ referrals)
-- [ ] Admin challenge management UI (manual challenge creation)
-- [ ] Parent progress notifications (email alerts for milestones)
+- [ ] **P2: Admin UI for Special Codes** - Manage coach trial codes via dashboard
+- [ ] **P2: Mobile PWA Optimization** - Add offline capabilities, home screen install
+- [ ] **P3: Add Referral Rewards** - Free month for 3+ referrals
+- [ ] **P3: Admin Challenge Management** - Manual challenge creation UI
 
 ## Test Credentials
-- Stripe Test Card: 4242 4242 4242 4242
+- **Admin:** admin@edgemodeapp.com
+- **Stripe Test Card:** 4242 4242 4242 4242 | Any future date | Any 3 digits
+- **Coach Special Codes:** EDGE30, COACH2024, TEAMEDGE, PROMO30
