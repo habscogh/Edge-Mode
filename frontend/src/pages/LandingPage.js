@@ -60,11 +60,25 @@ export const LandingPage = () => {
         <Button
           data-testid="activate-edge-mode-btn"
           onClick={() => navigate('/auth')}
-          className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading uppercase tracking-wide font-bold text-xl py-8 mb-6"
+          className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading uppercase tracking-wide font-bold text-xl py-8 mb-4"
         >
           <Zap className="w-6 h-6 mr-3" />
           Activate Edge Mode
         </Button>
+
+        {/* Coach Signup Link */}
+        <div className="text-center mb-6">
+          <p className="text-zinc-400 text-sm font-body">
+            Are you a coach?{' '}
+            <a 
+              href="/coach-signup" 
+              className="text-primary hover:underline font-medium"
+              data-testid="coach-signup-link"
+            >
+              Sign up your team for free
+            </a>
+          </p>
+        </div>
 
         {/* Support Email */}
         <div className="text-center">
