@@ -94,7 +94,8 @@ async def get_global_leaderboard(age_group: Optional[str] = None):
             'consistency_pct': round(consistency_pct, 1),
             'performance_index': round(performance_index, 1),
             'age_group': user_age_group,
-            'improvement_pct': round(improvement_pct, 1)
+            'improvement_pct': round(improvement_pct, 1),
+            'is_ambassador': user.get('is_ambassador', False)
         })
     
     leaderboard.sort(key=lambda x: x['improvement_pct'], reverse=True)
