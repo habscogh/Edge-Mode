@@ -6,12 +6,17 @@ from datetime import datetime, timezone, timedelta
 import asyncio
 import secrets
 import resend
+import uuid
 
 from config import db, logger, RESEND_API_KEY, SENDER_EMAIL
 from models.schemas import EmailInvite
 from utils.auth import get_current_user
 
 router = APIRouter(prefix="/referral", tags=["Referral"])
+
+# Referral rewards configuration
+REFERRAL_REWARD_THRESHOLD = 3  # Number of referrals needed for reward
+REFERRAL_REWARD_DAYS = 30  # Days of free subscription as reward
 
 
 def get_invite_email_html(inviter_name: str, friend_name: str, referral_link: str) -> str:
