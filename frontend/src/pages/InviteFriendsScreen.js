@@ -98,6 +98,21 @@ export const InviteFriendsScreen = () => {
     }
   };
 
+  const handleClaimReward = async () => {
+    setClaimingReward(true);
+    try {
+      const response = await axios.post(`${API}/referral/claim-reward`);
+      toast.success(response.data.message);
+      fetchReferralInfo();
+      if (fetchUser) fetchUser();
+    } catch (error) {
+      console.error('Failed to claim reward:', error);
+      toast.error(error.response?.data?.detail || 'Failed to claim reward');
+    } finally {
+      setClaimingReward(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-[#09090b]">
