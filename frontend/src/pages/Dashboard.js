@@ -11,6 +11,7 @@ import { ConsistencyRatingBadge } from '../components/ConsistencyRating';
 import { PerformanceRatingBadge } from '../components/PerformanceRating';
 import { TrialEndingBanner } from '../components/TrialEndingBanner';
 import { MilestoneCelebration, checkMilestoneHit } from '../components/MilestoneCelebration';
+import { InstallBanner } from '../components/InstallPrompt';
 import { toast } from 'sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
