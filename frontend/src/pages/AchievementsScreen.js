@@ -103,6 +103,7 @@ const BadgeCard = ({ badge, progress, onShare }) => {
 
 export const AchievementsScreen = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [badges, setBadges] = useState(null);
   const [progress, setProgress] = useState([]);
   const [loading, setLoading] = useState(true);
