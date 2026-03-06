@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { Flame, TrendingUp, Zap, ArrowUp, ArrowDown, Minus, CheckCircle2, X, WifiOff } from 'lucide-react';
+import { Flame, TrendingUp, Zap, ArrowUp, ArrowDown, Minus, CheckCircle2, X, WifiOff, Share2 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { useNavigate } from 'react-router-dom';
@@ -14,6 +14,7 @@ import { MilestoneCelebration, checkMilestoneHit } from '../components/Milestone
 import { InstallBanner } from '../components/InstallPrompt';
 import { OfflineIndicator } from '../components/OfflineIndicator';
 import { QuickActionsButton } from '../components/QuickActionsButton';
+import { ShareStreakModal } from '../components/ShareStreakCard';
 import { useOfflineSync } from '../hooks/useOfflineSync';
 import { toast } from 'sonner';
 
@@ -28,6 +29,7 @@ export const Dashboard = () => {
   const [comparison, setComparison] = useState(null);
   const [history, setHistory] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showShareModal, setShowShareModal] = useState(false);
   const [quickLogPillar, setQuickLogPillar] = useState(null);
   const [quickLogMinutes, setQuickLogMinutes] = useState('30');
   const [quickLogLoading, setQuickLogLoading] = useState(false);
