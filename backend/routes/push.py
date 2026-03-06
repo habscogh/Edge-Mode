@@ -161,9 +161,13 @@ async def subscribe_push(subscription: PushSubscription, current_user: dict = De
         {'$set': {'push_enabled': True}}
     )
     
-    # Send a welcome push notification
+    # Send a welcome push notification (don't clean up on failure for new subscriptions)
     try:
-        await send_push_to_user(user_id, PushMessage(
+        subscription_info = {
+            'endpoint': subscription.endpoint,
+            'keys': subscription.keys
+        }
+        await send_push_notification(subscription_info, PushMessage(
             title="🎉 Push Notifications Enabled!",
             body="You'll now receive updates about streaks, badges, and challenges.",
             url="/dashboard",
@@ -171,6 +175,7 @@ async def subscribe_push(subscription: PushSubscription, current_user: dict = De
         ))
     except Exception as e:
         logger.error(f"Failed to send welcome push: {e}")
+        # Don't clean up - this is expected to fail for invalid test endpoints
     
     return {'message': 'Subscribed successfully', 'subscription_id': sub_doc['id']}
 
