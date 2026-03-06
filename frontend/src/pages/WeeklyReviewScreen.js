@@ -47,6 +47,15 @@ export const WeeklyReviewScreen = () => {
   return (
     <div className="min-h-screen bg-[#09090b] p-4 pb-24">
       <div className="max-w-2xl mx-auto pt-6">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-zinc-400 hover:text-white mb-4 transition-colors"
+          data-testid="weekly-review-back-btn"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span className="text-sm font-body">Back</span>
+        </button>
+        
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <Award className="w-8 h-8 text-primary" />
