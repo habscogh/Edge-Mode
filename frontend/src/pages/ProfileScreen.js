@@ -193,7 +193,10 @@ export const ProfileScreen = () => {
               <User className="w-8 h-8 text-primary" />
             </div>
             <div>
-              <h2 className="text-2xl font-heading font-bold uppercase text-white">{user.username}</h2>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-2xl font-heading font-bold uppercase text-white">{user.username}</h2>
+                {user.is_ambassador && <AmbassadorBadge size="small" />}
+              </div>
               <p className="text-zinc-400 font-body text-sm">{user.email}</p>
             </div>
           </div>
