@@ -157,6 +157,46 @@ export const InviteFriendsScreen = () => {
           </div>
         </div>
 
+        {/* Rewards Card */}
+        <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-lg p-4 mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <Gift className="w-5 h-5 text-amber-500" />
+            <span className="text-sm font-heading uppercase tracking-wide text-amber-400">
+              Referral Rewards
+            </span>
+          </div>
+          
+          {/* Progress bar */}
+          <div className="mb-3">
+            <div className="flex justify-between text-xs text-zinc-400 mb-1">
+              <span>Progress to free month</span>
+              <span>{referralInfo?.progress_to_next_reward || 0}/{referralInfo?.reward_threshold || 3}</span>
+            </div>
+            <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500"
+                style={{ width: `${((referralInfo?.progress_to_next_reward || 0) / (referralInfo?.reward_threshold || 3)) * 100}%` }}
+              />
+            </div>
+          </div>
+          
+          <p className="text-zinc-400 text-sm font-body mb-3">
+            Invite {referralInfo?.reward_threshold || 3} friends → Get {referralInfo?.reward_days || 30} days free!
+          </p>
+          
+          {referralInfo?.rewards_available > 0 && (
+            <Button
+              onClick={handleClaimReward}
+              disabled={claimingReward}
+              className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:opacity-90 font-bold"
+              data-testid="claim-reward-btn"
+            >
+              <Trophy className="w-4 h-4 mr-2" />
+              {claimingReward ? 'Claiming...' : `Claim Free Month (${referralInfo.rewards_available} available)`}
+            </Button>
+          )}
+        </div>
+
         {/* Share Link Section */}
         <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-4 mb-4">
           <div className="flex items-center gap-2 mb-3">
