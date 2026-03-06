@@ -63,11 +63,19 @@ async def get_referral_info(current_user: dict = Depends(get_current_user)):
             {'$set': {'referral_code': referral_code}}
         )
     
+    # Count successful referrals (people who signed up)
     referral_count = await db.referrals.count_documents({'referrer_id': user_id})
+    
+    # Count rewards claimed
+    rewards_claimed = current_user.get('referral_rewards_claimed', 0)
+    
+    # Calculate progress to next reward
+    progress = referral_count % REFERRAL_REWARD_THRESHOLD
+    rewards_available = (referral_count // REFERRAL_REWARD_THRESHOLD) - rewards_claimed
     
     referrals = await db.referrals.find(
         {'referrer_id': user_id},
-        {'_id': 0, 'referred_email': 1, 'created_at': 1}
+        {'_id': 0, 'referred_email': 1, 'referred_username': 1, 'created_at': 1}
     ).sort('created_at', -1).to_list(50)
     
     base_url = "https://edgemodeapp.com"
@@ -77,7 +85,59 @@ async def get_referral_info(current_user: dict = Depends(get_current_user)):
         'referral_code': referral_code,
         'referral_link': referral_link,
         'total_referrals': referral_count,
-        'referrals': referrals
+        'referrals': referrals,
+        'reward_threshold': REFERRAL_REWARD_THRESHOLD,
+        'reward_days': REFERRAL_REWARD_DAYS,
+        'progress_to_next_reward': progress,
+        'rewards_available': max(0, rewards_available),
+        'rewards_claimed': rewards_claimed
+    }
+
+
+@router.post("/claim-reward")
+async def claim_referral_reward(current_user: dict = Depends(get_current_user)):
+    """Claim a free month for reaching referral threshold"""
+    user_id = current_user['id']
+    
+    referral_count = await db.referrals.count_documents({'referrer_id': user_id})
+    rewards_claimed = current_user.get('referral_rewards_claimed', 0)
+    rewards_available = (referral_count // REFERRAL_REWARD_THRESHOLD) - rewards_claimed
+    
+    if rewards_available <= 0:
+        raise HTTPException(status_code=400, detail=f'No rewards available. Invite {REFERRAL_REWARD_THRESHOLD} friends to earn a free month!')
+    
+    # Calculate new subscription end date
+    current_end = current_user.get('subscription_end')
+    if current_end:
+        try:
+            end_date = datetime.fromisoformat(current_end.replace('Z', '+00:00'))
+            if end_date < datetime.now(timezone.utc):
+                end_date = datetime.now(timezone.utc)
+        except:
+            end_date = datetime.now(timezone.utc)
+    else:
+        end_date = datetime.now(timezone.utc)
+    
+    new_end_date = end_date + timedelta(days=REFERRAL_REWARD_DAYS)
+    
+    # Update user
+    await db.users.update_one(
+        {'id': user_id},
+        {
+            '$set': {
+                'subscription_active': True,
+                'subscription_end': new_end_date.isoformat(),
+                'referral_rewards_claimed': rewards_claimed + 1
+            }
+        }
+    )
+    
+    logger.info(f"User {user_id} claimed referral reward. New end date: {new_end_date}")
+    
+    return {
+        'message': f'🎉 Congratulations! You earned {REFERRAL_REWARD_DAYS} days of free Edge Mode!',
+        'new_subscription_end': new_end_date.isoformat(),
+        'rewards_remaining': rewards_available - 1
     }
 
 
