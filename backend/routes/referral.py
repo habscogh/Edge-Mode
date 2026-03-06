@@ -197,7 +197,3 @@ async def send_invite_email(invite_data: EmailInvite, current_user: dict = Depen
     except Exception as e:
         logger.error(f"Failed to send invite email: {e}")
         raise HTTPException(status_code=500, detail='Failed to send invite email')
-
-
-# Need to import uuid for the route
-import uuid
