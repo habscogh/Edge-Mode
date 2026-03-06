@@ -16,7 +16,8 @@ from routes import (
     admin,
     notifications,
     referral,
-    onboarding
+    onboarding,
+    push
 )
 
 __all__ = [
@@ -34,5 +35,6 @@ __all__ = [
     'admin',
     'notifications',
     'referral',
-    'onboarding'
+    'onboarding',
+    'push'
 ]
