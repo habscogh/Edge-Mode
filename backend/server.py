@@ -83,6 +83,7 @@ api_router.include_router(admin.router)
 api_router.include_router(notifications.router)
 api_router.include_router(referral.router)
 api_router.include_router(onboarding.router)
+api_router.include_router(push.router)  # Push notifications
 
 
 # Health check endpoints
