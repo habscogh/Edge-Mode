@@ -273,7 +273,7 @@ const AppRoutes = () => {
         <Route
           path="/coach-home"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requiresOnboarding={false}>
               <CoachHome />
             </ProtectedRoute>
           }
