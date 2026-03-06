@@ -3567,6 +3567,279 @@ async def send_trial_ending_reminders_job():
     except Exception as e:
         logger.error(f"Trial ending reminder job failed: {e}")
 
+# ==================== PARENT NOTIFICATION FUNCTIONS ====================
+
+async def send_parent_notification(parent_email: str, subject: str, html: str):
+    """Helper function to send email to parent"""
+    if not RESEND_API_KEY:
+        return
+    try:
+        await asyncio.to_thread(resend.Emails.send, {
+            "from": SENDER_EMAIL,
+            "to": [parent_email],
+            "subject": subject,
+            "html": html
+        })
+        logger.info(f"Parent notification sent to {parent_email}: {subject}")
+    except Exception as e:
+        logger.error(f"Failed to send parent notification to {parent_email}: {e}")
+
+async def notify_parents_of_streak_milestone(student_id: str, student_username: str, streak: int):
+    """Notify parents when student hits a streak milestone (7, 14, 30 days)"""
+    if streak not in [7, 14, 30]:
+        return
+    
+    # Find linked parents
+    parent_links = await db.parent_links.find({
+        'student_id': student_id,
+        'status': 'active'
+    }).to_list(10)
+    
+    for link in parent_links:
+        parent = await db.users.find_one({'id': link['parent_id']}, {'_id': 0})
+        if not parent:
+            continue
+        
+        milestone_emoji = "🔥" if streak == 7 else "⚡" if streak == 14 else "🏆"
+        html = f"""
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #09090b; color: white;">
+            <div style="text-align: center; padding: 20px 0;">
+                <h1 style="color: #10b981; margin: 0; font-size: 28px;">{milestone_emoji} Streak Milestone!</h1>
+            </div>
+            <div style="padding: 20px; background: #18181b; border-radius: 8px; margin: 20px 0; text-align: center;">
+                <p style="margin: 0; font-size: 18px; color: #a1a1aa;">Great news!</p>
+                <p style="margin: 15px 0; font-size: 24px;"><strong style="color: #10b981;">{student_username}</strong> just hit a</p>
+                <div style="font-size: 48px; font-weight: bold; color: #f97316; margin: 20px 0;">{streak} Day Streak!</div>
+                <p style="margin: 15px 0; color: #71717a;">That's {streak} consecutive days of self-improvement. Amazing dedication!</p>
+            </div>
+            <div style="text-align: center; padding: 20px;">
+                <p style="color: #71717a; font-size: 12px;">Edge Mode - 1% Better Every Day</p>
+            </div>
+        </div>
+        """
+        await send_parent_notification(
+            parent['email'],
+            f"🎉 {student_username} hit a {streak}-day streak!",
+            html
+        )
+
+async def notify_parents_of_new_badge(student_id: str, student_username: str, badge_name: str, badge_icon: str):
+    """Notify parents when student earns a new badge"""
+    # Find linked parents
+    parent_links = await db.parent_links.find({
+        'student_id': student_id,
+        'status': 'active'
+    }).to_list(10)
+    
+    for link in parent_links:
+        parent = await db.users.find_one({'id': link['parent_id']}, {'_id': 0})
+        if not parent:
+            continue
+        
+        html = f"""
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #09090b; color: white;">
+            <div style="text-align: center; padding: 20px 0;">
+                <h1 style="color: #10b981; margin: 0; font-size: 28px;">🏅 New Achievement!</h1>
+            </div>
+            <div style="padding: 20px; background: #18181b; border-radius: 8px; margin: 20px 0; text-align: center;">
+                <p style="margin: 0; font-size: 18px; color: #a1a1aa;">Congratulations!</p>
+                <p style="margin: 15px 0; font-size: 20px;"><strong style="color: #10b981;">{student_username}</strong> earned a new badge:</p>
+                <div style="font-size: 64px; margin: 20px 0;">{badge_icon}</div>
+                <div style="font-size: 24px; font-weight: bold; color: white; margin: 10px 0;">{badge_name}</div>
+            </div>
+            <div style="text-align: center; padding: 20px;">
+                <p style="color: #71717a; font-size: 12px;">Edge Mode - 1% Better Every Day</p>
+            </div>
+        </div>
+        """
+        await send_parent_notification(
+            parent['email'],
+            f"🏅 {student_username} earned a new badge: {badge_name}",
+            html
+        )
+
+async def send_parent_weekly_summaries_job():
+    """Send weekly progress summaries to all parents (runs every Sunday)"""
+    if not RESEND_API_KEY:
+        logger.warning("RESEND_API_KEY not set, skipping parent weekly summaries")
+        return
+    
+    logger.info("Running parent weekly summary job...")
+    
+    try:
+        # Find all active parent links
+        parent_links = await db.parent_links.find({'status': 'active'}).to_list(1000)
+        
+        # Group by parent
+        parents_students = {}
+        for link in parent_links:
+            parent_id = link['parent_id']
+            if parent_id not in parents_students:
+                parents_students[parent_id] = []
+            parents_students[parent_id].append(link['student_id'])
+        
+        sent_count = 0
+        today = datetime.now(timezone.utc).date()
+        week_start = today - timedelta(days=7)
+        
+        for parent_id, student_ids in parents_students.items():
+            parent = await db.users.find_one({'id': parent_id}, {'_id': 0})
+            if not parent:
+                continue
+            
+            students_html = ""
+            for student_id in student_ids:
+                student = await db.users.find_one({'id': student_id}, {'_id': 0, 'password': 0})
+                if not student:
+                    continue
+                
+                # Get weekly sessions
+                sessions = await db.daily_sessions.find({
+                    'user_id': student_id,
+                    'date': {'$gte': week_start.isoformat()}
+                }).to_list(100)
+                
+                unique_days = len(set(s['date'] for s in sessions))
+                total_minutes = sum(s.get('minutes_spent', 30) for s in sessions)
+                consistency_pct = round((unique_days / 7) * 100, 1)
+                
+                streak_color = "#f97316" if student.get('current_streak', 0) >= 7 else "#10b981"
+                
+                students_html += f"""
+                <div style="padding: 15px; background: #27272a; border-radius: 8px; margin: 10px 0;">
+                    <div style="font-size: 18px; font-weight: bold; color: white; margin-bottom: 10px;">{student.get('username', 'Student')}</div>
+                    <div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
+                        <div style="text-align: center; padding: 10px; flex: 1; min-width: 80px;">
+                            <div style="font-size: 24px; font-weight: bold; color: {streak_color};">🔥 {student.get('current_streak', 0)}</div>
+                            <div style="color: #71717a; font-size: 11px;">Day Streak</div>
+                        </div>
+                        <div style="text-align: center; padding: 10px; flex: 1; min-width: 80px;">
+                            <div style="font-size: 24px; font-weight: bold; color: #10b981;">{len(sessions)}</div>
+                            <div style="color: #71717a; font-size: 11px;">Sessions</div>
+                        </div>
+                        <div style="text-align: center; padding: 10px; flex: 1; min-width: 80px;">
+                            <div style="font-size: 24px; font-weight: bold; color: white;">{consistency_pct}%</div>
+                            <div style="color: #71717a; font-size: 11px;">Consistency</div>
+                        </div>
+                        <div style="text-align: center; padding: 10px; flex: 1; min-width: 80px;">
+                            <div style="font-size: 24px; font-weight: bold; color: #a1a1aa;">{total_minutes}</div>
+                            <div style="color: #71717a; font-size: 11px;">Minutes</div>
+                        </div>
+                    </div>
+                </div>
+                """
+            
+            if not students_html:
+                continue
+            
+            html = f"""
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #09090b; color: white;">
+                <div style="text-align: center; padding: 20px 0;">
+                    <h1 style="color: #10b981; margin: 0; font-size: 24px;">📊 Weekly Progress Report</h1>
+                    <p style="color: #71717a; margin-top: 5px;">Here's how your student(s) did this week</p>
+                </div>
+                <div style="padding: 10px;">
+                    {students_html}
+                </div>
+                <div style="text-align: center; padding: 20px;">
+                    <p style="color: #71717a; font-size: 12px;">Edge Mode - 1% Better Every Day</p>
+                </div>
+            </div>
+            """
+            
+            try:
+                await asyncio.to_thread(resend.Emails.send, {
+                    "from": SENDER_EMAIL,
+                    "to": [parent['email']],
+                    "subject": "📊 Your Child's Weekly Progress Report - Edge Mode",
+                    "html": html
+                })
+                sent_count += 1
+            except Exception as e:
+                logger.error(f"Failed to send weekly summary to parent {parent['email']}: {e}")
+        
+        logger.info(f"Parent weekly summary job complete. Sent {sent_count} emails.")
+    except Exception as e:
+        logger.error(f"Parent weekly summary job failed: {e}")
+
+async def send_parent_inactivity_alerts_job():
+    """Alert parents when their student hasn't logged in for 3+ days"""
+    if not RESEND_API_KEY:
+        logger.warning("RESEND_API_KEY not set, skipping parent inactivity alerts")
+        return
+    
+    logger.info("Running parent inactivity alert job...")
+    
+    try:
+        now = datetime.now(timezone.utc)
+        three_days_ago = (now - timedelta(days=3)).date().isoformat()
+        
+        # Find all active parent links
+        parent_links = await db.parent_links.find({'status': 'active'}).to_list(1000)
+        
+        sent_count = 0
+        alerted_pairs = set()  # Track parent-student pairs we've alerted
+        
+        for link in parent_links:
+            student_id = link['student_id']
+            parent_id = link['parent_id']
+            pair_key = f"{parent_id}_{student_id}"
+            
+            if pair_key in alerted_pairs:
+                continue
+            
+            student = await db.users.find_one({'id': student_id}, {'_id': 0, 'password': 0})
+            if not student:
+                continue
+            
+            last_log = student.get('last_log_date')
+            
+            # Check if student hasn't logged in 3+ days
+            if last_log and last_log <= three_days_ago:
+                last_log_date = datetime.fromisoformat(last_log).date()
+                days_inactive = (now.date() - last_log_date).days
+                
+                # Only alert for 3-7 days inactive
+                if 3 <= days_inactive <= 7:
+                    parent = await db.users.find_one({'id': parent_id}, {'_id': 0})
+                    if not parent:
+                        continue
+                    
+                    html = f"""
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #09090b; color: white;">
+                        <div style="text-align: center; padding: 20px 0;">
+                            <h1 style="color: #f97316; margin: 0; font-size: 24px;">⚠️ Activity Alert</h1>
+                        </div>
+                        <div style="padding: 20px; background: #18181b; border-radius: 8px; margin: 20px 0; text-align: center;">
+                            <p style="margin: 0; font-size: 18px; color: #a1a1aa;">Heads up!</p>
+                            <p style="margin: 15px 0; font-size: 20px;"><strong style="color: #10b981;">{student.get('username', 'Your student')}</strong> hasn't logged a session in</p>
+                            <div style="font-size: 48px; font-weight: bold; color: #f97316; margin: 20px 0;">{days_inactive} days</div>
+                            <p style="margin: 15px 0; color: #71717a;">A gentle reminder might help them get back on track!</p>
+                        </div>
+                        <div style="text-align: center; padding: 20px;">
+                            <p style="color: #71717a; font-size: 12px;">Edge Mode - 1% Better Every Day</p>
+                        </div>
+                    </div>
+                    """
+                    
+                    try:
+                        await asyncio.to_thread(resend.Emails.send, {
+                            "from": SENDER_EMAIL,
+                            "to": [parent['email']],
+                            "subject": f"⚠️ {student.get('username', 'Your student')} hasn't logged in for {days_inactive} days",
+                            "html": html
+                        })
+                        sent_count += 1
+                        alerted_pairs.add(pair_key)
+                    except Exception as e:
+                        logger.error(f"Failed to send inactivity alert to parent {parent['email']}: {e}")
+        
+        logger.info(f"Parent inactivity alert job complete. Sent {sent_count} emails.")
+    except Exception as e:
+        logger.error(f"Parent inactivity alert job failed: {e}")
+
+# ==================== END PARENT NOTIFICATION FUNCTIONS ====================
+
 @app.on_event("startup")
 async def startup_scheduler():
     """Start the scheduler when app starts"""
