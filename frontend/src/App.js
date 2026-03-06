@@ -266,6 +266,14 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/school-leaderboard"
+          element={
+            <ProtectedRoute>
+              <SchoolLeaderboardScreen />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/reset-password" element={<ResetPasswordScreen />} />
