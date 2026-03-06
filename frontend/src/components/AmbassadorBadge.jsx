@@ -101,7 +101,7 @@ export const AmbassadorCard = ({ user, onActivate }) => {
   }
 
   // Already an ambassador - show stats
-  if (user?.is_ambassador) {
+  if (isAmbassador && stats?.is_ambassador) {
     return (
       <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-lg p-4">
         <div className="flex items-center justify-between mb-4">
