@@ -8,7 +8,9 @@ import { CheckCircle2, ArrowLeft, Clock, Pencil, Trash2, X, StickyNote, WifiOff 
 import { toast } from 'sonner';
 import { MilestoneCelebration, checkMilestoneHit } from '../components/MilestoneCelebration';
 import { OfflineIndicator } from '../components/OfflineIndicator';
+import { PushNotificationPrompt } from '../components/PushNotificationPrompt';
 import { useOfflineSync } from '../hooks/useOfflineSync';
+import { usePushNotifications } from '../hooks/usePushNotifications';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -16,6 +18,7 @@ const API = `${BACKEND_URL}/api`;
 export const LogScreen = () => {
   const { user, fetchUser } = useAuth();
   const { isOnline, saveOffline, pendingCount } = useOfflineSync();
+  const { isSupported, isSubscribed, subscribe } = usePushNotifications();
   const [pillars, setPillars] = useState([]);
   const [selectedPillar, setSelectedPillar] = useState('');
   const [minutes, setMinutes] = useState('30');
@@ -29,6 +32,7 @@ export const LogScreen = () => {
   const [editNote, setEditNote] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [milestoneToShow, setMilestoneToShow] = useState(null);
+  const [showPushPrompt, setShowPushPrompt] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
