@@ -33,6 +33,11 @@ SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'noreply@edgemodeapp.com')
 # Stripe Configuration
 STRIPE_API_KEY = os.environ.get('STRIPE_API_KEY')
 
+# Push Notification Configuration (VAPID)
+VAPID_PUBLIC_KEY = os.environ.get('VAPID_PUBLIC_KEY')
+VAPID_PRIVATE_KEY = os.environ.get('VAPID_PRIVATE_KEY')
+VAPID_CLAIMS_EMAIL = os.environ.get('VAPID_CLAIMS_EMAIL', 'admin@edgemodeapp.com')
+
 # Admin Configuration
 ADMIN_EMAILS = ['admin@edgemodeapp.com']
 
