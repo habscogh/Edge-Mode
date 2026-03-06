@@ -113,7 +113,7 @@ async def send_invite_email(invite_data: EmailInvite, current_user: dict = Depen
     )
     
     try:
-        result = await asyncio.to_thread(resend.Emails.send, {
+        await asyncio.to_thread(resend.Emails.send, {
             "from": SENDER_EMAIL,
             "to": [invite_data.friend_email],
             "subject": f"{current_user.get('username', 'A friend')} invited you to Edge Mode! 🎯",
