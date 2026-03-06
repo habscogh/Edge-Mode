@@ -1,0 +1,157 @@
+{
+  "summary": "Tested New Coach Signup Flow. Backend: 18/20 tests passed (90%). Frontend: Coach signup 3-step flow works, Join Team page works, but Coach Home dashboard fails due to /api/users/me returning 500 for coach users.",
+  "backend_issues": {
+    "critical": [
+      {
+        "endpoint": "GET /api/users/me",
+        "issue": "Returns 500 Internal Server Error for coach users. The User Pydantic model requires 'username' and 'age' fields which coach accounts don't have (coaches have 'name' instead of 'username' and no 'age' field).",
+        "priority": "CRITICAL",
+        "root_cause": "User model at line 202-216 in server.py doesn't include coach-specific fields and requires fields that coaches don't have"
+      }
+    ],
+    "minor": [
+      {
+        "endpoint": "GET /api/users/me",
+        "issue": "User model doesn't include 'team_id' and 'joined_via_coach' fields for players who joined via coach team link",
+        "priority": "MEDIUM"
+      }
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "JoinTeam.js",
+        "issue": "Page title shows 'Join Join Test Team' - duplicate 'Join' word",
+        "selector": "h1",
+        "priority": "LOW"
+      }
+    ],
+    "integration_issues": [
+      {
+        "flow": "Coach Home Dashboard",
+        "issue": "Coach cannot access /coach-home because /api/users/me fails with 500, causing AuthContext to logout the user",
+        "affected_selectors": ["[data-testid='copy-invite-btn']", "[data-testid='share-invite-btn']"]
+      }
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_coach_signup_flow.py",
+    "/app/test_reports/pytest/pytest_coach_signup.xml"
+  ],
+  "action_items": [
+    "CRITICAL: Fix User model in server.py to support coach accounts - either create a separate CoachUser model or make username/age optional with defaults",
+    "Add 'team_id' and 'joined_via_coach' fields to User model for players who joined via coach link",
+    "Fix JoinTeam.js title to not duplicate 'Join' word"
+  ],
+  "critical_code_review_comments": [
+    "User model (line 202-216) requires 'username' and 'age' which coach accounts don't have - causes /api/users/me to fail for coaches",
+    "Token storage inconsistency: AuthContext uses 'forge_token' but CoachSignup.js and JoinTeam.js were using 'token' - FIXED by testing agent",
+    "Coach-home route was missing requiresOnboarding={false} - FIXED by testing agent"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_coach_signup_flow.py",
+    "/app/frontend/src/App.js",
+    "/app/frontend/src/pages/CoachSignup.js",
+    "/app/frontend/src/pages/JoinTeam.js"
+  ],
+  "success_rate": {
+    "backend": "90% (18/20 tests passed)",
+    "frontend": "Partial - Coach signup flow works, Coach Home dashboard blocked by backend bug"
+  },
+  "test_credentials": {
+    "valid_special_codes": ["EDGE30", "COACH2024", "TEAMEDGE", "PROMO30"]
+  },
+  "seed_data_creation": "Multiple test coaches and players created during testing with unique UUIDs",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Coach signup flow backend APIs all work correctly. The critical blocker is /api/users/me endpoint which fails for coach users because the User Pydantic model doesn't support coach account structure. Once fixed, coach-home dashboard should work. Token storage key was fixed from 'token' to 'forge_token' in CoachSignup.js and JoinTeam.js.",
+  "features_verified": {
+    "backend_apis": {
+      "POST /api/auth/coach/register": {
+        "status": "PASS",
+        "tests": [
+          "Creates coach account with team",
+          "Sets has_extended_trial=true with valid special code (EDGE30, COACH2024, etc)",
+          "Sets has_extended_trial=false without special code or invalid code",
+          "Case insensitive special code handling",
+          "Rejects duplicate email"
+        ]
+      },
+      "GET /api/team/{team_code}": {
+        "status": "PASS",
+        "tests": [
+          "Returns team info with trial_days=30 for extended trial teams",
+          "Returns team info with trial_days=14 for regular teams",
+          "Returns 404 for invalid team code"
+        ]
+      },
+      "POST /api/auth/player/join-team": {
+        "status": "PASS",
+        "tests": [
+          "Player gets 30-day trial when joining extended trial team",
+          "Player gets 14-day trial when joining regular team",
+          "Returns 404 for invalid team code",
+          "Rejects duplicate email"
+        ]
+      },
+      "GET /api/coach/dashboard": {
+        "status": "PASS",
+        "tests": [
+          "Returns team info and stats for coach",
+          "Returns 403 for non-coach users",
+          "Shows correct player count after players join"
+        ]
+      },
+      "GET /api/users/me": {
+        "status": "FAIL",
+        "tests": [
+          "Returns 500 for coach users - User model incompatible with coach account structure"
+        ]
+      }
+    },
+    "frontend_ui": {
+      "coach_signup_page": {
+        "status": "PASS",
+        "features_tested": [
+          "3-step signup flow works",
+          "Step 1: Name, email, password inputs",
+          "Step 2: Team name, special code inputs",
+          "Step 3: Success with invite link and copy button",
+          "Extended trial message shown when valid code used"
+        ]
+      },
+      "join_team_page": {
+        "status": "PASS",
+        "features_tested": [
+          "Shows team info from API",
+          "Shows 30-day trial for extended trial teams",
+          "Player signup form works",
+          "Success toast shown after joining"
+        ]
+      },
+      "coach_home_page": {
+        "status": "BLOCKED",
+        "features_tested": [
+          "Cannot access due to /api/users/me returning 500 for coach users"
+        ]
+      },
+      "landing_page": {
+        "status": "PASS",
+        "features_tested": [
+          "Coach signup link visible and clickable"
+        ]
+      }
+    }
+  },
+  "rca_of_the_issue": {
+    "issue": "Coach Home Dashboard inaccessible",
+    "root_cause": "The User Pydantic model at line 202-216 in server.py requires 'username: str' and 'age: int' fields. Coach accounts are created with 'name' instead of 'username' and no 'age' field. When /api/users/me tries to return User(**current_user) for a coach, Pydantic validation fails causing 500 error.",
+    "reproduction_steps": [
+      "1. Create coach account via /api/auth/coach/register",
+      "2. Try to access /api/users/me with coach token",
+      "3. Observe 500 Internal Server Error"
+    ],
+    "mitigation": "Update User model to make username and age optional with defaults, or create a separate endpoint/model for coach users"
+  }
+}
