@@ -64,11 +64,12 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const response = await axios.post(`${API}/auth/login`, { email, password });
-    const { token: newToken } = response.data;
+    const { token: newToken, is_coach } = response.data;
     localStorage.setItem('forge_token', newToken);
     setToken(newToken);
     axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
     await fetchUser();
+    return { is_coach };  // Return coach status for redirect handling
   };
 
   const register = async (email, username, password, age, referralCode = null) => {
