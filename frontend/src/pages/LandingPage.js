@@ -1,11 +1,25 @@
 // Build: 1772758341
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
-import { Zap, CheckCircle2, Users } from 'lucide-react';
+import { Zap, CheckCircle2, Users, Flame, Trophy, Calendar, TrendingUp, Bell, Smartphone, Users2, Target, Shield } from 'lucide-react';
 
 export const LandingPage = () => {
   const navigate = useNavigate();
+  const [isYearly, setIsYearly] = useState(true);
+
+  const features = [
+    { icon: Target, text: "Track 3-5 personalized improvement pillars" },
+    { icon: Flame, text: "Daily streak tracking & milestone badges" },
+    { icon: TrendingUp, text: "Weekly performance reviews & analytics" },
+    { icon: Calendar, text: "30-day progress graphs & history" },
+    { icon: Trophy, text: "12 achievement badges to unlock" },
+    { icon: Users2, text: "Private groups with leaderboards" },
+    { icon: Zap, text: "Weekly & monthly challenges" },
+    { icon: Bell, text: "Smart reminders & notifications" },
+    { icon: Smartphone, text: "Add to home screen (PWA)" },
+    { icon: Shield, text: "Offline session logging" },
+  ];
 
   return (
     <div className="min-h-screen bg-[#09090b] flex items-center justify-center p-6">
@@ -55,6 +69,75 @@ export const LandingPage = () => {
               <p className="text-white font-body">Review your weekly performance</p>
             </div>
           </div>
+        </div>
+
+        {/* Pricing Section */}
+        <div className="bg-zinc-950 border border-zinc-800 rounded-md p-8 mb-8" data-testid="pricing-section">
+          <h3 className="text-2xl font-heading font-bold uppercase tracking-tight text-white mb-2 text-center">
+            Simple Pricing
+          </h3>
+          <p className="text-zinc-400 text-center font-body mb-6">
+            Start with a 14-day free trial. Cancel anytime.
+          </p>
+
+          {/* Toggle */}
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <span className={`font-body text-sm ${!isYearly ? 'text-white' : 'text-zinc-500'}`}>Monthly</span>
+            <button
+              onClick={() => setIsYearly(!isYearly)}
+              className={`relative w-14 h-7 rounded-full transition-colors ${isYearly ? 'bg-primary' : 'bg-zinc-700'}`}
+              data-testid="pricing-toggle"
+            >
+              <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-transform ${isYearly ? 'translate-x-8' : 'translate-x-1'}`} />
+            </button>
+            <span className={`font-body text-sm ${isYearly ? 'text-white' : 'text-zinc-500'}`}>
+              Yearly <span className="text-primary font-bold">(Save 17%)</span>
+            </span>
+          </div>
+
+          {/* Price Display */}
+          <div className="text-center mb-6">
+            <div className="flex items-end justify-center gap-1">
+              <span className="text-5xl font-mono font-bold text-white">
+                ${isYearly ? '49.99' : '4.99'}
+              </span>
+              <span className="text-zinc-400 font-body mb-2">
+                /{isYearly ? 'year' : 'month'}
+              </span>
+            </div>
+            {isYearly && (
+              <p className="text-primary text-sm font-body mt-2">
+                That's just $4.17/month!
+              </p>
+            )}
+          </div>
+
+          {/* Features Grid */}
+          <div className="border-t border-zinc-800 pt-6 mb-6">
+            <p className="text-zinc-400 text-sm font-body uppercase tracking-wide mb-4 text-center">
+              Everything included:
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {features.map((feature, index) => (
+                <div key={index} className="flex items-center gap-3">
+                  <feature.icon className="w-4 h-4 text-primary flex-shrink-0" />
+                  <span className="text-zinc-300 text-sm font-body">{feature.text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Free Trial CTA */}
+          <Button
+            data-testid="start-trial-btn"
+            onClick={() => navigate('/auth')}
+            className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading uppercase tracking-wide font-bold text-lg py-6"
+          >
+            Start 14-Day Free Trial
+          </Button>
+          <p className="text-zinc-500 text-xs text-center mt-3 font-body">
+            No credit card required to start
+          </p>
         </div>
 
         {/* CTA Button */}
