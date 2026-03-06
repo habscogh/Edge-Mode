@@ -68,15 +68,36 @@ export const LogScreen = () => {
     // Get client's local date
     const localDate = new Date().toISOString().split('T')[0];
     
+    // Prepare session data
+    const sessionData = {
+      pillar: selectedPillar,
+      minutes_spent: parseInt(minutes) || 30,
+      note: note || null,
+      local_date: localDate
+    };
+    
     setLoading(true);
 
     try {
-      const response = await axios.post(`${API}/sessions/complete`, {
-        pillar: selectedPillar,
-        minutes_spent: parseInt(minutes) || 30,
-        note: note || null,
-        local_date: localDate
-      });
+      // If offline, save locally
+      if (!isOnline) {
+        await saveOffline(sessionData);
+        toast.success(
+          <div className="flex items-center gap-2">
+            <WifiOff className="w-4 h-4" />
+            <span>Saved offline! Will sync when online.</span>
+          </div>
+        );
+        setSuccess(true);
+        setNote('');
+        setTimeout(() => {
+          setSuccess(false);
+          navigate('/dashboard');
+        }, 1500);
+        return;
+      }
+      
+      const response = await axios.post(`${API}/sessions/complete`, sessionData);
       
       // Check for newly earned badges and show toast notifications
       if (response.data.new_badges && response.data.new_badges.length > 0) {
@@ -118,7 +139,29 @@ export const LogScreen = () => {
       }
     } catch (error) {
       console.error('Failed to log session:', error);
-      alert('Failed to log session');
+      
+      // If network error, save offline
+      if (!navigator.onLine || error.message === 'Network Error') {
+        try {
+          await saveOffline(sessionData);
+          toast.success(
+            <div className="flex items-center gap-2">
+              <WifiOff className="w-4 h-4" />
+              <span>Saved offline! Will sync when online.</span>
+            </div>
+          );
+          setSuccess(true);
+          setNote('');
+          setTimeout(() => {
+            setSuccess(false);
+            navigate('/dashboard');
+          }, 1500);
+        } catch (offlineError) {
+          toast.error('Failed to save session');
+        }
+      } else {
+        toast.error('Failed to log session');
+      }
     } finally {
       setLoading(false);
     }
