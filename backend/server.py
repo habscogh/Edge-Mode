@@ -3906,6 +3906,22 @@ async def startup_scheduler():
         replace_existing=True
     )
     
+    # Parent weekly summaries - every Sunday at 3 PM UTC (11 AM Eastern)
+    scheduler.add_job(
+        send_parent_weekly_summaries_job,
+        CronTrigger(day_of_week='sun', hour=15, minute=0),  # 3 PM UTC = 11 AM Eastern
+        id="parent_weekly_summaries",
+        replace_existing=True
+    )
+    
+    # Parent inactivity alerts - daily at 7 PM UTC (3 PM Eastern)
+    scheduler.add_job(
+        send_parent_inactivity_alerts_job,
+        CronTrigger(hour=19, minute=0),  # 7 PM UTC = 3 PM Eastern
+        id="parent_inactivity_alerts",
+        replace_existing=True
+    )
+    
     # Challenges daily job - at 12:05 AM UTC to create new challenges and finalize old ones
     scheduler.add_job(
         challenges_daily_job,
@@ -3915,7 +3931,7 @@ async def startup_scheduler():
     )
     
     scheduler.start()
-    logger.info("Email scheduler started - Streak: 8PM UTC, Inactive: 6PM UTC, Trial Ending: 4PM UTC, Weekly: Sun 2PM UTC, Challenges: 12:05AM UTC")
+    logger.info("Email scheduler started - Streak: 8PM UTC, Inactive: 6PM UTC, Trial Ending: 4PM UTC, Weekly: Sun 2PM UTC, Parent Weekly: Sun 3PM UTC, Parent Alerts: 7PM UTC, Challenges: 12:05AM UTC")
 
 async def seed_initial_challenges():
     """Seed initial challenges on first startup"""
