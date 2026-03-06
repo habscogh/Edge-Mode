@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { BadgeSummary } from '../components/BadgeSummary';
 import PushNotificationSettings from '../components/PushNotificationSettings';
 import { InstallAppSettings } from '../components/InstallPrompt';
+import { SyncStatusCard } from '../components/OfflineIndicator';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
