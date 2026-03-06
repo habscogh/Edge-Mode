@@ -472,6 +472,11 @@ export const ProfileScreen = () => {
           <div className="mt-4 pt-4 border-t border-zinc-800">
             <PushNotificationSettings />
           </div>
+          
+          {/* Install App */}
+          <div className="mt-4 pt-4 border-t border-zinc-800">
+            <InstallAppSettings />
+          </div>
         </div>
 
         <div className="bg-zinc-950 border border-zinc-800 rounded-md p-6 mb-4">
