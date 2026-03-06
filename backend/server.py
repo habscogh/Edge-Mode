@@ -29,7 +29,8 @@ from routes import (
     admin,
     notifications,
     referral,
-    onboarding
+    onboarding,
+    push
 )
 
 # Import scheduler jobs
