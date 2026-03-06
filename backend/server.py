@@ -31,7 +31,8 @@ from routes import (
     referral,
     onboarding,
     push,
-    schools
+    schools,
+    ambassador
 )
 
 # Import scheduler jobs
