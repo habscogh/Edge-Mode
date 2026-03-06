@@ -267,6 +267,7 @@ const AppRoutes = () => {
         />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/reset-password" element={<ResetPasswordScreen />} />
         
         {/* Coach Routes */}
         <Route path="/coach-signup" element={<CoachSignup />} />
