@@ -206,6 +206,9 @@ async def register_player_with_team(user_data: UserRegister, team_code: str):
 
 @router.post("/forgot-password")
 async def forgot_password(request: PasswordResetRequest):
+    import resend
+    from config import RESEND_API_KEY, SENDER_EMAIL
+    
     user = await db.users.find_one({'email': request.email}, {'_id': 0})
     if not user:
         return {'message': 'If that email exists, a reset link has been sent'}
@@ -218,9 +221,43 @@ async def forgot_password(request: PasswordResetRequest):
     
     logger.info(f"Password reset token for {request.email}: {reset_token}")
     
+    # Send reset email
+    if RESEND_API_KEY:
+        try:
+            resend.api_key = RESEND_API_KEY
+            reset_link = f"https://edgemodeapp.com/reset-password?token={reset_token}"
+            
+            resend.Emails.send({
+                "from": SENDER_EMAIL,
+                "to": [request.email],
+                "subject": "Reset Your Edge Mode Password",
+                "html": f"""
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #09090b; color: white;">
+                    <div style="text-align: center; padding: 20px 0;">
+                        <h1 style="color: #fff; margin: 0; font-size: 24px;">🔐 Password Reset Request</h1>
+                    </div>
+                    <div style="padding: 20px; background: #18181b; border-radius: 8px; margin: 20px 0;">
+                        <p style="margin: 0; font-size: 16px;">Hey there,</p>
+                        <p style="margin: 15px 0;">We received a request to reset your Edge Mode password.</p>
+                        <p style="margin: 15px 0;">Click the button below to create a new password:</p>
+                        <div style="text-align: center; margin: 25px 0;">
+                            <a href="{reset_link}" style="display: inline-block; background: #10b981; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">Reset Password</a>
+                        </div>
+                        <p style="margin: 15px 0; color: #71717a; font-size: 14px;">This link expires in 1 hour.</p>
+                        <p style="margin: 15px 0; color: #71717a; font-size: 14px;">If you didn't request this, you can safely ignore this email.</p>
+                    </div>
+                    <div style="text-align: center; padding: 20px;">
+                        <p style="color: #71717a; font-size: 12px;">Edge Mode - 1% Better Every Day</p>
+                    </div>
+                </div>
+                """
+            })
+            logger.info(f"Password reset email sent to {request.email}")
+        except Exception as e:
+            logger.error(f"Failed to send password reset email: {e}")
+    
     return {
-        'message': 'If that email exists, a reset link has been sent',
-        'reset_token': reset_token
+        'message': 'If that email exists, a reset link has been sent'
     }
 
 
