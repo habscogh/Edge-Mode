@@ -470,6 +470,17 @@ export const Dashboard = () => {
           onClose={() => setMilestoneToShow(null)}
         />
       )}
+      
+      {/* Share Streak Modal */}
+      {showShareModal && (
+        <ShareStreakModal
+          streak={user?.current_streak || 0}
+          totalMinutes={stats?.total_minutes_week || 0}
+          consistency={stats?.weekly_consistency || 0}
+          username={user?.username}
+          onClose={() => setShowShareModal(false)}
+        />
+      )}
     </div>
   );
 };
