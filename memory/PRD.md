@@ -12,15 +12,15 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 - **Database:** MongoDB Atlas
 - **Auth:** JWT tokens
 - **Payments:** Stripe (TEST mode)
-- **Email:** Resend (noreply@edgemodeapp.com)
+- **Email:** Resend
 - **Push Notifications:** Web Push API with VAPID
-- **PWA:** Service Worker, manifest.json
+- **PWA:** Service Worker, manifest.json, IndexedDB
 
-## Code Architecture (Refactored - March 2026)
+## Code Architecture
 ```
 /app/backend/
 ├── server.py              # Main server (~230 lines)
-├── config.py              # Configuration (db, VAPID keys, constants)
+├── config.py              # Configuration
 ├── routes/
 │   ├── auth.py            # Authentication
 │   ├── users.py           # User management
@@ -42,19 +42,23 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
     ├── auth.py            # JWT, password hashing
     ├── badges.py          # Badge logic
     ├── streaks.py         # Streak calculation
-    └── scheduler_jobs.py  # Email + push scheduled jobs
+    └── scheduler_jobs.py  # Email + push jobs
 
 /app/frontend/
 ├── public/
 │   ├── manifest.json      # PWA manifest
-│   └── sw.js              # Service worker (push + caching)
+│   └── sw.js              # Service worker
 └── src/
+    ├── utils/
+    │   └── offlineStorage.js   # IndexedDB storage manager
     ├── hooks/
     │   ├── usePushNotifications.js
-    │   └── useInstallPrompt.js
+    │   ├── useInstallPrompt.js
+    │   └── useOfflineSync.js
     └── components/
         ├── PushNotificationSettings.jsx
-        └── InstallPrompt.jsx
+        ├── InstallPrompt.jsx
+        └── OfflineIndicator.jsx
 ```
 
 ## Features (All Complete)
@@ -62,85 +66,76 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 ### Core
 - User auth (signup/login)
 - 14-day free trial
-- Onboarding (select 3-5 pillars, set weekly targets)
-- Dashboard with metrics & 30-day graph
+- Onboarding (select 3-5 pillars)
+- Dashboard with metrics & graph
 - Session logging with notes
-- Session history (calendar view)
+- Session history
 - Edit/delete sessions
 
 ### Push Notifications ✅
-- Web Push API with VAPID authentication
-- Service Worker at `/sw.js`
+- Web Push API with VAPID
 - Notifications for: streak reminders, badges, inactivity, trial ending
 - Toggle on/off from Profile page
-- Test notification button
 
-### PWA Install Prompt ✅ NEW
-- **manifest.json** with app name, icons, theme colors
-- **"Add to Home Screen"** functionality
-- **Install Banner** on Dashboard (dismissible)
-- **Install Settings** on Profile page
-- **iOS Safari Guide** - 3-step manual instructions
-- **Offline Support** - Basic caching via Service Worker
-- Benefits shown: Quick access, Push notifications, Full screen mode, Works offline
+### PWA Install Prompt ✅
+- "Add to Home Screen" functionality
+- Install Banner on Dashboard
+- iOS Safari manual guide
 
-### Achievements/Badges System
+### Offline Session Logging ✅ NEW
+- **IndexedDB Storage** - Sessions saved locally when offline
+- **Auto-Sync** - Automatically syncs when back online
+- **Offline Indicator** - Floating badge shows offline status & pending count
+- **Sync Status Card** - Profile page shows sync status and manual sync button
+- **Network Error Fallback** - Falls back to offline save on network errors
+- **Toast Notifications** - Shows "Saved offline!" when saving locally
+
+### Achievements/Badges
 - 12 badges available
-- Toast notifications when new badges earned
-- Progress bars for locked badges
+- Toast notifications for new badges
 
 ### Social
 - Private groups with invite codes
 - Global leaderboard (opt-in)
 
-### Email Notifications (via Scheduler)
-- Streak reminders: 8 PM UTC daily
-- Inactive reminders: 6 PM UTC daily
-- Trial ending reminders: 4 PM UTC daily
-- Weekly summaries: Sunday 2 PM UTC
-- Parent weekly summaries: Sunday 3 PM UTC
-- Parent inactivity alerts: 7 PM UTC daily
+### Email Notifications
+- Streak reminders, weekly summaries
+- Parent notifications
 
-### Opt-In Challenges
+### Challenges
 - Weekly and monthly challenges
-- Auto-created via scheduled job
-- Real-time leaderboard rankings
+- Auto-created via scheduler
 
 ### Coach Mode
-- Dedicated coach signup (FREE)
-- Special codes for extended trials
-- Team dashboard with player stats
+- Free coach signup
+- Team dashboard
 
 ### Parent-Student Linking
-- Student invites up to 2 parents
-- Parent Dashboard with student stats
-- Parent notification emails
+- Up to 2 parents per student
+- Parent dashboard
 
 ### Admin
 - Admin Dashboard at `/admin`
-- Access: admin@edgemodeapp.com only
 
 ### Other
-- Stripe subscriptions ($4.99/mo, $49.99/yr) - TEST MODE
+- Stripe subscriptions - TEST MODE
 - Password reset
 - Profile settings
-- Privacy Policy & Terms of Service
 
 ## Completed Tasks (This Session)
-- [x] ✅ **Refactored backend** - 4000+ line monolithic → modular routers
-- [x] ✅ **Integrated parent notification emails** into scheduler
+- [x] ✅ **Refactored backend** - 4000+ lines → modular routers
+- [x] ✅ **Integrated parent notification emails**
 - [x] ✅ **Added push notifications** with Web Push API
-- [x] ✅ **Added PWA install prompt** with "Add to Home Screen"
-- [x] ✅ **All features tested** - 100% pass rate
+- [x] ✅ **Added PWA install prompt**
+- [x] ✅ **Added offline session logging** with IndexedDB & auto-sync
 
 ## Future Enhancements
-- [ ] **P2: Admin UI for Special Codes** - Manage coach trial codes
-- [ ] **P3: Add Referral Rewards** - Free month for 3+ referrals
-- [ ] **P3: Admin Challenge Management** - Manual challenge creation UI
-- [ ] **P3: Offline Session Logging** - Queue sessions when offline
+- [ ] **P2:** Admin UI for managing coach special codes
+- [ ] **P3:** Referral rewards
+- [ ] **P3:** Admin challenge management UI
 
 ## Test Credentials
 - **Admin:** admin@edgemodeapp.com
 - **Test User:** refactortest@example.com / test123
 - **Stripe Test Card:** 4242 4242 4242 4242
-- **Coach Special Codes:** EDGE30, COACH2024, TEAMEDGE, PROMO30
+- **Coach Codes:** EDGE30, COACH2024, TEAMEDGE, PROMO30
