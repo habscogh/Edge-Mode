@@ -4,9 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { CheckCircle2, ArrowLeft, Clock, Pencil, Trash2, X, StickyNote } from 'lucide-react';
+import { CheckCircle2, ArrowLeft, Clock, Pencil, Trash2, X, StickyNote, WifiOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { MilestoneCelebration, checkMilestoneHit } from '../components/MilestoneCelebration';
+import { OfflineIndicator } from '../components/OfflineIndicator';
+import { useOfflineSync } from '../hooks/useOfflineSync';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
