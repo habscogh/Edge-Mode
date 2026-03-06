@@ -187,6 +187,9 @@ export const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-[#09090b] pb-24">
+      {/* Offline Indicator */}
+      <OfflineIndicator />
+      
       {/* Trial Ending Banner - shows when 3 days or less remaining */}
       <TrialEndingBanner onSubscribe={handleSubscribe} />
       
