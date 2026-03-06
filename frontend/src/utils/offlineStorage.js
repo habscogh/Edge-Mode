@@ -101,10 +101,13 @@ class OfflineStorage {
     return new Promise((resolve, reject) => {
       const transaction = this.db.transaction([STORE_NAME], 'readonly');
       const store = transaction.objectStore(STORE_NAME);
-      const index = store.index('synced');
-      const request = index.getAll(IDBKeyRange.only(false));
+      const request = store.getAll();
 
-      request.onsuccess = () => resolve(request.result);
+      request.onsuccess = () => {
+        // Filter for unsynced sessions (synced === false)
+        const pendingSessions = request.result.filter(session => session.synced === false);
+        resolve(pendingSessions);
+      };
       request.onerror = () => reject(request.error);
     });
   }
