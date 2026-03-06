@@ -34,8 +34,13 @@ export const AuthScreen = () => {
 
     try {
       if (isLogin) {
-        await login(email, password);
-        navigate('/dashboard');
+        const result = await login(email, password);
+        // Redirect coaches to coach home
+        if (result?.is_coach) {
+          navigate('/coach-home');
+        } else {
+          navigate('/dashboard');
+        }
       } else {
         if (parseInt(age) < 12 || parseInt(age) > 19) {
           setError('Age must be between 12 and 19');
