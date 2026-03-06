@@ -234,6 +234,9 @@ export const LogScreen = () => {
 
   return (
     <div className="min-h-screen bg-[#09090b] p-4 pb-24">
+      {/* Offline Indicator */}
+      <OfflineIndicator />
+      
       <div className="max-w-2xl mx-auto pt-6">
         <button
           data-testid="back-btn"
