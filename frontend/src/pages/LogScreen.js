@@ -520,6 +520,22 @@ export const LogScreen = () => {
             }}
           />
         )}
+        
+        {/* Push Notification Prompt */}
+        {showPushPrompt && (
+          <PushNotificationPrompt
+            onClose={() => {
+              localStorage.setItem('pushPromptDismissed', 'true');
+              setShowPushPrompt(false);
+              navigate('/dashboard');
+            }}
+            onEnable={async () => {
+              await subscribe();
+              toast.success('Notifications enabled! 🔔');
+              navigate('/dashboard');
+            }}
+          />
+        )}
       </div>
     </div>
   );
