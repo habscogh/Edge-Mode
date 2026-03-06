@@ -297,6 +297,25 @@ export const ProfileScreen = () => {
           </div>
         </div>
 
+        {/* School Selection */}
+        <div className="mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-heading uppercase tracking-wide text-zinc-500">Your School (Optional)</span>
+            <button 
+              onClick={() => navigate('/school-leaderboard')}
+              className="text-primary text-xs font-body hover:underline flex items-center gap-1"
+            >
+              View School Leaderboard <ChevronRight className="w-3 h-3" />
+            </button>
+          </div>
+          <SchoolSelector 
+            currentSchool={user?.school_name}
+            onSchoolChange={(schoolName) => {
+              if (fetchUser) fetchUser();
+            }}
+          />
+        </div>
+
         {/* Family Access Button */}
         <div 
           className="bg-zinc-950 border border-zinc-800 rounded-lg p-4 mb-4 cursor-pointer hover:border-zinc-700 transition-colors"
