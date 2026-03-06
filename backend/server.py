@@ -1367,7 +1367,7 @@ async def complete_session(session_data: SessionComplete, current_user: dict = D
     await db.daily_sessions.insert_one(session_doc)
     
     # Update streak and last_log_date
-    await update_streak(user_id, now.isoformat())
+    streak_result = await update_streak(user_id, now.isoformat())
     await db.users.update_one(
         {'id': user_id},
         {'$set': {'last_log_date': today}}
@@ -1375,6 +1375,27 @@ async def complete_session(session_data: SessionComplete, current_user: dict = D
     
     # Check for newly earned badges
     new_badges = await check_and_award_badges(user_id)
+    
+    # Parent notifications (run in background)
+    if streak_result:
+        current_streak, longest_streak, total_sessions = streak_result
+        # Notify parents of streak milestones
+        if current_streak in [7, 14, 30]:
+            asyncio.create_task(notify_parents_of_streak_milestone(
+                user_id, 
+                current_user.get('username', 'Student'), 
+                current_streak
+            ))
+    
+    # Notify parents of new badges
+    if new_badges:
+        for badge in new_badges:
+            asyncio.create_task(notify_parents_of_new_badge(
+                user_id,
+                current_user.get('username', 'Student'),
+                badge['name'],
+                badge['icon']
+            ))
     
     return {
         'session': DailySession(**session_doc).model_dump(),
