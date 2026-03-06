@@ -356,6 +356,38 @@ export const ProfileScreen = () => {
           </div>
         </div>
 
+        {/* Theme Toggle */}
+        <div 
+          className="bg-zinc-950 border border-zinc-800 rounded-lg p-4 mb-4 cursor-pointer hover:border-zinc-700 transition-colors"
+          onClick={toggleTheme}
+          data-testid="theme-toggle-btn"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                theme === 'dark' ? 'bg-indigo-500/20' : 'bg-yellow-500/20'
+              }`}>
+                {theme === 'dark' ? (
+                  <Moon className="w-5 h-5 text-indigo-400" />
+                ) : (
+                  <Sun className="w-5 h-5 text-yellow-500" />
+                )}
+              </div>
+              <div>
+                <div className="text-white font-body font-medium">Theme</div>
+                <div className="text-zinc-500 text-sm font-body">
+                  {theme === 'dark' ? 'Dark mode active' : 'Light mode active'}
+                </div>
+              </div>
+            </div>
+            <div className={`px-3 py-1 rounded-full text-xs font-mono font-bold ${
+              theme === 'dark' ? 'bg-indigo-500/20 text-indigo-400' : 'bg-yellow-500/20 text-yellow-600'
+            }`}>
+              {theme === 'dark' ? 'DARK' : 'LIGHT'}
+            </div>
+          </div>
+        </div>
+
         <div className="bg-zinc-950 border border-zinc-800 rounded-md p-6 mb-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
