@@ -140,9 +140,13 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
   - Codes: EDGEFOUNDER2025, AMBASSADOR1, FOUNDINGMEMBER
 - [x] ✅ **Fixed "Failed to log session" bug** - Post-session refresh errors no longer show false error
 - [x] ✅ **Fixed School Search** - Users can now add ANY school name (not just from database)
+- [x] ✅ **Fixed Production Sign-Up White Screen (March 2026)** - React Error #31 fix
+  - Root cause: FastAPI validation errors returned as objects, React couldn't render them
+  - Fixed error handling in AuthScreen.js, ForgotPassword.js, ResetPasswordScreen.js
+  - Added Error Boundary in App.js to catch unhandled errors
+  - Fixed AuthContext.js race condition on registration
 
 ## Known Issues
-- Production deployment (EdgeModeApp.com) may need redeployment to get latest code
 - MongoDB may need manual restart if it times out (mongod --dbpath /data/db --fork --logpath /var/log/mongodb.log)
 
 ## Future Enhancements
