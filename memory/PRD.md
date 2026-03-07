@@ -122,28 +122,28 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 - Password reset
 - Profile settings
 
-## Completed Tasks (This Session)
-- [x] ✅ **Refactored backend** - 4000+ lines → modular routers
-- [x] ✅ **Integrated parent notification emails**
-- [x] ✅ **Added push notifications** with Web Push API
-- [x] ✅ **Added PWA install prompt**
-- [x] ✅ **Added offline session logging** with IndexedDB & auto-sync
-- [x] ✅ **Fixed Achievements back button** - Added navigation back arrow (Dec 2025)
-- [x] ✅ **Added consistent back navigation** - Weekly Review, History pages now have back buttons (Dec 2025)
-- [x] ✅ **Added Quick Actions FAB** - Floating action button on Dashboard with 6 shortcuts (Dec 2025)
-- [x] ✅ **Added Pricing Section** - Landing page now shows pricing with monthly/yearly toggle (Dec 2025)
-- [x] ✅ **Push Notification Prompt** - Shows after first session logged (Dec 2025)
-- [x] ✅ **Enhanced Onboarding Progress** - Visual step indicators with progress bar (Dec 2025)
-- [x] ✅ **Confetti Celebrations** - Real canvas-confetti on milestones (Dec 2025)
-- [x] ✅ **Dark/Light Mode Toggle** - Theme switcher in Profile settings (Dec 2025)
-- [x] ✅ **Share Streak Cards** - Generate shareable images for Instagram/TikTok (Dec 2025)
-- [x] ✅ **Referral Rewards** - Invite 3 friends → Get 30 days free (Dec 2025)
-- [x] ✅ **School Leaderboard** - US schools (Grades 8-12) with weekly rankings (Dec 2025)
-- [x] ✅ **Founding Ambassador Program** - Special code activation, 1 year free, referral tracking (Dec 2025)
-  - Ambassador badge visible on Profile and Leaderboards
-  - Stats: Total Referrals, Monthly Referrals, Free Access period
-  - Personal referral link with copy button
+## Completed Tasks (This Session - Dec 2025)
+- [x] ✅ **Fixed Achievements back button** - Added navigation back arrow
+- [x] ✅ **Added consistent back navigation** - Weekly Review, History pages
+- [x] ✅ **Added Quick Actions FAB** - 6 shortcuts on Dashboard
+- [x] ✅ **Added Pricing Section** - Landing page with monthly/yearly toggle
+- [x] ✅ **Push Notification Prompt** - Shows after first session logged
+- [x] ✅ **Enhanced Onboarding Progress** - Visual step indicators with progress bar
+- [x] ✅ **Confetti Celebrations** - Real canvas-confetti on milestones
+- [x] ✅ **Dark/Light Mode Toggle** - Theme switcher in Profile settings
+- [x] ✅ **Share Streak Cards** - Generate shareable images for Instagram/TikTok
+- [x] ✅ **Referral Rewards** - Invite 3 friends → Get 30 days free
+- [x] ✅ **School Leaderboard** - US schools (Grades 8-12) with weekly rankings
+  - School selector with autocomplete + custom school entry
+  - New `/school-leaderboard` page with 3 tabs
+- [x] ✅ **Founding Ambassador Program** - Special code activation, 1 year free, referral tracking
   - Codes: EDGEFOUNDER2025, AMBASSADOR1, FOUNDINGMEMBER
+- [x] ✅ **Fixed "Failed to log session" bug** - Post-session refresh errors no longer show false error
+- [x] ✅ **Fixed School Search** - Users can now add ANY school name (not just from database)
+
+## Known Issues
+- Production deployment (EdgeModeApp.com) may need redeployment to get latest code
+- MongoDB may need manual restart if it times out (mongod --dbpath /data/db --fork --logpath /var/log/mongodb.log)
 
 ## Future Enhancements
 - [ ] **P2:** Admin UI for managing coach special codes
