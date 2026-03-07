@@ -161,7 +161,7 @@ export const ReflectionModal = ({ isOpen, onClose, sessionId, onComplete }) => {
           <Button
             data-testid="reflection-submit-btn"
             onClick={handleSubmit}
-            disabled={!response.trim() || submitting}
+            disabled={!response.trim() || submitting || !user || !token}
             className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {submitting ? (
