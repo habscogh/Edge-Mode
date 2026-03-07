@@ -5,7 +5,7 @@ import App from "@/App";
 import { ThemeProvider } from "@/context/ThemeContext";
 
 // Register Service Worker for Push Notifications
-if ('serviceWorker' in navigator) {
+if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
       .then(registration => {
