@@ -315,6 +315,14 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/journal"
+          element={
+            <ProtectedRoute>
+              <JournalScreen />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/reset-password" element={<ResetPasswordScreen />} />
