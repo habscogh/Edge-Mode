@@ -44,7 +44,7 @@ export const ReflectionModal = ({ isOpen, onClose, sessionId, onComplete }) => {
     
     setSubmitting(true);
     try {
-      await axios.post(`${API}/reflections`, {
+      await axios.post(`${API}/reflections/`, {
         prompt,
         response: response.trim(),
         session_id: sessionId,
