@@ -155,10 +155,9 @@ export const LogScreen = () => {
           setSuccess(false);
           setShowPushPrompt(true);
         } else {
-          setTimeout(() => {
-            setSuccess(false);
-            navigate('/dashboard');
-          }, 1500);
+          // Show reflection modal after successful session log
+          setSuccess(false);
+          setShowReflectionModal(true);
         }
       } catch (refreshError) {
         // Session was logged successfully, just couldn't refresh user data
