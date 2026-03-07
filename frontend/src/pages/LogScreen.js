@@ -34,6 +34,8 @@ export const LogScreen = () => {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [milestoneToShow, setMilestoneToShow] = useState(null);
   const [showPushPrompt, setShowPushPrompt] = useState(false);
+  const [showReflectionModal, setShowReflectionModal] = useState(false);
+  const [lastSessionId, setLastSessionId] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
