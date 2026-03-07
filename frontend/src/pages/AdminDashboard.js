@@ -4,10 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { 
   Users, Activity, CreditCard, Calendar, TrendingUp, 
-  ArrowLeft, RefreshCw, UserPlus, Clock
+  ArrowLeft, RefreshCw, UserPlus, Clock, Star, Mail, Send,
+  ChevronDown, ChevronUp
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
 import { format, parseISO } from 'date-fns';
+import { toast } from 'sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -19,6 +22,16 @@ export const AdminDashboard = () => {
   const [recentActivity, setRecentActivity] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // New state for ambassadors and subscribers
+  const [ambassadors, setAmbassadors] = useState([]);
+  const [subscribers, setSubscribers] = useState({ paid_subscribers: [], trial_users: [] });
+  const [showAmbassadors, setShowAmbassadors] = useState(false);
+  const [showSubscribers, setShowSubscribers] = useState(false);
+  const [showMessageForm, setShowMessageForm] = useState(null); // 'ambassadors' or 'subscribers'
+  const [messageSubject, setMessageSubject] = useState('');
+  const [messageBody, setMessageBody] = useState('');
+  const [sendingMessage, setSendingMessage] = useState(false);
 
   useEffect(() => {
     fetchAdminData();
