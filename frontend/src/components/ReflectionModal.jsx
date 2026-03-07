@@ -49,7 +49,7 @@ export const ReflectionModal = ({ isOpen, onClose, sessionId, onComplete }) => {
   };
 
   const handleSubmit = async () => {
-    if (!response.trim()) return;
+    if (!response.trim() || !user || !token) return;
     
     setSubmitting(true);
     try {
