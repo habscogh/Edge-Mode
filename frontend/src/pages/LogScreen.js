@@ -135,9 +135,9 @@ export const LogScreen = () => {
         if (fetchUser) await fetchUser();
         
         // Get updated streak
-        const updatedUserRes = await axios.get(`${API}/auth/me`);
+        const updatedUserRes = await axios.get(`${API}/users/me`);
         const newStreak = updatedUserRes.data?.current_streak || 0;
-        const totalSessions = updatedUserRes.data?.total_sessions || 0;
+        const totalSessions = updatedUserRes.data?.total_sessions_completed || 0;
         
         // Check if this is first session and push notifications are available but not enabled
         const shouldShowPushPrompt = totalSessions === 1 && 
