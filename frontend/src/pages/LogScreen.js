@@ -162,10 +162,9 @@ export const LogScreen = () => {
       } catch (refreshError) {
         // Session was logged successfully, just couldn't refresh user data
         console.warn('Could not refresh user data after session log:', refreshError);
-        setTimeout(() => {
-          setSuccess(false);
-          navigate('/dashboard');
-        }, 1500);
+        // Still show reflection modal since session was logged
+        setSuccess(false);
+        setShowReflectionModal(true);
       }
     } catch (error) {
       console.error('Failed to log session:', error);
