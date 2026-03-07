@@ -29,11 +29,19 @@ export function usePushNotifications() {
 
   // Check if push notifications are supported
   useEffect(() => {
-    const supported = 'serviceWorker' in navigator && 'PushManager' in window;
-    setIsSupported(supported);
-    
-    if (supported) {
-      setPermission(Notification.permission);
+    try {
+      const supported = typeof window !== 'undefined' && 
+        'serviceWorker' in navigator && 
+        'PushManager' in window &&
+        'Notification' in window;
+      setIsSupported(supported);
+      
+      if (supported && Notification) {
+        setPermission(Notification.permission);
+      }
+    } catch (e) {
+      console.warn('Push notification check failed:', e);
+      setIsSupported(false);
     }
     
     setLoading(false);
