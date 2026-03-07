@@ -163,6 +163,11 @@ export const LogScreen = () => {
       }
     } catch (error) {
       console.error('Failed to log session:', error);
+      console.error('Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
       
       // If network error, save offline
       if (!navigator.onLine || error.message === 'Network Error') {
