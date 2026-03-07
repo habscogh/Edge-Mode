@@ -30,7 +30,7 @@ export const ReflectionModal = ({ isOpen, onClose, sessionId, onComplete }) => {
     }
   }, [isOpen, user, token]);
 
-  const fetchPrompt = async () => {
+  const fetchPrompt = useCallback(async () => {
     if (!user || !token) {
       setPrompt("What did you learn today?");
       return;
@@ -46,7 +46,7 @@ export const ReflectionModal = ({ isOpen, onClose, sessionId, onComplete }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, token, API]);
 
   const handleSubmit = async () => {
     if (!response.trim() || !user || !token) return;
