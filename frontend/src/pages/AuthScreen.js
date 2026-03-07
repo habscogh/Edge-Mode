@@ -54,7 +54,20 @@ export const AuthScreen = () => {
       }
     } catch (err) {
       console.error('Auth error:', err);
-      setError(err.response?.data?.detail || err.message || 'Authentication failed');
+      // Handle different error formats - FastAPI returns validation errors as arrays/objects
+      let errorMessage = 'Authentication failed';
+      const detail = err.response?.data?.detail;
+      if (typeof detail === 'string') {
+        errorMessage = detail;
+      } else if (Array.isArray(detail)) {
+        // FastAPI validation errors come as array of objects with 'msg' field
+        errorMessage = detail.map(e => e.msg || e.message || JSON.stringify(e)).join(', ');
+      } else if (typeof detail === 'object' && detail !== null) {
+        errorMessage = detail.msg || detail.message || JSON.stringify(detail);
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      setError(errorMessage);
       setLoading(false);
     }
   };
