@@ -59,6 +59,56 @@ export const AdminDashboard = () => {
     }
   };
 
+  const fetchAmbassadors = async () => {
+    try {
+      const res = await axios.get(`${API}/admin/ambassadors`);
+      setAmbassadors(res.data.ambassadors || []);
+    } catch (err) {
+      console.error('Failed to fetch ambassadors:', err);
+      toast.error('Failed to load ambassadors');
+    }
+  };
+
+  const fetchSubscribers = async () => {
+    try {
+      const res = await axios.get(`${API}/admin/subscribers`);
+      setSubscribers(res.data);
+    } catch (err) {
+      console.error('Failed to fetch subscribers:', err);
+      toast.error('Failed to load subscribers');
+    }
+  };
+
+  const handleSendMessage = async (target) => {
+    if (!messageSubject.trim() || !messageBody.trim()) {
+      toast.error('Please fill in subject and message');
+      return;
+    }
+    
+    setSendingMessage(true);
+    try {
+      const endpoint = target === 'ambassadors' 
+        ? `${API}/admin/messages/ambassadors`
+        : `${API}/admin/messages/subscribers`;
+      
+      const res = await axios.post(endpoint, {
+        subject: messageSubject,
+        message: messageBody,
+        send_email: true
+      });
+      
+      toast.success(`Message sent to ${res.data.sent_to} ${target}!`);
+      setMessageSubject('');
+      setMessageBody('');
+      setShowMessageForm(null);
+    } catch (err) {
+      console.error('Failed to send message:', err);
+      toast.error('Failed to send message');
+    } finally {
+      setSendingMessage(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-[#09090b]">
