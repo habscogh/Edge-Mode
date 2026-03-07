@@ -50,13 +50,18 @@ export const AuthProvider = ({ children }) => {
     }
   }, [token]);
 
-  const fetchUser = async () => {
+  const fetchUser = async (shouldLogoutOnError = true) => {
     try {
       const response = await axios.get(`${API}/users/me`);
       setUser(response.data);
+      return response.data;
     } catch (error) {
       console.error('Failed to fetch user:', error);
-      logout();
+      // Only logout if explicitly requested and it's a 401 error
+      if (shouldLogoutOnError && error.response?.status === 401) {
+        logout();
+      }
+      throw error;
     } finally {
       setLoading(false);
     }
