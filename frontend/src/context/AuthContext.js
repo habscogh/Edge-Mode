@@ -92,7 +92,7 @@ export const AuthProvider = ({ children }) => {
     
     // Fetch user but don't logout on failure - user is already registered
     try {
-      await fetchUser();
+      await fetchUser(false); // Don't logout on error during registration
     } catch (error) {
       console.warn('Failed to fetch user after registration, continuing anyway:', error);
       // Set a minimal user object to prevent issues
