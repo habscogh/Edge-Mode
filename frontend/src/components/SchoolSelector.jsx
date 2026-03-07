@@ -65,7 +65,11 @@ export const SchoolSelector = ({ currentSchool, onSchoolChange }) => {
     setSaving(true);
     try {
       await axios.post(`${API}/schools/set-school`, school);
-      onSchoolChange(school.name);
+      // Display format: "School Name (City, ST)"
+      const displayName = school.city && school.state && school.state !== 'US' 
+        ? `${school.name} (${school.city}, ${school.state})`
+        : school.name;
+      onSchoolChange(displayName);
       toast.success(`School set to ${school.name}`);
       setIsOpen(false);
       setSearchQuery('');
