@@ -29,6 +29,11 @@ export const ReflectionModal = ({ isOpen, onClose, sessionId, onComplete }) => {
   }, [isOpen]);
 
   const fetchPrompt = async () => {
+    if (!user || !token) {
+      setPrompt("What did you learn today?");
+      return;
+    }
+    
     setLoading(true);
     try {
       const res = await axios.get(`${API}/reflections/prompt`);
