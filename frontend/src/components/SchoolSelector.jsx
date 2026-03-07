@@ -183,10 +183,34 @@ export const SchoolSelector = ({ currentSchool, onSchoolChange }) => {
                   </button>
                 ))}
               </div>
+            ) : searchQuery.length >= 3 ? (
+              <div className="p-4">
+                <p className="text-muted-foreground text-sm font-body text-center mb-3">
+                  "{searchQuery}" not found in database
+                </p>
+                <Button
+                  onClick={() => handleSelectSchool({
+                    nces_id: `custom_${searchQuery.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
+                    name: searchQuery,
+                    city: '',
+                    state: 'US',
+                    grades: '8-12'
+                  })}
+                  disabled={saving}
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                  data-testid="add-custom-school-btn"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add "{searchQuery}" as my school
+                </Button>
+                <p className="text-muted-foreground/70 text-xs mt-2 text-center">
+                  Your school will be added to the database
+                </p>
+              </div>
             ) : searchQuery.length >= 2 ? (
               <div className="p-4 text-center">
-                <p className="text-muted-foreground text-sm font-body">No schools found</p>
-                <p className="text-muted-foreground/70 text-xs mt-1">Try a different search term</p>
+                <p className="text-muted-foreground text-sm font-body">Keep typing to search...</p>
+                <p className="text-muted-foreground/70 text-xs mt-1">Enter at least 3 characters</p>
               </div>
             ) : (
               <div className="p-4 text-center">
