@@ -28,7 +28,7 @@ export const ReflectionModal = ({ isOpen, onClose, sessionId, onComplete }) => {
     } else if (isOpen && !user) {
       setPrompt("What did you learn today?");
     }
-  }, [isOpen, user, token]);
+  }, [isOpen, user, token, fetchPrompt]);
 
   const fetchPrompt = useCallback(async () => {
     if (!user || !token) {
