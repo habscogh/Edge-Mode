@@ -201,27 +201,88 @@ export const SchoolSelector = ({ currentSchool, onSchoolChange }) => {
               </div>
             ) : searchQuery.length >= 3 ? (
               <div className="p-4">
-                <p className="text-muted-foreground text-sm font-body text-center mb-3">
-                  "{searchQuery}" not found in database
-                </p>
-                <Button
-                  onClick={() => handleSelectSchool({
-                    nces_id: `custom_${searchQuery.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
-                    name: searchQuery,
-                    city: '',
-                    state: 'US',
-                    grades: '8-12'
-                  })}
-                  disabled={saving}
-                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                  data-testid="add-custom-school-btn"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add "{searchQuery}" as my school
-                </Button>
-                <p className="text-muted-foreground/70 text-xs mt-2 text-center">
-                  Your school will be added to the database
-                </p>
+                {!showCustomForm ? (
+                  <>
+                    <p className="text-muted-foreground text-sm font-body text-center mb-3">
+                      "{searchQuery}" not found in database
+                    </p>
+                    <Button
+                      onClick={() => setShowCustomForm(true)}
+                      className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                      data-testid="add-custom-school-btn"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add "{searchQuery}" as my school
+                    </Button>
+                    <p className="text-muted-foreground/70 text-xs mt-2 text-center">
+                      Your school will be added to the database
+                    </p>
+                  </>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-primary mb-2">
+                      <MapPin className="w-4 h-4" />
+                      <span className="text-sm font-medium">Add location for "{searchQuery}"</span>
+                    </div>
+                    
+                    <Input
+                      type="text"
+                      placeholder="City (e.g., Los Angeles)"
+                      value={customCity}
+                      onChange={(e) => setCustomCity(e.target.value)}
+                      className="bg-background border-border"
+                      data-testid="custom-school-city"
+                    />
+                    
+                    <select
+                      value={customState}
+                      onChange={(e) => setCustomState(e.target.value)}
+                      className="w-full bg-background border border-border rounded-md px-3 py-2 text-foreground text-sm"
+                      data-testid="custom-school-state"
+                    >
+                      <option value="">Select State</option>
+                      {US_STATES.map(state => (
+                        <option key={state} value={state}>{state}</option>
+                      ))}
+                    </select>
+                    
+                    <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        onClick={() => {
+                          setShowCustomForm(false);
+                          setCustomCity('');
+                          setCustomState('');
+                        }}
+                        className="flex-1"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          handleSelectSchool({
+                            nces_id: `custom_${searchQuery.toLowerCase().replace(/[^a-z0-9]/g, '_')}_${customCity.toLowerCase().replace(/[^a-z0-9]/g, '_')}_${customState.toLowerCase()}`,
+                            name: searchQuery,
+                            city: customCity,
+                            state: customState || 'US',
+                            grades: '8-12'
+                          });
+                          setShowCustomForm(false);
+                          setCustomCity('');
+                          setCustomState('');
+                        }}
+                        disabled={saving || !customCity.trim() || !customState}
+                        className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                        data-testid="confirm-custom-school-btn"
+                      >
+                        {saving ? 'Saving...' : 'Add School'}
+                      </Button>
+                    </div>
+                    <p className="text-muted-foreground/70 text-xs text-center">
+                      Adding city & state helps identify your school
+                    </p>
+                  </div>
+                )}
               </div>
             ) : searchQuery.length >= 2 ? (
               <div className="p-4 text-center">
