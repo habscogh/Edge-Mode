@@ -46,8 +46,17 @@ export default function ResetPasswordScreen() {
       });
       setSuccess(true);
     } catch (err) {
-      const message = err.response?.data?.detail || 'Failed to reset password. The link may have expired.';
-      setError(message);
+      // Handle different error formats
+      const detail = err.response?.data?.detail;
+      let errorMessage = 'Failed to reset password. The link may have expired.';
+      if (typeof detail === 'string') {
+        errorMessage = detail;
+      } else if (Array.isArray(detail)) {
+        errorMessage = detail.map(e => e.msg || e.message || String(e)).join(', ');
+      } else if (typeof detail === 'object' && detail !== null) {
+        errorMessage = detail.msg || detail.message || String(detail);
+      }
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

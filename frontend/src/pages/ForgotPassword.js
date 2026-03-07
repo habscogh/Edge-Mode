@@ -47,7 +47,17 @@ export const ForgotPassword = () => {
       });
       setStep(3);
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to reset password');
+      // Handle different error formats
+      const detail = err.response?.data?.detail;
+      let errorMessage = 'Failed to reset password';
+      if (typeof detail === 'string') {
+        errorMessage = detail;
+      } else if (Array.isArray(detail)) {
+        errorMessage = detail.map(e => e.msg || e.message || String(e)).join(', ');
+      } else if (typeof detail === 'object' && detail !== null) {
+        errorMessage = detail.msg || detail.message || String(detail);
+      }
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
