@@ -46,7 +46,7 @@ export const ReflectionModal = ({ isOpen, onClose, sessionId, onComplete }) => {
     } finally {
       setLoading(false);
     }
-  }, [user, token, API]);
+  }, [user, token]);
 
   const handleSubmit = async () => {
     if (!response.trim() || !user || !token) return;
