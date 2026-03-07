@@ -1,13 +1,30 @@
 """
 Admin routes for Edge Mode
 """
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime, timezone, timedelta
+from pydantic import BaseModel
+from typing import Optional, List
+import os
 
-from config import db
+from config import db, logger
 from utils.auth import require_admin
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
+
+# Try to import resend for email sending
+try:
+    import resend
+    resend.api_key = os.environ.get('RESEND_API_KEY')
+    RESEND_AVAILABLE = bool(resend.api_key)
+except ImportError:
+    RESEND_AVAILABLE = False
+
+
+class GroupMessageRequest(BaseModel):
+    subject: str
+    message: str
+    send_email: bool = True
 
 
 @router.get("/stats")
@@ -49,6 +66,9 @@ async def get_admin_stats(admin_user: dict = Depends(require_admin)):
     
     total_groups = await db.groups.count_documents({})
     
+    # Ambassador count
+    ambassador_count = await db.users.count_documents({'is_ambassador': True})
+    
     return {
         'users': {
             'total': total_users,
@@ -68,6 +88,9 @@ async def get_admin_stats(admin_user: dict = Depends(require_admin)):
         },
         'groups': {
             'total': total_groups
+        },
+        'ambassadors': {
+            'total': ambassador_count
         },
         'generated_at': now.isoformat()
     }
