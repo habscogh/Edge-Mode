@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { School, Search, X, Check, Loader2 } from 'lucide-react';
+import { School, Search, X, Check, Loader2, Plus } from 'lucide-react';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { toast } from 'sonner';
