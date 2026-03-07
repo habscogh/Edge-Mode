@@ -57,16 +57,26 @@ class ErrorBoundary extends Component {
         <div className="min-h-screen bg-[#09090b] flex items-center justify-center p-4">
           <div className="text-center max-w-md">
             <h1 className="text-2xl font-bold text-white mb-4">Something went wrong</h1>
-            <p className="text-zinc-400 mb-6">We encountered an unexpected error. Please try refreshing the page.</p>
-            <button
-              onClick={() => {
-                localStorage.clear();
-                window.location.href = '/';
-              }}
-              className="bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary/90"
-            >
-              Return to Home
-            </button>
+            <p className="text-zinc-400 mb-6">We encountered an unexpected error. Please try again.</p>
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={() => {
+                  this.setState({ hasError: false, error: null });
+                  window.location.reload();
+                }}
+                className="bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary/90"
+              >
+                Try Again
+              </button>
+              <button
+                onClick={() => {
+                  window.location.href = '/dashboard';
+                }}
+                className="bg-zinc-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-zinc-600"
+              >
+                Go to Dashboard
+              </button>
+            </div>
           </div>
         </div>
       );
