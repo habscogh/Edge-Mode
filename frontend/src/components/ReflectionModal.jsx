@@ -16,37 +16,35 @@ const MOODS = [
 
 export const ReflectionModal = ({ isOpen, onClose, sessionId, onComplete }) => {
   const { user, token } = useAuth();
-  const [prompt, setPrompt] = useState('');
+  const [prompt, setPrompt] = useState('What did you learn today?');
   const [response, setResponse] = useState('');
   const [mood, setMood] = useState(null);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (isOpen && user && token) {
-      fetchPrompt();
-    } else if (isOpen && !user) {
-      setPrompt("What did you learn today?");
-    }
-  }, [isOpen, user, token, fetchPrompt]);
+    const fetchPrompt = async () => {
+      if (!user || !token) {
+        setPrompt("What did you learn today?");
+        return;
+      }
+      
+      setLoading(true);
+      try {
+        const res = await axios.get(`${API}/reflections/prompt`);
+        setPrompt(res.data.prompt);
+      } catch (error) {
+        console.error('Failed to fetch prompt:', error);
+        setPrompt("What did you learn today?");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const fetchPrompt = useCallback(async () => {
-    if (!user || !token) {
-      setPrompt("What did you learn today?");
-      return;
+    if (isOpen) {
+      fetchPrompt();
     }
-    
-    setLoading(true);
-    try {
-      const res = await axios.get(`${API}/reflections/prompt`);
-      setPrompt(res.data.prompt);
-    } catch (error) {
-      console.error('Failed to fetch prompt:', error);
-      setPrompt("What did you learn today?");
-    } finally {
-      setLoading(false);
-    }
-  }, [user, token]);
+  }, [isOpen, user, token]);
 
   const handleSubmit = async () => {
     if (!response.trim() || !user || !token) return;
