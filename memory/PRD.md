@@ -72,6 +72,14 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 - Session history
 - Edit/delete sessions
 
+### Daily Reflections & Growth Journal ✅ NEW
+- **Post-Session Reflection Modal** - After logging a session, users can reflect on their progress
+- **Daily Prompts** - Rotating prompts like "What did you learn today?", "What are you grateful for?"
+- **Mood Tracking** - Select from 🔥 Great, 😊 Good, 😐 Okay, 💪 Tough
+- **Growth Journal Page** - View all past reflections with stats
+- **Reflection Streak** - Track consecutive days of reflections
+- **Skip Option** - Users can skip if they don't want to reflect
+
 ### Push Notifications ✅
 - Web Push API with VAPID
 - Notifications for: streak reminders, badges, inactivity, trial ending
