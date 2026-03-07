@@ -124,29 +124,38 @@ export const LogScreen = () => {
       fetchTodaySessions();
       
       // Refresh user data and check for milestone
-      if (fetchUser) await fetchUser();
-      
-      // Get updated streak
-      const updatedUserRes = await axios.get(`${API}/auth/me`);
-      const newStreak = updatedUserRes.data?.current_streak || 0;
-      const totalSessions = updatedUserRes.data?.total_sessions || 0;
-      
-      // Check if this is first session and push notifications are available but not enabled
-      const shouldShowPushPrompt = totalSessions === 1 && 
-        isSupported && 
-        !isSubscribed && 
-        !localStorage.getItem('pushPromptDismissed');
-      
-      const milestone = checkMilestoneHit(previousStreak, newStreak);
-      if (milestone) {
-        // Show milestone celebration instead of navigating away immediately
-        setSuccess(false);
-        setMilestoneToShow({ milestone, streak: newStreak });
-      } else if (shouldShowPushPrompt) {
-        // Show push notification prompt after first session
-        setSuccess(false);
-        setShowPushPrompt(true);
-      } else {
+      try {
+        if (fetchUser) await fetchUser();
+        
+        // Get updated streak
+        const updatedUserRes = await axios.get(`${API}/auth/me`);
+        const newStreak = updatedUserRes.data?.current_streak || 0;
+        const totalSessions = updatedUserRes.data?.total_sessions || 0;
+        
+        // Check if this is first session and push notifications are available but not enabled
+        const shouldShowPushPrompt = totalSessions === 1 && 
+          isSupported && 
+          !isSubscribed && 
+          !localStorage.getItem('pushPromptDismissed');
+        
+        const milestone = checkMilestoneHit(previousStreak, newStreak);
+        if (milestone) {
+          // Show milestone celebration instead of navigating away immediately
+          setSuccess(false);
+          setMilestoneToShow({ milestone, streak: newStreak });
+        } else if (shouldShowPushPrompt) {
+          // Show push notification prompt after first session
+          setSuccess(false);
+          setShowPushPrompt(true);
+        } else {
+          setTimeout(() => {
+            setSuccess(false);
+            navigate('/dashboard');
+          }, 1500);
+        }
+      } catch (refreshError) {
+        // Session was logged successfully, just couldn't refresh user data
+        console.warn('Could not refresh user data after session log:', refreshError);
         setTimeout(() => {
           setSuccess(false);
           navigate('/dashboard');
