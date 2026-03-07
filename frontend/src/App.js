@@ -30,6 +30,7 @@ import { CoachSignup } from './pages/CoachSignup';
 import { JoinTeam } from './pages/JoinTeam';
 import { CoachHome } from './pages/CoachHome';
 import { SchoolLeaderboardScreen } from './pages/SchoolLeaderboardScreen';
+import { JournalScreen } from './pages/JournalScreen';
 import { BottomNav } from './components/BottomNav';
 import { Toaster } from './components/ui/sonner';
 import axios from 'axios';
