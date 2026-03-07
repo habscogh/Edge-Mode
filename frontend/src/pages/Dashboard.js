@@ -117,21 +117,25 @@ export const Dashboard = () => {
       setQuickLogPillar(null);
       setQuickLogMinutes('30');
       
-      // Refresh data and user
-      await fetchAllData();
-      if (fetchUser) await fetchUser();
-      
-      // Check for streak milestone after user data is refreshed
-      // We need to get the updated streak from the response or refetch
-      const updatedUserRes = await axios.get(`${API}/auth/me`);
-      const newStreak = updatedUserRes.data?.current_streak || 0;
-      
-      const milestone = checkMilestoneHit(previousStreak, newStreak);
-      if (milestone) {
-        // Small delay to let other toasts clear
-        setTimeout(() => {
-          setMilestoneToShow({ milestone, streak: newStreak });
-        }, 1000);
+      // Refresh data and user - wrapped in try-catch so it doesn't show error if refresh fails
+      try {
+        await fetchAllData();
+        if (fetchUser) await fetchUser();
+        
+        // Check for streak milestone after user data is refreshed
+        const updatedUserRes = await axios.get(`${API}/auth/me`);
+        const newStreak = updatedUserRes.data?.current_streak || 0;
+        
+        const milestone = checkMilestoneHit(previousStreak, newStreak);
+        if (milestone) {
+          // Small delay to let other toasts clear
+          setTimeout(() => {
+            setMilestoneToShow({ milestone, streak: newStreak });
+          }, 1000);
+        }
+      } catch (refreshError) {
+        // Session was logged successfully, just couldn't refresh data
+        console.warn('Could not refresh data after quick log:', refreshError);
       }
     } catch (error) {
       console.error('Failed to quick log:', error);
