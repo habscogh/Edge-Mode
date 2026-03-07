@@ -122,9 +122,17 @@ async def set_user_school(
     """
     nces_id = school_data.get("nces_id")
     school_name = school_data.get("name")
+    city = school_data.get("city", "")
+    state = school_data.get("state", "")
     
     if not school_name:
         raise HTTPException(status_code=400, detail="School name is required")
+    
+    # Create display name with city/state for differentiation
+    if city and state and state != "US":
+        display_name = f"{school_name} ({city}, {state})"
+    else:
+        display_name = school_name
     
     # Save school to schools collection if not exists
     existing_school = await db.schools.find_one({"nces_id": nces_id})
@@ -132,22 +140,26 @@ async def set_user_school(
         await db.schools.insert_one({
             "nces_id": nces_id or f"custom_{school_name.lower().replace(' ', '_')}",
             "name": school_name,
-            "city": school_data.get("city", ""),
-            "state": school_data.get("state", ""),
+            "display_name": display_name,
+            "city": city,
+            "state": state,
             "grades": school_data.get("grades", "8-12"),
             "created_at": datetime.now(timezone.utc).isoformat()
         })
     
-    # Update user's school
+    # Update user's school with full display name
     await db.users.update_one(
         {"id": current_user["id"]},
         {"$set": {
             "school_id": nces_id or f"custom_{school_name.lower().replace(' ', '_')}",
-            "school_name": school_name
+            "school_name": display_name,
+            "school_base_name": school_name,
+            "school_city": city,
+            "school_state": state
         }}
     )
     
-    return {"message": "School updated successfully", "school_name": school_name}
+    return {"message": "School updated successfully", "school_name": display_name}
 
 
 @router.delete("/remove-school")
