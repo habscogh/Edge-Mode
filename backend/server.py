@@ -89,6 +89,7 @@ api_router.include_router(onboarding.router)
 api_router.include_router(push.router)  # Push notifications
 api_router.include_router(schools.router)  # School search and leaderboard
 api_router.include_router(ambassador.router)  # Founding Ambassador program
+api_router.include_router(reflections.router)  # Daily reflections & growth journal
 
 
 # Health check endpoints
