@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { MilestoneCelebration, checkMilestoneHit } from '../components/MilestoneCelebration';
 import { OfflineIndicator } from '../components/OfflineIndicator';
 import { PushNotificationPrompt } from '../components/PushNotificationPrompt';
+import { ReflectionModal } from '../components/ReflectionModal';
 import { useOfflineSync } from '../hooks/useOfflineSync';
 import { usePushNotifications } from '../hooks/usePushNotifications';
 
