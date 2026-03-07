@@ -28,17 +28,21 @@ export const ThemeProvider = ({ children }) => {
   });
 
   useEffect(() => {
-    // Update localStorage
-    localStorage.setItem('theme', theme);
-    
-    // Update document class
-    const root = document.documentElement;
-    if (theme === 'light') {
-      root.classList.remove('dark');
-      root.classList.add('light');
-    } else {
-      root.classList.remove('light');
-      root.classList.add('dark');
+    try {
+      // Update localStorage
+      localStorage.setItem('theme', theme);
+      
+      // Update document class
+      const root = document.documentElement;
+      if (theme === 'light') {
+        root.classList.remove('dark');
+        root.classList.add('light');
+      } else {
+        root.classList.remove('light');
+        root.classList.add('dark');
+      }
+    } catch (e) {
+      console.warn('Theme update failed:', e);
     }
   }, [theme]);
 
