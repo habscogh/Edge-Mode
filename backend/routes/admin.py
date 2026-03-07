@@ -142,3 +142,178 @@ async def get_recent_activity(admin_user: dict = Depends(require_admin)):
         'recent_signups': recent_signups,
         'recent_sessions': recent_sessions
     }
+
+
+
+@router.get("/ambassadors")
+async def get_ambassadors(admin_user: dict = Depends(require_admin)):
+    """Get list of all ambassadors"""
+    ambassadors = await db.users.find(
+        {'is_ambassador': True},
+        {'_id': 0, 'password_hash': 0}
+    ).sort('ambassador_since', -1).to_list(500)
+    
+    total = await db.users.count_documents({'is_ambassador': True})
+    
+    return {
+        'ambassadors': ambassadors,
+        'total': total
+    }
+
+
+@router.get("/subscribers")
+async def get_subscribers(admin_user: dict = Depends(require_admin)):
+    """Get list of all active subscribers (paid or valid trial)"""
+    now = datetime.now(timezone.utc)
+    
+    # Get paid subscribers
+    paid_subscribers = await db.users.find(
+        {'subscription_active': True},
+        {'_id': 0, 'password_hash': 0}
+    ).sort('subscription_start_date', -1).to_list(500)
+    
+    # Get users with active trial
+    trial_users = await db.users.find(
+        {
+            'subscription_active': {'$ne': True},
+            'trial_ends_at': {'$gte': now.isoformat()}
+        },
+        {'_id': 0, 'password_hash': 0}
+    ).sort('join_date', -1).to_list(500)
+    
+    return {
+        'paid_subscribers': paid_subscribers,
+        'paid_count': len(paid_subscribers),
+        'trial_users': trial_users,
+        'trial_count': len(trial_users),
+        'total': len(paid_subscribers) + len(trial_users)
+    }
+
+
+@router.post("/messages/ambassadors")
+async def send_ambassador_message(
+    request: GroupMessageRequest,
+    admin_user: dict = Depends(require_admin)
+):
+    """Send a message to all ambassadors"""
+    ambassadors = await db.users.find(
+        {'is_ambassador': True},
+        {'_id': 0, 'id': 1, 'email': 1, 'username': 1}
+    ).to_list(500)
+    
+    if not ambassadors:
+        return {'message': 'No ambassadors found', 'sent_to': 0}
+    
+    # Store message in database
+    message_doc = {
+        'type': 'ambassador_message',
+        'subject': request.subject,
+        'message': request.message,
+        'sent_by': admin_user['id'],
+        'sent_at': datetime.now(timezone.utc).isoformat(),
+        'recipient_count': len(ambassadors),
+        'recipients': [a['email'] for a in ambassadors]
+    }
+    await db.admin_messages.insert_one(message_doc)
+    
+    # Send emails if requested and resend is available
+    emails_sent = 0
+    if request.send_email and RESEND_AVAILABLE:
+        for ambassador in ambassadors:
+            try:
+                resend.Emails.send({
+                    "from": "Edge Mode <notifications@edgemodeapp.com>",
+                    "to": ambassador['email'],
+                    "subject": request.subject,
+                    "html": f"""
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                        <h2 style="color: #22c55e;">🌟 Ambassador Update</h2>
+                        <p>Hi {ambassador.get('username', 'Ambassador')},</p>
+                        <div style="background: #f4f4f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                            {request.message.replace(chr(10), '<br>')}
+                        </div>
+                        <p style="color: #666;">Thank you for being a Founding Ambassador!</p>
+                        <p style="color: #666;">- The Edge Mode Team</p>
+                    </div>
+                    """
+                })
+                emails_sent += 1
+            except Exception as e:
+                logger.error(f"Failed to send email to {ambassador['email']}: {e}")
+    
+    return {
+        'message': 'Message sent to ambassadors',
+        'sent_to': len(ambassadors),
+        'emails_sent': emails_sent if request.send_email else 'Email sending disabled',
+        'email_available': RESEND_AVAILABLE
+    }
+
+
+@router.post("/messages/subscribers")
+async def send_subscriber_message(
+    request: GroupMessageRequest,
+    admin_user: dict = Depends(require_admin)
+):
+    """Send a message to all active subscribers (paid only)"""
+    subscribers = await db.users.find(
+        {'subscription_active': True},
+        {'_id': 0, 'id': 1, 'email': 1, 'username': 1}
+    ).to_list(500)
+    
+    if not subscribers:
+        return {'message': 'No paid subscribers found', 'sent_to': 0}
+    
+    # Store message in database
+    message_doc = {
+        'type': 'subscriber_message',
+        'subject': request.subject,
+        'message': request.message,
+        'sent_by': admin_user['id'],
+        'sent_at': datetime.now(timezone.utc).isoformat(),
+        'recipient_count': len(subscribers),
+        'recipients': [s['email'] for s in subscribers]
+    }
+    await db.admin_messages.insert_one(message_doc)
+    
+    # Send emails if requested and resend is available
+    emails_sent = 0
+    if request.send_email and RESEND_AVAILABLE:
+        for subscriber in subscribers:
+            try:
+                resend.Emails.send({
+                    "from": "Edge Mode <notifications@edgemodeapp.com>",
+                    "to": subscriber['email'],
+                    "subject": request.subject,
+                    "html": f"""
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                        <h2 style="color: #22c55e;">⚡ Edge Mode Update</h2>
+                        <p>Hi {subscriber.get('username', 'there')},</p>
+                        <div style="background: #f4f4f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                            {request.message.replace(chr(10), '<br>')}
+                        </div>
+                        <p style="color: #666;">Keep pushing forward!</p>
+                        <p style="color: #666;">- The Edge Mode Team</p>
+                    </div>
+                    """
+                })
+                emails_sent += 1
+            except Exception as e:
+                logger.error(f"Failed to send email to {subscriber['email']}: {e}")
+    
+    return {
+        'message': 'Message sent to subscribers',
+        'sent_to': len(subscribers),
+        'emails_sent': emails_sent if request.send_email else 'Email sending disabled',
+        'email_available': RESEND_AVAILABLE
+    }
+
+
+@router.get("/messages/history")
+async def get_message_history(admin_user: dict = Depends(require_admin)):
+    """Get history of sent admin messages"""
+    messages = await db.admin_messages.find(
+        {},
+        {'_id': 0}
+    ).sort('sent_at', -1).limit(50).to_list(50)
+    
+    return {'messages': messages}
