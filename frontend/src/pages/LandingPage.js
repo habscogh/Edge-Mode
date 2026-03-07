@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
-import { Zap, CheckCircle2, Users, Flame, Trophy, Calendar, TrendingUp, Bell, Smartphone, Users2, Target, Shield } from 'lucide-react';
+import { Zap, CheckCircle2, Users, Flame, Trophy, Calendar, TrendingUp, Bell, Smartphone, Users2, Target, Shield, School, BookOpen } from 'lucide-react';
 
 export const LandingPage = () => {
   const navigate = useNavigate();
@@ -15,6 +15,8 @@ export const LandingPage = () => {
     { icon: Calendar, text: "30-day progress graphs & history" },
     { icon: Trophy, text: "12 achievement badges to unlock" },
     { icon: Users2, text: "Private groups with leaderboards" },
+    { icon: School, text: "High school leaderboards by city & state" },
+    { icon: BookOpen, text: "Daily reflection prompts & growth journal" },
     { icon: Zap, text: "Weekly & monthly challenges" },
     { icon: Bell, text: "Smart reminders & notifications" },
     { icon: Smartphone, text: "Add to home screen (PWA)" },
