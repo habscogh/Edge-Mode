@@ -35,6 +35,7 @@ export const AuthScreen = () => {
     try {
       if (isLogin) {
         const result = await login(email, password);
+        setLoading(false);
         // Redirect coaches to coach home
         if (result?.is_coach) {
           navigate('/coach-home');
@@ -48,10 +49,12 @@ export const AuthScreen = () => {
           return;
         }
         await register(email, username, password, age, referralCode || null);
+        setLoading(false);
         navigate('/onboarding');
       }
     } catch (err) {
-      setError(err.response?.data?.detail || 'Authentication failed');
+      console.error('Auth error:', err);
+      setError(err.response?.data?.detail || err.message || 'Authentication failed');
       setLoading(false);
     }
   };

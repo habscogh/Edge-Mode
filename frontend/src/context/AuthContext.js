@@ -84,7 +84,16 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('forge_token', newToken);
     setToken(newToken);
     axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
-    await fetchUser();
+    
+    // Fetch user but don't logout on failure - user is already registered
+    try {
+      await fetchUser();
+    } catch (error) {
+      console.warn('Failed to fetch user after registration, continuing anyway:', error);
+      // Set a minimal user object to prevent issues
+      setUser({ id: response.data.user_id, email });
+      setLoading(false);
+    }
   };
 
   const logout = () => {
