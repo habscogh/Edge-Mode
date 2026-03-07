@@ -23,10 +23,12 @@ export const ReflectionModal = ({ isOpen, onClose, sessionId, onComplete }) => {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && user && token) {
       fetchPrompt();
+    } else if (isOpen && !user) {
+      setPrompt("What did you learn today?");
     }
-  }, [isOpen]);
+  }, [isOpen, user, token]);
 
   const fetchPrompt = async () => {
     if (!user || !token) {
