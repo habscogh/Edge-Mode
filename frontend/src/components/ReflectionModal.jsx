@@ -15,6 +15,7 @@ const MOODS = [
 ];
 
 export const ReflectionModal = ({ isOpen, onClose, sessionId, onComplete }) => {
+  const { user, token } = useAuth();
   const [prompt, setPrompt] = useState('');
   const [response, setResponse] = useState('');
   const [mood, setMood] = useState(null);
