@@ -556,6 +556,19 @@ export const LogScreen = () => {
             }}
           />
         )}
+        
+        {/* Daily Reflection Modal */}
+        <ReflectionModal
+          isOpen={showReflectionModal}
+          onClose={() => {
+            setShowReflectionModal(false);
+            navigate('/dashboard');
+          }}
+          sessionId={lastSessionId}
+          onComplete={() => {
+            toast.success('Reflection saved! 📝');
+          }}
+        />
       </div>
     </div>
   );
