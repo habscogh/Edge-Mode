@@ -153,6 +153,12 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
   - Fixed error handling in AuthScreen.js, ForgotPassword.js, ResetPasswordScreen.js
   - Added Error Boundary in App.js to catch unhandled errors
   - Fixed AuthContext.js race condition on registration
+- [x] ✅ **Daily Reflections & Growth Journal (March 2026)** - New feature
+  - Backend: `/api/reflections/` endpoints for prompts, saving, and stats
+  - Frontend: ReflectionModal component shown after session log
+  - Frontend: JournalScreen page at `/journal` to view past reflections
+  - Added to Quick Actions FAB on dashboard
+  - Tracks reflection streaks and mood distribution
 
 ## Known Issues
 - MongoDB may need manual restart if it times out (mongod --dbpath /data/db --fork --logpath /var/log/mongodb.log)
