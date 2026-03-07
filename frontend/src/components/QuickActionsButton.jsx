@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, X, Zap, Calendar, Trophy, TrendingUp, Users, Swords } from 'lucide-react';
+import { Plus, X, Zap, Calendar, Trophy, TrendingUp, Users, Swords, BookOpen } from 'lucide-react';
 
 export const QuickActionsButton = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -8,6 +8,7 @@ export const QuickActionsButton = () => {
 
   const actions = [
     { icon: Zap, label: 'Log Session', path: '/log', color: 'bg-primary' },
+    { icon: BookOpen, label: 'Journal', path: '/journal', color: 'bg-indigo-500' },
     { icon: Swords, label: 'Challenges', path: '/challenges', color: 'bg-orange-500' },
     { icon: Calendar, label: 'History', path: '/history', color: 'bg-blue-500' },
     { icon: Trophy, label: 'Achievements', path: '/achievements', color: 'bg-yellow-500' },
