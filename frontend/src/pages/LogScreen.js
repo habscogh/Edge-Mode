@@ -106,6 +106,10 @@ export const LogScreen = () => {
       
       const response = await axios.post(`${API}/sessions/complete`, sessionData);
       
+      // Store session ID for reflection
+      const sessionId = response.data.session?.id;
+      setLastSessionId(sessionId);
+      
       // Check for newly earned badges and show toast notifications
       if (response.data.new_badges && response.data.new_badges.length > 0) {
         response.data.new_badges.forEach(badge => {
