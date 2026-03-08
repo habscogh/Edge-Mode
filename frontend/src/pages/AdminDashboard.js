@@ -483,6 +483,16 @@ export const AdminDashboard = () => {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
+                              handleExpireTrial(u.email, u.username);
+                            }}
+                            className="text-orange-400 hover:text-orange-300 hover:bg-orange-500/20 p-1 rounded"
+                            title="Expire trial (for testing)"
+                          >
+                            <Clock className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
                               handleDeleteUser(u.email, u.username);
                             }}
                             className="text-red-400 hover:text-red-300 hover:bg-red-500/20 p-1 rounded"
