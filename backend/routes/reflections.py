@@ -55,7 +55,7 @@ class ReflectionResponse(BaseModel):
 @router.get("/prompt")
 async def get_daily_prompt(current_user: dict = Depends(get_current_user)):
     """Get today's reflection prompt - consistent per day for each user"""
-    today = datetime.now(timezone.utc).date()
+    today = get_today_eastern()  # Eastern Time
     # Use user_id + date as seed for consistent daily prompt per user
     seed = hash(f"{current_user['id']}-{today.isoformat()}")
     random.seed(seed)
@@ -72,7 +72,7 @@ async def create_reflection(
 ):
     """Save a new reflection"""
     now = datetime.now(timezone.utc)
-    today = now.date().isoformat()
+    today = get_today_string()  # Eastern Time
     
     reflection_doc = {
         'id': str(uuid.uuid4()),
