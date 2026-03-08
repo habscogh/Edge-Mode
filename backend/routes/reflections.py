@@ -9,6 +9,7 @@ import random
 
 from config import db
 from utils.auth import get_current_user
+from utils.timezone import get_today_string, get_today_eastern
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/reflections", tags=["Reflections"])
