@@ -384,6 +384,119 @@ export const AdminDashboard = () => {
           </div>
         </div>
 
+        {/* Subscription Management */}
+        <div className="bg-zinc-950 border border-zinc-800 rounded-md p-6 mb-6">
+          <div 
+            className="flex items-center justify-between cursor-pointer"
+            onClick={() => setShowSubManager(!showSubManager)}
+          >
+            <h3 className="text-lg font-heading font-bold uppercase text-white flex items-center gap-2">
+              <CreditCard className="w-5 h-5 text-emerald-400" />
+              Subscription Management
+            </h3>
+            {showSubManager ? (
+              <ChevronUp className="w-5 h-5 text-zinc-400" />
+            ) : (
+              <ChevronDown className="w-5 h-5 text-zinc-400" />
+            )}
+          </div>
+          
+          {showSubManager && (
+            <div className="mt-4 space-y-4">
+              <p className="text-zinc-400 text-sm">
+                Manually activate subscriptions for users (when Stripe webhooks fail)
+              </p>
+              
+              {/* Search/Enter Email */}
+              <div className="space-y-2">
+                <label className="text-zinc-400 text-sm">User Email</label>
+                <div className="relative">
+                  <Input
+                    type="email"
+                    placeholder="Enter email address..."
+                    value={subEmail}
+                    onChange={(e) => {
+                      setSubEmail(e.target.value);
+                      handleSearchUsers(e.target.value);
+                    }}
+                    className="bg-zinc-800 border-zinc-700"
+                  />
+                  {searching && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      <Search className="w-4 h-4 text-zinc-500 animate-pulse" />
+                    </div>
+                  )}
+                </div>
+                
+                {/* Search Results Dropdown */}
+                {searchResults.length > 0 && (
+                  <div className="bg-zinc-800 border border-zinc-700 rounded-md max-h-40 overflow-y-auto">
+                    {searchResults.map((u, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => {
+                          setSubEmail(u.email);
+                          setSearchResults([]);
+                        }}
+                        className="px-3 py-2 hover:bg-zinc-700 cursor-pointer flex justify-between items-center"
+                      >
+                        <div>
+                          <span className="text-white text-sm">{u.username}</span>
+                          <span className="text-zinc-400 text-xs ml-2">{u.email}</span>
+                        </div>
+                        {u.subscription_active ? (
+                          <span className="text-xs text-green-400 flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3" /> Active
+                          </span>
+                        ) : (
+                          <span className="text-xs text-zinc-500">No sub</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              
+              {/* Plan Selection */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-zinc-400 text-sm block mb-1">Plan</label>
+                  <select
+                    value={subPlan}
+                    onChange={(e) => {
+                      setSubPlan(e.target.value);
+                      setSubDays(e.target.value === 'yearly' ? 365 : 30);
+                    }}
+                    className="w-full bg-zinc-800 border border-zinc-700 rounded-md px-3 py-2 text-white text-sm"
+                  >
+                    <option value="monthly">Monthly</option>
+                    <option value="yearly">Yearly</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-zinc-400 text-sm block mb-1">Duration (days)</label>
+                  <Input
+                    type="number"
+                    value={subDays}
+                    onChange={(e) => setSubDays(e.target.value)}
+                    className="bg-zinc-800 border-zinc-700"
+                  />
+                </div>
+              </div>
+              
+              {/* Activate Button */}
+              <Button
+                onClick={handleActivateSubscription}
+                disabled={activatingSub || !subEmail.trim()}
+                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white"
+              >
+                <CheckCircle className="w-4 h-4 mr-2" />
+                {activatingSub ? 'Activating...' : 'Activate Subscription'}
+              </Button>
+            </div>
+          )}
+        </div>
+
         {/* Ambassadors Section */}
         <div className="bg-zinc-950 border border-zinc-800 rounded-md p-6 mb-6">
           <div 
