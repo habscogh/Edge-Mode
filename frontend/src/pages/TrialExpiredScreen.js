@@ -65,12 +65,13 @@ export const TrialExpiredScreen = () => {
     try {
       const response = await axios.post(`${API}/payments/create-checkout`, {
         plan: plan,
-        success_url: `${window.location.origin}/subscription-success`,
-        cancel_url: `${window.location.origin}/trial-expired`
+        origin_url: window.location.origin
       });
       
-      if (response.data.checkout_url) {
-        window.location.href = response.data.checkout_url;
+      if (response.data.url) {
+        window.location.href = response.data.url;
+      } else {
+        throw new Error('No checkout URL received');
       }
     } catch (error) {
       console.error('Failed to create checkout:', error);
