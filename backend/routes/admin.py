@@ -485,3 +485,39 @@ async def delete_user(
         },
         "deleted_counts": deleted_counts
     }
+
+
+
+@router.post("/users/expire-trial")
+async def expire_user_trial(
+    email: str,
+    admin_user: dict = Depends(require_admin)
+):
+    """Set a user's trial to expired (for testing payment flow)"""
+    user = await db.users.find_one(
+        {"email": {"$regex": f"^{email}$", "$options": "i"}},
+        {"_id": 0, "id": 1, "email": 1, "username": 1}
+    )
+    
+    if not user:
+        raise HTTPException(status_code=404, detail=f"User not found: {email}")
+    
+    # Set trial to expired (yesterday)
+    expired_date = (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
+    
+    await db.users.update_one(
+        {"id": user["id"]},
+        {"$set": {
+            "trial_ends_at": expired_date,
+            "subscription_active": False,
+            "is_trial": True
+        }}
+    )
+    
+    logger.info(f"Admin {admin_user.get('email')} expired trial for {user.get('email')}")
+    
+    return {
+        "message": f"Trial expired for {user['email']}",
+        "user": user["username"],
+        "trial_ends_at": expired_date
+    }
