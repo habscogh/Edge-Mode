@@ -107,7 +107,10 @@ async def get_payment_status(session_id: str, current_user: dict = Depends(get_c
                 if user_id:
                     update_result = await db.users.update_one(
                         {'id': user_id},
-                        {'$set': {'subscription_active': True}}
+                        {'$set': {
+                            'subscription_active': True,
+                            'is_trial': False  # Important: no longer trial user
+                        }}
                     )
                     logger.info(f"Activated subscription for user {user_id} - matched: {update_result.matched_count}, modified: {update_result.modified_count}")
                     
