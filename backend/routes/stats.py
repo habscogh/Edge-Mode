@@ -68,7 +68,7 @@ async def get_daily_comparison(current_user: dict = Depends(get_current_user), l
     if local_date:
         today = date.fromisoformat(local_date)
     else:
-        today = datetime.now(timezone.utc).date()
+        today = get_today_eastern()  # Eastern Time
     yesterday = today - timedelta(days=1)
     
     today_sessions = await db.daily_sessions.find({
