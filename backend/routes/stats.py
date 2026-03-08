@@ -107,7 +107,7 @@ async def get_performance_history(current_user: dict = Depends(get_current_user)
     if local_date:
         end_date = date.fromisoformat(local_date)
     else:
-        end_date = datetime.now(timezone.utc).date()
+        end_date = get_today_eastern()  # Eastern Time
     start_date = end_date - timedelta(days=days-1)
     
     user_pillars = await db.user_pillars.find({'user_id': user_id}, {'_id': 0}).to_list(100)
