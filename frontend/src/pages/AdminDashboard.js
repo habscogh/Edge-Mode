@@ -443,27 +443,41 @@ export const AdminDashboard = () => {
                 
                 {/* Search Results Dropdown */}
                 {searchResults.length > 0 && (
-                  <div className="bg-zinc-800 border border-zinc-700 rounded-md max-h-40 overflow-y-auto">
+                  <div className="bg-zinc-800 border border-zinc-700 rounded-md max-h-48 overflow-y-auto">
                     {searchResults.map((u, idx) => (
                       <div
                         key={idx}
-                        onClick={() => {
-                          setSubEmail(u.email);
-                          setSearchResults([]);
-                        }}
-                        className="px-3 py-2 hover:bg-zinc-700 cursor-pointer flex justify-between items-center"
+                        className="px-3 py-2 hover:bg-zinc-700 flex justify-between items-center border-b border-zinc-700 last:border-0"
                       >
-                        <div>
+                        <div 
+                          className="flex-1 cursor-pointer"
+                          onClick={() => {
+                            setSubEmail(u.email);
+                            setSearchResults([]);
+                          }}
+                        >
                           <span className="text-white text-sm">{u.username}</span>
                           <span className="text-zinc-400 text-xs ml-2">{u.email}</span>
                         </div>
-                        {u.subscription_active ? (
-                          <span className="text-xs text-green-400 flex items-center gap-1">
-                            <CheckCircle className="w-3 h-3" /> Active
-                          </span>
-                        ) : (
-                          <span className="text-xs text-zinc-500">No sub</span>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {u.subscription_active ? (
+                            <span className="text-xs text-green-400 flex items-center gap-1">
+                              <CheckCircle className="w-3 h-3" /> Active
+                            </span>
+                          ) : (
+                            <span className="text-xs text-zinc-500">No sub</span>
+                          )}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteUser(u.email, u.username);
+                            }}
+                            className="text-red-400 hover:text-red-300 hover:bg-red-500/20 p-1 rounded"
+                            title="Delete user"
+                          >
+                            <XCircle className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
