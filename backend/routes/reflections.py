@@ -161,7 +161,7 @@ async def get_reflection_stats(current_user: dict = Depends(get_current_user)):
     mood_distribution = {item['_id']: item['count'] for item in mood_results}
     
     # Get reflections per week (last 4 weeks)
-    four_weeks_ago = (datetime.now(timezone.utc) - timedelta(weeks=4)).date().isoformat()
+    four_weeks_ago = (get_today_eastern() - timedelta(weeks=4)).isoformat()
     recent_reflections = await db.reflections.count_documents({
         'user_id': current_user['id'],
         'date': {'$gte': four_weeks_ago}
@@ -179,7 +179,7 @@ async def get_reflection_stats(current_user: dict = Depends(get_current_user)):
 @router.get("/today")
 async def get_today_reflection(current_user: dict = Depends(get_current_user)):
     """Check if user has reflected today"""
-    today = datetime.now(timezone.utc).date().isoformat()
+    today = get_today_string()  # Eastern Time
     
     reflection = await db.reflections.find_one(
         {'user_id': current_user['id'], 'date': today},
