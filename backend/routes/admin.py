@@ -27,6 +27,12 @@ class GroupMessageRequest(BaseModel):
     send_email: bool = True
 
 
+class SubscriptionActivateRequest(BaseModel):
+    email: str
+    plan: str = "yearly"  # "monthly" or "yearly"
+    duration_days: int = 365  # Default 1 year
+
+
 @router.get("/stats")
 async def get_admin_stats(admin_user: dict = Depends(require_admin)):
     """Get overall app statistics for admin dashboard"""
