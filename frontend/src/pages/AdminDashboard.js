@@ -191,6 +191,19 @@ export const AdminDashboard = () => {
     }
   };
 
+  const handleExpireTrial = async (email, username) => {
+    if (!confirm(`Expire trial for ${username} (${email})?\n\nThis will set their trial to expired so they see the payment screen.`)) return;
+    
+    try {
+      await axios.post(`${API}/admin/users/expire-trial?email=${encodeURIComponent(email)}`);
+      toast.success(`Trial expired for ${email}`);
+      setSearchResults([]);
+    } catch (err) {
+      console.error('Failed to expire trial:', err);
+      toast.error(err.response?.data?.detail || 'Failed to expire trial');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-[#09090b]">
