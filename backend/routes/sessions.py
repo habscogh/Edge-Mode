@@ -12,6 +12,7 @@ from models.schemas import SessionComplete, EditSession, DailySession
 from utils.auth import get_current_user
 from utils.streaks import update_streak
 from utils.badges import check_and_award_badges
+from utils.timezone import get_today_string, get_eastern_date_from_datetime
 
 router = APIRouter(prefix="/sessions", tags=["Sessions"])
 
