@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from typing import Optional, List
 import os
 
-from config import db, logger
+from config import db, logger, STRIPE_API_KEY
 from utils.auth import require_admin
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
