@@ -118,6 +118,67 @@ export const AdminDashboard = () => {
     }
   };
 
+  const handleSearchUsers = async (query) => {
+    if (query.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+    
+    setSearching(true);
+    try {
+      const res = await axios.get(`${API}/admin/users/search?q=${encodeURIComponent(query)}`);
+      setSearchResults(res.data.users || []);
+    } catch (err) {
+      console.error('Search failed:', err);
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const handleActivateSubscription = async () => {
+    if (!subEmail.trim()) {
+      toast.error('Please enter an email address');
+      return;
+    }
+    
+    setActivatingSub(true);
+    try {
+      const res = await axios.post(`${API}/admin/subscriptions/activate`, {
+        email: subEmail,
+        plan: subPlan,
+        duration_days: parseInt(subDays)
+      });
+      
+      toast.success(`Subscription activated for ${res.data.user.email}!`);
+      setSubEmail('');
+      setSearchResults([]);
+      // Refresh subscribers list
+      fetchSubscribers();
+    } catch (err) {
+      console.error('Failed to activate subscription:', err);
+      toast.error(err.response?.data?.detail || 'Failed to activate subscription');
+    } finally {
+      setActivatingSub(false);
+    }
+  };
+
+  const handleDeactivateSubscription = async (email) => {
+    if (!confirm(`Deactivate subscription for ${email}?`)) return;
+    
+    try {
+      await axios.post(`${API}/admin/subscriptions/deactivate?email=${encodeURIComponent(email)}`);
+      toast.success(`Subscription deactivated for ${email}`);
+      fetchSubscribers();
+    } catch (err) {
+      console.error('Failed to deactivate:', err);
+      toast.error('Failed to deactivate subscription');
+    }
+  };
+    } finally {
+      setSendingMessage(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-[#09090b]">
