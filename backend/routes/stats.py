@@ -8,6 +8,7 @@ from typing import Optional
 from config import db
 from models.schemas import WeeklyStats, DailyComparison, PerformanceHistory, WeeklyReview
 from utils.auth import get_current_user
+from utils.timezone import get_today_eastern
 
 router = APIRouter(prefix="/stats", tags=["Statistics"])
 
@@ -18,7 +19,7 @@ async def get_weekly_stats(current_user: dict = Depends(get_current_user), local
     if local_date:
         today = date.fromisoformat(local_date)
     else:
-        today = datetime.now(timezone.utc).date()
+        today = get_today_eastern()  # Eastern Time
     week_start = today - timedelta(days=today.weekday())
     
     sessions = await db.daily_sessions.find({
