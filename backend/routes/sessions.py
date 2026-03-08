@@ -155,7 +155,8 @@ async def delete_session(session_id: str, current_user: dict = Depends(get_curre
 
 @router.get("/history")
 async def get_session_history(current_user: dict = Depends(get_current_user), days: int = 30):
-    end_date = datetime.now(timezone.utc).date()
+    from utils.timezone import get_today_eastern
+    end_date = get_today_eastern()  # Eastern Time
     start_date = end_date - timedelta(days=days)
     
     sessions = await db.daily_sessions.find({
@@ -173,9 +174,9 @@ async def get_today_sessions(current_user: dict = Depends(get_current_user), loc
             datetime.strptime(local_date, '%Y-%m-%d')
             today = local_date
         except ValueError:
-            today = datetime.now(timezone.utc).date().isoformat()
+            today = get_today_string()  # Eastern Time
     else:
-        today = datetime.now(timezone.utc).date().isoformat()
+        today = get_today_string()  # Eastern Time
     
     sessions = await db.daily_sessions.find({
         'user_id': current_user['id'],
