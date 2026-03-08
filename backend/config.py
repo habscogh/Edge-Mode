@@ -33,6 +33,10 @@ SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'noreply@edgemodeapp.com')
 # Stripe Configuration - Live Mode
 STRIPE_API_KEY = os.environ.get('STRIPE_API_KEY', 'STRIPE_KEY_REMOVED')
 
+# DIAGNOSTIC: Log which Stripe key is being used (remove after debugging)
+_stripe_key_prefix = STRIPE_API_KEY[:20] if STRIPE_API_KEY else "NONE"
+print(f"🔑 STRIPE KEY DIAGNOSTIC: Key starts with '{_stripe_key_prefix}...' (test mode = sk_test_, live mode = sk_live_)")
+
 # Push Notification Configuration (VAPID)
 VAPID_PUBLIC_KEY = os.environ.get('VAPID_PUBLIC_KEY')
 VAPID_PRIVATE_KEY = os.environ.get('VAPID_PRIVATE_KEY')
