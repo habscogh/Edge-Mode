@@ -420,3 +420,68 @@ async def search_users(
     ).limit(20).to_list(20)
     
     return {"users": users, "count": len(users)}
+
+
+
+@router.delete("/users/{email}")
+async def delete_user(
+    email: str,
+    admin_user: dict = Depends(require_admin)
+):
+    """Delete a user and all their related data"""
+    # Find user by email (case-insensitive)
+    user = await db.users.find_one(
+        {"email": {"$regex": f"^{email}$", "$options": "i"}},
+        {"_id": 0, "id": 1, "email": 1, "username": 1}
+    )
+    
+    if not user:
+        raise HTTPException(status_code=404, detail=f"User not found with email: {email}")
+    
+    user_id = user["id"]
+    
+    # Delete all related data
+    deleted_counts = {}
+    
+    # Delete sessions
+    result = await db.daily_sessions.delete_many({"user_id": user_id})
+    deleted_counts["sessions"] = result.deleted_count
+    
+    # Delete reflections
+    result = await db.reflections.delete_many({"user_id": user_id})
+    deleted_counts["reflections"] = result.deleted_count
+    
+    # Delete pillars
+    result = await db.user_pillars.delete_many({"user_id": user_id})
+    deleted_counts["pillars"] = result.deleted_count
+    
+    # Delete badges
+    result = await db.user_badges.delete_many({"user_id": user_id})
+    deleted_counts["badges"] = result.deleted_count
+    
+    # Delete group memberships
+    result = await db.group_members.delete_many({"user_id": user_id})
+    deleted_counts["group_memberships"] = result.deleted_count
+    
+    # Delete payment transactions
+    result = await db.payment_transactions.delete_many({"user_id": user_id})
+    deleted_counts["payment_transactions"] = result.deleted_count
+    
+    # Delete notifications
+    result = await db.notifications.delete_many({"user_id": user_id})
+    deleted_counts["notifications"] = result.deleted_count
+    
+    # Finally delete the user
+    result = await db.users.delete_one({"id": user_id})
+    deleted_counts["user"] = result.deleted_count
+    
+    logger.info(f"Admin {admin_user.get('email')} deleted user {user.get('email')} ({user.get('username')})")
+    
+    return {
+        "message": "User deleted successfully",
+        "deleted_user": {
+            "email": user["email"],
+            "username": user.get("username")
+        },
+        "deleted_counts": deleted_counts
+    }
