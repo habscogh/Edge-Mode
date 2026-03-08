@@ -175,6 +175,22 @@ export const AdminDashboard = () => {
     }
   };
 
+  const handleDeleteUser = async (email, username) => {
+    if (!confirm(`⚠️ DELETE USER: ${username} (${email})?\n\nThis will permanently delete:\n- All sessions\n- All reflections\n- All badges\n- All data\n\nThis cannot be undone!`)) return;
+    
+    try {
+      const res = await axios.delete(`${API}/admin/users/${encodeURIComponent(email)}`);
+      toast.success(`User ${email} deleted successfully`);
+      setSearchResults([]);
+      setSubEmail('');
+      // Refresh data
+      fetchAdminData();
+    } catch (err) {
+      console.error('Failed to delete user:', err);
+      toast.error(err.response?.data?.detail || 'Failed to delete user');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-[#09090b]">
