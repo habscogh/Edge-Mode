@@ -33,6 +33,29 @@ class SubscriptionActivateRequest(BaseModel):
     duration_days: int = 365  # Default 1 year
 
 
+@router.get("/stripe-debug")
+async def get_stripe_debug(admin_user: dict = Depends(require_admin)):
+    """Debug endpoint to check which Stripe key is being used - ADMIN ONLY"""
+    stripe_secret_key = os.environ.get('STRIPE_SECRET_KEY', 'NOT_SET')
+    stripe_api_key = os.environ.get('STRIPE_API_KEY', 'NOT_SET')
+    
+    def mask_key(key):
+        if key == 'NOT_SET':
+            return key
+        return f"{key[:12]}...{key[-4:]}" if len(key) > 16 else "INVALID_KEY"
+    
+    is_live_mode = STRIPE_API_KEY.startswith('sk_live_') if STRIPE_API_KEY else False
+    
+    return {
+        "stripe_secret_key_env": mask_key(stripe_secret_key),
+        "stripe_api_key_env": mask_key(stripe_api_key),
+        "active_key_being_used": mask_key(STRIPE_API_KEY),
+        "is_live_mode": is_live_mode,
+        "key_type": "LIVE" if is_live_mode else "TEST",
+        "message": "✅ Ready for live payments" if is_live_mode else "⚠️ STILL IN TEST MODE - Check Customer Keys"
+    }
+
+
 @router.get("/stats")
 async def get_admin_stats(admin_user: dict = Depends(require_admin)):
     """Get overall app statistics for admin dashboard"""
