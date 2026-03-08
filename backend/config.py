@@ -30,8 +30,8 @@ JWT_ALGORITHM = 'HS256'
 RESEND_API_KEY = os.environ.get('RESEND_API_KEY')
 SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'noreply@edgemodeapp.com')
 
-# Stripe Configuration
-STRIPE_API_KEY = os.environ.get('STRIPE_API_KEY')
+# Stripe Configuration - Live Mode
+STRIPE_API_KEY = os.environ.get('STRIPE_API_KEY', 'STRIPE_KEY_REMOVED')
 
 # Push Notification Configuration (VAPID)
 VAPID_PUBLIC_KEY = os.environ.get('VAPID_PUBLIC_KEY')
