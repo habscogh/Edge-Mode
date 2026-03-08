@@ -348,6 +348,7 @@ async def activate_subscription(
         {"id": user["id"]},
         {"$set": {
             "subscription_active": True,
+            "is_trial": False,  # Important: mark as no longer trial
             "subscription_start_date": now.isoformat(),
             "subscription_end_date": subscription_end.isoformat(),
             "subscription_plan": request.plan,
