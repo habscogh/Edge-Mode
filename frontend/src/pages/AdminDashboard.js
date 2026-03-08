@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { 
   Users, Activity, CreditCard, Calendar, TrendingUp, 
   ArrowLeft, RefreshCw, UserPlus, Clock, Star, Mail, Send,
-  ChevronDown, ChevronUp
+  ChevronDown, ChevronUp, Search, CheckCircle, XCircle
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -32,6 +32,15 @@ export const AdminDashboard = () => {
   const [messageSubject, setMessageSubject] = useState('');
   const [messageBody, setMessageBody] = useState('');
   const [sendingMessage, setSendingMessage] = useState(false);
+  
+  // Subscription management state
+  const [showSubManager, setShowSubManager] = useState(false);
+  const [subEmail, setSubEmail] = useState('');
+  const [subPlan, setSubPlan] = useState('yearly');
+  const [subDays, setSubDays] = useState(365);
+  const [activatingSub, setActivatingSub] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
+  const [searching, setSearching] = useState(false);
 
   useEffect(() => {
     fetchAdminData();
