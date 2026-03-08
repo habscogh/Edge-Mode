@@ -31,11 +31,27 @@ RESEND_API_KEY = os.environ.get('RESEND_API_KEY')
 SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'noreply@edgemodeapp.com')
 
 # Stripe Configuration - Live Mode
-STRIPE_API_KEY = os.environ.get('STRIPE_API_KEY', 'STRIPE_KEY_REMOVED')
+# Try STRIPE_SECRET_KEY first (Emergent platform standard), then STRIPE_API_KEY
+_stripe_secret = os.environ.get('STRIPE_SECRET_KEY')
+_stripe_api = os.environ.get('STRIPE_API_KEY')
+
+# Prefer user's live key over any test keys
+if _stripe_secret and _stripe_secret.startswith('sk_live_'):
+    STRIPE_API_KEY = _stripe_secret
+elif _stripe_api and _stripe_api.startswith('sk_live_'):
+    STRIPE_API_KEY = _stripe_api
+elif _stripe_secret:
+    STRIPE_API_KEY = _stripe_secret
+elif _stripe_api:
+    STRIPE_API_KEY = _stripe_api
+else:
+    # Fallback to hardcoded live key
+    STRIPE_API_KEY = 'STRIPE_KEY_REMOVED'
 
 # DIAGNOSTIC: Log which Stripe key is being used (remove after debugging)
 _stripe_key_prefix = STRIPE_API_KEY[:20] if STRIPE_API_KEY else "NONE"
-print(f"🔑 STRIPE KEY DIAGNOSTIC: Key starts with '{_stripe_key_prefix}...' (test mode = sk_test_, live mode = sk_live_)")
+_key_source = "STRIPE_SECRET_KEY" if _stripe_secret else ("STRIPE_API_KEY" if _stripe_api else "HARDCODED")
+print(f"🔑 STRIPE KEY DIAGNOSTIC: Key starts with '{_stripe_key_prefix}...' from {_key_source} (test = sk_test_, live = sk_live_)")
 
 # Push Notification Configuration (VAPID)
 VAPID_PUBLIC_KEY = os.environ.get('VAPID_PUBLIC_KEY')
