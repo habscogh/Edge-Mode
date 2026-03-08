@@ -323,3 +323,99 @@ async def get_message_history(admin_user: dict = Depends(require_admin)):
     ).sort('sent_at', -1).limit(50).to_list(50)
     
     return {'messages': messages}
+
+
+
+@router.post("/subscriptions/activate")
+async def activate_subscription(
+    request: SubscriptionActivateRequest,
+    admin_user: dict = Depends(require_admin)
+):
+    """Manually activate a user's subscription (for failed webhooks, etc.)"""
+    # Find user by email (case-insensitive)
+    user = await db.users.find_one(
+        {"email": {"$regex": f"^{request.email}$", "$options": "i"}},
+        {"_id": 0, "id": 1, "email": 1, "username": 1, "subscription_active": 1}
+    )
+    
+    if not user:
+        raise HTTPException(status_code=404, detail=f"User not found with email: {request.email}")
+    
+    now = datetime.now(timezone.utc)
+    subscription_end = now + timedelta(days=request.duration_days)
+    
+    result = await db.users.update_one(
+        {"id": user["id"]},
+        {"$set": {
+            "subscription_active": True,
+            "subscription_start_date": now.isoformat(),
+            "subscription_end_date": subscription_end.isoformat(),
+            "subscription_plan": request.plan,
+            "subscription_activated_by": admin_user["id"],
+            "subscription_activated_at": now.isoformat()
+        }}
+    )
+    
+    logger.info(f"Admin {admin_user.get('email')} activated subscription for {user.get('email')} until {subscription_end.isoformat()}")
+    
+    return {
+        "message": "Subscription activated successfully",
+        "user": {
+            "email": user["email"],
+            "username": user.get("username")
+        },
+        "subscription": {
+            "plan": request.plan,
+            "start_date": now.isoformat(),
+            "end_date": subscription_end.isoformat(),
+            "duration_days": request.duration_days
+        }
+    }
+
+
+@router.post("/subscriptions/deactivate")
+async def deactivate_subscription(
+    email: str,
+    admin_user: dict = Depends(require_admin)
+):
+    """Deactivate a user's subscription"""
+    user = await db.users.find_one(
+        {"email": {"$regex": f"^{email}$", "$options": "i"}},
+        {"_id": 0, "id": 1, "email": 1}
+    )
+    
+    if not user:
+        raise HTTPException(status_code=404, detail=f"User not found with email: {email}")
+    
+    await db.users.update_one(
+        {"id": user["id"]},
+        {"$set": {
+            "subscription_active": False,
+            "subscription_deactivated_by": admin_user["id"],
+            "subscription_deactivated_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    return {"message": "Subscription deactivated", "email": user["email"]}
+
+
+@router.get("/users/search")
+async def search_users(
+    q: str,
+    admin_user: dict = Depends(require_admin)
+):
+    """Search users by email or username"""
+    if len(q) < 2:
+        raise HTTPException(status_code=400, detail="Search query must be at least 2 characters")
+    
+    users = await db.users.find(
+        {
+            "$or": [
+                {"email": {"$regex": q, "$options": "i"}},
+                {"username": {"$regex": q, "$options": "i"}}
+            ]
+        },
+        {"_id": 0, "password_hash": 0}
+    ).limit(20).to_list(20)
+    
+    return {"users": users, "count": len(users)}
