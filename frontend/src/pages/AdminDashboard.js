@@ -172,9 +172,6 @@ export const AdminDashboard = () => {
     } catch (err) {
       console.error('Failed to deactivate:', err);
       toast.error('Failed to deactivate subscription');
-    } catch (err) {
-      console.error('Failed to deactivate:', err);
-      toast.error('Failed to deactivate subscription');
     }
   };
 
