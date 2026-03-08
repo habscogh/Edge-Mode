@@ -155,7 +155,10 @@ async def stripe_webhook(request: Request):
             if user_id:
                 await db.users.update_one(
                     {'id': user_id},
-                    {'$set': {'subscription_active': True}}
+                    {'$set': {
+                        'subscription_active': True,
+                        'is_trial': False  # Important: no longer trial user
+                    }}
                 )
         
         return {'status': 'success'}
