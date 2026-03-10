@@ -98,6 +98,30 @@ async def health_check():
     """Health check endpoint for deployment"""
     try:
         await asyncio.wait_for(client.admin.command('ping'), timeout=5.0)
+
+
+# TEMPORARY: Public Stripe debug endpoint (remove after fixing)
+@api_router.get("/stripe-check")
+async def stripe_check():
+    """Temporary public endpoint to check Stripe key status"""
+    import os
+    stripe_secret = os.environ.get('STRIPE_SECRET_KEY', 'NOT_SET')
+    stripe_api = os.environ.get('STRIPE_API_KEY', 'NOT_SET')
+    
+    def mask_key(key):
+        if key == 'NOT_SET' or not key:
+            return 'NOT_SET'
+        return f"{key[:15]}...{key[-4:]}" if len(key) > 20 else "SHORT_KEY"
+    
+    is_live = STRIPE_API_KEY.startswith('sk_live_') if STRIPE_API_KEY else False
+    
+    return {
+        "env_STRIPE_SECRET_KEY": mask_key(stripe_secret),
+        "env_STRIPE_API_KEY": mask_key(stripe_api),
+        "active_key_in_use": mask_key(STRIPE_API_KEY),
+        "mode": "LIVE" if is_live else "TEST",
+        "status": "✅ Ready for payments" if is_live else "⚠️ TEST MODE - Keys not loaded correctly"
+    }
         return {"status": "healthy", "database": "connected", "scheduler": scheduler.running}
     except asyncio.TimeoutError:
         logger.warning("Health check: Database ping timed out")
