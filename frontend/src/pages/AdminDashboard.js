@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { 
   Users, Activity, CreditCard, Calendar, TrendingUp, 
   ArrowLeft, RefreshCw, UserPlus, Clock, Star, Mail, Send,
-  ChevronDown, ChevronUp, Search, CheckCircle, XCircle, Trash2
+  ChevronDown, ChevronUp, Search, CheckCircle, XCircle, Trash2, Zap
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
