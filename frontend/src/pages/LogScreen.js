@@ -58,8 +58,8 @@ export const LogScreen = () => {
 
   const fetchTodaySessions = async () => {
     try {
-      // Send client's local date to get accurate "today" sessions
-      const localDate = new Date().toISOString().split('T')[0];
+      // Send client's local date to get accurate "today" sessions (not UTC!)
+      const localDate = getLocalDateString();
       const response = await axios.get(`${API}/sessions/today?local_date=${localDate}`);
       setTodaySessions(response.data);
     } catch (error) {
@@ -73,8 +73,8 @@ export const LogScreen = () => {
     // Store previous streak to check for milestones
     const previousStreak = user?.current_streak || 0;
     
-    // Get client's local date
-    const localDate = new Date().toISOString().split('T')[0];
+    // Get client's local date (not UTC!)
+    const localDate = getLocalDateString();
     
     // Prepare session data
     const sessionData = {
