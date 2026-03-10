@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { X, Clock, Flame, TrendingUp, CreditCard } from 'lucide-react';
 import { Button } from './ui/button';
 import axios from 'axios';
+import { getLocalDateString } from '../utils/dateUtils';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -30,7 +31,7 @@ export const TrialEndingBanner = ({ onSubscribe }) => {
 
   const fetchStats = async () => {
     try {
-      const localDate = new Date().toISOString().split('T')[0];
+      const localDate = getLocalDateString();
       const response = await axios.get(`${API}/stats/weekly?local_date=${localDate}`);
       setStats(response.data);
     } catch (error) {
