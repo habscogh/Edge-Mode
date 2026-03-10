@@ -302,43 +302,83 @@ async def get_school_leaderboard():
 @router.get("/my-school-stats")
 async def get_my_school_stats(current_user: dict = Depends(get_current_user)):
     """Get stats for the current user's school"""
+    from utils.timezone import get_eastern_date
+    from datetime import timedelta
+    
     school_id = current_user.get("school_id")
     school_name = current_user.get("school_name")
     
     if not school_id:
         return {"has_school": False}
     
-    # Get school stats
-    pipeline = [
-        {"$match": {"school_id": school_id}},
-        {"$group": {
-            "_id": "$school_id",
-            "total_users": {"$sum": 1},
-            "avg_consistency": {"$avg": "$weekly_consistency"},
-            "avg_performance": {"$avg": "$performance_index"},
-            "total_sessions": {"$sum": "$total_sessions_completed"},
-            "avg_streak": {"$avg": "$current_streak"}
-        }}
-    ]
+    today = get_eastern_date()
+    week_start = today - timedelta(days=today.weekday())
     
-    result = await db.users.aggregate(pipeline).to_list(1)
+    # Get all users at this school
+    school_users = await db.users.find(
+        {"school_id": school_id},
+        {"_id": 0, "id": 1, "pillars": 1, "weekly_targets": 1, "current_streak": 1}
+    ).to_list(1000)
     
-    if not result:
+    if not school_users:
         return {
             "has_school": True,
             "school_name": school_name,
             "total_users": 1,
-            "avg_consistency": current_user.get("weekly_consistency", 0),
-            "avg_performance": current_user.get("performance_index", 0)
+            "avg_consistency": 0,
+            "avg_performance": 0
         }
     
-    stats = result[0]
+    total_consistency = 0
+    total_performance = 0
+    total_sessions = 0
+    total_streak = 0
+    
+    for user in school_users:
+        user_id = user["id"]
+        
+        # Get this week's sessions
+        sessions = await db.daily_sessions.find({
+            "user_id": user_id,
+            "date": {"$gte": week_start.isoformat()}
+        }, {"_id": 0, "date": 1, "pillar": 1}).to_list(100)
+        
+        total_sessions += len(sessions)
+        total_streak += user.get("current_streak", 0)
+        
+        # Calculate consistency
+        unique_days = len(set(s["date"] for s in sessions))
+        days_in_week = min((today - week_start).days + 1, 7)
+        consistency_pct = (unique_days / days_in_week * 100) if days_in_week > 0 else 0
+        
+        # Calculate target completion
+        weekly_targets = user.get("weekly_targets", {})
+        pillars = user.get("pillars", [])
+        target_completion = 0
+        
+        if pillars and weekly_targets:
+            pillar_session_counts = {}
+            for s in sessions:
+                pillar = s.get("pillar")
+                pillar_session_counts[pillar] = pillar_session_counts.get(pillar, 0) + 1
+            
+            total_target = sum(weekly_targets.get(p, 3) for p in pillars)
+            total_completed = sum(pillar_session_counts.get(p, 0) for p in pillars)
+            target_completion = min((total_completed / total_target * 100) if total_target > 0 else 0, 100)
+        
+        performance_index = min((consistency_pct * 0.7) + (target_completion * 0.3), 100)
+        
+        total_consistency += consistency_pct
+        total_performance += performance_index
+    
+    user_count = len(school_users)
+    
     return {
         "has_school": True,
         "school_name": school_name,
-        "total_users": stats.get("total_users", 0),
-        "avg_consistency": round(stats.get("avg_consistency", 0) or 0, 1),
-        "avg_performance": round(stats.get("avg_performance", 0) or 0, 1),
-        "total_sessions": stats.get("total_sessions", 0),
-        "avg_streak": round(stats.get("avg_streak", 0) or 0, 1)
+        "total_users": user_count,
+        "avg_consistency": round(total_consistency / user_count, 1) if user_count > 0 else 0,
+        "avg_performance": round(total_performance / user_count, 1) if user_count > 0 else 0,
+        "total_sessions": total_sessions,
+        "avg_streak": round(total_streak / user_count, 1) if user_count > 0 else 0
     }
