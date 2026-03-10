@@ -17,6 +17,7 @@ import { QuickActionsButton } from '../components/QuickActionsButton';
 import { ShareStreakModal } from '../components/ShareStreakCard';
 import { useOfflineSync } from '../hooks/useOfflineSync';
 import { toast } from 'sonner';
+import { getLocalDateString } from '../utils/dateUtils';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
