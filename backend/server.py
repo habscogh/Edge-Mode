@@ -98,6 +98,13 @@ async def health_check():
     """Health check endpoint for deployment"""
     try:
         await asyncio.wait_for(client.admin.command('ping'), timeout=5.0)
+        return {"status": "healthy", "database": "connected", "scheduler": scheduler.running}
+    except asyncio.TimeoutError:
+        logger.warning("Health check: Database ping timed out")
+        return {"status": "degraded", "database": "timeout", "scheduler": scheduler.running}
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
+        return {"status": "unhealthy", "database": "disconnected", "error": str(e)}
 
 
 # TEMPORARY: Public Stripe debug endpoint (remove after fixing)
@@ -122,13 +129,6 @@ async def stripe_check():
         "mode": "LIVE" if is_live else "TEST",
         "status": "✅ Ready for payments" if is_live else "⚠️ TEST MODE - Keys not loaded correctly"
     }
-        return {"status": "healthy", "database": "connected", "scheduler": scheduler.running}
-    except asyncio.TimeoutError:
-        logger.warning("Health check: Database ping timed out")
-        return {"status": "degraded", "database": "timeout", "scheduler": scheduler.running}
-    except Exception as e:
-        logger.error(f"Health check failed: {e}")
-        return {"status": "unhealthy", "database": "disconnected", "error": str(e)}
 
 
 @api_router.get("/scheduler/status")
