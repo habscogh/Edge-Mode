@@ -10,7 +10,7 @@ import asyncio
 import os
 
 # Import configuration and database
-from config import db, client, logger, RESEND_API_KEY
+from config import db, client, logger, RESEND_API_KEY, STRIPE_API_KEY
 import resend
 
 # Import all route modules
