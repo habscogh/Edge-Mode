@@ -302,7 +302,7 @@ async def get_school_leaderboard():
 @router.get("/my-school-stats")
 async def get_my_school_stats(current_user: dict = Depends(get_current_user)):
     """Get stats for the current user's school"""
-    from utils.timezone import get_eastern_date
+    from utils.timezone import get_today_eastern
     from datetime import timedelta
     
     school_id = current_user.get("school_id")
@@ -311,7 +311,7 @@ async def get_my_school_stats(current_user: dict = Depends(get_current_user)):
     if not school_id:
         return {"has_school": False}
     
-    today = get_eastern_date()
+    today = get_today_eastern()
     week_start = today - timedelta(days=today.weekday())
     
     # Get all users at this school
