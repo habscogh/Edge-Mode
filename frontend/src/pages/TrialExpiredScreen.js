@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Clock, TrendingUp, Flame, Target, CreditCard, CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
+import { getLocalDateString } from '../utils/dateUtils';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -23,7 +24,7 @@ export const TrialExpiredScreen = () => {
   const fetchTrialStats = async () => {
     try {
       // Get user's accomplishments during trial
-      const localDate = new Date().toISOString().split('T')[0];
+      const localDate = getLocalDateString();
       const [sessionsRes, statsRes, pillarsRes] = await Promise.all([
         axios.get(`${API}/sessions/history?days=30`).catch(() => ({ data: [] })),
         axios.get(`${API}/stats/weekly?local_date=${localDate}`).catch(() => ({ data: {} })),
