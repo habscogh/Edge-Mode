@@ -6,6 +6,7 @@ import { format, parseISO } from 'date-fns';
 import { ConsistencyRatingBadge, ConsistencyRatingScale } from '../components/ConsistencyRating';
 import { PerformanceRatingBadge, PerformanceRatingScale } from '../components/PerformanceRating';
 import { ShareButton } from '../components/ShareButton';
+import { getLocalDateString } from '../utils/dateUtils';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -21,7 +22,7 @@ export const WeeklyReviewScreen = () => {
 
   const fetchReview = async () => {
     try {
-      const localDate = new Date().toISOString().split('T')[0];
+      const localDate = getLocalDateString();
       const response = await axios.get(`${API}/stats/weekly-review?local_date=${localDate}`);
       setReview(response.data);
     } catch (error) {
