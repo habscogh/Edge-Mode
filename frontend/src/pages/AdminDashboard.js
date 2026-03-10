@@ -563,6 +563,27 @@ export const AdminDashboard = () => {
           )}
         </div>
 
+        {/* System Maintenance */}
+        <div className="bg-zinc-950 border border-zinc-800 rounded-md p-6 mb-6">
+          <h3 className="text-lg font-heading font-bold uppercase text-white flex items-center gap-2 mb-4">
+            <Zap className="w-5 h-5 text-orange-400" />
+            System Maintenance
+          </h3>
+          <div className="space-y-3">
+            <Button
+              onClick={handleCleanDuplicateChallenges}
+              disabled={cleaningDuplicates}
+              className="w-full bg-orange-500/20 text-orange-400 hover:bg-orange-500/30"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              {cleaningDuplicates ? 'Cleaning...' : 'Clean Duplicate Challenges'}
+            </Button>
+            <p className="text-zinc-500 text-xs">
+              Removes duplicate weekly/monthly challenges, keeping only one of each type per period.
+            </p>
+          </div>
+        </div>
+
         {/* Ambassadors Section */}
         <div className="bg-zinc-950 border border-zinc-800 rounded-md p-6 mb-6">
           <div 
