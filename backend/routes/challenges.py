@@ -65,43 +65,51 @@ async def create_automated_challenges():
         week_start = today
         week_end = today + timedelta(days=6)
         
-        for pillar in PILLARS[:3]:
-            challenge_id = str(uuid.uuid4())
-            pillar_short = pillar.split('/')[0]
-            await db.challenges.insert_one({
-                'id': challenge_id,
-                'name': f'Weekly {pillar_short} Champion',
-                'description': f'Log the most {pillar_short.lower()} sessions this week!',
-                'challenge_type': 'weekly',
-                'metric_type': 'pillar_sessions',
-                'pillar': pillar,
-                'start_date': week_start.isoformat(),
-                'end_date': week_end.isoformat(),
-                'status': 'active',
-                'created_at': now.isoformat(),
-                'created_by': 'system',
-                'participant_count': 0
-            })
+        # Check if weekly challenges already exist for this week
+        existing_weekly = await db.challenges.find_one({
+            'challenge_type': 'weekly',
+            'start_date': week_start.isoformat()
+        })
         
-        general_challenges = [
-            {'name': 'Most Consistent', 'description': 'Achieve the highest consistency % this week', 'metric': 'consistency'},
-            {'name': 'Time Warrior', 'description': 'Log the most total minutes this week', 'metric': 'total_minutes'},
-        ]
-        for gc in general_challenges:
-            await db.challenges.insert_one({
-                'id': str(uuid.uuid4()),
-                'name': f'Weekly {gc["name"]}',
-                'description': gc['description'],
-                'challenge_type': 'weekly',
-                'metric_type': gc['metric'],
-                'pillar': None,
-                'start_date': week_start.isoformat(),
-                'end_date': week_end.isoformat(),
-                'status': 'active',
-                'created_at': now.isoformat(),
-                'created_by': 'system',
-                'participant_count': 0
-            })
+        if not existing_weekly:
+            for pillar in PILLARS[:3]:
+                challenge_id = str(uuid.uuid4())
+                pillar_short = pillar.split('/')[0]
+                await db.challenges.insert_one({
+                    'id': challenge_id,
+                    'name': f'Weekly {pillar_short} Champion',
+                    'description': f'Log the most {pillar_short.lower()} sessions this week!',
+                    'challenge_type': 'weekly',
+                    'metric_type': 'pillar_sessions',
+                    'pillar': pillar,
+                    'start_date': week_start.isoformat(),
+                    'end_date': week_end.isoformat(),
+                    'status': 'active',
+                    'created_at': now.isoformat(),
+                    'created_by': 'system',
+                    'participant_count': 0
+                })
+            
+            general_challenges = [
+                {'name': 'Most Consistent', 'description': 'Achieve the highest consistency % this week', 'metric': 'consistency'},
+                {'name': 'Time Warrior', 'description': 'Log the most total minutes this week', 'metric': 'total_minutes'},
+            ]
+            for gc in general_challenges:
+                await db.challenges.insert_one({
+                    'id': str(uuid.uuid4()),
+                    'name': f'Weekly {gc["name"]}',
+                    'description': gc['description'],
+                    'challenge_type': 'weekly',
+                    'metric_type': gc['metric'],
+                    'pillar': None,
+                    'start_date': week_start.isoformat(),
+                    'end_date': week_end.isoformat(),
+                    'status': 'active',
+                    'created_at': now.isoformat(),
+                    'created_by': 'system',
+                    'participant_count': 0
+                })
+            logger.info(f"Created weekly challenges for week starting {week_start}")
     
     if today.day == 1:
         month_start = today
@@ -110,26 +118,34 @@ async def create_automated_challenges():
         else:
             month_end = date(today.year, today.month + 1, 1) - timedelta(days=1)
         
-        monthly_challenges = [
-            {'name': 'Monthly Sessions King', 'description': 'Log the most sessions this month', 'metric': 'total_sessions'},
-            {'name': 'Monthly Time Champion', 'description': 'Accumulate the most training minutes this month', 'metric': 'total_minutes'},
-            {'name': 'Consistency Master', 'description': 'Achieve the highest consistency % this month', 'metric': 'consistency'},
-        ]
-        for mc in monthly_challenges:
-            await db.challenges.insert_one({
-                'id': str(uuid.uuid4()),
-                'name': mc['name'],
-                'description': mc['description'],
-                'challenge_type': 'monthly',
-                'metric_type': mc['metric'],
-                'pillar': None,
-                'start_date': month_start.isoformat(),
-                'end_date': month_end.isoformat(),
-                'status': 'active',
-                'created_at': now.isoformat(),
-                'created_by': 'system',
-                'participant_count': 0
-            })
+        # Check if monthly challenges already exist for this month
+        existing_monthly = await db.challenges.find_one({
+            'challenge_type': 'monthly',
+            'start_date': month_start.isoformat()
+        })
+        
+        if not existing_monthly:
+            monthly_challenges = [
+                {'name': 'Monthly Sessions King', 'description': 'Log the most sessions this month', 'metric': 'total_sessions'},
+                {'name': 'Monthly Time Champion', 'description': 'Accumulate the most training minutes this month', 'metric': 'total_minutes'},
+                {'name': 'Consistency Master', 'description': 'Achieve the highest consistency % this month', 'metric': 'consistency'},
+            ]
+            for mc in monthly_challenges:
+                await db.challenges.insert_one({
+                    'id': str(uuid.uuid4()),
+                    'name': mc['name'],
+                    'description': mc['description'],
+                    'challenge_type': 'monthly',
+                    'metric_type': mc['metric'],
+                    'pillar': None,
+                    'start_date': month_start.isoformat(),
+                    'end_date': month_end.isoformat(),
+                    'status': 'active',
+                    'created_at': now.isoformat(),
+                    'created_by': 'system',
+                    'participant_count': 0
+                })
+            logger.info(f"Created monthly challenges for month starting {month_start}")
 
 
 async def finalize_completed_challenges():
