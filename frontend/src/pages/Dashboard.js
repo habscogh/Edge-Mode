@@ -66,8 +66,8 @@ export const Dashboard = () => {
     // Store previous streak to check for milestones
     const previousStreak = user?.current_streak || 0;
     
-    // Get client's local date
-    const localDate = new Date().toISOString().split('T')[0];
+    // Get client's local date (not UTC!)
+    const localDate = getLocalDateString();
     
     setQuickLogLoading(true);
     
