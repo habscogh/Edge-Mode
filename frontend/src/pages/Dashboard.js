@@ -42,8 +42,8 @@ export const Dashboard = () => {
 
   const fetchAllData = async () => {
     try {
-      // Get client's local date for consistent stats
-      const localDate = new Date().toISOString().split('T')[0];
+      // Get client's local date for consistent stats (not UTC!)
+      const localDate = getLocalDateString();
       
       const [statsRes, comparisonRes, historyRes] = await Promise.all([
         axios.get(`${API}/stats/weekly?local_date=${localDate}`),
