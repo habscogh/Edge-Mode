@@ -544,3 +544,43 @@ async def expire_user_trial(
         "user": user["username"],
         "trial_ends_at": expired_date
     }
+
+
+
+@router.post("/challenges/cleanup-duplicates")
+async def cleanup_duplicate_challenges(admin_user: dict = Depends(require_admin)):
+    """Remove duplicate challenges, keeping only one of each type per period"""
+    
+    # Get all challenges grouped by name and start_date
+    pipeline = [
+        {
+            "$group": {
+                "_id": {"name": "$name", "start_date": "$start_date"},
+                "ids": {"$push": "$id"},
+                "count": {"$sum": 1}
+            }
+        },
+        {
+            "$match": {"count": {"$gt": 1}}
+        }
+    ]
+    
+    duplicates = await db.challenges.aggregate(pipeline).to_list(100)
+    
+    deleted_count = 0
+    for dup in duplicates:
+        # Keep the first one, delete the rest
+        ids_to_delete = dup["ids"][1:]  # Skip first ID
+        for challenge_id in ids_to_delete:
+            # Delete participants for this challenge
+            await db.challenge_participants.delete_many({"challenge_id": challenge_id})
+            # Delete the challenge
+            await db.challenges.delete_one({"id": challenge_id})
+            deleted_count += 1
+    
+    logger.info(f"Admin {admin_user.get('email')} cleaned up {deleted_count} duplicate challenges")
+    
+    return {
+        "message": f"Removed {deleted_count} duplicate challenges",
+        "duplicates_found": len(duplicates)
+    }
