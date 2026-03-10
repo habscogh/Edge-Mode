@@ -41,6 +41,7 @@ export const AdminDashboard = () => {
   const [activatingSub, setActivatingSub] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [searching, setSearching] = useState(false);
+  const [cleaningDuplicates, setCleaningDuplicates] = useState(false);
 
   useEffect(() => {
     fetchAdminData();
