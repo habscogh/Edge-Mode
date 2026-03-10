@@ -12,6 +12,7 @@ import { PushNotificationPrompt } from '../components/PushNotificationPrompt';
 import { ReflectionModal } from '../components/ReflectionModal';
 import { useOfflineSync } from '../hooks/useOfflineSync';
 import { usePushNotifications } from '../hooks/usePushNotifications';
+import { getLocalDateString } from '../utils/dateUtils';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
