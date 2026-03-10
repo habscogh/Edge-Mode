@@ -11,7 +11,7 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 - **Frontend:** React, Tailwind CSS, Shadcn UI
 - **Database:** MongoDB Atlas
 - **Auth:** JWT tokens
-- **Payments:** Stripe (TEST mode)
+- **Payments:** Stripe (LIVE mode) ✅
 - **Email:** Resend
 - **Push Notifications:** Web Push API with VAPID
 - **PWA:** Service Worker, manifest.json, IndexedDB
