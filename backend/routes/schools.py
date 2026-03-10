@@ -180,84 +180,123 @@ async def get_school_leaderboard():
     - Top schools by average performance  
     - Schools with most users
     """
+    from utils.timezone import get_eastern_date
+    from datetime import timedelta
+    
+    today = get_eastern_date()
+    week_start = today - timedelta(days=today.weekday())  # Monday of current week
     
     # Get all users with schools
-    pipeline_consistency = [
-        {"$match": {"school_id": {"$exists": True, "$ne": None}}},
-        {"$group": {
-            "_id": "$school_name",
-            "school_id": {"$first": "$school_id"},
-            "avg_consistency": {"$avg": "$weekly_consistency"},
-            "user_count": {"$sum": 1}
-        }},
-        {"$match": {"user_count": {"$gte": 1}}},  # At least 1 user (can increase later)
-        {"$sort": {"avg_consistency": -1}},
-        {"$limit": 10}
-    ]
+    users_with_schools = await db.users.find(
+        {"school_id": {"$exists": True, "$ne": None}},
+        {"_id": 0, "id": 1, "school_name": 1, "school_id": 1, "pillars": 1, "weekly_targets": 1}
+    ).to_list(1000)
     
-    pipeline_performance = [
-        {"$match": {"school_id": {"$exists": True, "$ne": None}}},
-        {"$group": {
-            "_id": "$school_name",
-            "school_id": {"$first": "$school_id"},
-            "avg_performance": {"$avg": "$performance_index"},
-            "user_count": {"$sum": 1}
-        }},
-        {"$match": {"user_count": {"$gte": 1}}},
-        {"$sort": {"avg_performance": -1}},
-        {"$limit": 10}
-    ]
-    
-    pipeline_most_users = [
-        {"$match": {"school_id": {"$exists": True, "$ne": None}}},
-        {"$group": {
-            "_id": "$school_name",
-            "school_id": {"$first": "$school_id"},
-            "user_count": {"$sum": 1}
-        }},
-        {"$sort": {"user_count": -1}},
-        {"$limit": 10}
-    ]
-    
-    try:
-        top_consistency = await db.users.aggregate(pipeline_consistency).to_list(10)
-        top_performance = await db.users.aggregate(pipeline_performance).to_list(10)
-        most_users = await db.users.aggregate(pipeline_most_users).to_list(10)
-        
-        # Format results
-        def format_result(item, rank, metric_name, metric_key):
-            return {
-                "rank": rank,
-                "school_name": item["_id"],
-                "school_id": item.get("school_id"),
-                metric_name: round(item.get(metric_key, 0) or 0, 1),
-                "user_count": item.get("user_count", 0)
-            }
-        
-        return {
-            "top_consistency": [
-                format_result(item, i+1, "avg_consistency", "avg_consistency")
-                for i, item in enumerate(top_consistency)
-            ],
-            "top_performance": [
-                format_result(item, i+1, "avg_performance", "avg_performance")
-                for i, item in enumerate(top_performance)
-            ],
-            "most_users": [
-                {"rank": i+1, "school_name": item["_id"], "user_count": item["user_count"]}
-                for i, item in enumerate(most_users)
-            ],
-            "last_updated": datetime.now(timezone.utc).isoformat()
-        }
-        
-    except Exception as e:
-        logger.error(f"School leaderboard error: {e}")
+    if not users_with_schools:
         return {
             "top_consistency": [],
             "top_performance": [],
             "most_users": [],
             "last_updated": datetime.now(timezone.utc).isoformat()
         }
+    
+    # Calculate stats for each user
+    school_stats = {}
+    
+    for user in users_with_schools:
+        school_name = user.get("school_name", "Unknown")
+        school_id = user.get("school_id")
+        user_id = user["id"]
+        
+        if school_name not in school_stats:
+            school_stats[school_name] = {
+                "school_id": school_id,
+                "users": [],
+                "total_consistency": 0,
+                "total_performance": 0
+            }
+        
+        # Get this week's sessions for the user
+        sessions = await db.daily_sessions.find({
+            "user_id": user_id,
+            "date": {"$gte": week_start.isoformat()}
+        }, {"_id": 0, "date": 1, "pillar": 1}).to_list(100)
+        
+        # Calculate consistency (days active / 7)
+        unique_days = len(set(s["date"] for s in sessions))
+        days_in_week = min((today - week_start).days + 1, 7)
+        consistency_pct = (unique_days / days_in_week * 100) if days_in_week > 0 else 0
+        
+        # Calculate target completion
+        weekly_targets = user.get("weekly_targets", {})
+        pillars = user.get("pillars", [])
+        target_completion = 0
+        
+        if pillars and weekly_targets:
+            pillar_session_counts = {}
+            for s in sessions:
+                pillar = s.get("pillar")
+                pillar_session_counts[pillar] = pillar_session_counts.get(pillar, 0) + 1
+            
+            total_target = sum(weekly_targets.get(p, 3) for p in pillars)
+            total_completed = sum(pillar_session_counts.get(p, 0) for p in pillars)
+            target_completion = min((total_completed / total_target * 100) if total_target > 0 else 0, 100)
+        
+        # Performance index = 70% consistency + 30% target completion
+        performance_index = min((consistency_pct * 0.7) + (target_completion * 0.3), 100)
+        
+        school_stats[school_name]["users"].append(user_id)
+        school_stats[school_name]["total_consistency"] += consistency_pct
+        school_stats[school_name]["total_performance"] += performance_index
+    
+    # Calculate averages and format results
+    consistency_list = []
+    performance_list = []
+    user_count_list = []
+    
+    for school_name, data in school_stats.items():
+        user_count = len(data["users"])
+        avg_consistency = data["total_consistency"] / user_count if user_count > 0 else 0
+        avg_performance = data["total_performance"] / user_count if user_count > 0 else 0
+        
+        consistency_list.append({
+            "school_name": school_name,
+            "school_id": data["school_id"],
+            "avg_consistency": round(avg_consistency, 1),
+            "user_count": user_count
+        })
+        
+        performance_list.append({
+            "school_name": school_name,
+            "school_id": data["school_id"],
+            "avg_performance": round(avg_performance, 1),
+            "user_count": user_count
+        })
+        
+        user_count_list.append({
+            "school_name": school_name,
+            "user_count": user_count
+        })
+    
+    # Sort and rank
+    consistency_list.sort(key=lambda x: x["avg_consistency"], reverse=True)
+    performance_list.sort(key=lambda x: x["avg_performance"], reverse=True)
+    user_count_list.sort(key=lambda x: x["user_count"], reverse=True)
+    
+    # Add ranks
+    for i, item in enumerate(consistency_list[:10]):
+        item["rank"] = i + 1
+    for i, item in enumerate(performance_list[:10]):
+        item["rank"] = i + 1
+    for i, item in enumerate(user_count_list[:10]):
+        item["rank"] = i + 1
+    
+    return {
+        "top_consistency": consistency_list[:10],
+        "top_performance": performance_list[:10],
+        "most_users": user_count_list[:10],
+        "last_updated": datetime.now(timezone.utc).isoformat()
+    }
 
 
 @router.get("/my-school-stats")
