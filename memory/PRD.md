@@ -159,6 +159,22 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
   - Frontend: JournalScreen page at `/journal` to view past reflections
   - Added to Quick Actions FAB on dashboard
   - Tracks reflection streaks and mood distribution
+- [x] ✅ **Stripe Live Payments (March 2026)** - Production payments now working
+  - Updated config.py to check both STRIPE_SECRET_KEY and STRIPE_API_KEY
+  - Added `/api/stripe-check` debug endpoint for verifying key status
+  - Added `/api/admin/stripe-debug` authenticated endpoint
+  - Resolved platform-level key override by updating Secrets
+- [x] ✅ **Fixed Duplicate Challenges Bug (March 2026)**
+  - Added check to prevent creating duplicate challenges for same period
+  - Added Admin button "Clean Duplicate Challenges" to remove existing duplicates
+  - Endpoint: `/api/admin/challenges/cleanup-duplicates`
+- [x] ✅ **Fixed School Leaderboard Showing 0% (March 2026)**
+  - School leaderboard now calculates consistency/performance dynamically
+  - Fixed `/api/schools/leaderboard` and `/api/schools/my-school-stats`
+- [x] ✅ **Fixed Timezone/Date Bug (March 2026)** - "Today" showing yesterday's sessions
+  - Root cause: Frontend used `toISOString()` which converts to UTC
+  - Created `src/utils/dateUtils.js` with `getLocalDateString()` helper
+  - Updated Dashboard.js, LogScreen.js, WeeklyReviewScreen.js, TrialExpiredScreen.js
 
 ## Known Issues
 - MongoDB may need manual restart if it times out (mongod --dbpath /data/db --fork --logpath /var/log/mongodb.log)
@@ -171,7 +187,7 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 - [ ] **P3:** Integrate real NCES school database API for complete US school coverage
 
 ## Test Credentials
-- **Admin:** admin@edgemodeapp.com
+- **Admin:** admin@edgemodeapp.com / EdgeAdmin2024!
 - **Test User:** refactortest@example.com / test123
-- **Stripe Test Card:** 4242 4242 4242 4242
+- **Stripe Live Card:** Use real card for live payments
 - **Coach Codes:** EDGE30, COACH2024, TEAMEDGE, PROMO30
