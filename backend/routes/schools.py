@@ -180,10 +180,10 @@ async def get_school_leaderboard():
     - Top schools by average performance  
     - Schools with most users
     """
-    from utils.timezone import get_eastern_date
+    from utils.timezone import get_today_eastern
     from datetime import timedelta
     
-    today = get_eastern_date()
+    today = get_today_eastern()
     week_start = today - timedelta(days=today.weekday())  # Monday of current week
     
     # Get all users with schools
