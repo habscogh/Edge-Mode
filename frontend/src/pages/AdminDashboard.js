@@ -205,6 +205,21 @@ export const AdminDashboard = () => {
     }
   };
 
+  const handleCleanDuplicateChallenges = async () => {
+    if (!confirm('This will remove duplicate challenges, keeping only one of each type per period. Continue?')) return;
+    
+    setCleaningDuplicates(true);
+    try {
+      const res = await axios.post(`${API}/admin/challenges/cleanup-duplicates`);
+      toast.success(res.data.message || 'Duplicates cleaned up');
+    } catch (err) {
+      console.error('Failed to clean duplicates:', err);
+      toast.error(err.response?.data?.detail || 'Failed to clean duplicates');
+    } finally {
+      setCleaningDuplicates(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-[#09090b]">
