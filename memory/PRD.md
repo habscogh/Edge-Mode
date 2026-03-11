@@ -216,11 +216,22 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
   - **Resend button** for pending invitations with reminder email template
   - Professional email templates for initial invite and reminders
 
+- [x] ✅ **Social Proof Section on Landing Page (March 2026)**
+  - Backend: `/api/platform-stats` (public, no auth) - Returns platform stats and testimonials
+  - Backend: `/api/admin/settings` (GET/PUT) - Toggle social_proof_enabled
+  - Backend: `/api/admin/testimonials` (POST/DELETE) - Manage testimonials
+  - Frontend: SocialProofSection.jsx - Displays stats grid (Users, Sessions, Badges, Hours) + testimonials
+  - Frontend: AdminDashboard.js - Site Settings section with toggle and testimonial management
+  - Stats auto-update from database (total_users, sessions_logged, badges_earned, hours_logged)
+  - Testimonials display with quotes, user names, and roles
+  - Admin can toggle entire section on/off from dashboard
+
 ## Known Issues
 - MongoDB may need manual restart if it times out (mongod --dbpath /data/db --fork --logpath /var/log/mongodb.log)
 
 ## Future Enhancements
-- [ ] **P1:** Social Proof Section - Add testimonials/user stats to landing page
+- [ ] **P2:** "Streak Shield" subscription tier ($0.99/mo) - Auto-protect streaks
+- [ ] **P2:** Daily login reminder push notifications
 - [ ] **P3:** Integrate real NCES school database API for complete US school coverage
 
 ## Test Credentials
