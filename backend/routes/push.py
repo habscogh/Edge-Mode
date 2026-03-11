@@ -280,3 +280,30 @@ async def send_inactivity_push(user_id: str, days_inactive: int):
         url="/dashboard",
         tag="inactivity"
     ))
+
+
+
+async def send_badge_earned_push(user_id: str, badge_name: str, badge_icon: str, badge_description: str):
+    """Send push notification when user earns a badge"""
+    await send_push_to_user(user_id, PushMessage(
+        title=f"{badge_icon} Badge Earned: {badge_name}!",
+        body=badge_description,
+        url="/achievements",
+        tag=f"badge-{badge_name.lower().replace(' ', '-')}"
+    ))
+
+
+async def send_challenge_winner_push(user_id: str, place: int, challenge_name: str):
+    """Send push notification to challenge winners"""
+    medals = {1: "🥇", 2: "🥈", 3: "🥉"}
+    places = {1: "1st", 2: "2nd", 3: "3rd"}
+    
+    medal = medals.get(place, "🏆")
+    place_text = places.get(place, f"{place}th")
+    
+    await send_push_to_user(user_id, PushMessage(
+        title=f"{medal} Congratulations! You placed {place_text}!",
+        body=f"You finished {place_text} in {challenge_name}. Check your new badge!",
+        url="/achievements",
+        tag=f"challenge-winner-{challenge_name.lower().replace(' ', '-')}"
+    ))
