@@ -45,6 +45,13 @@ export const AdminDashboard = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [searching, setSearching] = useState(false);
   const [cleaningDuplicates, setCleaningDuplicates] = useState(false);
+  
+  // Site Settings State
+  const [showSiteSettings, setShowSiteSettings] = useState(false);
+  const [siteSettings, setSiteSettings] = useState(null);
+  const [updatingSettings, setUpdatingSettings] = useState(false);
+  const [newTestimonial, setNewTestimonial] = useState({ name: '', role: '', quote: '', avatar_url: '' });
+  const [addingTestimonial, setAddingTestimonial] = useState(false);
 
   useEffect(() => {
     fetchAdminData();
