@@ -342,7 +342,10 @@ export const AdminChallengeManager = () => {
                         <div className="max-h-32 overflow-y-auto space-y-1">
                           {participants[challenge.id].map((p, i) => (
                             <div key={p.id} className="flex items-center justify-between text-xs bg-zinc-950 px-2 py-1 rounded">
-                              <span className="text-zinc-300">
+                              <span className="text-zinc-300 flex items-center gap-1">
+                                {i === 0 && <span>🥇</span>}
+                                {i === 1 && <span>🥈</span>}
+                                {i === 2 && <span>🥉</span>}
                                 #{p.rank || i + 1} {p.username || 'Unknown'}
                               </span>
                               <span className="text-zinc-500">{p.current_score?.toFixed(1) || 0} pts</span>
@@ -355,8 +358,26 @@ export const AdminChallengeManager = () => {
                     </div>
                   )}
 
+                  {/* Winners Display (for completed challenges) */}
+                  {challenge.winners && challenge.winners.length > 0 && (
+                    <div className="mt-3 p-2 bg-yellow-500/10 border border-yellow-500/30 rounded">
+                      <div className="text-xs text-yellow-400 font-medium mb-1">🏆 Winners</div>
+                      <div className="space-y-1">
+                        {challenge.winners.map((w, i) => (
+                          <div key={i} className="text-xs text-zinc-300 flex items-center gap-2">
+                            {w.place === 1 && <span>🥇</span>}
+                            {w.place === 2 && <span>🥈</span>}
+                            {w.place === 3 && <span>🥉</span>}
+                            <span>{w.username || 'User'}</span>
+                            <span className="text-zinc-500">({w.score?.toFixed(1)} pts)</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Actions Row */}
-                  <div className="pt-2 border-t border-zinc-800 flex items-center justify-between">
+                  <div className="pt-2 border-t border-zinc-800 flex items-center gap-2 flex-wrap">
                     <Button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -372,6 +393,23 @@ export const AdminChallengeManager = () => {
                       <Star className={`w-3 h-3 mr-1 ${challenge.featured ? 'fill-yellow-400' : ''}`} />
                       {challenge.featured ? 'Unfeature' : 'Feature'}
                     </Button>
+                    
+                    {/* Finalize Button - only for active challenges */}
+                    {challenge.status === 'active' && (
+                      <Button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleFinalize(challenge.id, challenge.name);
+                        }}
+                        variant="ghost"
+                        size="sm"
+                        className="text-green-400 hover:text-green-300 hover:bg-green-500/10"
+                      >
+                        <Award className="w-3 h-3 mr-1" />
+                        Finalize & Award
+                      </Button>
+                    )}
+                    
                     <Button
                       onClick={(e) => {
                         e.stopPropagation();
