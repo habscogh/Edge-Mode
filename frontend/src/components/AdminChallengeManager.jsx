@@ -119,6 +119,18 @@ export const AdminChallengeManager = () => {
     }
   };
 
+  const handleFinalize = async (challengeId, challengeName) => {
+    if (!confirm(`Finalize "${challengeName}" and award badges to winners?\n\nThis will:\n• Award Gold/Silver/Bronze badges to top 3\n• Mark challenge as completed\n• This cannot be undone!`)) return;
+    
+    try {
+      const response = await axios.post(`${API}/challenges/admin/${challengeId}/finalize`);
+      toast.success(`Challenge finalized! ${response.data.winners?.length || 0} winners awarded badges.`);
+      fetchChallenges();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to finalize challenge');
+    }
+  };
+
   const handleDelete = async (challengeId, challengeName) => {
     if (!confirm(`Delete "${challengeName}"? This will remove all participants too.`)) return;
     
