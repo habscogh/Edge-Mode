@@ -234,9 +234,17 @@ export const MilestoneCelebration = ({ milestone, streak, sessions, milestoneTyp
         
         {/* Streak number */}
         <div className="flex items-center justify-center gap-2 mb-3">
-          <Flame className="w-6 h-6 text-orange-500" />
-          <span className="text-3xl font-mono font-bold text-orange-500">{streak}</span>
-          <span className="text-zinc-400 font-body">day streak</span>
+          {milestoneType === 'session' ? (
+            <Zap className="w-6 h-6 text-yellow-500" />
+          ) : (
+            <Flame className="w-6 h-6 text-orange-500" />
+          )}
+          <span className={`text-3xl font-mono font-bold ${milestoneType === 'session' ? 'text-yellow-500' : 'text-orange-500'}`}>
+            {displayValue}
+          </span>
+          <span className="text-zinc-400 font-body">
+            {milestoneType === 'session' ? 'sessions' : 'day streak'}
+          </span>
         </div>
         
         {/* Message */}
