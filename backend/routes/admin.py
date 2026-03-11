@@ -773,3 +773,53 @@ async def delete_testimonial(testimonial_id: str, admin_user: dict = Depends(req
         {'$pull': {'testimonials': {'id': testimonial_id}}}
     )
     return {'message': 'Testimonial deleted'}
+
+
+# ============ Public Endpoints (No Auth) ============
+
+public_router = APIRouter(tags=["Public"])
+
+
+@public_router.get("/platform-stats")
+async def get_platform_stats():
+    """
+    Public endpoint for landing page - returns platform statistics
+    No authentication required
+    """
+    # Get settings to check if social proof is enabled
+    settings = await db.site_settings.find_one({'id': 'main'}, {'_id': 0})
+    if not settings:
+        settings = {'social_proof_enabled': True, 'testimonials': []}
+    
+    if not settings.get('social_proof_enabled', True):
+        return {
+            'enabled': False,
+            'stats': {},
+            'testimonials': []
+        }
+    
+    # Gather stats
+    total_users = await db.users.count_documents({})
+    total_sessions = await db.daily_sessions.count_documents({})
+    total_badges = await db.user_badges.count_documents({})
+    
+    # Calculate total minutes logged
+    pipeline = [
+        {"$group": {"_id": None, "total_minutes": {"$sum": "$minutes_spent"}}}
+    ]
+    result = await db.daily_sessions.aggregate(pipeline).to_list(1)
+    total_minutes = result[0]['total_minutes'] if result else 0
+    
+    # Format for display
+    hours_logged = total_minutes // 60
+    
+    return {
+        'enabled': True,
+        'stats': {
+            'total_users': total_users,
+            'sessions_logged': total_sessions,
+            'badges_earned': total_badges,
+            'hours_logged': hours_logged
+        },
+        'testimonials': settings.get('testimonials', [])
+    }
