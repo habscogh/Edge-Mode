@@ -584,3 +584,115 @@ async def cleanup_duplicate_challenges(admin_user: dict = Depends(require_admin)
         "message": f"Removed {deleted_count} duplicate challenges",
         "duplicates_found": len(duplicates)
     }
+
+
+# ============ Coach Code Management ============
+
+@router.get("/coach-codes")
+async def get_coach_codes(admin_user: dict = Depends(require_admin)):
+    """Get all coach codes"""
+    codes = await db.coach_codes.find({}, {'_id': 0}).sort('created_at', -1).to_list(100)
+    
+    # Also get usage stats for each code
+    for code in codes:
+        usage_count = await db.users.count_documents({
+            'special_code': code['code'],
+            'is_coach': True
+        })
+        code['usage_count'] = usage_count
+    
+    return {'codes': codes}
+
+
+@router.post("/coach-codes")
+async def create_coach_code(
+    code: str,
+    description: str = "",
+    max_uses: int = 0,
+    extended_trial_days: int = 30,
+    admin_user: dict = Depends(require_admin)
+):
+    """Create a new coach code"""
+    code = code.upper().strip()
+    
+    # Check if code already exists
+    existing = await db.coach_codes.find_one({'code': code})
+    if existing:
+        raise HTTPException(status_code=400, detail='Code already exists')
+    
+    code_doc = {
+        'id': str(uuid.uuid4()),
+        'code': code,
+        'description': description,
+        'max_uses': max_uses,  # 0 = unlimited
+        'extended_trial_days': extended_trial_days,
+        'is_active': True,
+        'created_at': datetime.now(timezone.utc).isoformat(),
+        'created_by': admin_user.get('email')
+    }
+    
+    await db.coach_codes.insert_one(code_doc)
+    logger.info(f"Admin created coach code: {code}")
+    
+    return {'message': f'Coach code {code} created', 'code': {k: v for k, v in code_doc.items() if k != '_id'}}
+
+
+@router.put("/coach-codes/{code_id}")
+async def update_coach_code(
+    code_id: str,
+    is_active: bool = None,
+    description: str = None,
+    max_uses: int = None,
+    admin_user: dict = Depends(require_admin)
+):
+    """Update a coach code"""
+    code = await db.coach_codes.find_one({'id': code_id})
+    if not code:
+        raise HTTPException(status_code=404, detail='Code not found')
+    
+    update_data = {}
+    if is_active is not None:
+        update_data['is_active'] = is_active
+    if description is not None:
+        update_data['description'] = description
+    if max_uses is not None:
+        update_data['max_uses'] = max_uses
+    
+    if update_data:
+        update_data['updated_at'] = datetime.now(timezone.utc).isoformat()
+        await db.coach_codes.update_one({'id': code_id}, {'$set': update_data})
+    
+    updated = await db.coach_codes.find_one({'id': code_id}, {'_id': 0})
+    return {'message': 'Code updated', 'code': updated}
+
+
+@router.delete("/coach-codes/{code_id}")
+async def delete_coach_code(code_id: str, admin_user: dict = Depends(require_admin)):
+    """Delete a coach code"""
+    code = await db.coach_codes.find_one({'id': code_id})
+    if not code:
+        raise HTTPException(status_code=404, detail='Code not found')
+    
+    await db.coach_codes.delete_one({'id': code_id})
+    logger.info(f"Admin deleted coach code: {code['code']}")
+    
+    return {'message': f"Code {code['code']} deleted"}
+
+
+@router.get("/coaches")
+async def get_all_coaches(admin_user: dict = Depends(require_admin)):
+    """Get all coaches with their team info"""
+    coaches = await db.users.find(
+        {'is_coach': True},
+        {'_id': 0, 'password': 0}
+    ).sort('join_date', -1).to_list(100)
+    
+    for coach in coaches:
+        if coach.get('team_id'):
+            team = await db.groups.find_one({'id': coach['team_id']}, {'_id': 0})
+            if team:
+                coach['team_name'] = team.get('name')
+                coach['team_member_count'] = len(team.get('members', [])) - 1  # Exclude coach
+                coach['team_invite_code'] = team.get('invite_code')
+    
+    return {'coaches': coaches}
