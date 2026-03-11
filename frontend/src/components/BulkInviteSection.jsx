@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { 
   Users, Upload, Send, Mail, Check, X, AlertCircle, 
-  Loader2, FileText, Trash2, Clock, UserCheck
+  Loader2, FileText, Trash2, Clock, UserCheck, RefreshCw
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { toast } from 'sonner';
@@ -14,6 +14,7 @@ export const BulkInviteSection = () => {
   const [emails, setEmails] = useState('');
   const [customMessage, setCustomMessage] = useState('');
   const [sending, setSending] = useState(false);
+  const [resending, setResending] = useState(null);
   const [results, setResults] = useState(null);
   const [invitations, setInvitations] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
