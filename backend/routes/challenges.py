@@ -673,3 +673,80 @@ async def admin_get_challenge_participants(challenge_id: str, current_user: dict
             p['email'] = user.get('email')
     
     return {'participants': participants}
+
+
+
+@router.post("/admin/{challenge_id}/finalize")
+async def admin_finalize_challenge(challenge_id: str, current_user: dict = Depends(get_current_user)):
+    """Admin endpoint to manually finalize a challenge and award badges"""
+    if current_user['email'] != 'admin@edgemodeapp.com':
+        raise HTTPException(status_code=403, detail='Admin access required')
+    
+    challenge = await db.challenges.find_one({'id': challenge_id})
+    if not challenge:
+        raise HTTPException(status_code=404, detail='Challenge not found')
+    
+    if challenge.get('status') == 'completed':
+        raise HTTPException(status_code=400, detail='Challenge already finalized')
+    
+    # Update rankings first
+    await update_challenge_rankings(challenge_id)
+    
+    # Get top 3 participants
+    top_participants = await db.challenge_participants.find(
+        {'challenge_id': challenge_id}
+    ).sort('current_score', -1).limit(3).to_list(3)
+    
+    winners = []
+    badges_awarded = []
+    
+    for idx, participant in enumerate(top_participants):
+        user_id = participant['user_id']
+        user = await db.users.find_one({'id': user_id}, {'_id': 0, 'username': 1})
+        username = user.get('username', 'Unknown') if user else 'Unknown'
+        
+        # Award podium finish badge
+        badge = await award_badge(user_id, 'podium_finish')
+        if badge:
+            badges_awarded.append(f"{username}: Podium Finish")
+        
+        if participant['current_score'] > 0:
+            if idx == 0:
+                # 1st place
+                badge_id = 'weekly_champion' if challenge['challenge_type'] == 'weekly' else 'monthly_champion'
+                badge = await award_badge(user_id, badge_id)
+                if badge:
+                    badges_awarded.append(f"{username}: {badge['name']}")
+                winners.append({'place': 1, 'user_id': user_id, 'username': username, 'score': participant['current_score']})
+                
+            elif idx == 1:
+                # 2nd place
+                badge = await award_badge(user_id, 'silver_medal')
+                if badge:
+                    badges_awarded.append(f"{username}: Silver Medal")
+                winners.append({'place': 2, 'user_id': user_id, 'username': username, 'score': participant['current_score']})
+                
+            elif idx == 2:
+                # 3rd place
+                badge = await award_badge(user_id, 'bronze_medal')
+                if badge:
+                    badges_awarded.append(f"{username}: Bronze Medal")
+                winners.append({'place': 3, 'user_id': user_id, 'username': username, 'score': participant['current_score']})
+    
+    # Update challenge status
+    await db.challenges.update_one(
+        {'id': challenge_id},
+        {'$set': {
+            'status': 'completed',
+            'winners': winners,
+            'finalized_at': datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    logger.info(f"Admin manually finalized challenge '{challenge['name']}' with {len(winners)} winners")
+    
+    return {
+        'message': f"Challenge finalized with {len(winners)} winners",
+        'winners': winners,
+        'badges_awarded': badges_awarded
+    }
