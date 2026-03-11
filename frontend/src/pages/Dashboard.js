@@ -286,6 +286,9 @@ export const Dashboard = () => {
           </div>
         )}
 
+        {/* Featured Challenges */}
+        <FeaturedChallenges />
+
         <div data-testid="performance-graph-card" className="bg-zinc-950 border border-zinc-800 rounded-md p-4 mb-6">
           <h3 className="text-sm font-heading uppercase tracking-wide text-white mb-4">30-Day Performance</h3>
           <ResponsiveContainer width="100%" height={150}>
