@@ -3,12 +3,12 @@ Badge checking and awarding utilities for Edge Mode
 """
 import uuid
 from datetime import datetime, timezone, timedelta
-from typing import List
+from typing import List, Optional
 
 from config import db, BADGES, logger
 
 
-async def award_badge(user_id: str, badge_id: str) -> dict:
+async def award_badge(user_id: str, badge_id: str, send_notification: bool = True) -> dict:
     """Award a badge to a user if they don't already have it"""
     existing = await db.user_badges.find_one({
         'user_id': user_id,
@@ -16,6 +16,11 @@ async def award_badge(user_id: str, badge_id: str) -> dict:
     })
     
     if existing:
+        return None
+    
+    badge_info = BADGES.get(badge_id)
+    if not badge_info:
+        logger.warning(f"Unknown badge_id: {badge_id}")
         return None
     
     badge_doc = {
@@ -27,7 +32,21 @@ async def award_badge(user_id: str, badge_id: str) -> dict:
     await db.user_badges.insert_one(badge_doc)
     
     logger.info(f"Badge '{badge_id}' awarded to user {user_id}")
-    return {**BADGES[badge_id], 'earned_at': badge_doc['earned_at']}
+    
+    # Send push notification for new badge
+    if send_notification:
+        try:
+            from routes.push import send_badge_earned_push
+            await send_badge_earned_push(
+                user_id, 
+                badge_info['name'], 
+                badge_info['icon'], 
+                badge_info['description']
+            )
+        except Exception as e:
+            logger.error(f"Failed to send badge push notification: {e}")
+    
+    return {**badge_info, 'earned_at': badge_doc['earned_at']}
 
 
 async def check_and_award_badges(user_id: str) -> List[dict]:
