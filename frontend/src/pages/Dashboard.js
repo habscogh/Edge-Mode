@@ -499,6 +499,13 @@ export const Dashboard = () => {
           onClose={() => setShowShareModal(false)}
         />
       )}
+
+      {/* Streak Recovery Modal */}
+      <StreakRecoveryModal
+        isOpen={showRecoveryModal}
+        onClose={() => setShowRecoveryModal(false)}
+        onRecoveryStarted={() => setShowRecoveryModal(false)}
+      />
     </div>
   );
 };
