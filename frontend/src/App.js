@@ -11,6 +11,7 @@ import { LeaderboardScreen } from './pages/LeaderboardScreen';
 import { ProfileScreen } from './pages/ProfileScreen';
 import { WeeklyReviewScreen } from './pages/WeeklyReviewScreen';
 import { SubscriptionSuccessScreen } from './pages/SubscriptionSuccessScreen';
+import { StreakRecoverySuccessScreen } from './pages/StreakRecoverySuccessScreen';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { TermsOfService } from './pages/TermsOfService';
 import { ForgotPassword } from './pages/ForgotPassword';
