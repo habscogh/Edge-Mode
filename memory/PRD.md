@@ -182,6 +182,10 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
   - Price: $2.99 one-time payment
   - Rules: Streak must have been 3+ days, can recover within 7 days of breaking
   - Broken streak data now saved when streaks break for potential recovery
+- [x] ✅ **Admin Challenge Management (March 2026)** - Full CRUD for challenges
+  - Backend: `/api/challenges/admin/all`, `/admin/{id}` (PUT/DELETE), `/admin/{id}/participants`
+  - Frontend: AdminChallengeManager component with create/edit/delete functionality
+  - Features: Create weekly/monthly challenges, set metrics & pillars, change status, view participants
 
 ## Known Issues
 - MongoDB may need manual restart if it times out (mongod --dbpath /data/db --fork --logpath /var/log/mongodb.log)
