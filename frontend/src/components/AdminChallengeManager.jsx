@@ -109,6 +109,16 @@ export const AdminChallengeManager = () => {
     }
   };
 
+  const handleToggleFeatured = async (challengeId, currentlyFeatured) => {
+    try {
+      await axios.put(`${API}/challenges/admin/${challengeId}?featured=${!currentlyFeatured}`);
+      toast.success(currentlyFeatured ? 'Removed from featured' : 'Added to featured!');
+      fetchChallenges();
+    } catch (error) {
+      toast.error('Failed to update featured status');
+    }
+  };
+
   const handleDelete = async (challengeId, challengeName) => {
     if (!confirm(`Delete "${challengeName}"? This will remove all participants too.`)) return;
     
