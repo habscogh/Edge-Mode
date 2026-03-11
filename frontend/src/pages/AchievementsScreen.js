@@ -110,6 +110,7 @@ export const AchievementsScreen = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all'); // all, earned, locked
   const [shareMenuBadge, setShareMenuBadge] = useState(null);
+  const [shareCardBadge, setShareCardBadge] = useState(null); // For visual share card
 
   useEffect(() => {
     fetchBadges();
