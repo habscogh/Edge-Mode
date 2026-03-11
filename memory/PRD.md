@@ -197,6 +197,11 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
   - Admin "Finalize & Award" button for manual finalization
   - Winners displayed in challenge cards with medals
   - Challenge streak badge for 3+ wins
+- [x] ✅ **Push Notifications for Badge Awards (March 2026)**
+  - `send_badge_earned_push()` - Notifies users when they earn any badge
+  - `send_challenge_winner_push()` - Special notification for challenge winners (🥇🥈🥉)
+  - Integrated into badge award system - auto-sends on badge earn
+  - Links to /achievements page
 
 ## Known Issues
 - MongoDB may need manual restart if it times out (mongod --dbpath /data/db --fork --logpath /var/log/mongodb.log)
