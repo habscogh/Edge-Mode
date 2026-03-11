@@ -175,6 +175,8 @@ async def finalize_completed_challenges():
             await award_badge(user_id, 'podium_finish')
             
             if participant['current_score'] > 0:
+                place = idx + 1
+                
                 if idx == 0:
                     # 1st place - Gold
                     if challenge['challenge_type'] == 'weekly':
@@ -190,17 +192,22 @@ async def finalize_completed_challenges():
                     if wins >= 3:
                         await award_badge(user_id, 'challenge_streak_3')
                     
-                    winners.append({'place': 1, 'user_id': user_id, 'score': participant['current_score']})
-                    
                 elif idx == 1:
                     # 2nd place - Silver
                     await award_badge(user_id, 'silver_medal')
-                    winners.append({'place': 2, 'user_id': user_id, 'score': participant['current_score']})
                     
                 elif idx == 2:
                     # 3rd place - Bronze
                     await award_badge(user_id, 'bronze_medal')
-                    winners.append({'place': 3, 'user_id': user_id, 'score': participant['current_score']})
+                
+                winners.append({'place': place, 'user_id': user_id, 'score': participant['current_score']})
+                
+                # Send winner push notification
+                try:
+                    from routes.push import send_challenge_winner_push
+                    await send_challenge_winner_push(user_id, place, challenge['name'])
+                except Exception as e:
+                    logger.error(f"Failed to send winner push: {e}")
         
         # Update challenge with winners and mark as completed
         await db.challenges.update_one(
