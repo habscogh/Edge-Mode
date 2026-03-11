@@ -18,6 +18,7 @@ import { ShareStreakModal } from '../components/ShareStreakCard';
 import { useOfflineSync } from '../hooks/useOfflineSync';
 import { toast } from 'sonner';
 import { getLocalDateString } from '../utils/dateUtils';
+import { StreakRecoveryModal, useStreakRecovery } from '../components/StreakRecoveryModal';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -35,6 +36,8 @@ export const Dashboard = () => {
   const [quickLogMinutes, setQuickLogMinutes] = useState('30');
   const [quickLogLoading, setQuickLogLoading] = useState(false);
   const [milestoneToShow, setMilestoneToShow] = useState(null);
+  const [showRecoveryModal, setShowRecoveryModal] = useState(false);
+  const { isEligible: recoveryEligible, eligibilityData, checkEligibility } = useStreakRecovery();
 
   useEffect(() => {
     fetchAllData();
