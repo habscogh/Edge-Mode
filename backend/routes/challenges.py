@@ -165,28 +165,54 @@ async def finalize_completed_challenges():
             {'challenge_id': challenge['id']}
         ).sort('current_score', -1).limit(3).to_list(3)
         
+        # Store winners for the challenge
+        winners = []
+        
         for idx, participant in enumerate(top_participants):
             user_id = participant['user_id']
             
+            # Award podium finish badge to all top 3
             await award_badge(user_id, 'podium_finish')
             
-            if idx == 0 and participant['current_score'] > 0:
-                if challenge['challenge_type'] == 'weekly':
-                    await award_badge(user_id, 'weekly_champion')
-                else:
-                    await award_badge(user_id, 'monthly_champion')
-                
-                wins = await db.challenge_participants.count_documents({
-                    'user_id': user_id,
-                    'rank': 1
-                })
-                if wins >= 3:
-                    await award_badge(user_id, 'challenge_streak_3')
+            if participant['current_score'] > 0:
+                if idx == 0:
+                    # 1st place - Gold
+                    if challenge['challenge_type'] == 'weekly':
+                        await award_badge(user_id, 'weekly_champion')
+                    else:
+                        await award_badge(user_id, 'monthly_champion')
+                    
+                    # Check for challenge streak (3 wins)
+                    wins = await db.challenge_participants.count_documents({
+                        'user_id': user_id,
+                        'rank': 1
+                    })
+                    if wins >= 3:
+                        await award_badge(user_id, 'challenge_streak_3')
+                    
+                    winners.append({'place': 1, 'user_id': user_id, 'score': participant['current_score']})
+                    
+                elif idx == 1:
+                    # 2nd place - Silver
+                    await award_badge(user_id, 'silver_medal')
+                    winners.append({'place': 2, 'user_id': user_id, 'score': participant['current_score']})
+                    
+                elif idx == 2:
+                    # 3rd place - Bronze
+                    await award_badge(user_id, 'bronze_medal')
+                    winners.append({'place': 3, 'user_id': user_id, 'score': participant['current_score']})
         
+        # Update challenge with winners and mark as completed
         await db.challenges.update_one(
             {'id': challenge['id']},
-            {'$set': {'status': 'completed'}}
+            {'$set': {
+                'status': 'completed',
+                'winners': winners,
+                'finalized_at': datetime.now(timezone.utc).isoformat()
+            }}
         )
+        
+        logger.info(f"Challenge '{challenge['name']}' finalized with {len(winners)} winners")
 
 
 async def seed_initial_challenges():
