@@ -12,6 +12,7 @@ import { Input } from '../components/ui/input';
 import { format, parseISO } from 'date-fns';
 import { toast } from 'sonner';
 import { AdminChallengeManager } from '../components/AdminChallengeManager';
+import { AdminCoachManager } from '../components/AdminCoachManager';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
