@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Trophy, Lock, CheckCircle, TrendingUp, Clock, Flame, Target, Star, Share2, ArrowLeft } from 'lucide-react';
+import { Trophy, Lock, CheckCircle, TrendingUp, Clock, Flame, Target, Star, Share2, ArrowLeft, Image } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { ShareButton, ShareIcons } from '../components/ShareButton';
+import { ShareAchievementModal } from '../components/AchievementShareCard';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
