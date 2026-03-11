@@ -252,7 +252,21 @@ export const AchievementsScreen = () => {
                 <h3 className="text-white font-heading font-bold uppercase">{shareMenuBadge.name}</h3>
                 <p className="text-zinc-400 text-sm">{shareMenuBadge.description}</p>
               </div>
-              <p className="text-zinc-500 text-xs text-center mb-4">Share your achievement</p>
+              
+              {/* Create Visual Card Button */}
+              <button
+                onClick={() => {
+                  setShareCardBadge(shareMenuBadge);
+                  setShareMenuBadge(null);
+                }}
+                className="w-full flex items-center justify-center gap-2 py-3 mb-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:opacity-90 transition-opacity"
+                data-testid="create-share-card-btn"
+              >
+                <Image className="w-4 h-4" />
+                Create Shareable Card
+              </button>
+              
+              <p className="text-zinc-500 text-xs text-center mb-3">Or share as text:</p>
               <ShareIcons 
                 type="badge" 
                 data={shareMenuBadge} 
@@ -266,6 +280,15 @@ export const AchievementsScreen = () => {
               </button>
             </div>
           </>
+        )}
+
+        {/* Visual Share Card Modal */}
+        {shareCardBadge && (
+          <ShareAchievementModal 
+            badge={shareCardBadge}
+            username={user?.username}
+            onClose={() => setShareCardBadge(null)}
+          />
         )}
 
         {/* Badge Categories */}
