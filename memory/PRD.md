@@ -175,6 +175,13 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
   - Root cause: Frontend used `toISOString()` which converts to UTC
   - Created `src/utils/dateUtils.js` with `getLocalDateString()` helper
   - Updated Dashboard.js, LogScreen.js, WeeklyReviewScreen.js, TrialExpiredScreen.js
+- [x] ✅ **Streak Recovery Feature (March 2026)** - Paid option to restore broken streaks
+  - Backend: `/api/streak-recovery/` endpoints for eligibility check and Stripe checkout
+  - Frontend: StreakRecoveryModal component with pricing and checkout flow
+  - Frontend: StreakRecoverySuccessScreen with confetti celebration
+  - Price: $2.99 one-time payment
+  - Rules: Streak must have been 3+ days, can recover within 7 days of breaking
+  - Broken streak data now saved when streaks break for potential recovery
 
 ## Known Issues
 - MongoDB may need manual restart if it times out (mongod --dbpath /data/db --fork --logpath /var/log/mongodb.log)
