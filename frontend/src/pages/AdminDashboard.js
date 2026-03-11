@@ -658,6 +658,126 @@ export const AdminDashboard = () => {
           </div>
         </div>
 
+        {/* Site Settings - Social Proof & Testimonials */}
+        <div className="bg-zinc-950 border border-zinc-800 rounded-md p-6 mb-6" data-testid="site-settings-section">
+          <div 
+            className="flex items-center justify-between cursor-pointer"
+            onClick={() => {
+              setShowSiteSettings(!showSiteSettings);
+              if (!showSiteSettings && !siteSettings) fetchSiteSettings();
+            }}
+          >
+            <h3 className="text-lg font-heading font-bold uppercase text-white flex items-center gap-2">
+              <Settings className="w-5 h-5 text-purple-400" />
+              Site Settings
+            </h3>
+            {showSiteSettings ? (
+              <ChevronUp className="w-5 h-5 text-zinc-400" />
+            ) : (
+              <ChevronDown className="w-5 h-5 text-zinc-400" />
+            )}
+          </div>
+          
+          {showSiteSettings && (
+            <div className="mt-4 space-y-6">
+              {/* Social Proof Toggle */}
+              <div className="flex items-center justify-between bg-zinc-900 p-4 rounded-lg">
+                <div className="flex items-center gap-3">
+                  {siteSettings?.social_proof_enabled ? (
+                    <Eye className="w-5 h-5 text-green-400" />
+                  ) : (
+                    <EyeOff className="w-5 h-5 text-zinc-500" />
+                  )}
+                  <div>
+                    <p className="text-white font-medium">Social Proof Section</p>
+                    <p className="text-zinc-500 text-xs">Show stats & testimonials on landing page</p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleToggleSocialProof}
+                  disabled={updatingSettings}
+                  data-testid="social-proof-toggle"
+                  className={`relative w-14 h-7 rounded-full transition-colors ${
+                    siteSettings?.social_proof_enabled ? 'bg-green-500' : 'bg-zinc-700'
+                  }`}
+                >
+                  <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-transform ${
+                    siteSettings?.social_proof_enabled ? 'translate-x-8' : 'translate-x-1'
+                  }`} />
+                </button>
+              </div>
+
+              {/* Testimonials Manager */}
+              <div>
+                <h4 className="text-sm font-heading text-purple-400 uppercase mb-3 flex items-center gap-2">
+                  <Quote className="w-4 h-4" />
+                  Testimonials ({siteSettings?.testimonials?.length || 0})
+                </h4>
+                
+                {/* Existing Testimonials */}
+                {siteSettings?.testimonials?.length > 0 && (
+                  <div className="space-y-2 mb-4 max-h-48 overflow-y-auto">
+                    {siteSettings.testimonials.map((t, idx) => (
+                      <div key={t.id || idx} className="flex items-center justify-between bg-zinc-900 p-3 rounded">
+                        <div className="flex-1">
+                          <p className="text-white text-sm">"{t.quote.substring(0, 60)}..."</p>
+                          <p className="text-zinc-500 text-xs">{t.name} - {t.role}</p>
+                        </div>
+                        <button
+                          onClick={() => handleDeleteTestimonial(t.id)}
+                          className="text-red-400 hover:text-red-300 p-1 hover:bg-red-500/20 rounded ml-2"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                {/* Add New Testimonial Form */}
+                <div className="bg-zinc-900 p-4 rounded-lg space-y-3">
+                  <p className="text-zinc-400 text-sm">Add New Testimonial</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Input
+                      placeholder="Name *"
+                      value={newTestimonial.name}
+                      onChange={(e) => setNewTestimonial({...newTestimonial, name: e.target.value})}
+                      className="bg-zinc-800 border-zinc-700"
+                    />
+                    <Input
+                      placeholder="Role (e.g., Student, Athlete)"
+                      value={newTestimonial.role}
+                      onChange={(e) => setNewTestimonial({...newTestimonial, role: e.target.value})}
+                      className="bg-zinc-800 border-zinc-700"
+                    />
+                  </div>
+                  <textarea
+                    placeholder="Quote/Testimonial *"
+                    value={newTestimonial.quote}
+                    onChange={(e) => setNewTestimonial({...newTestimonial, quote: e.target.value})}
+                    className="w-full bg-zinc-800 border border-zinc-700 rounded-md p-3 text-white placeholder-zinc-500 h-20 resize-none"
+                  />
+                  <Input
+                    placeholder="Avatar URL (optional)"
+                    value={newTestimonial.avatar_url}
+                    onChange={(e) => setNewTestimonial({...newTestimonial, avatar_url: e.target.value})}
+                    className="bg-zinc-800 border-zinc-700"
+                  />
+                  <Button
+                    onClick={handleAddTestimonial}
+                    disabled={addingTestimonial || !newTestimonial.name || !newTestimonial.quote}
+                    className="w-full bg-purple-500 hover:bg-purple-400 text-white"
+                    data-testid="add-testimonial-btn"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    {addingTestimonial ? 'Adding...' : 'Add Testimonial'}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Challenge Management */}
         <div className="bg-zinc-950 border border-zinc-800 rounded-md p-6 mb-6">
           <AdminChallengeManager />
