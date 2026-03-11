@@ -216,3 +216,158 @@ async def get_player_details(group_id: str, player_id: str, current_user: dict =
         },
         'badges_earned': len(badges)
     }
+
+
+
+# Try to import resend for email sending
+try:
+    import resend
+    import os
+    resend.api_key = os.environ.get('RESEND_API_KEY')
+    RESEND_AVAILABLE = bool(resend.api_key)
+except ImportError:
+    RESEND_AVAILABLE = False
+
+
+@router.post("/bulk-invite")
+async def send_bulk_invites(
+    emails: list[str],
+    custom_message: str = "",
+    current_user: dict = Depends(get_current_user)
+):
+    """Send team invitations to multiple email addresses"""
+    if not current_user.get('is_coach'):
+        raise HTTPException(status_code=403, detail='Coach access required')
+    
+    team_id = current_user.get('team_id')
+    if not team_id:
+        raise HTTPException(status_code=404, detail='No team found for this coach')
+    
+    team = await db.groups.find_one({'id': team_id}, {'_id': 0})
+    if not team:
+        raise HTTPException(status_code=404, detail='Team not found')
+    
+    if not RESEND_AVAILABLE:
+        raise HTTPException(status_code=503, detail='Email service not available')
+    
+    # Validate and clean emails
+    import re
+    email_pattern = re.compile(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+    valid_emails = []
+    invalid_emails = []
+    
+    for email in emails:
+        email = email.strip().lower()
+        if email and email_pattern.match(email):
+            # Check if already a member
+            existing_user = await db.users.find_one({'email': email})
+            if existing_user and existing_user.get('id') in team.get('members', []):
+                invalid_emails.append({'email': email, 'reason': 'Already a team member'})
+            else:
+                valid_emails.append(email)
+        elif email:
+            invalid_emails.append({'email': email, 'reason': 'Invalid email format'})
+    
+    if not valid_emails:
+        return {
+            'success': False,
+            'message': 'No valid emails to send',
+            'sent': 0,
+            'failed': len(invalid_emails),
+            'invalid_emails': invalid_emails
+        }
+    
+    # Send invitations
+    coach_name = current_user.get('name') or current_user.get('username') or 'Your Coach'
+    team_name = team.get('name', 'the team')
+    invite_code = team.get('invite_code')
+    invite_link = f"https://edgemodeapp.com/join/{invite_code}"
+    
+    sent_count = 0
+    failed_emails = []
+    
+    for email in valid_emails:
+        try:
+            resend.Emails.send({
+                "from": "Edge Mode <noreply@edgemodeapp.com>",
+                "to": email,
+                "subject": f"🏆 {coach_name} invited you to join {team_name} on Edge Mode!",
+                "html": f"""
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                    <h1 style="color: #22c55e; margin-bottom: 20px;">You're Invited! 🎯</h1>
+                    
+                    <p style="font-size: 16px; color: #333; line-height: 1.6;">
+                        <strong>{coach_name}</strong> has invited you to join <strong>{team_name}</strong> on Edge Mode - 
+                        the app that helps you become 1% better every day!
+                    </p>
+                    
+                    {f'<p style="font-size: 14px; color: #666; background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0;"><em>"{custom_message}"</em></p>' if custom_message else ''}
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="{invite_link}" style="background: #22c55e; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">
+                            Join {team_name}
+                        </a>
+                    </div>
+                    
+                    <p style="font-size: 14px; color: #666;">
+                        Or use invite code: <strong style="color: #22c55e;">{invite_code}</strong>
+                    </p>
+                    
+                    <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+                    
+                    <p style="font-size: 12px; color: #999;">
+                        Edge Mode helps teens track their self-improvement journey across fitness, study, creativity, and more.
+                        Join thousands of users building better habits together!
+                    </p>
+                </div>
+                """
+            })
+            sent_count += 1
+            
+            # Log the invitation
+            await db.team_invitations.insert_one({
+                'team_id': team_id,
+                'coach_id': current_user['id'],
+                'email': email,
+                'sent_at': datetime.now(timezone.utc).isoformat(),
+                'status': 'sent'
+            })
+            
+        except Exception as e:
+            failed_emails.append({'email': email, 'reason': str(e)})
+    
+    return {
+        'success': sent_count > 0,
+        'message': f'Sent {sent_count} invitation{"s" if sent_count != 1 else ""}',
+        'sent': sent_count,
+        'failed': len(failed_emails) + len(invalid_emails),
+        'failed_emails': failed_emails,
+        'invalid_emails': invalid_emails
+    }
+
+
+@router.get("/invitations")
+async def get_invitation_history(current_user: dict = Depends(get_current_user)):
+    """Get history of sent invitations"""
+    if not current_user.get('is_coach'):
+        raise HTTPException(status_code=403, detail='Coach access required')
+    
+    team_id = current_user.get('team_id')
+    if not team_id:
+        return {'invitations': []}
+    
+    invitations = await db.team_invitations.find(
+        {'team_id': team_id},
+        {'_id': 0}
+    ).sort('sent_at', -1).to_list(100)
+    
+    # Check which invitations resulted in signups
+    for inv in invitations:
+        user = await db.users.find_one({'email': inv['email']}, {'_id': 0, 'id': 1, 'username': 1})
+        if user:
+            inv['joined'] = True
+            inv['username'] = user.get('username')
+        else:
+            inv['joined'] = False
+    
+    return {'invitations': invitations}
