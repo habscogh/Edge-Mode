@@ -209,11 +209,12 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
   - Shows registered coaches with team info and player counts
   - Database-driven codes (replaces hardcoded VALID_COACH_CODES)
 - [x] ✅ **Bulk Invite for Coaches (March 2026)** - Send team invitations in bulk
-  - Backend: `/api/coach/bulk-invite` (POST), `/api/coach/invitations` (GET)
+  - Backend: `/api/coach/bulk-invite` (POST), `/api/coach/invitations` (GET), `/api/coach/resend-invitation` (POST)
   - Frontend: BulkInviteSection component in Coach Dashboard
   - Features: Paste emails or upload CSV, custom message, send up to 50 invites per batch
-  - Tracks invitation history with join status
-  - Professional email template with team info and invite link
+  - Tracks invitation history with join status and resend count
+  - **Resend button** for pending invitations with reminder email template
+  - Professional email templates for initial invite and reminders
 
 ## Known Issues
 - MongoDB may need manual restart if it times out (mongod --dbpath /data/db --fork --logpath /var/log/mongodb.log)
