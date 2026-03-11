@@ -32,6 +32,22 @@ export const BulkInviteSection = () => {
     }
   };
 
+  const handleResend = async (email) => {
+    setResending(email);
+    try {
+      const response = await axios.post(`${API}/coach/resend-invitation`, {
+        email: email,
+        custom_message: ''
+      });
+      toast.success(response.data.message || 'Reminder sent!');
+      fetchInvitationHistory();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to resend');
+    } finally {
+      setResending(null);
+    }
+  };
+
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
