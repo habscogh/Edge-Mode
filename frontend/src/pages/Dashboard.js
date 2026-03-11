@@ -16,6 +16,7 @@ import { OfflineIndicator } from '../components/OfflineIndicator';
 import { QuickActionsButton } from '../components/QuickActionsButton';
 import { ShareStreakModal } from '../components/ShareStreakCard';
 import { FeaturedChallenges } from '../components/FeaturedChallenges';
+import { DailyQuote } from '../components/DailyQuote';
 import { useOfflineSync } from '../hooks/useOfflineSync';
 import { toast } from 'sonner';
 import { getLocalDateString } from '../utils/dateUtils';
