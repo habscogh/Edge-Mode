@@ -232,6 +232,12 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
   - Actions: Generate image, share to social media (native share API), download PNG
   - Integrated into AchievementsScreen.js share modal
   - Perfect for Instagram Stories, TikTok, and social sharing
+- [x] ✅ **Daily Motivational Quotes (March 2026)**
+  - Frontend: DailyQuote.jsx component on Dashboard
+  - 31 curated quotes for teen self-improvement
+  - Rotates daily based on day of year (consistent for all users each day)
+  - Refresh button to get a random new quote
+  - Clean design with quote icon and author attribution
 
 ## Known Issues
 - MongoDB may need manual restart if it times out (mongod --dbpath /data/db --fork --logpath /var/log/mongodb.log)
