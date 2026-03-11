@@ -94,8 +94,34 @@ async def register_coach(coach_data: CoachRegister):
     now = datetime.now(timezone.utc)
     
     has_extended_trial = False
-    if coach_data.special_code and coach_data.special_code.upper() in VALID_COACH_CODES:
-        has_extended_trial = True
+    extended_trial_days = 14  # Default trial
+    
+    # Check if special code is valid (from database or legacy hardcoded)
+    if coach_data.special_code:
+        code_upper = coach_data.special_code.upper()
+        
+        # Check database codes first
+        db_code = await db.coach_codes.find_one({
+            'code': code_upper,
+            'is_active': True
+        })
+        
+        if db_code:
+            # Check max uses
+            if db_code.get('max_uses', 0) > 0:
+                usage_count = await db.users.count_documents({
+                    'special_code': code_upper,
+                    'is_coach': True
+                })
+                if usage_count >= db_code['max_uses']:
+                    raise HTTPException(status_code=400, detail='This code has reached its maximum uses')
+            
+            has_extended_trial = True
+            extended_trial_days = db_code.get('extended_trial_days', 30)
+        elif code_upper in VALID_COACH_CODES:
+            # Legacy hardcoded codes
+            has_extended_trial = True
+            extended_trial_days = 30
     
     team_invite_code = f"TEAM-{secrets.token_hex(4).upper()}"
     
