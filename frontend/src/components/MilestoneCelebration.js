@@ -258,8 +258,8 @@ export const MilestoneCelebration = ({ milestone, streak, sessions, milestoneTyp
             Share your achievement
           </p>
           <ShareIcons 
-            type="streak" 
-            data={{ streak }} 
+            type={milestoneType === 'session' ? 'weekly_stats' : 'streak'} 
+            data={milestoneType === 'session' ? { sessions: displayValue, minutes: 0, consistency: 100 } : { streak: displayValue }} 
             className="justify-center"
           />
         </div>
