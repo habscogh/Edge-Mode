@@ -238,6 +238,14 @@ const AppRoutes = () => {
           }
         />
         <Route
+          path="/streak-recovery/success"
+          element={
+            <ProtectedRoute>
+              <StreakRecoverySuccessScreen />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/history"
           element={
             <ProtectedRoute>
