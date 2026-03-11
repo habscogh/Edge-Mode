@@ -697,3 +697,79 @@ async def get_all_coaches(admin_user: dict = Depends(require_admin)):
                 coach['team_invite_code'] = team.get('invite_code')
     
     return {'coaches': coaches}
+
+
+
+# ============ Site Settings ============
+
+@router.get("/settings")
+async def get_site_settings(admin_user: dict = Depends(require_admin)):
+    """Get all site settings"""
+    settings = await db.site_settings.find_one({'id': 'main'}, {'_id': 0})
+    if not settings:
+        # Default settings
+        settings = {
+            'id': 'main',
+            'social_proof_enabled': True,
+            'testimonials': []
+        }
+        await db.site_settings.insert_one(settings)
+    return settings
+
+
+@router.put("/settings")
+async def update_site_settings(
+    social_proof_enabled: bool = None,
+    admin_user: dict = Depends(require_admin)
+):
+    """Update site settings"""
+    update_data = {}
+    if social_proof_enabled is not None:
+        update_data['social_proof_enabled'] = social_proof_enabled
+    
+    if update_data:
+        await db.site_settings.update_one(
+            {'id': 'main'},
+            {'$set': update_data},
+            upsert=True
+        )
+    
+    settings = await db.site_settings.find_one({'id': 'main'}, {'_id': 0})
+    return settings
+
+
+@router.post("/testimonials")
+async def add_testimonial(
+    name: str,
+    role: str,
+    quote: str,
+    avatar_url: str = "",
+    admin_user: dict = Depends(require_admin)
+):
+    """Add a testimonial"""
+    testimonial = {
+        'id': str(uuid.uuid4()),
+        'name': name,
+        'role': role,
+        'quote': quote,
+        'avatar_url': avatar_url,
+        'created_at': datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.site_settings.update_one(
+        {'id': 'main'},
+        {'$push': {'testimonials': testimonial}},
+        upsert=True
+    )
+    
+    return {'message': 'Testimonial added', 'testimonial': testimonial}
+
+
+@router.delete("/testimonials/{testimonial_id}")
+async def delete_testimonial(testimonial_id: str, admin_user: dict = Depends(require_admin)):
+    """Delete a testimonial"""
+    await db.site_settings.update_one(
+        {'id': 'main'},
+        {'$pull': {'testimonials': {'id': testimonial_id}}}
+    )
+    return {'message': 'Testimonial deleted'}
