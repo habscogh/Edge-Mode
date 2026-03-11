@@ -186,6 +186,11 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
   - Backend: `/api/challenges/admin/all`, `/admin/{id}` (PUT/DELETE), `/admin/{id}/participants`
   - Frontend: AdminChallengeManager component with create/edit/delete functionality
   - Features: Create weekly/monthly challenges, set metrics & pillars, change status, view participants
+- [x] ✅ **Featured Challenges on Dashboard (March 2026)** - Boost challenge participation
+  - Backend: `/api/challenges/featured` endpoint, added `featured` flag to challenges
+  - Frontend: FeaturedChallenges component on Dashboard showing active challenges
+  - Admin: Toggle "Feature" button in Challenge Management to feature/unfeature challenges
+  - Shows top 3 participants preview, days left, quick join button
 
 ## Known Issues
 - MongoDB may need manual restart if it times out (mongod --dbpath /data/db --fork --logpath /var/log/mongodb.log)
