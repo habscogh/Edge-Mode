@@ -41,6 +41,7 @@ export const Dashboard = () => {
 
   useEffect(() => {
     fetchAllData();
+    checkEligibility(); // Check if streak recovery is available
   }, []);
 
   const fetchAllData = async () => {
