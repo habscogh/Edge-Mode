@@ -1,41 +1,98 @@
 import React, { useState, useEffect } from 'react';
-import { Flame, X, Trophy } from 'lucide-react';
+import { Flame, X, Trophy, Zap } from 'lucide-react';
 import { Button } from './ui/button';
 import { ShareIcons } from './ShareButton';
 import confetti from 'canvas-confetti';
 
-const MILESTONES = [7, 14, 30, 50, 100];
+const STREAK_MILESTONES = [7, 14, 30, 50, 100];
+const SESSION_MILESTONES = [10, 25, 50, 100, 250, 500, 1000];
 
 const MILESTONE_DATA = {
-  7: {
+  // Streak milestones
+  streak_7: {
+    type: 'streak',
     title: "Week Warrior!",
     emoji: "🔥",
     message: "You've logged sessions for 7 days straight!",
     color: "from-orange-500 to-amber-500"
   },
-  14: {
+  streak_14: {
+    type: 'streak',
     title: "Fortnight Fighter!",
     emoji: "🔥🔥",
     message: "Two weeks of consistency! You're unstoppable!",
     color: "from-orange-600 to-red-500"
   },
-  30: {
+  streak_30: {
+    type: 'streak',
     title: "Monthly Master!",
     emoji: "🔥🔥🔥",
     message: "30 days! You've built a powerful habit!",
     color: "from-red-500 to-pink-500"
   },
-  50: {
+  streak_50: {
+    type: 'streak',
     title: "Fifty & Thriving!",
     emoji: "⚡",
     message: "50-day streak! You're in the top 1%!",
     color: "from-purple-500 to-indigo-500"
   },
-  100: {
+  streak_100: {
+    type: 'streak',
     title: "Century Legend!",
     emoji: "👑",
     message: "100 days! You're a true legend!",
     color: "from-yellow-400 to-amber-500"
+  },
+  // Session milestones
+  session_10: {
+    type: 'session',
+    title: "Getting Started!",
+    emoji: "⭐",
+    message: "10 sessions logged! You're building momentum!",
+    color: "from-blue-500 to-cyan-500"
+  },
+  session_25: {
+    type: 'session',
+    title: "Quarter Century!",
+    emoji: "🌟",
+    message: "25 sessions! You're making real progress!",
+    color: "from-cyan-500 to-teal-500"
+  },
+  session_50: {
+    type: 'session',
+    title: "Halfway Hero!",
+    emoji: "💪",
+    message: "50 sessions! Half way to the century club!",
+    color: "from-teal-500 to-green-500"
+  },
+  session_100: {
+    type: 'session',
+    title: "Century Club!",
+    emoji: "🏆",
+    message: "100 sessions! You've joined the elite!",
+    color: "from-green-500 to-emerald-500"
+  },
+  session_250: {
+    type: 'session',
+    title: "Dedicated Grinder!",
+    emoji: "💎",
+    message: "250 sessions! True dedication pays off!",
+    color: "from-emerald-500 to-blue-500"
+  },
+  session_500: {
+    type: 'session',
+    title: "Half Thousand!",
+    emoji: "🚀",
+    message: "500 sessions! You're absolutely crushing it!",
+    color: "from-violet-500 to-purple-500"
+  },
+  session_1000: {
+    type: 'session',
+    title: "Thousand Club!",
+    emoji: "👑",
+    message: "1000 sessions! You're a true legend!",
+    color: "from-yellow-500 to-orange-500"
   }
 };
 
