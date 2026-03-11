@@ -591,6 +591,11 @@ export const AdminDashboard = () => {
           <AdminChallengeManager />
         </div>
 
+        {/* Coach Management */}
+        <div className="bg-zinc-950 border border-zinc-800 rounded-md p-6 mb-6">
+          <AdminCoachManager />
+        </div>
+
         {/* Ambassadors Section */}
         <div className="bg-zinc-950 border border-zinc-800 rounded-md p-6 mb-6">
           <div 
