@@ -580,6 +580,7 @@ async def admin_update_challenge(
     name: Optional[str] = None,
     description: Optional[str] = None,
     status: Optional[str] = None,
+    featured: Optional[bool] = None,
     current_user: dict = Depends(get_current_user)
 ):
     """Admin endpoint to update a challenge"""
@@ -597,6 +598,8 @@ async def admin_update_challenge(
         update_data['description'] = description
     if status and status in ['upcoming', 'active', 'completed', 'cancelled']:
         update_data['status'] = status
+    if featured is not None:
+        update_data['featured'] = featured
     
     if update_data:
         update_data['updated_at'] = datetime.now(timezone.utc).isoformat()
