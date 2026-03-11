@@ -33,7 +33,8 @@ from routes import (
     push,
     schools,
     ambassador,
-    reflections
+    reflections,
+    streak_recovery
 )
 
 # Import scheduler jobs
