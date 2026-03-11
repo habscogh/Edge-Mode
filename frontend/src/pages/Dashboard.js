@@ -125,7 +125,7 @@ export const Dashboard = () => {
       setQuickLogMinutes('30');
       
       // Refresh data and user - wrapped in try-catch so it doesn't show error if refresh fails
-128|      try {
+      try {
         await fetchAllData();
         if (fetchUser) await fetchUser();
         
