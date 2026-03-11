@@ -6,6 +6,7 @@ from datetime import datetime, timezone, timedelta
 from pydantic import BaseModel
 from typing import Optional, List
 import os
+import uuid
 
 from config import db, logger, STRIPE_API_KEY
 from utils.auth import require_admin
