@@ -262,20 +262,36 @@ export const BulkInviteSection = () => {
                     key={i} 
                     className="flex items-center justify-between bg-zinc-950 px-3 py-2 rounded text-sm"
                   >
-                    <div className="flex items-center gap-2">
-                      <Mail className="w-3 h-3 text-zinc-500" />
-                      <span className="text-zinc-300">{inv.email}</span>
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <Mail className="w-3 h-3 text-zinc-500 flex-shrink-0" />
+                      <span className="text-zinc-300 truncate">{inv.email}</span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-shrink-0">
                       {inv.joined ? (
                         <span className="flex items-center gap-1 text-xs text-green-400">
                           <UserCheck className="w-3 h-3" />
                           Joined{inv.username ? ` as ${inv.username}` : ''}
                         </span>
                       ) : (
-                        <span className="text-xs text-zinc-500">
-                          {new Date(inv.sent_at).toLocaleDateString()}
-                        </span>
+                        <>
+                          <span className="text-xs text-zinc-500">
+                            {new Date(inv.sent_at).toLocaleDateString()}
+                            {inv.resend_count > 0 && ` (×${inv.resend_count + 1})`}
+                          </span>
+                          <button
+                            onClick={() => handleResend(inv.email)}
+                            disabled={resending === inv.email}
+                            className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 disabled:opacity-50"
+                            title="Resend invitation"
+                          >
+                            {resending === inv.email ? (
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                            ) : (
+                              <RefreshCw className="w-3 h-3" />
+                            )}
+                            Resend
+                          </button>
+                        </>
                       )}
                     </div>
                   </div>
