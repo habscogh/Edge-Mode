@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Zap, CheckCircle2, Users, Flame, Trophy, Calendar, TrendingUp, Bell, Smartphone, Users2, Target, Shield, School, BookOpen } from 'lucide-react';
+import { SocialProofSection } from '../components/SocialProofSection';
 
 export const LandingPage = () => {
   const navigate = useNavigate();
