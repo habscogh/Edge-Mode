@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { Button } from '../components/ui/button';
+import { BulkInviteSection } from '../components/BulkInviteSection';
 import { 
   ArrowLeft, 
   Users, 
