@@ -125,20 +125,40 @@ export const Dashboard = () => {
       setQuickLogMinutes('30');
       
       // Refresh data and user - wrapped in try-catch so it doesn't show error if refresh fails
-      try {
+128|      try {
         await fetchAllData();
         if (fetchUser) await fetchUser();
         
         // Check for streak milestone after user data is refreshed
         const updatedUserRes = await axios.get(`${API}/auth/me`);
         const newStreak = updatedUserRes.data?.current_streak || 0;
+        const newSessions = updatedUserRes.data?.total_sessions_completed || 0;
+        const previousSessions = user?.total_sessions_completed || 0;
         
-        const milestone = checkMilestoneHit(previousStreak, newStreak);
-        if (milestone) {
-          // Small delay to let other toasts clear
+        // Check streak milestones
+        const streakMilestone = checkMilestoneHit(previousStreak, newStreak);
+        if (streakMilestone) {
           setTimeout(() => {
-            setMilestoneToShow({ milestone, streak: newStreak });
+            setMilestoneToShow({ 
+              milestone: streakMilestone.value, 
+              streak: newStreak, 
+              milestoneType: 'streak' 
+            });
           }, 1000);
+        }
+        
+        // Check session milestones (only if no streak milestone to avoid overlap)
+        if (!streakMilestone) {
+          const sessionMilestone = checkSessionMilestoneHit(previousSessions, newSessions);
+          if (sessionMilestone) {
+            setTimeout(() => {
+              setMilestoneToShow({ 
+                milestone: sessionMilestone.value, 
+                sessions: newSessions, 
+                milestoneType: 'session' 
+              });
+            }, 1000);
+          }
         }
       } catch (refreshError) {
         // Session was logged successfully, just couldn't refresh data
