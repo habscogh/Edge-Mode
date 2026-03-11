@@ -371,3 +371,106 @@ async def get_invitation_history(current_user: dict = Depends(get_current_user))
             inv['joined'] = False
     
     return {'invitations': invitations}
+
+
+
+@router.post("/resend-invitation")
+async def resend_invitation(
+    email: str,
+    custom_message: str = "",
+    current_user: dict = Depends(get_current_user)
+):
+    """Resend invitation to a specific email"""
+    if not current_user.get('is_coach'):
+        raise HTTPException(status_code=403, detail='Coach access required')
+    
+    team_id = current_user.get('team_id')
+    if not team_id:
+        raise HTTPException(status_code=404, detail='No team found')
+    
+    team = await db.groups.find_one({'id': team_id}, {'_id': 0})
+    if not team:
+        raise HTTPException(status_code=404, detail='Team not found')
+    
+    if not RESEND_AVAILABLE:
+        raise HTTPException(status_code=503, detail='Email service not available')
+    
+    # Check if already joined
+    existing_user = await db.users.find_one({'email': email.lower()})
+    if existing_user and existing_user.get('id') in team.get('members', []):
+        raise HTTPException(status_code=400, detail='This person has already joined the team')
+    
+    coach_name = current_user.get('name') or current_user.get('username') or 'Your Coach'
+    team_name = team.get('name', 'the team')
+    invite_code = team.get('invite_code')
+    invite_link = f"https://edgemodeapp.com/join/{invite_code}"
+    
+    try:
+        resend.Emails.send({
+            "from": "Edge Mode <noreply@edgemodeapp.com>",
+            "to": email.lower(),
+            "subject": f"🔔 Reminder: {coach_name} is waiting for you on {team_name}!",
+            "html": f"""
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h1 style="color: #22c55e; margin-bottom: 20px;">Don't Miss Out! 🎯</h1>
+                
+                <p style="font-size: 16px; color: #333; line-height: 1.6;">
+                    <strong>{coach_name}</strong> is still waiting for you to join <strong>{team_name}</strong> on Edge Mode!
+                </p>
+                
+                <p style="font-size: 14px; color: #666; line-height: 1.6;">
+                    Your teammates are already tracking their progress and crushing their goals. 
+                    Don't get left behind!
+                </p>
+                
+                {f'<p style="font-size: 14px; color: #666; background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0;"><em>"{custom_message}"</em></p>' if custom_message else ''}
+                
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="{invite_link}" style="background: #22c55e; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">
+                        Join {team_name} Now
+                    </a>
+                </div>
+                
+                <p style="font-size: 14px; color: #666;">
+                    Or use invite code: <strong style="color: #22c55e;">{invite_code}</strong>
+                </p>
+                
+                <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+                
+                <p style="font-size: 12px; color: #999;">
+                    Edge Mode helps teens track their self-improvement journey. 
+                    Join thousands building better habits together!
+                </p>
+            </div>
+            """
+        })
+        
+        # Update invitation record
+        await db.team_invitations.update_one(
+            {'team_id': team_id, 'email': email.lower()},
+            {
+                '$set': {
+                    'last_resent_at': datetime.now(timezone.utc).isoformat(),
+                    'resend_count': 1
+                },
+                '$inc': {'resend_count': 1}
+            },
+            upsert=True
+        )
+        
+        # If no record exists, create one
+        existing_inv = await db.team_invitations.find_one({'team_id': team_id, 'email': email.lower()})
+        if not existing_inv:
+            await db.team_invitations.insert_one({
+                'team_id': team_id,
+                'coach_id': current_user['id'],
+                'email': email.lower(),
+                'sent_at': datetime.now(timezone.utc).isoformat(),
+                'status': 'sent',
+                'resend_count': 1
+            })
+        
+        return {'success': True, 'message': f'Reminder sent to {email}'}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f'Failed to send email: {str(e)}')
