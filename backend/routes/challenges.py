@@ -307,6 +307,47 @@ async def challenges_daily_job():
 
 # ============ Challenge Routes ============
 
+@router.get("/featured")
+async def get_featured_challenges(current_user: dict = Depends(get_current_user)):
+    """Get featured challenges for prominent display on dashboard"""
+    # Get active featured challenges, or fall back to active challenges
+    featured = await db.challenges.find(
+        {'status': 'active', 'featured': True},
+        {'_id': 0}
+    ).sort('created_at', -1).to_list(3)
+    
+    # If no featured, get latest active challenges
+    if not featured:
+        featured = await db.challenges.find(
+            {'status': 'active'},
+            {'_id': 0}
+        ).sort('participant_count', -1).to_list(3)
+    
+    for challenge in featured:
+        # Check user participation
+        participation = await db.challenge_participants.find_one({
+            'challenge_id': challenge['id'],
+            'user_id': current_user['id']
+        }, {'_id': 0})
+        challenge['is_participating'] = participation is not None
+        if participation:
+            challenge['user_rank'] = participation.get('rank', 0)
+            challenge['user_score'] = participation.get('current_score', 0)
+        
+        # Get top 3 participants for preview
+        top_participants = await db.challenge_participants.find(
+            {'challenge_id': challenge['id']},
+            {'_id': 0}
+        ).sort('current_score', -1).to_list(3)
+        
+        for p in top_participants:
+            user = await db.users.find_one({'id': p['user_id']}, {'_id': 0, 'username': 1})
+            p['username'] = user.get('username', 'Unknown') if user else 'Unknown'
+        challenge['top_participants'] = top_participants
+    
+    return featured
+
+
 @router.get("")
 async def get_challenges(status: Optional[str] = None, challenge_type: Optional[str] = None, current_user: dict = Depends(get_current_user)):
     """Get all challenges, optionally filtered by status and type"""
