@@ -188,7 +188,6 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
 
 ## Future Enhancements
 - [ ] **P1:** Social Proof Section - Add testimonials/user stats to landing page
-- [ ] **P1:** Streak Recovery Feature - Paid option to restore broken streaks
 - [ ] **P2:** Admin UI for managing coach special codes
 - [ ] **P3:** Admin challenge management UI
 - [ ] **P3:** Integrate real NCES school database API for complete US school coverage
