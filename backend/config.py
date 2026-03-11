@@ -166,6 +166,20 @@ BADGES = {
         "description": "Finish in top 3 of a challenge",
         "icon": "🎖️",
         "category": "challenge"
+    },
+    "silver_medal": {
+        "id": "silver_medal",
+        "name": "Silver Medal",
+        "description": "Finish 2nd in a challenge",
+        "icon": "🥈",
+        "category": "challenge"
+    },
+    "bronze_medal": {
+        "id": "bronze_medal",
+        "name": "Bronze Medal",
+        "description": "Finish 3rd in a challenge",
+        "icon": "🥉",
+        "category": "challenge"
     }
 }
 
