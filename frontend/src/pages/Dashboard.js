@@ -231,6 +231,15 @@ export const Dashboard = () => {
             </div>
             <div className="text-3xl font-mono font-bold text-white">{user?.current_streak || 0}</div>
             <div className="text-zinc-500 text-xs font-body mt-1">days</div>
+            {/* Streak Recovery Button */}
+            {recoveryEligible && (
+              <button
+                onClick={() => setShowRecoveryModal(true)}
+                className="mt-2 text-xs text-orange-400 hover:text-orange-300 underline font-body"
+              >
+                Recover Streak
+              </button>
+            )}
           </div>
 
           <div data-testid="longest-streak-card" className="bg-zinc-950 border border-zinc-800 rounded-md p-4">
