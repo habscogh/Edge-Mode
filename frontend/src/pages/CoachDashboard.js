@@ -298,6 +298,9 @@ export const CoachDashboard = () => {
         )}
       </div>
 
+      {/* Bulk Invite Section */}
+      <BulkInviteSection />
+
       {/* Player Details Modal */}
       {selectedPlayer && playerDetails && (
         <PlayerDetailsModal 
