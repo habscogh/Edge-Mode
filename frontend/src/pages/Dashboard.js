@@ -218,6 +218,9 @@ export const Dashboard = () => {
           <Flame className="w-8 h-8 text-primary" />
         </div>
 
+        {/* Daily Motivational Quote */}
+        <DailyQuote className="mb-6" />
+
         <div className="grid grid-cols-3 gap-3 mb-6">
           <div data-testid="current-streak-card" className="bg-zinc-950 border border-zinc-800 rounded-md p-4 relative group cursor-pointer" onClick={() => setShowShareModal(true)}>
             <button 
