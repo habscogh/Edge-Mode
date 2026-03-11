@@ -84,6 +84,7 @@ api_router.include_router(challenges.router)
 api_router.include_router(payments.router)
 api_router.include_router(payments.webhook_router)  # Webhook at /api/webhook/stripe
 api_router.include_router(admin.router)
+api_router.include_router(admin.public_router)  # Public platform stats endpoint
 api_router.include_router(notifications.router)
 api_router.include_router(referral.router)
 api_router.include_router(onboarding.router)
