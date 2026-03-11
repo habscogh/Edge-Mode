@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { 
   Trophy, Plus, Edit2, Trash2, Users, Calendar, 
-  ChevronDown, ChevronUp, X, Loader2, Target, Clock, Star
+  ChevronDown, ChevronUp, X, Loader2, Target, Clock, Star, Award
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
