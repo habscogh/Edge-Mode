@@ -202,6 +202,12 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
   - `send_challenge_winner_push()` - Special notification for challenge winners (🥇🥈🥉)
   - Integrated into badge award system - auto-sends on badge earn
   - Links to /achievements page
+- [x] ✅ **Admin Coach Management (March 2026)** - Full CRUD for coach codes
+  - Backend: `/api/admin/coach-codes` (GET/POST/PUT/DELETE), `/api/admin/coaches` (GET)
+  - Frontend: AdminCoachManager component in Admin Dashboard
+  - Features: Create codes with custom trial days, max uses, activate/deactivate, view usage stats
+  - Shows registered coaches with team info and player counts
+  - Database-driven codes (replaces hardcoded VALID_COACH_CODES)
 
 ## Known Issues
 - MongoDB may need manual restart if it times out (mongod --dbpath /data/db --fork --logpath /var/log/mongodb.log)
