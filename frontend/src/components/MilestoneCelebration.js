@@ -142,18 +142,32 @@ const triggerConfetti = (intensity = 'normal') => {
 
 // Check if a streak milestone was just hit
 export const checkMilestoneHit = (previousStreak, currentStreak) => {
-  for (const milestone of MILESTONES) {
+  for (const milestone of STREAK_MILESTONES) {
     if (previousStreak < milestone && currentStreak >= milestone) {
-      return milestone;
+      return { type: 'streak', value: milestone };
+    }
+  }
+  return null;
+};
+
+// Check if a session milestone was just hit
+export const checkSessionMilestoneHit = (previousSessions, currentSessions) => {
+  for (const milestone of SESSION_MILESTONES) {
+    if (previousSessions < milestone && currentSessions >= milestone) {
+      return { type: 'session', value: milestone };
     }
   }
   return null;
 };
 
 // Milestone Celebration Modal
-export const MilestoneCelebration = ({ milestone, streak, onClose, onShare }) => {
+export const MilestoneCelebration = ({ milestone, streak, sessions, milestoneType = 'streak', onClose, onShare }) => {
   const [showConfetti, setShowConfetti] = useState(true);
-  const data = MILESTONE_DATA[milestone] || MILESTONE_DATA[7];
+  
+  // Get the right data key based on type
+  const dataKey = milestoneType === 'session' ? `session_${milestone}` : `streak_${milestone}`;
+  const data = MILESTONE_DATA[dataKey] || MILESTONE_DATA['streak_7'];
+  const displayValue = milestoneType === 'session' ? sessions : streak;
 
   useEffect(() => {
     // Trigger real canvas confetti
