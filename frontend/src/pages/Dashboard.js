@@ -10,7 +10,7 @@ import { format, parseISO } from 'date-fns';
 import { ConsistencyRatingBadge } from '../components/ConsistencyRating';
 import { PerformanceRatingBadge } from '../components/PerformanceRating';
 import { TrialEndingBanner } from '../components/TrialEndingBanner';
-import { MilestoneCelebration, checkMilestoneHit } from '../components/MilestoneCelebration';
+import { MilestoneCelebration, checkMilestoneHit, checkSessionMilestoneHit } from '../components/MilestoneCelebration';
 import { InstallBanner } from '../components/InstallPrompt';
 import { OfflineIndicator } from '../components/OfflineIndicator';
 import { QuickActionsButton } from '../components/QuickActionsButton';
