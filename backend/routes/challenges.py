@@ -718,27 +718,35 @@ async def admin_finalize_challenge(challenge_id: str, current_user: dict = Depen
             badges_awarded.append(f"{username}: Podium Finish")
         
         if participant['current_score'] > 0:
+            place = idx + 1
+            
             if idx == 0:
                 # 1st place
                 badge_id = 'weekly_champion' if challenge['challenge_type'] == 'weekly' else 'monthly_champion'
                 badge = await award_badge(user_id, badge_id)
                 if badge:
                     badges_awarded.append(f"{username}: {badge['name']}")
-                winners.append({'place': 1, 'user_id': user_id, 'username': username, 'score': participant['current_score']})
-                
+                    
             elif idx == 1:
                 # 2nd place
                 badge = await award_badge(user_id, 'silver_medal')
                 if badge:
                     badges_awarded.append(f"{username}: Silver Medal")
-                winners.append({'place': 2, 'user_id': user_id, 'username': username, 'score': participant['current_score']})
-                
+                    
             elif idx == 2:
                 # 3rd place
                 badge = await award_badge(user_id, 'bronze_medal')
                 if badge:
                     badges_awarded.append(f"{username}: Bronze Medal")
-                winners.append({'place': 3, 'user_id': user_id, 'username': username, 'score': participant['current_score']})
+            
+            winners.append({'place': place, 'user_id': user_id, 'username': username, 'score': participant['current_score']})
+            
+            # Send winner push notification
+            try:
+                from routes.push import send_challenge_winner_push
+                await send_challenge_winner_push(user_id, place, challenge['name'])
+            except Exception as e:
+                logger.error(f"Failed to send winner push: {e}")
     
     # Update challenge status
     await db.challenges.update_one(
