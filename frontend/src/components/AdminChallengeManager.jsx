@@ -343,8 +343,23 @@ export const AdminChallengeManager = () => {
                     </div>
                   )}
 
-                  {/* Delete Button */}
-                  <div className="pt-2 border-t border-zinc-800">
+                  {/* Actions Row */}
+                  <div className="pt-2 border-t border-zinc-800 flex items-center justify-between">
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggleFeatured(challenge.id, challenge.featured);
+                      }}
+                      variant="ghost"
+                      size="sm"
+                      className={challenge.featured 
+                        ? "text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/10" 
+                        : "text-zinc-400 hover:text-yellow-400 hover:bg-yellow-500/10"
+                      }
+                    >
+                      <Star className={`w-3 h-3 mr-1 ${challenge.featured ? 'fill-yellow-400' : ''}`} />
+                      {challenge.featured ? 'Unfeature' : 'Feature'}
+                    </Button>
                     <Button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -355,7 +370,7 @@ export const AdminChallengeManager = () => {
                       className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
                     >
                       <Trash2 className="w-3 h-3 mr-1" />
-                      Delete Challenge
+                      Delete
                     </Button>
                   </div>
                 </div>
