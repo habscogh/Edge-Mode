@@ -265,6 +265,11 @@ export const AdminChallengeManager = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
+                  {challenge.featured && (
+                    <span className="text-xs px-1.5 py-0.5 rounded bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 flex items-center gap-1">
+                      <Star className="w-3 h-3" /> Featured
+                    </span>
+                  )}
                   <span className={`text-xs px-2 py-0.5 rounded border ${STATUS_COLORS[challenge.status]}`}>
                     {challenge.status}
                   </span>
