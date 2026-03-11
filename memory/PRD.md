@@ -225,6 +225,13 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
   - Stats auto-update from database (total_users, sessions_logged, badges_earned, hours_logged)
   - Testimonials display with quotes, user names, and roles
   - Admin can toggle entire section on/off from dashboard
+- [x] ✅ **Shareable Achievement Cards (March 2026)**
+  - Frontend: AchievementShareCard.jsx - Visual card generator with html2canvas
+  - Features: Category-based gradient colors (streak=orange, milestone=gold, consistency=green, mastery=purple)
+  - Card includes: EDGE MODE branding, "Achievement Unlocked" label, badge icon, name, description, username
+  - Actions: Generate image, share to social media (native share API), download PNG
+  - Integrated into AchievementsScreen.js share modal
+  - Perfect for Instagram Stories, TikTok, and social sharing
 
 ## Known Issues
 - MongoDB may need manual restart if it times out (mongod --dbpath /data/db --fork --logpath /var/log/mongodb.log)
