@@ -15,6 +15,7 @@ import { InstallBanner } from '../components/InstallPrompt';
 import { OfflineIndicator } from '../components/OfflineIndicator';
 import { QuickActionsButton } from '../components/QuickActionsButton';
 import { ShareStreakModal } from '../components/ShareStreakCard';
+import { FeaturedChallenges } from '../components/FeaturedChallenges';
 import { useOfflineSync } from '../hooks/useOfflineSync';
 import { toast } from 'sonner';
 import { getLocalDateString } from '../utils/dateUtils';
