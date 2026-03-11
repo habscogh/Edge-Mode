@@ -513,6 +513,8 @@ export const Dashboard = () => {
         <MilestoneCelebration
           milestone={milestoneToShow.milestone}
           streak={milestoneToShow.streak}
+          sessions={milestoneToShow.sessions}
+          milestoneType={milestoneToShow.milestoneType || 'streak'}
           onClose={() => setMilestoneToShow(null)}
         />
       )}
