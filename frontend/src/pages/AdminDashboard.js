@@ -230,6 +230,70 @@ export const AdminDashboard = () => {
     }
   };
 
+  // Site Settings Functions
+  const fetchSiteSettings = async () => {
+    try {
+      const res = await axios.get(`${API}/admin/settings`);
+      setSiteSettings(res.data);
+    } catch (err) {
+      console.error('Failed to fetch site settings:', err);
+      toast.error('Failed to load site settings');
+    }
+  };
+
+  const handleToggleSocialProof = async () => {
+    setUpdatingSettings(true);
+    try {
+      const newValue = !siteSettings?.social_proof_enabled;
+      const res = await axios.put(`${API}/admin/settings?social_proof_enabled=${newValue}`);
+      setSiteSettings(res.data);
+      toast.success(`Social proof ${newValue ? 'enabled' : 'disabled'}`);
+    } catch (err) {
+      console.error('Failed to update settings:', err);
+      toast.error('Failed to update settings');
+    } finally {
+      setUpdatingSettings(false);
+    }
+  };
+
+  const handleAddTestimonial = async () => {
+    if (!newTestimonial.name || !newTestimonial.quote) {
+      toast.error('Name and quote are required');
+      return;
+    }
+    
+    setAddingTestimonial(true);
+    try {
+      const params = new URLSearchParams({
+        name: newTestimonial.name,
+        role: newTestimonial.role || '',
+        quote: newTestimonial.quote,
+        avatar_url: newTestimonial.avatar_url || ''
+      });
+      await axios.post(`${API}/admin/testimonials?${params}`);
+      toast.success('Testimonial added');
+      setNewTestimonial({ name: '', role: '', quote: '', avatar_url: '' });
+      fetchSiteSettings();
+    } catch (err) {
+      console.error('Failed to add testimonial:', err);
+      toast.error('Failed to add testimonial');
+    } finally {
+      setAddingTestimonial(false);
+    }
+  };
+
+  const handleDeleteTestimonial = async (id) => {
+    if (!confirm('Delete this testimonial?')) return;
+    try {
+      await axios.delete(`${API}/admin/testimonials/${id}`);
+      toast.success('Testimonial deleted');
+      fetchSiteSettings();
+    } catch (err) {
+      console.error('Failed to delete testimonial:', err);
+      toast.error('Failed to delete testimonial');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-[#09090b]">
