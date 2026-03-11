@@ -521,3 +521,85 @@ async def admin_create_challenge(challenge_data: ChallengeCreate, current_user: 
     
     await db.challenges.insert_one(challenge_doc)
     return {'message': 'Challenge created', 'challenge': {k: v for k, v in challenge_doc.items() if k != '_id'}}
+
+
+@router.get("/admin/all")
+async def admin_get_all_challenges(current_user: dict = Depends(get_current_user)):
+    """Admin endpoint to get all challenges with full details"""
+    if current_user['email'] != 'admin@edgemodeapp.com':
+        raise HTTPException(status_code=403, detail='Admin access required')
+    
+    challenges = await db.challenges.find({}, {'_id': 0}).sort('created_at', -1).to_list(100)
+    return {'challenges': challenges}
+
+
+@router.put("/admin/{challenge_id}")
+async def admin_update_challenge(
+    challenge_id: str,
+    name: Optional[str] = None,
+    description: Optional[str] = None,
+    status: Optional[str] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """Admin endpoint to update a challenge"""
+    if current_user['email'] != 'admin@edgemodeapp.com':
+        raise HTTPException(status_code=403, detail='Admin access required')
+    
+    challenge = await db.challenges.find_one({'id': challenge_id})
+    if not challenge:
+        raise HTTPException(status_code=404, detail='Challenge not found')
+    
+    update_data = {}
+    if name:
+        update_data['name'] = name
+    if description:
+        update_data['description'] = description
+    if status and status in ['upcoming', 'active', 'completed', 'cancelled']:
+        update_data['status'] = status
+    
+    if update_data:
+        update_data['updated_at'] = datetime.now(timezone.utc).isoformat()
+        await db.challenges.update_one({'id': challenge_id}, {'$set': update_data})
+    
+    updated = await db.challenges.find_one({'id': challenge_id}, {'_id': 0})
+    return {'message': 'Challenge updated', 'challenge': updated}
+
+
+@router.delete("/admin/{challenge_id}")
+async def admin_delete_challenge(challenge_id: str, current_user: dict = Depends(get_current_user)):
+    """Admin endpoint to delete a challenge"""
+    if current_user['email'] != 'admin@edgemodeapp.com':
+        raise HTTPException(status_code=403, detail='Admin access required')
+    
+    challenge = await db.challenges.find_one({'id': challenge_id})
+    if not challenge:
+        raise HTTPException(status_code=404, detail='Challenge not found')
+    
+    # Delete participants
+    await db.challenge_participants.delete_many({'challenge_id': challenge_id})
+    # Delete challenge
+    await db.challenges.delete_one({'id': challenge_id})
+    
+    logger.info(f"Admin deleted challenge {challenge_id}: {challenge.get('name')}")
+    return {'message': 'Challenge deleted'}
+
+
+@router.get("/admin/{challenge_id}/participants")
+async def admin_get_challenge_participants(challenge_id: str, current_user: dict = Depends(get_current_user)):
+    """Admin endpoint to get all participants in a challenge"""
+    if current_user['email'] != 'admin@edgemodeapp.com':
+        raise HTTPException(status_code=403, detail='Admin access required')
+    
+    participants = await db.challenge_participants.find(
+        {'challenge_id': challenge_id},
+        {'_id': 0}
+    ).sort('rank', 1).to_list(100)
+    
+    # Get user details for each participant
+    for p in participants:
+        user = await db.users.find_one({'id': p['user_id']}, {'_id': 0, 'username': 1, 'email': 1})
+        if user:
+            p['username'] = user.get('username')
+            p['email'] = user.get('email')
+    
+    return {'participants': participants}
