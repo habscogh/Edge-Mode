@@ -199,6 +199,34 @@ async def register_coach(coach_data: CoachRegister):
     
     await db.groups.insert_one(team_doc)
     
+    # Send email notification to admin about new coach signup
+    if RESEND_AVAILABLE:
+        try:
+            total_coaches = await db.users.count_documents({'is_coach': True})
+            resend.Emails.send({
+                "from": SENDER_EMAIL,
+                "to": ADMIN_NOTIFICATION_EMAIL,
+                "subject": f"🏆 New Coach Signup: {coach_data.name}",
+                "html": f"""
+                <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px;">
+                    <h2 style="color: #8b5cf6;">New Coach Registration!</h2>
+                    <div style="background: #f4f4f5; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <p><strong>Coach Name:</strong> {coach_data.name}</p>
+                        <p><strong>Email:</strong> {coach_data.email}</p>
+                        <p><strong>Team Name:</strong> {coach_data.team_name}</p>
+                        <p><strong>Signed up:</strong> {now.strftime('%B %d, %Y at %I:%M %p')} UTC</p>
+                        {f'<p><strong>Promo Code:</strong> {coach_data.special_code}</p>' if coach_data.special_code else ''}
+                    </div>
+                    <p style="color: #71717a; font-size: 14px;">Total coaches: <strong>{total_coaches}</strong></p>
+                    <hr style="border: none; border-top: 1px solid #e4e4e7; margin: 20px 0;">
+                    <p style="color: #a1a1aa; font-size: 12px;">Edge Mode Admin Notification</p>
+                </div>
+                """
+            })
+            logger.info(f"Admin notification sent for new coach: {coach_data.email}")
+        except Exception as e:
+            logger.error(f"Failed to send admin notification: {e}")
+    
     token = create_token(coach_id)
     invite_link = f"/join/{team_invite_code}"
     
