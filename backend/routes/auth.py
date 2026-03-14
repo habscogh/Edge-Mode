@@ -81,6 +81,34 @@ async def register(user_data: UserRegister):
             'created_at': now.isoformat()
         })
     
+    # Send email notification to admin about new signup
+    if RESEND_AVAILABLE:
+        try:
+            total_users = await db.users.count_documents({})
+            resend.Emails.send({
+                "from": SENDER_EMAIL,
+                "to": ADMIN_NOTIFICATION_EMAIL,
+                "subject": f"🎉 New Edge Mode Signup: {user_data.username}",
+                "html": f"""
+                <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px;">
+                    <h2 style="color: #10b981;">New User Registration!</h2>
+                    <div style="background: #f4f4f5; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <p><strong>Username:</strong> {user_data.username}</p>
+                        <p><strong>Email:</strong> {user_data.email}</p>
+                        <p><strong>Age:</strong> {user_data.age}</p>
+                        <p><strong>Signed up:</strong> {now.strftime('%B %d, %Y at %I:%M %p')} UTC</p>
+                        {f'<p><strong>Referred by:</strong> Yes</p>' if referred_by else ''}
+                    </div>
+                    <p style="color: #71717a; font-size: 14px;">Total users: <strong>{total_users}</strong></p>
+                    <hr style="border: none; border-top: 1px solid #e4e4e7; margin: 20px 0;">
+                    <p style="color: #a1a1aa; font-size: 12px;">Edge Mode Admin Notification</p>
+                </div>
+                """
+            })
+            logger.info(f"Admin notification sent for new user: {user_data.email}")
+        except Exception as e:
+            logger.error(f"Failed to send admin notification: {e}")
+    
     token = create_token(user_id)
     
     return {'token': token, 'user_id': user_id, 'trial_ends_at': trial_end.isoformat()}
