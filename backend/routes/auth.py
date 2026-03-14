@@ -6,14 +6,28 @@ from datetime import datetime, timezone, timedelta
 import uuid
 import secrets
 
-from config import db, logger, VALID_COACH_CODES
+from config import db, logger, VALID_COACH_CODES, RESEND_API_KEY, SENDER_EMAIL
 from models.schemas import (
     UserRegister, UserLogin, CoachRegister, 
     PasswordResetRequest, PasswordResetConfirm
 )
 from utils.auth import hash_password, verify_password, create_token, get_current_user
 
+# Import resend for email notifications
+try:
+    import resend
+    if RESEND_API_KEY:
+        resend.api_key = RESEND_API_KEY
+        RESEND_AVAILABLE = True
+    else:
+        RESEND_AVAILABLE = False
+except ImportError:
+    RESEND_AVAILABLE = False
+
 router = APIRouter(prefix="/auth", tags=["Authentication"])
+
+# Admin email for notifications
+ADMIN_NOTIFICATION_EMAIL = "admin@edgemodeapp.com"
 
 # Password reset tokens storage (in production, use Redis or similar)
 password_reset_tokens = {}
