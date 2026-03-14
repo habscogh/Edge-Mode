@@ -244,6 +244,11 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
   - Each milestone has unique title, emoji, message, and gradient color
   - Epic confetti animation for big milestones (30+ days, 100+ sessions)
   - Share to social media option in celebration modal
+- [x] ✅ **Admin Email Notifications for New Signups (March 2026)**
+  - Email sent to admin@edgemodeapp.com on every new user registration
+  - Email sent on every new coach registration
+  - Includes: username, email, age, signup time, total user count
+  - Uses existing Resend integration
 
 ## Known Issues
 - MongoDB may need manual restart if it times out (mongod --dbpath /data/db --fork --logpath /var/log/mongodb.log)
