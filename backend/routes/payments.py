@@ -4,6 +4,7 @@ Payment routes for Edge Mode (Stripe integration)
 from fastapi import APIRouter, HTTPException, Depends, Request
 from datetime import datetime, timezone
 import uuid
+import secrets
 
 from config import db, logger, STRIPE_API_KEY, SUBSCRIPTION_PRICES
 from models.schemas import CreateCheckoutRequest
