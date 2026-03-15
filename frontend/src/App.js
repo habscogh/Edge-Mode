@@ -348,6 +348,10 @@ const AppRoutes = () => {
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/reset-password" element={<ResetPasswordScreen />} />
         
+        {/* Gift Payment Routes (Public - No Auth) */}
+        <Route path="/gift/:giftCode" element={<GiftPaymentPage />} />
+        <Route path="/gift-success" element={<GiftSuccessPage />} />
+        
         {/* Coach Routes */}
         <Route path="/coach-signup" element={<CoachSignup />} />
         <Route path="/join/:teamCode" element={<JoinTeam />} />
