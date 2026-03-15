@@ -270,7 +270,7 @@ export const TrialExpiredScreen = () => {
         <Button
           onClick={() => handleSubscribe(selectedPlan)}
           disabled={loading}
-          className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading uppercase tracking-wide font-bold text-lg py-6 mb-4"
+          className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading uppercase tracking-wide font-bold text-lg py-6 mb-3"
         >
           {loading ? 'Loading...' : (
             <>
@@ -279,6 +279,61 @@ export const TrialExpiredScreen = () => {
             </>
           )}
         </Button>
+
+        {/* Parent Gift Option */}
+        {!giftLink ? (
+          <Button
+            onClick={handleCreateGiftLink}
+            disabled={creatingGift}
+            variant="outline"
+            className="w-full border-purple-500/50 text-purple-300 hover:bg-purple-500/10 font-heading uppercase tracking-wide font-bold py-5 mb-4"
+            data-testid="ask-parent-btn"
+          >
+            {creatingGift ? 'Creating Link...' : (
+              <>
+                <Gift className="w-5 h-5 mr-2" />
+                Ask Parent to Pay
+              </>
+            )}
+          </Button>
+        ) : (
+          <div className="bg-purple-500/10 border border-purple-500/30 rounded-md p-4 mb-4">
+            <p className="text-purple-300 text-sm font-body mb-3 text-center">
+              Share this link with your parent:
+            </p>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={giftLink}
+                readOnly
+                className="flex-1 bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-white text-sm font-mono"
+              />
+              <Button
+                onClick={copyGiftLink}
+                size="sm"
+                variant="outline"
+                className="border-zinc-700"
+              >
+                <Copy className="w-4 h-4" />
+              </Button>
+              <Button
+                onClick={shareGiftLink}
+                size="sm"
+                className="bg-purple-500 hover:bg-purple-400"
+              >
+                <Share2 className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Payment Methods */}
+        <div className="flex items-center justify-center gap-2 text-zinc-500 text-xs mb-4">
+          <span>Pay with:</span>
+          <span className="bg-zinc-800 px-2 py-1 rounded">Apple Pay</span>
+          <span className="bg-zinc-800 px-2 py-1 rounded">Google Pay</span>
+          <span className="bg-zinc-800 px-2 py-1 rounded">Card</span>
+        </div>
 
         {/* Benefits */}
         <div className="bg-zinc-950 border border-zinc-800 rounded-md p-4 mb-6">
