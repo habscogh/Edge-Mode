@@ -17,6 +17,8 @@ export const TrialExpiredScreen = () => {
   const [pillars, setPillars] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState('monthly');
+  const [giftLink, setGiftLink] = useState(null);
+  const [creatingGift, setCreatingGift] = useState(false);
 
   useEffect(() => {
     fetchTrialStats();
