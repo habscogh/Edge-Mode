@@ -249,6 +249,13 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
   - Email sent on every new coach registration
   - Includes: username, email, age, signup time, total user count
   - Uses existing Resend integration
+- [x] ✅ **Apple Pay / Google Pay + Parent Gift Payment Options (March 2026)**
+  - Added Apple Pay, Google Pay, Card, Parent Gift badges to landing page pricing
+  - Parent Gift flow: Teen creates shareable link → Parent pays via link → Subscription activates
+  - Backend: /api/payments/create-gift-link, /api/payments/gift/{code}, /api/payments/gift/{code}/checkout
+  - Frontend: GiftPaymentPage.js (parent view), GiftSuccessPage.js (confirmation)
+  - "Ask Parent to Pay" button on Trial Expired screen with copy/share link
+  - Stripe handles Apple Pay/Google Pay automatically in checkout
 
 ## Known Issues
 - MongoDB may need manual restart if it times out (mongod --dbpath /data/db --fork --logpath /var/log/mongodb.log)
