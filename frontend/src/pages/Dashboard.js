@@ -257,13 +257,12 @@ export const Dashboard = () => {
         </div>
 
         {/* Rotating Habit Quote */}
-        <div className="mb-6 overflow-hidden" data-testid="rotating-quote">
+        <div className="mb-6 bg-gradient-to-r from-primary/10 to-transparent border-l-2 border-primary rounded-r-md p-3" data-testid="rotating-quote">
           <p 
             key={currentQuoteIndex}
-            className="text-zinc-500 text-xs italic font-body flex items-start gap-2 animate-fade-in"
+            className="text-zinc-300 text-sm font-body italic animate-fade-in"
           >
-            <Quote className="w-3 h-3 flex-shrink-0 mt-0.5 text-primary/50" />
-            <span className="transition-opacity duration-500">{HABIT_QUOTES[currentQuoteIndex]}</span>
+            "{HABIT_QUOTES[currentQuoteIndex]}"
           </p>
         </div>
 
