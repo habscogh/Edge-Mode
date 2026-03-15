@@ -85,6 +85,48 @@ export const TrialExpiredScreen = () => {
     }
   };
 
+  const handleCreateGiftLink = async () => {
+    setCreatingGift(true);
+    try {
+      const response = await axios.post(`${API}/payments/create-gift-link`, {
+        plan: selectedPlan,
+        origin_url: window.location.origin
+      });
+      
+      const fullLink = `${window.location.origin}/gift/${response.data.gift_code}`;
+      setGiftLink(fullLink);
+      toast.success('Gift link created! Share it with your parent.');
+    } catch (error) {
+      console.error('Failed to create gift link:', error);
+      toast.error('Failed to create gift link');
+    } finally {
+      setCreatingGift(false);
+    }
+  };
+
+  const copyGiftLink = () => {
+    navigator.clipboard.writeText(giftLink);
+    toast.success('Link copied!');
+  };
+
+  const shareGiftLink = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Help me continue Edge Mode!',
+          text: `Hey! Can you help me pay for my Edge Mode subscription? It helps me track my daily progress and build better habits.`,
+          url: giftLink
+        });
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          copyGiftLink();
+        }
+      }
+    } else {
+      copyGiftLink();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#09090b] p-4 flex items-center justify-center">
       <div className="max-w-md w-full">
