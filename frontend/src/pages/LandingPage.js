@@ -65,6 +65,16 @@ export const LandingPage = () => {
           <p className="text-base text-zinc-400 font-body">
             Review your performance every week.
           </p>
+          
+          {/* Rotating Habit Quote */}
+          <div className="mt-8 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent border border-primary/30 rounded-lg p-4" data-testid="landing-rotating-quote">
+            <p 
+              key={currentQuoteIndex}
+              className="text-white text-lg font-body italic text-center animate-fade-in"
+            >
+              "{HABIT_QUOTES[currentQuoteIndex]}"
+            </p>
+          </div>
         </div>
 
         {/* How It Works */}
