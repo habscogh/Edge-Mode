@@ -246,7 +246,7 @@ export const Dashboard = () => {
       <TrialEndingBanner onSubscribe={handleSubscribe} />
       
       <div className="p-6">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-3xl font-heading font-bold uppercase tracking-tight text-white mb-1">
               {user?.username}
@@ -254,6 +254,17 @@ export const Dashboard = () => {
             <p className="text-zinc-400 text-sm font-body">Log your effort daily. Review your performance weekly</p>
           </div>
           <Flame className="w-8 h-8 text-primary" />
+        </div>
+
+        {/* Rotating Habit Quote */}
+        <div className="mb-6 overflow-hidden" data-testid="rotating-quote">
+          <p 
+            key={currentQuoteIndex}
+            className="text-zinc-500 text-xs italic font-body flex items-start gap-2 animate-fade-in"
+          >
+            <Quote className="w-3 h-3 flex-shrink-0 mt-0.5 text-primary/50" />
+            <span className="transition-opacity duration-500">{HABIT_QUOTES[currentQuoteIndex]}</span>
+          </p>
         </div>
 
         {/* Daily Motivational Quote */}
