@@ -288,12 +288,24 @@ async def stripe_webhook(request: Request):
         
         if webhook_response.payment_status == 'paid':
             user_id = webhook_response.metadata.get('user_id')
+            gift_code = webhook_response.metadata.get('gift_code')
+            
             if user_id:
                 await db.users.update_one(
                     {'id': user_id},
                     {'$set': {
                         'subscription_active': True,
                         'is_trial': False  # Important: no longer trial user
+                    }}
+                )
+            
+            # Update gift payment status if this was a gift
+            if gift_code:
+                await db.gift_payments.update_one(
+                    {'gift_code': gift_code},
+                    {'$set': {
+                        'status': 'paid',
+                        'paid_at': datetime.now(timezone.utc).isoformat()
                     }}
                 )
         
