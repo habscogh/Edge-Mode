@@ -49,6 +49,15 @@ export const Dashboard = () => {
   const [milestoneToShow, setMilestoneToShow] = useState(null);
   const [showRecoveryModal, setShowRecoveryModal] = useState(false);
   const { isEligible: recoveryEligible, eligibilityData, checkEligibility } = useStreakRecovery();
+  const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
+
+  // Rotate quotes every 5 seconds
+  useEffect(() => {
+    const quoteInterval = setInterval(() => {
+      setCurrentQuoteIndex((prev) => (prev + 1) % HABIT_QUOTES.length);
+    }, 5000);
+    return () => clearInterval(quoteInterval);
+  }, []);
 
   useEffect(() => {
     fetchAllData();
