@@ -1,13 +1,31 @@
 // Build: 1772758341
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Zap, CheckCircle2, Users, Flame, Trophy, Calendar, TrendingUp, Bell, Smartphone, Users2, Target, Shield, School, BookOpen } from 'lucide-react';
 import { SocialProofSection } from '../components/SocialProofSection';
 
+// Rotating habit quotes for landing page
+const HABIT_QUOTES = [
+  "If you are going to achieve excellence in big things, you develop the habit in little matters.",
+  "First we make our habits, then our habits make us.",
+  "95% of everything you do is the result of habit.",
+  "Winners make a habit of doing things losers don't want to do.",
+  "You are what you repeatedly do."
+];
+
 export const LandingPage = () => {
   const navigate = useNavigate();
   const [isYearly, setIsYearly] = useState(false);
+  const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
+
+  // Rotate quotes every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentQuoteIndex((prev) => (prev + 1) % HABIT_QUOTES.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   const features = [
     { icon: Target, text: "Track 3-5 personalized improvement pillars" },
