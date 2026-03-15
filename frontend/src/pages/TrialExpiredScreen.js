@@ -3,8 +3,9 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
-import { Clock, TrendingUp, Flame, Target, CreditCard, CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
+import { Clock, TrendingUp, Flame, Target, CreditCard, CheckCircle, AlertTriangle, XCircle, Gift, Copy, Share2 } from 'lucide-react';
 import { getLocalDateString } from '../utils/dateUtils';
+import { toast } from 'sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
