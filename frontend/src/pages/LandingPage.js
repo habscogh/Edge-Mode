@@ -146,9 +146,6 @@ export const LandingPage = () => {
           >
             Start 14-Day Free Trial
           </Button>
-          <p className="text-zinc-500 text-xs text-center mt-3 font-body">
-            No credit card required to start
-          </p>
         </div>
 
         {/* CTA Button */}
