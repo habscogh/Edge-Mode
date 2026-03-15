@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { Flame, TrendingUp, Zap, ArrowUp, ArrowDown, Minus, CheckCircle2, X, WifiOff, Share2 } from 'lucide-react';
+import { Flame, TrendingUp, Zap, ArrowUp, ArrowDown, Minus, CheckCircle2, X, WifiOff, Share2, Quote } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { useNavigate } from 'react-router-dom';
@@ -21,6 +21,15 @@ import { useOfflineSync } from '../hooks/useOfflineSync';
 import { toast } from 'sonner';
 import { getLocalDateString } from '../utils/dateUtils';
 import { StreakRecoveryModal, useStreakRecovery } from '../components/StreakRecoveryModal';
+
+// Rotating habit quotes
+const HABIT_QUOTES = [
+  "If you are going to achieve excellence in big things, you develop the habit in little matters.",
+  "First we make our habits, then our habits make us.",
+  "95% of everything you do is the result of habit.",
+  "Winners make a habit of doing things losers don't want to do.",
+  "You are what you repeatedly do."
+];
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
