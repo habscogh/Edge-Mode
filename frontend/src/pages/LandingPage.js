@@ -7,7 +7,7 @@ import { SocialProofSection } from '../components/SocialProofSection';
 
 export const LandingPage = () => {
   const navigate = useNavigate();
-  const [isYearly, setIsYearly] = useState(true);
+  const [isYearly, setIsYearly] = useState(false);
 
   const features = [
     { icon: Target, text: "Track 3-5 personalized improvement pillars" },
