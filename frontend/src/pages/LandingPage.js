@@ -119,7 +119,16 @@ export const LandingPage = () => {
             {/* No Credit Card Notice - More Visible */}
             <div className="mt-3 inline-flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-full px-4 py-1.5">
               <CheckCircle2 className="w-4 h-4 text-primary" />
-              <span className="text-primary font-body text-sm font-medium">No credit card required to start</span>
+              <span className="text-primary font-body text-sm font-medium">No card required to start</span>
+            </div>
+            {/* Payment Methods */}
+            <div className="mt-3 flex items-center justify-center gap-3 text-zinc-500">
+              <span className="text-xs">Pay with:</span>
+              <div className="flex items-center gap-2">
+                <span className="bg-zinc-800 px-2 py-1 rounded text-xs">Apple Pay</span>
+                <span className="bg-zinc-800 px-2 py-1 rounded text-xs">Google Pay</span>
+                <span className="bg-zinc-800 px-2 py-1 rounded text-xs">Card</span>
+              </div>
             </div>
           </div>
 
