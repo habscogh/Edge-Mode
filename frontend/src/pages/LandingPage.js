@@ -128,6 +128,7 @@ export const LandingPage = () => {
                 <span className="bg-zinc-800 px-2 py-1 rounded text-xs">Apple Pay</span>
                 <span className="bg-zinc-800 px-2 py-1 rounded text-xs">Google Pay</span>
                 <span className="bg-zinc-800 px-2 py-1 rounded text-xs">Card</span>
+                <span className="bg-purple-900/50 text-purple-300 px-2 py-1 rounded text-xs">Parent Gift</span>
               </div>
             </div>
           </div>
