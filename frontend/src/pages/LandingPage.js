@@ -11,7 +11,15 @@ const HABIT_QUOTES = [
   "First we make our habits, then our habits make us.",
   "95% of everything you do is the result of habit.",
   "Winners make a habit of doing things losers don't want to do.",
-  "You are what you repeatedly do."
+  "You are what you repeatedly do.",
+  "Good habits formed at youth make all the difference.",
+  "You'll never change your life until you change something you do daily.",
+  "Winning is a habit. Unfortunately, so is losing.",
+  "Tis easier to prevent bad habits than to break them.",
+  "Successful people are simply those with successful habits.",
+  "Your habits will determine your future.",
+  "Excellence is not an act, but a habit.",
+  "The secret of your success is found in your daily routine."
 ];
 
 export const LandingPage = () => {
