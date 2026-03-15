@@ -132,6 +132,138 @@ async def get_payment_status(session_id: str, current_user: dict = Depends(get_c
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# ============ Parent Gift Payment ============
+
+@router.post("/create-gift-link")
+async def create_gift_link(request: CreateCheckoutRequest, current_user: dict = Depends(get_current_user)):
+    """Generate a shareable gift payment link for parents"""
+    try:
+        gift_code = f"GIFT-{secrets.token_hex(6).upper()}"
+        
+        gift_doc = {
+            'id': str(uuid.uuid4()),
+            'gift_code': gift_code,
+            'user_id': current_user['id'],
+            'username': current_user.get('username'),
+            'email': current_user['email'],
+            'plan': request.plan,
+            'status': 'pending',
+            'created_at': datetime.now(timezone.utc).isoformat(),
+            'expires_at': None  # Could add expiration if needed
+        }
+        
+        await db.gift_payments.insert_one(gift_doc)
+        
+        return {
+            'gift_code': gift_code,
+            'message': 'Share this link with your parent to complete payment'
+        }
+    
+    except Exception as e:
+        logger.error(f"Failed to create gift link: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/gift/{gift_code}")
+async def get_gift_details(gift_code: str):
+    """Public endpoint - Get gift payment details (no auth required)"""
+    gift = await db.gift_payments.find_one({'gift_code': gift_code}, {'_id': 0})
+    if not gift:
+        raise HTTPException(status_code=404, detail='Gift code not found')
+    
+    if gift['status'] == 'paid':
+        return {
+            'status': 'paid',
+            'message': 'This subscription has already been paid for!'
+        }
+    
+    return {
+        'gift_code': gift_code,
+        'username': gift['username'],
+        'plan': gift['plan'],
+        'amount': SUBSCRIPTION_PRICES.get(gift['plan'], 499),
+        'status': gift['status']
+    }
+
+
+@router.post("/gift/{gift_code}/checkout")
+async def create_gift_checkout(gift_code: str, origin_url: str):
+    """Public endpoint - Create checkout session for parent to pay (no auth required)"""
+    try:
+        gift = await db.gift_payments.find_one({'gift_code': gift_code}, {'_id': 0})
+        if not gift:
+            raise HTTPException(status_code=404, detail='Gift code not found')
+        
+        if gift['status'] == 'paid':
+            raise HTTPException(status_code=400, detail='This gift has already been paid')
+        
+        amount = SUBSCRIPTION_PRICES.get(gift['plan'], 499)
+        
+        webhook_url = f"{origin_url}/api/webhook/stripe"
+        stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
+        
+        success_url = f"{origin_url}/gift-success?gift_code={gift_code}&session_id={{CHECKOUT_SESSION_ID}}"
+        cancel_url = f"{origin_url}/gift/{gift_code}"
+        
+        checkout_request = CheckoutSessionRequest(
+            amount=amount,
+            currency="usd",
+            success_url=success_url,
+            cancel_url=cancel_url,
+            metadata={
+                "user_id": gift['user_id'],
+                "email": gift['email'],
+                "username": gift['username'],
+                "plan": gift['plan'],
+                "gift_code": gift_code,
+                "is_gift": "true"
+            }
+        )
+        
+        session = await stripe_checkout.create_checkout_session(checkout_request)
+        
+        # Track transaction
+        transaction_doc = {
+            'id': str(uuid.uuid4()),
+            'session_id': session.session_id,
+            'user_id': gift['user_id'],
+            'amount': amount,
+            'currency': 'usd',
+            'plan': gift['plan'],
+            'payment_status': 'pending',
+            'status': 'initiated',
+            'is_gift': True,
+            'gift_code': gift_code,
+            'created_at': datetime.now(timezone.utc).isoformat(),
+            'metadata': {
+                "user_id": gift['user_id'],
+                "email": gift['email'],
+                "plan": gift['plan'],
+                "gift_code": gift_code
+            }
+        }
+        await db.payment_transactions.insert_one(transaction_doc)
+        
+        return {'url': session.url, 'session_id': session.session_id}
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to create gift checkout: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/gift/{gift_code}/status")
+async def get_gift_status(gift_code: str):
+    """Public endpoint - Check if gift payment is complete"""
+    gift = await db.gift_payments.find_one({'gift_code': gift_code}, {'_id': 0})
+    if not gift:
+        raise HTTPException(status_code=404, detail='Gift code not found')
+    
+    return {'status': gift['status'], 'username': gift['username']}
+
+
+
 # Webhook router (needs to be at root level, not /payments)
 webhook_router = APIRouter(tags=["Webhooks"])
 
