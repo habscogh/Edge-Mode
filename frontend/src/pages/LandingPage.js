@@ -19,11 +19,11 @@ export const LandingPage = () => {
   const [isYearly, setIsYearly] = useState(false);
   const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
 
-  // Rotate quotes every 5 seconds
+  // Rotate quotes every 10 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentQuoteIndex((prev) => (prev + 1) % HABIT_QUOTES.length);
-    }, 5000);
+    }, 10000);
     return () => clearInterval(interval);
   }, []);
 
