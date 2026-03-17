@@ -500,8 +500,8 @@ export const ProfileScreen = () => {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-white font-body">Streak Reminders</div>
-                <div className="text-zinc-500 text-xs font-body">Get reminded to keep your streak alive</div>
+                <div className="text-white font-body">Streak & Inactivity Reminders</div>
+                <div className="text-zinc-500 text-xs font-body">Get "We Miss You" emails when inactive</div>
               </div>
               <button
                 data-testid="toggle-streak-reminders"
