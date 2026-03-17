@@ -42,7 +42,7 @@ export const LandingPage = () => {
     { icon: Calendar, text: "30-day progress graphs & history" },
     { icon: Trophy, text: "12 achievement badges to unlock" },
     { icon: Users2, text: "Private groups with leaderboards" },
-    { icon: School, text: "High school leaderboards by city & state" },
+    { icon: School, text: "School leaderboards by city & state" },
     { icon: BookOpen, text: "Daily reflection prompts & growth journal" },
     { icon: Zap, text: "Weekly & monthly challenges" },
     { icon: Bell, text: "Smart reminders & notifications" },
