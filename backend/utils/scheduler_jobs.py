@@ -257,18 +257,27 @@ async def send_inactive_reminders_job():
     two_days_ago = (now - timedelta(days=2)).date().isoformat()
     
     try:
+        # Only send to trial users OR users who opted in to reminders
+        # Exclude admin users and paid subscribers who haven't explicitly opted in
         users = await db.users.find({
-            'streak_reminders': {'$ne': False}
-        }, {'_id': 0, 'id': 1, 'email': 1, 'username': 1, 'last_log_date': 1}).to_list(1000)
+            'streak_reminders': {'$ne': False},
+            'is_admin': {'$ne': True}  # Don't send to admins
+        }, {'_id': 0, 'id': 1, 'email': 1, 'username': 1, 'last_log_date': 1, 'is_trial': 1, 'subscription_active': 1}).to_list(1000)
         
         sent_count = 0
         for user in users:
             last_log = user.get('last_log_date')
             
-            if last_log and last_log <= two_days_ago:
+            # Skip if no last_log_date recorded
+            if not last_log:
+                continue
+            
+            # Check if user is inactive
+            if last_log <= two_days_ago:
                 last_log_date = datetime.fromisoformat(last_log).date()
                 days_inactive = (now.date() - last_log_date).days
                 
+                # Only send if 2-7 days inactive
                 if 2 <= days_inactive <= 7:
                     html = get_inactive_reminder_html(
                         user.get('username', 'User'),
