@@ -256,6 +256,13 @@ Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Ev
   - Frontend: GiftPaymentPage.js (parent view), GiftSuccessPage.js (confirmation)
   - "Ask Parent to Pay" button on Trial Expired screen with copy/share link
   - Stripe handles Apple Pay/Google Pay automatically in checkout
+- [x] ✅ **Rotating Habit Quotes on Landing Page (March 2026)**
+  - 13 curated quotes about habits displayed prominently on landing page
+  - Rotates every 10 seconds with fade animation
+  - Helps convert visitors before sign-up
+- [x] ✅ **Trial Email Bug Fix (March 2026)**
+  - Fixed bug where paid subscribers were receiving trial expiration emails
+  - Updated query to properly filter only users with is_trial=True
 
 ## Known Issues
 - MongoDB may need manual restart if it times out (mongod --dbpath /data/db --fork --logpath /var/log/mongodb.log)
