@@ -96,7 +96,7 @@ export const SchoolLeaderboardScreen = () => {
               School Leaderboard
             </h1>
             <p className="text-muted-foreground font-body text-sm">
-              Weekly rankings for US schools (Grades 8-12)
+              Weekly rankings for US schools
             </p>
           </div>
         </div>
