@@ -312,14 +312,24 @@ async def send_trial_ending_reminders_job():
     now = datetime.now(timezone.utc)
     
     try:
+        # Only get users who are STILL on trial (is_trial=True)
+        # Exclude paid subscribers (is_trial=False means they paid)
         users = await db.users.find({
             'is_trial': True,
             'trial_ends_at': {'$exists': True},
-            'streak_reminders': {'$ne': False}
+            'streak_reminders': {'$ne': False},
+            '$or': [
+                {'subscription_active': {'$exists': False}},
+                {'subscription_active': True}  # Trial users have subscription_active=True during trial
+            ]
         }, {'_id': 0}).to_list(1000)
         
         sent_count = 0
         for user in users:
+            # Double-check: skip if user has paid (is_trial should be False for paid users)
+            if user.get('is_trial') == False:
+                continue
+                
             trial_end = datetime.fromisoformat(user['trial_ends_at'].replace('Z', '+00:00'))
             days_left = (trial_end.date() - now.date()).days
             
