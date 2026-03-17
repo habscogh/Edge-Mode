@@ -149,7 +149,7 @@ export const SchoolSelector = ({ currentSchool, onSchoolChange }) => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Search US schools (grades 8-12)..."
+                placeholder="Search US schools..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 bg-background border-border"
