@@ -548,6 +548,35 @@ async def expire_user_trial(
 
 
 
+@router.post("/fix-premium-status/{user_email}")
+async def fix_premium_status(user_email: str, admin_user: dict = Depends(require_admin)):
+    """Fix a user's premium status - set is_trial=False for paid subscribers"""
+    user = await db.users.find_one({'email': user_email.lower()}, {'_id': 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Update to premium status
+    await db.users.update_one(
+        {'email': user_email.lower()},
+        {'$set': {
+            'is_trial': False,
+            'subscription_active': True,
+            'trial_ends_at': None,
+            'is_admin': True if user_email.lower() == 'admin@edgemodeapp.com' else user.get('is_admin', False)
+        }}
+    )
+    
+    logger.info(f"Fixed premium status for {user_email}")
+    
+    return {
+        "message": f"Premium status fixed for {user_email}",
+        "is_trial": False,
+        "subscription_active": True
+    }
+
+
+
+
 @router.post("/challenges/cleanup-duplicates")
 async def cleanup_duplicate_challenges(admin_user: dict = Depends(require_admin)):
     """Remove duplicate challenges, keeping only one of each type per period"""
