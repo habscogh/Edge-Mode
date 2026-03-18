@@ -46,6 +46,9 @@ export const AdminDashboard = () => {
   const [searching, setSearching] = useState(false);
   const [cleaningDuplicates, setCleaningDuplicates] = useState(false);
   const [fixingStatus, setFixingStatus] = useState(false);
+  const [extendModal, setExtendModal] = useState(null); // { email, username }
+  const [extendDays, setExtendDays] = useState(14);
+  const [extending, setExtending] = useState(false);
   
   // Site Settings State
   const [showSiteSettings, setShowSiteSettings] = useState(false);
