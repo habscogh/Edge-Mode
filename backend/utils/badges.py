@@ -74,32 +74,50 @@ async def check_and_award_badges(user_id: str) -> List[dict]:
     longest_streak = user.get('longest_streak', 0)
     max_streak = max(current_streak, longest_streak)
     
-    if max_streak >= 7:
-        badge = await award_badge(user_id, 'streak_7')
-        if badge:
-            newly_earned.append(badge)
+    streak_milestones = [
+        (7, 'streak_7'),
+        (14, 'streak_14'),
+        (30, 'streak_30'),
+        (60, 'streak_60'),
+        (90, 'streak_90'),
+        (180, 'streak_180'),
+        (365, 'streak_365'),
+    ]
     
-    if max_streak >= 14:
-        badge = await award_badge(user_id, 'streak_14')
-        if badge:
-            newly_earned.append(badge)
+    for days, badge_id in streak_milestones:
+        if max_streak >= days:
+            badge = await award_badge(user_id, badge_id)
+            if badge:
+                newly_earned.append(badge)
     
-    if max_streak >= 30:
-        badge = await award_badge(user_id, 'streak_30')
-        if badge:
-            newly_earned.append(badge)
+    # Check Session milestones
+    session_milestones = [
+        (100, 'sessions_100'),
+        (250, 'sessions_250'),
+        (500, 'sessions_500'),
+        (1000, 'sessions_1000'),
+    ]
     
-    # Check Century Club (100 sessions)
-    if total_sessions >= 100:
-        badge = await award_badge(user_id, 'sessions_100')
-        if badge:
-            newly_earned.append(badge)
+    for count, badge_id in session_milestones:
+        if total_sessions >= count:
+            badge = await award_badge(user_id, badge_id)
+            if badge:
+                newly_earned.append(badge)
     
-    # Check 50 Hour Club
-    if total_hours >= 50:
-        badge = await award_badge(user_id, 'hours_50')
-        if badge:
-            newly_earned.append(badge)
+    # Check Hours milestones
+    hours_milestones = [
+        (50, 'hours_50'),
+        (100, 'hours_100'),
+        (250, 'hours_250'),
+        (500, 'hours_500'),
+        (1000, 'hours_1000'),
+    ]
+    
+    for hours, badge_id in hours_milestones:
+        if total_hours >= hours:
+            badge = await award_badge(user_id, badge_id)
+            if badge:
+                newly_earned.append(badge)
     
     # Check Perfect Week (logged every day for 7 consecutive days)
     if current_streak >= 7:
