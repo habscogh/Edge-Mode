@@ -622,6 +622,16 @@ export const AdminDashboard = () => {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
+                              setExtendModal({ email: u.email, username: u.username });
+                            }}
+                            className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/20 p-1 rounded"
+                            title="Extend access period"
+                          >
+                            <Calendar className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
                               handleFixUserStatus(u.email, u.username);
                             }}
                             className="text-green-400 hover:text-green-300 hover:bg-green-500/20 p-1 rounded"
