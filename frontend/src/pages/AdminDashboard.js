@@ -216,6 +216,19 @@ export const AdminDashboard = () => {
     }
   };
 
+  const handleFixUserStatus = async (email, username) => {
+    if (!confirm(`Fix premium status for ${username} (${email})?\n\nThis will mark them as a paid subscriber and stop trial emails.`)) return;
+    
+    try {
+      await axios.post(`${API}/admin/fix-premium-status/${encodeURIComponent(email)}`);
+      toast.success(`Premium status fixed for ${email}`);
+      setSearchResults([]);
+    } catch (err) {
+      console.error('Failed to fix status:', err);
+      toast.error(err.response?.data?.detail || 'Failed to fix status');
+    }
+  };
+
   const handleCleanDuplicateChallenges = async () => {
     if (!confirm('This will remove duplicate challenges, keeping only one of each type per period. Continue?')) return;
     
