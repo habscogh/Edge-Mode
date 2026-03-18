@@ -602,6 +602,16 @@ export const AdminDashboard = () => {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
+                              handleFixUserStatus(u.email, u.username);
+                            }}
+                            className="text-green-400 hover:text-green-300 hover:bg-green-500/20 p-1 rounded"
+                            title="Fix premium status (stop trial emails)"
+                          >
+                            <CheckCircle className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
                               handleExpireTrial(u.email, u.username);
                             }}
                             className="text-orange-400 hover:text-orange-300 hover:bg-orange-500/20 p-1 rounded"
