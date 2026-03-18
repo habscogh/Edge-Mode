@@ -624,13 +624,6 @@ async def extend_user_access(
     }
 
 
-        "is_trial": False,
-        "subscription_active": True
-    }
-
-
-
-
 @router.post("/challenges/cleanup-duplicates")
 async def cleanup_duplicate_challenges(admin_user: dict = Depends(require_admin)):
     """Remove duplicate challenges, keeping only one of each type per period"""
