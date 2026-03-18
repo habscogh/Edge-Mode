@@ -45,6 +45,7 @@ export const AdminDashboard = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [searching, setSearching] = useState(false);
   const [cleaningDuplicates, setCleaningDuplicates] = useState(false);
+  const [fixingStatus, setFixingStatus] = useState(false);
   
   // Site Settings State
   const [showSiteSettings, setShowSiteSettings] = useState(false);
