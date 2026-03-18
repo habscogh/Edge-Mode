@@ -570,6 +570,9 @@ async def fix_premium_status(user_email: str, admin_user: dict = Depends(require
     
     return {
         "message": f"Premium status fixed for {user_email}",
+        "is_trial": False,
+        "subscription_active": True
+    }
 
 
 @router.post("/users/extend-access")
