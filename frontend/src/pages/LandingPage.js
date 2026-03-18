@@ -40,7 +40,7 @@ export const LandingPage = () => {
     { icon: Flame, text: "Daily streak tracking & milestone badges" },
     { icon: TrendingUp, text: "Weekly performance reviews & analytics" },
     { icon: Calendar, text: "30-day progress graphs & history" },
-    { icon: Trophy, text: "12 achievement badges to unlock" },
+    { icon: Trophy, text: "30+ achievement badges to unlock" },
     { icon: Users2, text: "Private groups with leaderboards" },
     { icon: School, text: "School leaderboards by city & state" },
     { icon: BookOpen, text: "Daily reflection prompts & growth journal" },
