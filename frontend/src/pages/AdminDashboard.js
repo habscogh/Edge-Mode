@@ -661,6 +661,19 @@ export const AdminDashboard = () => {
           </h3>
           <div className="space-y-3">
             <Button
+              onClick={handleFixMyStatus}
+              disabled={fixingStatus}
+              className="w-full bg-green-500/20 text-green-400 hover:bg-green-500/30"
+              data-testid="fix-status-btn"
+            >
+              <CheckCircle className="w-4 h-4 mr-2" />
+              {fixingStatus ? 'Fixing...' : 'Fix My Premium Status'}
+            </Button>
+            <p className="text-zinc-500 text-xs">
+              Stops trial expiration emails by marking your account as premium.
+            </p>
+            
+            <Button
               onClick={handleCleanDuplicateChallenges}
               disabled={cleaningDuplicates}
               className="w-full bg-orange-500/20 text-orange-400 hover:bg-orange-500/30"
