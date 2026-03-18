@@ -231,6 +231,21 @@ export const AdminDashboard = () => {
     }
   };
 
+  const handleFixMyStatus = async () => {
+    setFixingStatus(true);
+    try {
+      const res = await axios.post(`${API}/admin/fix-premium-status/${encodeURIComponent(user.email)}`);
+      toast.success('Premium status fixed! You will no longer receive trial emails.');
+    } catch (err) {
+      console.error('Failed to fix status:', err);
+      toast.error(err.response?.data?.detail || 'Failed to fix status');
+    } finally {
+      setFixingStatus(false);
+    }
+  };;
+    }
+  };
+
   // Site Settings Functions
   const fetchSiteSettings = async () => {
     try {
