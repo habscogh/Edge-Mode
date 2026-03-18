@@ -1073,6 +1073,74 @@ export const AdminDashboard = () => {
           )}
         </div>
       </div>
+
+      {/* Extend Access Modal */}
+      {extendModal && (
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+          <div className="bg-zinc-900 border border-zinc-700 rounded-lg p-6 max-w-sm w-full">
+            <h3 className="text-lg font-heading font-bold text-white mb-2">
+              Extend Access
+            </h3>
+            <p className="text-zinc-400 text-sm mb-4">
+              Extend access for <span className="text-white font-medium">{extendModal.username}</span>
+            </p>
+            
+            <div className="mb-4">
+              <label className="text-zinc-400 text-sm block mb-2">Select Duration</label>
+              <div className="grid grid-cols-3 gap-2 mb-3">
+                {[
+                  { label: '1 Week', days: 7 },
+                  { label: '2 Weeks', days: 14 },
+                  { label: '1 Month', days: 30 },
+                  { label: '2 Months', days: 60 },
+                  { label: '3 Months', days: 90 },
+                  { label: '1 Year', days: 365 },
+                ].map((opt) => (
+                  <button
+                    key={opt.days}
+                    onClick={() => setExtendDays(opt.days)}
+                    className={`py-2 px-3 rounded text-sm font-medium transition-colors ${
+                      extendDays === opt.days
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-zinc-400 text-sm">Or custom:</span>
+                <Input
+                  type="number"
+                  value={extendDays}
+                  onChange={(e) => setExtendDays(parseInt(e.target.value) || 0)}
+                  className="w-20 bg-zinc-800 border-zinc-700"
+                  min="1"
+                />
+                <span className="text-zinc-400 text-sm">days</span>
+              </div>
+            </div>
+            
+            <div className="flex gap-3">
+              <Button
+                onClick={() => setExtendModal(null)}
+                variant="outline"
+                className="flex-1 border-zinc-700"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleExtendAccess}
+                disabled={extending || extendDays < 1}
+                className="flex-1 bg-blue-500 hover:bg-blue-400 text-white"
+              >
+                {extending ? 'Extending...' : `Extend ${extendDays} Days`}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
