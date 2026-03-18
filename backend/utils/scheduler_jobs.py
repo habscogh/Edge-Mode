@@ -322,21 +322,22 @@ async def send_trial_ending_reminders_job():
     
     try:
         # Only get users who are STILL on trial (is_trial=True)
-        # Exclude paid subscribers (is_trial=False means they paid)
+        # Exclude paid subscribers and admins
         users = await db.users.find({
             'is_trial': True,
             'trial_ends_at': {'$exists': True},
             'streak_reminders': {'$ne': False},
-            '$or': [
-                {'subscription_active': {'$exists': False}},
-                {'subscription_active': True}  # Trial users have subscription_active=True during trial
-            ]
+            'is_admin': {'$ne': True}  # Exclude admins
         }, {'_id': 0}).to_list(1000)
         
         sent_count = 0
         for user in users:
             # Double-check: skip if user has paid (is_trial should be False for paid users)
             if user.get('is_trial') == False:
+                continue
+            
+            # Skip admin emails
+            if user.get('email', '').lower() == 'admin@edgemodeapp.com':
                 continue
                 
             trial_end = datetime.fromisoformat(user['trial_ends_at'].replace('Z', '+00:00'))
