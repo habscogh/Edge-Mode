@@ -125,6 +125,53 @@ async def check_and_award_badges(user_id: str) -> List[dict]:
         if badge:
             newly_earned.append(badge)
     
+    # Check Perfect Month (30+ day streak)
+    if current_streak >= 30:
+        badge = await award_badge(user_id, 'perfect_month')
+        if badge:
+            newly_earned.append(badge)
+    
+    # Check Perfect Quarter (90+ day streak)
+    if current_streak >= 90:
+        badge = await award_badge(user_id, 'perfect_quarter')
+        if badge:
+            newly_earned.append(badge)
+    
+    # Check OG Member (6+ months since signup)
+    created_at = user.get('created_at')
+    if created_at:
+        try:
+            signup_date = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
+            days_since_signup = (now - signup_date).days
+            
+            if days_since_signup >= 180:  # 6 months
+                badge = await award_badge(user_id, 'og_member')
+                if badge:
+                    newly_earned.append(badge)
+            
+            if days_since_signup >= 365:  # 1 year
+                badge = await award_badge(user_id, 'founding_year')
+                if badge:
+                    newly_earned.append(badge)
+        except:
+            pass
+    
+    # Check Challenge win badges
+    challenge_wins = await db.user_badges.count_documents({
+        'user_id': user_id,
+        'badge_id': {'$in': ['weekly_champion', 'monthly_champion']}
+    })
+    
+    if challenge_wins >= 5:
+        badge = await award_badge(user_id, 'challenge_streak_5')
+        if badge:
+            newly_earned.append(badge)
+    
+    if challenge_wins >= 10:
+        badge = await award_badge(user_id, 'challenge_streak_10')
+        if badge:
+            newly_earned.append(badge)
+    
     # Check Pillar Master (hit target on all pillars in current week)
     user_pillars = await db.user_pillars.find({'user_id': user_id}, {'_id': 0}).to_list(100)
     if user_pillars:
