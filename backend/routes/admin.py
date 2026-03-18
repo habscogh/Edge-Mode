@@ -570,6 +570,57 @@ async def fix_premium_status(user_email: str, admin_user: dict = Depends(require
     
     return {
         "message": f"Premium status fixed for {user_email}",
+
+
+@router.post("/users/extend-access")
+async def extend_user_access(
+    email: str,
+    days: int,
+    admin_user: dict = Depends(require_admin)
+):
+    """Extend a user's access period by a specified number of days"""
+    user = await db.users.find_one({'email': email.lower()}, {'_id': 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    now = datetime.now(timezone.utc)
+    
+    # Calculate new end date
+    # If they have an existing trial_ends_at, extend from that date
+    # Otherwise extend from now
+    if user.get('trial_ends_at'):
+        try:
+            current_end = datetime.fromisoformat(user['trial_ends_at'].replace('Z', '+00:00'))
+            # If trial already expired, extend from now
+            if current_end < now:
+                new_end = now + timedelta(days=days)
+            else:
+                new_end = current_end + timedelta(days=days)
+        except:
+            new_end = now + timedelta(days=days)
+    else:
+        new_end = now + timedelta(days=days)
+    
+    # Update user
+    await db.users.update_one(
+        {'email': email.lower()},
+        {'$set': {
+            'trial_ends_at': new_end.isoformat(),
+            'subscription_active': True,
+            'is_trial': True,
+            'has_extended_trial': True
+        }}
+    )
+    
+    logger.info(f"Admin {admin_user.get('email')} extended access for {email} by {days} days until {new_end}")
+    
+    return {
+        "message": f"Access extended for {email}",
+        "new_end_date": new_end.isoformat(),
+        "days_added": days
+    }
+
+
         "is_trial": False,
         "subscription_active": True
     }
