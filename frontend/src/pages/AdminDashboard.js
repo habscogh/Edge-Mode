@@ -275,8 +275,6 @@ export const AdminDashboard = () => {
     } finally {
       setFixingStatus(false);
     }
-  };;
-    }
   };
 
   // Site Settings Functions
