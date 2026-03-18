@@ -232,6 +232,23 @@ export const AdminDashboard = () => {
     }
   };
 
+  const handleExtendAccess = async () => {
+    if (!extendModal) return;
+    
+    setExtending(true);
+    try {
+      const res = await axios.post(`${API}/admin/users/extend-access?email=${encodeURIComponent(extendModal.email)}&days=${extendDays}`);
+      toast.success(`Access extended by ${extendDays} days for ${extendModal.username}`);
+      setExtendModal(null);
+      setSearchResults([]);
+    } catch (err) {
+      console.error('Failed to extend access:', err);
+      toast.error(err.response?.data?.detail || 'Failed to extend access');
+    } finally {
+      setExtending(false);
+    }
+  };
+
   const handleCleanDuplicateChallenges = async () => {
     if (!confirm('This will remove duplicate challenges, keeping only one of each type per period. Continue?')) return;
     
