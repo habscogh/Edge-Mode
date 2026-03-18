@@ -180,6 +180,131 @@ BADGES = {
         "description": "Finish 3rd in a challenge",
         "icon": "🥉",
         "category": "challenge"
+    },
+    # Long-term Streak Badges
+    "streak_60": {
+        "id": "streak_60",
+        "name": "Two Month Titan",
+        "description": "Maintain a 60-day streak",
+        "icon": "🔥",
+        "category": "streak"
+    },
+    "streak_90": {
+        "id": "streak_90",
+        "name": "Quarter Master",
+        "description": "Maintain a 90-day streak",
+        "icon": "🔥",
+        "category": "streak"
+    },
+    "streak_180": {
+        "id": "streak_180",
+        "name": "Half Year Hero",
+        "description": "Maintain a 180-day streak",
+        "icon": "⚡",
+        "category": "streak"
+    },
+    "streak_365": {
+        "id": "streak_365",
+        "name": "Year One Legend",
+        "description": "Maintain a full year streak",
+        "icon": "👑",
+        "category": "streak"
+    },
+    # Long-term Session Milestones
+    "sessions_250": {
+        "id": "sessions_250",
+        "name": "Quarter Thousand",
+        "description": "Complete 250 sessions",
+        "icon": "💎",
+        "category": "milestone"
+    },
+    "sessions_500": {
+        "id": "sessions_500",
+        "name": "Half Thousand",
+        "description": "Complete 500 sessions",
+        "icon": "🚀",
+        "category": "milestone"
+    },
+    "sessions_1000": {
+        "id": "sessions_1000",
+        "name": "Thousand Club Elite",
+        "description": "Complete 1,000 sessions",
+        "icon": "👑",
+        "category": "milestone"
+    },
+    # Long-term Hours Milestones
+    "hours_100": {
+        "id": "hours_100",
+        "name": "100 Hour Club",
+        "description": "Log 100+ hours total",
+        "icon": "⏱️",
+        "category": "milestone"
+    },
+    "hours_250": {
+        "id": "hours_250",
+        "name": "250 Hour Grinder",
+        "description": "Log 250+ hours total",
+        "icon": "💪",
+        "category": "milestone"
+    },
+    "hours_500": {
+        "id": "hours_500",
+        "name": "500 Hour Warrior",
+        "description": "Log 500+ hours total",
+        "icon": "🦾",
+        "category": "milestone"
+    },
+    "hours_1000": {
+        "id": "hours_1000",
+        "name": "1000 Hour Master",
+        "description": "Log 1,000+ hours total",
+        "icon": "🏛️",
+        "category": "milestone"
+    },
+    # Consistency Milestones
+    "perfect_month": {
+        "id": "perfect_month",
+        "name": "Perfect Month",
+        "description": "Log every day for a full month",
+        "icon": "📅",
+        "category": "consistency"
+    },
+    "perfect_quarter": {
+        "id": "perfect_quarter",
+        "name": "Perfect Quarter",
+        "description": "Log every day for 3 months straight",
+        "icon": "🗓️",
+        "category": "consistency"
+    },
+    # Challenge Mastery
+    "challenge_streak_5": {
+        "id": "challenge_streak_5",
+        "name": "Challenge Dominator",
+        "description": "Win 5 challenges",
+        "icon": "🏆",
+        "category": "challenge"
+    },
+    "challenge_streak_10": {
+        "id": "challenge_streak_10",
+        "name": "Challenge Legend",
+        "description": "Win 10 challenges",
+        "icon": "👑",
+        "category": "challenge"
+    },
+    # Special Long-term
+    "og_member": {
+        "id": "og_member",
+        "name": "OG Member",
+        "description": "Active member for 6+ months",
+        "icon": "🎖️",
+        "category": "special"
+    },
+    "founding_year": {
+        "id": "founding_year",
+        "name": "Founding Year",
+        "description": "Active member for 1+ year",
+        "icon": "⭐",
+        "category": "special"
     }
 }
 
