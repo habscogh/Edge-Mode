@@ -151,6 +151,8 @@ async def invite_parent(invite_data: ParentInvite, current_user: dict = Depends(
         if RESEND_API_KEY:
             resend.api_key = RESEND_API_KEY
             
+            app_url = "https://edgemodeapp.com"
+            
             resend.Emails.send({
                 "from": "Edge Mode <noreply@edgemodeapp.com>",
                 "to": invite_data.parent_email,
@@ -158,18 +160,28 @@ async def invite_parent(invite_data: ParentInvite, current_user: dict = Depends(
                 "html": f"""
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                     <h2 style="color: #10b981;">You've Been Invited! 🎉</h2>
-                    <p><strong>{current_user.get('username')}</strong> wants you to track their self-improvement journey on Edge Mode.</p>
+                    <p><strong>{current_user.get('username')}</strong> wants you to track their self-improvement journey on <strong>Edge Mode</strong>.</p>
                     <p>As a parent, you'll be able to:</p>
                     <ul>
                         <li>View their progress, streaks, and achievements</li>
                         <li>Receive notifications about milestones</li>
                         <li>See their weekly consistency and performance</li>
                     </ul>
-                    <p>To accept this invitation, create an account or log in and use this code:</p>
+                    <p><strong>To accept this invitation:</strong></p>
+                    <ol>
+                        <li>Visit <a href="{app_url}" style="color: #10b981; font-weight: bold;">EdgeModeApp.com</a></li>
+                        <li>Create an account or log in</li>
+                        <li>Enter your invitation code in the Parent section</li>
+                    </ol>
+                    <p>Your invitation code:</p>
                     <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
                         <span style="font-size: 24px; font-weight: bold; color: #10b981; letter-spacing: 2px;">{invite_code}</span>
                     </div>
-                    <p style="color: #666;">This invitation was sent by {current_user.get('username')} from Edge Mode.</p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="{app_url}" style="background: #10b981; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Go to Edge Mode</a>
+                    </div>
+                    <p style="color: #666; font-size: 14px;">This invitation was sent by {current_user.get('username')} from Edge Mode.<br/>
+                    Questions? Visit <a href="{app_url}" style="color: #10b981;">EdgeModeApp.com</a></p>
                 </div>
                 """
             })
