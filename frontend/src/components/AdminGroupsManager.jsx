@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { 
   Users, ChevronDown, ChevronUp, Loader2, Copy, Check,
-  UserCircle, Flame, Mail, Calendar, Crown, Shield, Trash2
+  UserCircle, Flame, Mail, Calendar, Crown, Shield, Trash2,
+  Search, Filter, AlertTriangle
 } from 'lucide-react';
 import { Button } from './ui/button';
+import { Input } from './ui/input';
 import { toast } from 'sonner';
 import { format, parseISO } from 'date-fns';
 
@@ -17,6 +19,10 @@ export const AdminGroupsManager = () => {
   const [expandedGroup, setExpandedGroup] = useState(null);
   const [copiedCode, setCopiedCode] = useState(null);
   const [deleting, setDeleting] = useState(null);
+  
+  // Search and filter state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterType, setFilterType] = useState('all'); // 'all', 'teams', 'private', 'empty'
 
   useEffect(() => {
     fetchGroups();
@@ -66,9 +72,49 @@ export const AdminGroupsManager = () => {
     }
   };
 
-  // Separate teams (coach groups) from regular groups
-  const teams = groups.filter(g => g.coach_id || g.type === 'team');
-  const regularGroups = groups.filter(g => !g.coach_id && g.type !== 'team');
+  // Check if group is empty (for teams: only coach, for private: 0 or 1 member)
+  const isEmptyGroup = (group) => {
+    const isTeam = group.coach_id || group.type === 'team';
+    if (isTeam) {
+      // Team is empty if only coach remains (1 member)
+      return group.member_count <= 1;
+    }
+    // Private group is empty if 0 members
+    return group.member_count === 0;
+  };
+
+  // Filter and search groups
+  const filteredGroups = useMemo(() => {
+    let result = groups;
+    
+    // Apply type filter
+    if (filterType === 'teams') {
+      result = result.filter(g => g.coach_id || g.type === 'team');
+    } else if (filterType === 'private') {
+      result = result.filter(g => !g.coach_id && g.type !== 'team');
+    } else if (filterType === 'empty') {
+      result = result.filter(g => isEmptyGroup(g));
+    }
+    
+    // Apply search
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(g => 
+        g.name.toLowerCase().includes(query) ||
+        g.coach_name?.toLowerCase().includes(query) ||
+        g.invite_code?.toLowerCase().includes(query)
+      );
+    }
+    
+    return result;
+  }, [groups, filterType, searchQuery]);
+
+  // Separate filtered results into teams and regular groups
+  const teams = filteredGroups.filter(g => g.coach_id || g.type === 'team');
+  const regularGroups = filteredGroups.filter(g => !g.coach_id && g.type !== 'team');
+  
+  // Count empty groups
+  const emptyGroupsCount = groups.filter(g => isEmptyGroup(g)).length;
 
   if (loading) {
     return (
@@ -98,13 +144,13 @@ export const AdminGroupsManager = () => {
       </div>
 
       {/* Stats Summary */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-4 gap-3">
         <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-center">
           <div className="text-2xl font-bold text-white">{groups.length}</div>
           <div className="text-xs text-zinc-500">Total Groups</div>
         </div>
         <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-center">
-          <div className="text-2xl font-bold text-purple-400">{teams.length}</div>
+          <div className="text-2xl font-bold text-purple-400">{groups.filter(g => g.coach_id || g.type === 'team').length}</div>
           <div className="text-xs text-zinc-500">Coach Teams</div>
         </div>
         <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-center">
@@ -113,7 +159,99 @@ export const AdminGroupsManager = () => {
           </div>
           <div className="text-xs text-zinc-500">Total Members</div>
         </div>
+        <div 
+          className={`bg-zinc-900 border rounded-lg p-3 text-center cursor-pointer transition-colors ${
+            filterType === 'empty' 
+              ? 'border-amber-500 bg-amber-500/10' 
+              : emptyGroupsCount > 0 
+                ? 'border-amber-500/50 hover:bg-amber-500/10' 
+                : 'border-zinc-800'
+          }`}
+          onClick={() => setFilterType(filterType === 'empty' ? 'all' : 'empty')}
+        >
+          <div className={`text-2xl font-bold ${emptyGroupsCount > 0 ? 'text-amber-400' : 'text-zinc-500'}`}>
+            {emptyGroupsCount}
+          </div>
+          <div className="text-xs text-zinc-500 flex items-center justify-center gap-1">
+            {emptyGroupsCount > 0 && <AlertTriangle className="w-3 h-3 text-amber-400" />}
+            Empty
+          </div>
+        </div>
       </div>
+
+      {/* Search and Filter Bar */}
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+          <Input
+            placeholder="Search groups, coaches, or invite codes..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 bg-zinc-900 border-zinc-800 text-white placeholder:text-zinc-500"
+          />
+        </div>
+        <div className="flex items-center gap-1 bg-zinc-900 border border-zinc-800 rounded-lg p-1">
+          <button
+            onClick={() => setFilterType('all')}
+            className={`px-3 py-1.5 text-xs font-medium rounded transition-colors ${
+              filterType === 'all' 
+                ? 'bg-zinc-700 text-white' 
+                : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            All
+          </button>
+          <button
+            onClick={() => setFilterType('teams')}
+            className={`px-3 py-1.5 text-xs font-medium rounded transition-colors ${
+              filterType === 'teams' 
+                ? 'bg-purple-500/20 text-purple-400' 
+                : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            Teams
+          </button>
+          <button
+            onClick={() => setFilterType('private')}
+            className={`px-3 py-1.5 text-xs font-medium rounded transition-colors ${
+              filterType === 'private' 
+                ? 'bg-blue-500/20 text-blue-400' 
+                : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            Private
+          </button>
+          <button
+            onClick={() => setFilterType('empty')}
+            className={`px-3 py-1.5 text-xs font-medium rounded transition-colors flex items-center gap-1 ${
+              filterType === 'empty' 
+                ? 'bg-amber-500/20 text-amber-400' 
+                : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            <AlertTriangle className="w-3 h-3" />
+            Empty
+          </button>
+        </div>
+      </div>
+
+      {/* Search Results Info */}
+      {(searchQuery || filterType !== 'all') && (
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-zinc-400">
+            Showing {filteredGroups.length} of {groups.length} groups
+            {searchQuery && <span className="text-zinc-500"> matching "{searchQuery}"</span>}
+          </span>
+          {(searchQuery || filterType !== 'all') && (
+            <button 
+              onClick={() => { setSearchQuery(''); setFilterType('all'); }}
+              className="text-primary hover:underline"
+            >
+              Clear filters
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Coach Teams Section */}
       {teams.length > 0 && (
@@ -134,6 +272,7 @@ export const AdminGroupsManager = () => {
               isTeam={true}
               onDelete={deleteGroup}
               deleting={deleting}
+              isEmpty={isEmptyGroup(group)}
             />
           ))}
         </div>
@@ -158,23 +297,26 @@ export const AdminGroupsManager = () => {
               isTeam={false}
               onDelete={deleteGroup}
               deleting={deleting}
+              isEmpty={isEmptyGroup(group)}
             />
           ))}
         </div>
       )}
 
-      {groups.length === 0 && (
+      {filteredGroups.length === 0 && (
         <div className="text-center py-8 text-zinc-500">
-          No groups found
+          {searchQuery || filterType !== 'all' ? 'No groups match your filters' : 'No groups found'}
         </div>
       )}
     </div>
   );
 };
 
-const GroupCard = ({ group, expanded, onToggle, onCopyCode, copiedCode, formatDate, isTeam, onDelete, deleting }) => {
+const GroupCard = ({ group, expanded, onToggle, onCopyCode, copiedCode, formatDate, isTeam, onDelete, deleting, isEmpty }) => {
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden">
+    <div className={`bg-zinc-900 border rounded-lg overflow-hidden ${
+      isEmpty ? 'border-amber-500/50' : 'border-zinc-800'
+    }`}>
       {/* Group Header */}
       <div 
         className="p-3 cursor-pointer hover:bg-zinc-800/50 transition-colors"
@@ -183,9 +325,11 @@ const GroupCard = ({ group, expanded, onToggle, onCopyCode, copiedCode, formatDa
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-              isTeam ? 'bg-purple-500/20' : 'bg-blue-500/20'
+              isEmpty ? 'bg-amber-500/20' : isTeam ? 'bg-purple-500/20' : 'bg-blue-500/20'
             }`}>
-              {isTeam ? (
+              {isEmpty ? (
+                <AlertTriangle className="w-5 h-5 text-amber-400" />
+              ) : isTeam ? (
                 <Shield className="w-5 h-5 text-purple-400" />
               ) : (
                 <Users className="w-5 h-5 text-blue-400" />
@@ -194,6 +338,11 @@ const GroupCard = ({ group, expanded, onToggle, onCopyCode, copiedCode, formatDa
             <div>
               <div className="text-sm text-white font-medium flex items-center gap-2">
                 {group.name}
+                {isEmpty && (
+                  <span className="text-xs px-1.5 py-0.5 bg-amber-500/20 text-amber-400 rounded border border-amber-500/30">
+                    Empty
+                  </span>
+                )}
                 {group.has_extended_trial && (
                   <span className="text-xs px-1.5 py-0.5 bg-amber-500/20 text-amber-400 rounded">
                     Extended Trial
@@ -203,6 +352,7 @@ const GroupCard = ({ group, expanded, onToggle, onCopyCode, copiedCode, formatDa
               <div className="text-xs text-zinc-500">
                 {isTeam && group.coach_name && `Coach: ${group.coach_name} • `}
                 {group.member_count} member{group.member_count !== 1 ? 's' : ''}
+                {isEmpty && isTeam && ' (coach only)'}
               </div>
             </div>
           </div>
