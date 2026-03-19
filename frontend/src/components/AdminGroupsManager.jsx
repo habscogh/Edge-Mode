@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { 
   Users, ChevronDown, ChevronUp, Loader2, Copy, Check,
-  UserCircle, Flame, Mail, Calendar, Crown, Shield
+  UserCircle, Flame, Mail, Calendar, Crown, Shield, Trash2
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { toast } from 'sonner';
@@ -16,6 +16,7 @@ export const AdminGroupsManager = () => {
   const [loading, setLoading] = useState(true);
   const [expandedGroup, setExpandedGroup] = useState(null);
   const [copiedCode, setCopiedCode] = useState(null);
+  const [deleting, setDeleting] = useState(null);
 
   useEffect(() => {
     fetchGroups();
@@ -29,6 +30,23 @@ export const AdminGroupsManager = () => {
       toast.error('Failed to load groups');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const deleteGroup = async (groupId, groupName) => {
+    if (!window.confirm(`Delete "${groupName}"? This will remove the group and unlink all members. This cannot be undone.`)) {
+      return;
+    }
+    
+    setDeleting(groupId);
+    try {
+      await axios.delete(`${API}/admin/groups/${groupId}`);
+      toast.success(`Group "${groupName}" deleted`);
+      fetchGroups();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to delete group');
+    } finally {
+      setDeleting(null);
     }
   };
 
@@ -114,6 +132,8 @@ export const AdminGroupsManager = () => {
               copiedCode={copiedCode}
               formatDate={formatDate}
               isTeam={true}
+              onDelete={deleteGroup}
+              deleting={deleting}
             />
           ))}
         </div>
@@ -136,6 +156,8 @@ export const AdminGroupsManager = () => {
               copiedCode={copiedCode}
               formatDate={formatDate}
               isTeam={false}
+              onDelete={deleteGroup}
+              deleting={deleting}
             />
           ))}
         </div>
@@ -150,7 +172,7 @@ export const AdminGroupsManager = () => {
   );
 };
 
-const GroupCard = ({ group, expanded, onToggle, onCopyCode, copiedCode, formatDate, isTeam }) => {
+const GroupCard = ({ group, expanded, onToggle, onCopyCode, copiedCode, formatDate, isTeam, onDelete, deleting }) => {
   return (
     <div className="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden">
       {/* Group Header */}
@@ -268,7 +290,24 @@ const GroupCard = ({ group, expanded, onToggle, onCopyCode, copiedCode, formatDa
           {/* Group Footer Info */}
           <div className="mt-3 pt-3 border-t border-zinc-800 flex items-center justify-between text-xs text-zinc-500">
             <span>Created: {formatDate(group.created_at)}</span>
-            <span>Type: {group.type || 'private'}</span>
+            <div className="flex items-center gap-3">
+              <span>Type: {group.type || 'private'}</span>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(group.id, group.name);
+                }}
+                disabled={deleting === group.id}
+                className="flex items-center gap-1 text-red-400 hover:text-red-300 transition-colors disabled:opacity-50"
+              >
+                {deleting === group.id ? (
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                ) : (
+                  <Trash2 className="w-3 h-3" />
+                )}
+                Delete Group
+              </button>
+            </div>
           </div>
         </div>
       )}

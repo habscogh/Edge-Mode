@@ -826,6 +826,36 @@ async def get_all_groups(admin_user: dict = Depends(require_admin)):
     return {'groups': result, 'total': len(result)}
 
 
+@router.delete("/groups/{group_id}")
+async def delete_group(group_id: str, admin_user: dict = Depends(require_admin)):
+    """Delete a group and optionally clean up member references"""
+    # Find the group
+    group = await db.groups.find_one({'id': group_id}, {'_id': 0})
+    if not group:
+        raise HTTPException(status_code=404, detail='Group not found')
+    
+    # Remove team_id reference from all members
+    member_ids = group.get('members', [])
+    if member_ids:
+        await db.users.update_many(
+            {'id': {'$in': member_ids}},
+            {'$unset': {'team_id': '', 'joined_via_coach': ''}}
+        )
+    
+    # Delete the group
+    result = await db.groups.delete_one({'id': group_id})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=500, detail='Failed to delete group')
+    
+    logger.info(f"Admin {admin_user.get('email')} deleted group: {group.get('name')} ({group_id})")
+    
+    return {
+        'message': f'Group "{group.get("name")}" deleted successfully',
+        'members_updated': len(member_ids)
+    }
+
+
 # ============ Site Settings ============
 
 @router.get("/settings")
