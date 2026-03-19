@@ -1,279 +1,153 @@
 # Edge Mode - Product Requirements Document
 
-## Overview
-Mobile-first self-improvement app for teens (12-19). Core concept: "1% Better Every Day"
+## Original Problem Statement
+Build a mobile-first, full-stack application named "Edge Mode" to help teens (12-19) systematically improve themselves. Core philosophy: "1% Better Every Day" - turning self-improvement into a data-driven, game-like experience.
 
-**Live URL:** https://edgemodeapp.com
-**Preview URL:** https://teen-progress.preview.emergentagent.com
+## Target Audience
+- Primary: Teens aged 12-19
+- Secondary: Coaches, Parents (view-only roles)
+
+## Core Features
+
+### User Tracking & Onboarding
+- Account creation with age verification (12-19)
+- Select 3-5 "pillars" (e.g., Fitness, Study)
+- Set weekly effort targets
+
+### Dashboard & Metrics
+- Track streaks, consistency, and performance
+- Main dashboard visualizes progress
+- Daily motivational quotes
+- Habit-building tips
+
+### Social Features
+- Private groups with leaderboards
+- Opt-in global leaderboard
+- School-based leaderboard
+- Coach-player team system with invite links
+
+### Gamification
+- 30+ achievement badges
+- Opt-in challenges
+- Streak milestones and celebrations
+- Shareable achievement cards
+
+### Monetization
+- Subscription: $4.99/mo or $49.99/yr
+- 14-day free trial (no card required)
+- 30-day extended trial for coach teams
+- Parent gift subscription flow
+
+### User Roles
+- Standard users (players)
+- Coaches (free accounts, manage teams)
+- Parents (view-only)
+- Admins
+
+---
+
+## What's Been Implemented ✅
+
+### Authentication & Users
+- [x] JWT-based authentication
+- [x] User registration with referral codes
+- [x] Coach registration with team creation
+- [x] Player join via team invite links
+- [x] Password reset via email
+- [x] Admin user role
+
+### Payments (Stripe)
+- [x] Credit/debit card payments
+- [x] Apple Pay / Google Pay
+- [x] Parent gift subscription flow
+- [x] Trial management (14-day, 30-day extended)
+
+### Admin Dashboard
+- [x] User search and management
+- [x] Challenge management
+- [x] Coach code management
+- [x] Fix user subscription status tool
+- [x] Extend user access tool
+- [x] System maintenance tools
+
+### Gamification
+- [x] 30+ achievement badges
+- [x] Automated challenges
+- [x] Leaderboards (global, school, team)
+- [x] Streak system with milestones
+- [x] Shareable achievement cards
+
+### Engagement
+- [x] Social proof section on landing page
+- [x] Daily motivational quotes
+- [x] Rotating habit quotes
+- [x] Push notifications for awards/inactivity
+- [x] Email notifications (signup, trial ending)
+
+### Technical
+- [x] PWA capabilities
+- [x] US/Eastern timezone handling
+- [x] Hot reload for development
+
+---
+
+## Verified Working (March 19, 2026)
+
+### Coach Invite Flow ✅
+- Coach registration creates team with invite code
+- `/api/team/{code}` returns team info (public)
+- Player registration via invite adds to team
+- Frontend join page renders correctly
+
+---
+
+## Upcoming Tasks (Prioritized)
+
+### P1 - Progress Insights
+Add motivational messages to dashboard:
+- "You logged 20% more than last week"
+- "3rd consecutive week hitting targets"
+- Compare current vs previous week metrics
+
+### P1 - Quick Log Buttons
+Add one-tap presets on logging screen:
+- 15 min / 30 min / 60 min buttons
+- Reduce friction for common log durations
+
+### P2 - Export Data (CSV)
+Allow users to download their session history:
+- Date, pillar, duration, notes
+- Downloadable CSV format
+
+---
+
+## Future/Backlog
+
+### P2
+- "Streak Shield" subscription tier ($0.99/mo)
+- Daily login reminder push notifications
+
+### P3
+- NCES school database integration
+
+### Technical Debt
+- Refactor AdminDashboard.js (1100+ lines) into smaller components
+- Add automated tests for critical flows
+
+---
 
 ## Tech Stack
-- **Backend:** FastAPI (Python), APScheduler, pywebpush
 - **Frontend:** React, Tailwind CSS, Shadcn UI
-- **Database:** MongoDB Atlas
-- **Auth:** JWT tokens
-- **Payments:** Stripe (LIVE mode) ✅
+- **Backend:** FastAPI, Python, Pydantic
+- **Database:** MongoDB
+- **Payments:** Stripe (via emergentintegrations)
 - **Email:** Resend
-- **Push Notifications:** Web Push API with VAPID
-- **PWA:** Service Worker, manifest.json, IndexedDB
+- **Auth:** JWT
 
-## Code Architecture
-```
-/app/backend/
-├── server.py              # Main server (~230 lines)
-├── config.py              # Configuration
-├── routes/
-│   ├── auth.py            # Authentication
-│   ├── users.py           # User management
-│   ├── sessions.py        # Session logging
-│   ├── stats.py           # Statistics
-│   ├── badges.py          # Badges system
-│   ├── groups.py          # Groups
-│   ├── leaderboard.py     # Global leaderboard
-│   ├── coach.py           # Coach dashboard
-│   ├── parent.py          # Parent-student linking
-│   ├── challenges.py      # Challenges system
-│   ├── payments.py        # Stripe integration
-│   ├── admin.py           # Admin dashboard
-│   ├── notifications.py   # Email notifications
-│   ├── referral.py        # Referral system
-│   ├── onboarding.py      # Onboarding
-│   └── push.py            # Push notifications
-└── utils/
-    ├── auth.py            # JWT, password hashing
-    ├── badges.py          # Badge logic
-    ├── streaks.py         # Streak calculation
-    └── scheduler_jobs.py  # Email + push jobs
-
-/app/frontend/
-├── public/
-│   ├── manifest.json      # PWA manifest
-│   └── sw.js              # Service worker
-└── src/
-    ├── utils/
-    │   └── offlineStorage.js   # IndexedDB storage manager
-    ├── hooks/
-    │   ├── usePushNotifications.js
-    │   ├── useInstallPrompt.js
-    │   └── useOfflineSync.js
-    └── components/
-        ├── PushNotificationSettings.jsx
-        ├── InstallPrompt.jsx
-        └── OfflineIndicator.jsx
-```
-
-## Features (All Complete)
-
-### Core
-- User auth (signup/login)
-- 14-day free trial
-- Onboarding (select 3-5 pillars)
-- Dashboard with metrics & graph
-- Session logging with notes
-- Session history
-- Edit/delete sessions
-
-### Daily Reflections & Growth Journal ✅ NEW
-- **Post-Session Reflection Modal** - After logging a session, users can reflect on their progress
-- **Daily Prompts** - Rotating prompts like "What did you learn today?", "What are you grateful for?"
-- **Mood Tracking** - Select from 🔥 Great, 😊 Good, 😐 Okay, 💪 Tough
-- **Growth Journal Page** - View all past reflections with stats
-- **Reflection Streak** - Track consecutive days of reflections
-- **Skip Option** - Users can skip if they don't want to reflect
-
-### Push Notifications ✅
-- Web Push API with VAPID
-- Notifications for: streak reminders, badges, inactivity, trial ending
-- Toggle on/off from Profile page
-
-### PWA Install Prompt ✅
-- "Add to Home Screen" functionality
-- Install Banner on Dashboard
-- iOS Safari manual guide
-
-### Offline Session Logging ✅ NEW
-- **IndexedDB Storage** - Sessions saved locally when offline
-- **Auto-Sync** - Automatically syncs when back online
-- **Offline Indicator** - Floating badge shows offline status & pending count
-- **Sync Status Card** - Profile page shows sync status and manual sync button
-- **Network Error Fallback** - Falls back to offline save on network errors
-- **Toast Notifications** - Shows "Saved offline!" when saving locally
-
-### Achievements/Badges
-- 12 badges available
-- Toast notifications for new badges
-
-### Social
-- Private groups with invite codes
-- Global leaderboard (opt-in)
-
-### Email Notifications
-- Streak reminders, weekly summaries
-- Parent notifications
-
-### Challenges
-- Weekly and monthly challenges
-- Auto-created via scheduler
-
-### Coach Mode
-- Free coach signup
-- Team dashboard
-
-### Parent-Student Linking
-- Up to 2 parents per student
-- Parent dashboard
-
-### Admin
-- Admin Dashboard at `/admin`
-
-### Other
-- Stripe subscriptions - TEST MODE
-- Password reset
-- Profile settings
-
-## Completed Tasks (This Session - Dec 2025)
-- [x] ✅ **Fixed Achievements back button** - Added navigation back arrow
-- [x] ✅ **Added consistent back navigation** - Weekly Review, History pages
-- [x] ✅ **Added Quick Actions FAB** - 6 shortcuts on Dashboard
-- [x] ✅ **Added Pricing Section** - Landing page with monthly/yearly toggle
-- [x] ✅ **Push Notification Prompt** - Shows after first session logged
-- [x] ✅ **Enhanced Onboarding Progress** - Visual step indicators with progress bar
-- [x] ✅ **Confetti Celebrations** - Real canvas-confetti on milestones
-- [x] ✅ **Dark/Light Mode Toggle** - Theme switcher in Profile settings
-- [x] ✅ **Share Streak Cards** - Generate shareable images for Instagram/TikTok
-- [x] ✅ **Referral Rewards** - Invite 3 friends → Get 30 days free
-- [x] ✅ **School Leaderboard** - US schools (Grades 8-12) with weekly rankings
-  - School selector with autocomplete + custom school entry
-  - New `/school-leaderboard` page with 3 tabs
-- [x] ✅ **Founding Ambassador Program** - Special code activation, 1 year free, referral tracking
-  - Codes: EDGEFOUNDER2025, AMBASSADOR1, FOUNDINGMEMBER
-- [x] ✅ **Fixed "Failed to log session" bug** - Post-session refresh errors no longer show false error
-- [x] ✅ **Fixed School Search** - Users can now add ANY school name (not just from database)
-- [x] ✅ **Fixed Production Sign-Up White Screen (March 2026)** - React Error #31 fix
-  - Root cause: FastAPI validation errors returned as objects, React couldn't render them
-  - Fixed error handling in AuthScreen.js, ForgotPassword.js, ResetPasswordScreen.js
-  - Added Error Boundary in App.js to catch unhandled errors
-  - Fixed AuthContext.js race condition on registration
-- [x] ✅ **Daily Reflections & Growth Journal (March 2026)** - New feature
-  - Backend: `/api/reflections/` endpoints for prompts, saving, and stats
-  - Frontend: ReflectionModal component shown after session log
-  - Frontend: JournalScreen page at `/journal` to view past reflections
-  - Added to Quick Actions FAB on dashboard
-  - Tracks reflection streaks and mood distribution
-- [x] ✅ **Stripe Live Payments (March 2026)** - Production payments now working
-  - Updated config.py to check both STRIPE_SECRET_KEY and STRIPE_API_KEY
-  - Added `/api/stripe-check` debug endpoint for verifying key status
-  - Added `/api/admin/stripe-debug` authenticated endpoint
-  - Resolved platform-level key override by updating Secrets
-- [x] ✅ **Fixed Duplicate Challenges Bug (March 2026)**
-  - Added check to prevent creating duplicate challenges for same period
-  - Added Admin button "Clean Duplicate Challenges" to remove existing duplicates
-  - Endpoint: `/api/admin/challenges/cleanup-duplicates`
-- [x] ✅ **Fixed School Leaderboard Showing 0% (March 2026)**
-  - School leaderboard now calculates consistency/performance dynamically
-  - Fixed `/api/schools/leaderboard` and `/api/schools/my-school-stats`
-- [x] ✅ **Fixed Timezone/Date Bug (March 2026)** - "Today" showing yesterday's sessions
-  - Root cause: Frontend used `toISOString()` which converts to UTC
-  - Created `src/utils/dateUtils.js` with `getLocalDateString()` helper
-  - Updated Dashboard.js, LogScreen.js, WeeklyReviewScreen.js, TrialExpiredScreen.js
-- [x] ✅ **Streak Recovery Feature (March 2026)** - Paid option to restore broken streaks
-  - Backend: `/api/streak-recovery/` endpoints for eligibility check and Stripe checkout
-  - Frontend: StreakRecoveryModal component with pricing and checkout flow
-  - Frontend: StreakRecoverySuccessScreen with confetti celebration
-  - Price: $2.99 one-time payment
-  - Rules: Streak must have been 3+ days, can recover within 7 days of breaking
-  - Broken streak data now saved when streaks break for potential recovery
-- [x] ✅ **Admin Challenge Management (March 2026)** - Full CRUD for challenges
-  - Backend: `/api/challenges/admin/all`, `/admin/{id}` (PUT/DELETE), `/admin/{id}/participants`
-  - Frontend: AdminChallengeManager component with create/edit/delete functionality
-  - Features: Create weekly/monthly challenges, set metrics & pillars, change status, view participants
-- [x] ✅ **Featured Challenges on Dashboard (March 2026)** - Boost challenge participation
-  - Backend: `/api/challenges/featured` endpoint, added `featured` flag to challenges
-  - Frontend: FeaturedChallenges component on Dashboard showing active challenges
-  - Admin: Toggle "Feature" button in Challenge Management to feature/unfeature challenges
-  - Shows top 3 participants preview, days left, quick join button
-- [x] ✅ **Challenge Awards System (March 2026)** - Automatic badge awards for winners
-  - Badges: Weekly Champion (🏅), Monthly Champion (🥇), Silver Medal (🥈), Bronze Medal (🥉), Podium Finish (🎖️)
-  - Auto-awards on challenge end via scheduler
-  - Admin "Finalize & Award" button for manual finalization
-  - Winners displayed in challenge cards with medals
-  - Challenge streak badge for 3+ wins
-- [x] ✅ **Push Notifications for Badge Awards (March 2026)**
-  - `send_badge_earned_push()` - Notifies users when they earn any badge
-  - `send_challenge_winner_push()` - Special notification for challenge winners (🥇🥈🥉)
-  - Integrated into badge award system - auto-sends on badge earn
-  - Links to /achievements page
-- [x] ✅ **Admin Coach Management (March 2026)** - Full CRUD for coach codes
-  - Backend: `/api/admin/coach-codes` (GET/POST/PUT/DELETE), `/api/admin/coaches` (GET)
-  - Frontend: AdminCoachManager component in Admin Dashboard
-  - Features: Create codes with custom trial days, max uses, activate/deactivate, view usage stats
-  - Shows registered coaches with team info and player counts
-  - Database-driven codes (replaces hardcoded VALID_COACH_CODES)
-- [x] ✅ **Bulk Invite for Coaches (March 2026)** - Send team invitations in bulk
-  - Backend: `/api/coach/bulk-invite` (POST), `/api/coach/invitations` (GET), `/api/coach/resend-invitation` (POST)
-  - Frontend: BulkInviteSection component in Coach Dashboard
-  - Features: Paste emails or upload CSV, custom message, send up to 50 invites per batch
-  - Tracks invitation history with join status and resend count
-  - **Resend button** for pending invitations with reminder email template
-  - Professional email templates for initial invite and reminders
-
-- [x] ✅ **Social Proof Section on Landing Page (March 2026)**
-  - Backend: `/api/platform-stats` (public, no auth) - Returns platform stats and testimonials
-  - Backend: `/api/admin/settings` (GET/PUT) - Toggle social_proof_enabled
-  - Backend: `/api/admin/testimonials` (POST/DELETE) - Manage testimonials
-  - Frontend: SocialProofSection.jsx - Displays stats grid (Users, Sessions, Badges, Hours) + testimonials
-  - Frontend: AdminDashboard.js - Site Settings section with toggle and testimonial management
-  - Stats auto-update from database (total_users, sessions_logged, badges_earned, hours_logged)
-  - Testimonials display with quotes, user names, and roles
-  - Admin can toggle entire section on/off from dashboard
-- [x] ✅ **Shareable Achievement Cards (March 2026)**
-  - Frontend: AchievementShareCard.jsx - Visual card generator with html2canvas
-  - Features: Category-based gradient colors (streak=orange, milestone=gold, consistency=green, mastery=purple)
-  - Card includes: EDGE MODE branding, "Achievement Unlocked" label, badge icon, name, description, username
-  - Actions: Generate image, share to social media (native share API), download PNG
-  - Integrated into AchievementsScreen.js share modal
-  - Perfect for Instagram Stories, TikTok, and social sharing
-- [x] ✅ **Daily Motivational Quotes (March 2026)**
-  - Frontend: DailyQuote.jsx component on Dashboard
-  - 31 curated quotes for teen self-improvement
-  - Rotates daily based on day of year (consistent for all users each day)
-  - Refresh button to get a random new quote
-  - Clean design with quote icon and author attribution
-- [x] ✅ **Enhanced Milestone Celebrations (March 2026)**
-  - Streak milestones: 7, 14, 30, 50, 100 days with confetti
-  - Session milestones: 10, 25, 50, 100, 250, 500, 1000 sessions (NEW)
-  - Each milestone has unique title, emoji, message, and gradient color
-  - Epic confetti animation for big milestones (30+ days, 100+ sessions)
-  - Share to social media option in celebration modal
-- [x] ✅ **Admin Email Notifications for New Signups (March 2026)**
-  - Email sent to admin@edgemodeapp.com on every new user registration
-  - Email sent on every new coach registration
-  - Includes: username, email, age, signup time, total user count
-  - Uses existing Resend integration
-- [x] ✅ **Apple Pay / Google Pay + Parent Gift Payment Options (March 2026)**
-  - Added Apple Pay, Google Pay, Card, Parent Gift badges to landing page pricing
-  - Parent Gift flow: Teen creates shareable link → Parent pays via link → Subscription activates
-  - Backend: /api/payments/create-gift-link, /api/payments/gift/{code}, /api/payments/gift/{code}/checkout
-  - Frontend: GiftPaymentPage.js (parent view), GiftSuccessPage.js (confirmation)
-  - "Ask Parent to Pay" button on Trial Expired screen with copy/share link
-  - Stripe handles Apple Pay/Google Pay automatically in checkout
-- [x] ✅ **Rotating Habit Quotes on Landing Page (March 2026)**
-  - 13 curated quotes about habits displayed prominently on landing page
-  - Rotates every 10 seconds with fade animation
-  - Helps convert visitors before sign-up
-- [x] ✅ **Trial Email Bug Fix (March 2026)**
-  - Fixed bug where paid subscribers were receiving trial expiration emails
-  - Updated query to properly filter only users with is_trial=True
-
-## Known Issues
-- MongoDB may need manual restart if it times out (mongod --dbpath /data/db --fork --logpath /var/log/mongodb.log)
-
-## Future Enhancements
-- [ ] **P2:** "Streak Shield" subscription tier ($0.99/mo) - Auto-protect streaks
-- [ ] **P2:** Daily login reminder push notifications
-- [ ] **P3:** Integrate real NCES school database API for complete US school coverage
+## Key Files
+- Backend: `/app/backend/routes/auth.py`, `/app/backend/routes/payments.py`
+- Frontend: `/app/frontend/src/pages/Dashboard.js`, `/app/frontend/src/pages/JoinTeam.js`
+- Admin: `/app/frontend/src/pages/AdminDashboard.js`
 
 ## Test Credentials
-- **Admin:** admin@edgemodeapp.com / EdgeAdmin2024!
-- **Test User:** refactortest@example.com / test123
-- **Stripe Live Card:** Use real card for live payments
-- **Coach Codes:** EDGE30, COACH2024, TEAMEDGE, PROMO30
+- Admin: `admin@edgemodeapp.com` / `EdgeAdmin2024!`
