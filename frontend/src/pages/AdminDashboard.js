@@ -14,6 +14,7 @@ import { format, parseISO } from 'date-fns';
 import { toast } from 'sonner';
 import { AdminChallengeManager } from '../components/AdminChallengeManager';
 import { AdminCoachManager } from '../components/AdminCoachManager';
+import { AdminGroupsManager } from '../components/AdminGroupsManager';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -866,6 +867,11 @@ export const AdminDashboard = () => {
         {/* Coach Management */}
         <div className="bg-zinc-950 border border-zinc-800 rounded-md p-6 mb-6">
           <AdminCoachManager />
+        </div>
+
+        {/* Groups Management */}
+        <div className="bg-zinc-950 border border-zinc-800 rounded-md p-6 mb-6">
+          <AdminGroupsManager />
         </div>
 
         {/* Ambassadors Section */}

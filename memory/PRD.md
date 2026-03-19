@@ -69,6 +69,10 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
 - [x] Fix user subscription status tool
 - [x] Extend user access tool
 - [x] System maintenance tools
+- [x] **Groups & Teams management** (NEW - March 19, 2026)
+  - View all groups with member details
+  - Copy invite codes
+  - See coach teams vs private groups
 
 ### Gamification
 - [x] 30+ achievement badges

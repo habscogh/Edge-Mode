@@ -775,6 +775,56 @@ async def get_all_coaches(admin_user: dict = Depends(require_admin)):
     return {'coaches': coaches}
 
 
+# ============ Groups Management ============
+
+@router.get("/groups")
+async def get_all_groups(admin_user: dict = Depends(require_admin)):
+    """Get all groups with their members"""
+    groups = await db.groups.find({}, {'_id': 0}).sort('created_at', -1).to_list(200)
+    
+    result = []
+    for group in groups:
+        # Get member details
+        member_ids = group.get('members', [])
+        members = []
+        
+        for member_id in member_ids:
+            user = await db.users.find_one(
+                {'id': member_id}, 
+                {'_id': 0, 'id': 1, 'username': 1, 'name': 1, 'email': 1, 'is_coach': 1, 'join_date': 1, 'current_streak': 1}
+            )
+            if user:
+                members.append({
+                    'id': user['id'],
+                    'name': user.get('username') or user.get('name', 'Unknown'),
+                    'email': user.get('email'),
+                    'is_coach': user.get('is_coach', False),
+                    'join_date': user.get('join_date'),
+                    'current_streak': user.get('current_streak', 0)
+                })
+        
+        # Get coach info if it's a team
+        coach_name = None
+        if group.get('coach_id'):
+            coach = await db.users.find_one({'id': group['coach_id']}, {'_id': 0, 'name': 1, 'username': 1})
+            if coach:
+                coach_name = coach.get('name') or coach.get('username')
+        
+        result.append({
+            'id': group['id'],
+            'name': group.get('name', 'Unnamed Group'),
+            'type': group.get('type', 'private'),
+            'invite_code': group.get('invite_code'),
+            'coach_id': group.get('coach_id'),
+            'coach_name': coach_name,
+            'member_count': len(members),
+            'members': members,
+            'created_at': group.get('created_at'),
+            'has_extended_trial': group.get('has_extended_trial', False)
+        })
+    
+    return {'groups': result, 'total': len(result)}
+
 
 # ============ Site Settings ============
 
