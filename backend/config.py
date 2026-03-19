@@ -30,12 +30,12 @@ JWT_ALGORITHM = 'HS256'
 RESEND_API_KEY = os.environ.get('RESEND_API_KEY')
 SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'noreply@edgemodeapp.com')
 
-# Stripe Configuration - Live Mode
+# Stripe Configuration
 # Try STRIPE_SECRET_KEY first (Emergent platform standard), then STRIPE_API_KEY
 _stripe_secret = os.environ.get('STRIPE_SECRET_KEY')
 _stripe_api = os.environ.get('STRIPE_API_KEY')
 
-# Prefer user's live key over any test keys
+# Prefer live keys over test keys
 if _stripe_secret and _stripe_secret.startswith('sk_live_'):
     STRIPE_API_KEY = _stripe_secret
 elif _stripe_api and _stripe_api.startswith('sk_live_'):
@@ -45,13 +45,10 @@ elif _stripe_secret:
 elif _stripe_api:
     STRIPE_API_KEY = _stripe_api
 else:
-    # Fallback to hardcoded live key
-    STRIPE_API_KEY = 'STRIPE_KEY_REMOVED'
+    STRIPE_API_KEY = None
 
-# DIAGNOSTIC: Log which Stripe key is being used (remove after debugging)
-_stripe_key_prefix = STRIPE_API_KEY[:20] if STRIPE_API_KEY else "NONE"
-_key_source = "STRIPE_SECRET_KEY" if _stripe_secret else ("STRIPE_API_KEY" if _stripe_api else "HARDCODED")
-print(f"🔑 STRIPE KEY DIAGNOSTIC: Key starts with '{_stripe_key_prefix}...' from {_key_source} (test = sk_test_, live = sk_live_)")
+# Log Stripe key status (without exposing the key)
+_stripe_status = f"Stripe: {'live' if STRIPE_API_KEY and STRIPE_API_KEY.startswith('sk_live_') else 'test' if STRIPE_API_KEY else 'not configured'} mode"
 
 # Push Notification Configuration (VAPID)
 VAPID_PUBLIC_KEY = os.environ.get('VAPID_PUBLIC_KEY')
