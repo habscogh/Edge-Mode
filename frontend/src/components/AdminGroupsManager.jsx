@@ -3,7 +3,7 @@ import axios from 'axios';
 import { 
   Users, ChevronDown, ChevronUp, Loader2, Copy, Check,
   UserCircle, Flame, Mail, Calendar, Crown, Shield, Trash2,
-  Search, Filter, AlertTriangle
+  Search, Filter, AlertTriangle, Edit2, X, UserMinus
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -19,6 +19,10 @@ export const AdminGroupsManager = () => {
   const [expandedGroup, setExpandedGroup] = useState(null);
   const [copiedCode, setCopiedCode] = useState(null);
   const [deleting, setDeleting] = useState(null);
+  const [removingMember, setRemovingMember] = useState(null);
+  const [editingGroup, setEditingGroup] = useState(null);
+  const [editName, setEditName] = useState('');
+  const [savingName, setSavingName] = useState(false);
   
   // Search and filter state
   const [searchQuery, setSearchQuery] = useState('');
@@ -53,6 +57,43 @@ export const AdminGroupsManager = () => {
       toast.error(error.response?.data?.detail || 'Failed to delete group');
     } finally {
       setDeleting(null);
+    }
+  };
+
+  const updateGroupName = async (groupId) => {
+    if (!editName.trim()) {
+      toast.error('Group name cannot be empty');
+      return;
+    }
+    
+    setSavingName(true);
+    try {
+      await axios.put(`${API}/admin/groups/${groupId}/name?new_name=${encodeURIComponent(editName.trim())}`);
+      toast.success('Group renamed successfully');
+      setEditingGroup(null);
+      setEditName('');
+      fetchGroups();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to rename group');
+    } finally {
+      setSavingName(false);
+    }
+  };
+
+  const removeMember = async (groupId, memberId, memberName) => {
+    if (!window.confirm(`Remove "${memberName}" from this group?`)) {
+      return;
+    }
+    
+    setRemovingMember(memberId);
+    try {
+      await axios.delete(`${API}/admin/groups/${groupId}/members/${memberId}`);
+      toast.success(`${memberName} removed from group`);
+      fetchGroups();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to remove member');
+    } finally {
+      setRemovingMember(null);
     }
   };
 
@@ -273,6 +314,14 @@ export const AdminGroupsManager = () => {
               onDelete={deleteGroup}
               deleting={deleting}
               isEmpty={isEmptyGroup(group)}
+              onRemoveMember={removeMember}
+              removingMember={removingMember}
+              editingGroup={editingGroup}
+              setEditingGroup={setEditingGroup}
+              editName={editName}
+              setEditName={setEditName}
+              onUpdateName={updateGroupName}
+              savingName={savingName}
             />
           ))}
         </div>
@@ -298,6 +347,14 @@ export const AdminGroupsManager = () => {
               onDelete={deleteGroup}
               deleting={deleting}
               isEmpty={isEmptyGroup(group)}
+              onRemoveMember={removeMember}
+              removingMember={removingMember}
+              editingGroup={editingGroup}
+              setEditingGroup={setEditingGroup}
+              editName={editName}
+              setEditName={setEditName}
+              onUpdateName={updateGroupName}
+              savingName={savingName}
             />
           ))}
         </div>
@@ -312,7 +369,12 @@ export const AdminGroupsManager = () => {
   );
 };
 
-const GroupCard = ({ group, expanded, onToggle, onCopyCode, copiedCode, formatDate, isTeam, onDelete, deleting, isEmpty }) => {
+const GroupCard = ({ 
+  group, expanded, onToggle, onCopyCode, copiedCode, formatDate, isTeam, onDelete, deleting, isEmpty,
+  onRemoveMember, removingMember, editingGroup, setEditingGroup, editName, setEditName, onUpdateName, savingName
+}) => {
+  const isEditing = editingGroup === group.id;
+  
   return (
     <div className={`bg-zinc-900 border rounded-lg overflow-hidden ${
       isEmpty ? 'border-amber-500/50' : 'border-zinc-800'
@@ -336,19 +398,59 @@ const GroupCard = ({ group, expanded, onToggle, onCopyCode, copiedCode, formatDa
               )}
             </div>
             <div>
-              <div className="text-sm text-white font-medium flex items-center gap-2">
-                {group.name}
-                {isEmpty && (
-                  <span className="text-xs px-1.5 py-0.5 bg-amber-500/20 text-amber-400 rounded border border-amber-500/30">
-                    Empty
-                  </span>
-                )}
-                {group.has_extended_trial && (
-                  <span className="text-xs px-1.5 py-0.5 bg-amber-500/20 text-amber-400 rounded">
-                    Extended Trial
-                  </span>
-                )}
-              </div>
+              {isEditing ? (
+                <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                  <Input
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="h-7 w-48 bg-zinc-950 border-zinc-700 text-sm"
+                    placeholder="Group name"
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') onUpdateName(group.id);
+                      if (e.key === 'Escape') { setEditingGroup(null); setEditName(''); }
+                    }}
+                  />
+                  <button
+                    onClick={() => onUpdateName(group.id)}
+                    disabled={savingName}
+                    className="p-1 text-green-400 hover:text-green-300 disabled:opacity-50"
+                  >
+                    {savingName ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                  </button>
+                  <button
+                    onClick={() => { setEditingGroup(null); setEditName(''); }}
+                    className="p-1 text-zinc-400 hover:text-white"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="text-sm text-white font-medium flex items-center gap-2">
+                  {group.name}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingGroup(group.id);
+                      setEditName(group.name);
+                    }}
+                    className="p-1 text-zinc-500 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                    title="Edit name"
+                  >
+                    <Edit2 className="w-3 h-3" />
+                  </button>
+                  {isEmpty && (
+                    <span className="text-xs px-1.5 py-0.5 bg-amber-500/20 text-amber-400 rounded border border-amber-500/30">
+                      Empty
+                    </span>
+                  )}
+                  {group.has_extended_trial && (
+                    <span className="text-xs px-1.5 py-0.5 bg-amber-500/20 text-amber-400 rounded">
+                      Extended Trial
+                    </span>
+                  )}
+                </div>
+              )}
               <div className="text-xs text-zinc-500">
                 {isTeam && group.coach_name && `Coach: ${group.coach_name} • `}
                 {group.member_count} member{group.member_count !== 1 ? 's' : ''}
@@ -357,6 +459,19 @@ const GroupCard = ({ group, expanded, onToggle, onCopyCode, copiedCode, formatDa
             </div>
           </div>
           <div className="flex items-center gap-2">
+            {!isEditing && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditingGroup(group.id);
+                  setEditName(group.name);
+                }}
+                className="p-1.5 text-zinc-500 hover:text-white hover:bg-zinc-800 rounded transition-colors"
+                title="Edit name"
+              >
+                <Edit2 className="w-3.5 h-3.5" />
+              </button>
+            )}
             {group.invite_code && (
               <button
                 onClick={(e) => {
@@ -391,7 +506,7 @@ const GroupCard = ({ group, expanded, onToggle, onCopyCode, copiedCode, formatDa
               {group.members.map(member => (
                 <div 
                   key={member.id} 
-                  className="flex items-center justify-between py-2 px-3 bg-zinc-900 rounded-lg"
+                  className="flex items-center justify-between py-2 px-3 bg-zinc-900 rounded-lg group/member"
                 >
                   <div className="flex items-center gap-3">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
@@ -418,15 +533,35 @@ const GroupCard = ({ group, expanded, onToggle, onCopyCode, copiedCode, formatDa
                       </div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="flex items-center gap-1 text-orange-400 text-sm">
-                      <Flame className="w-3 h-3" />
-                      {member.current_streak || 0}
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <div className="flex items-center gap-1 text-orange-400 text-sm">
+                        <Flame className="w-3 h-3" />
+                        {member.current_streak || 0}
+                      </div>
+                      <div className="text-xs text-zinc-500 flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        {formatDate(member.join_date)}
+                      </div>
                     </div>
-                    <div className="text-xs text-zinc-500 flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />
-                      {formatDate(member.join_date)}
-                    </div>
+                    {/* Remove member button - don't show for coaches */}
+                    {!member.is_coach && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onRemoveMember(group.id, member.id, member.name);
+                        }}
+                        disabled={removingMember === member.id}
+                        className="p-1.5 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors opacity-0 group-hover/member:opacity-100 disabled:opacity-50"
+                        title="Remove from group"
+                      >
+                        {removingMember === member.id ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <UserMinus className="w-4 h-4" />
+                        )}
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}

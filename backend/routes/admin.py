@@ -856,6 +856,78 @@ async def delete_group(group_id: str, admin_user: dict = Depends(require_admin))
     }
 
 
+@router.put("/groups/{group_id}/name")
+async def update_group_name(group_id: str, new_name: str, admin_user: dict = Depends(require_admin)):
+    """Update a group's name"""
+    if not new_name or not new_name.strip():
+        raise HTTPException(status_code=400, detail='Group name cannot be empty')
+    
+    # Find the group
+    group = await db.groups.find_one({'id': group_id}, {'_id': 0})
+    if not group:
+        raise HTTPException(status_code=404, detail='Group not found')
+    
+    old_name = group.get('name', 'Unknown')
+    
+    # Update the name
+    result = await db.groups.update_one(
+        {'id': group_id},
+        {'$set': {'name': new_name.strip()}}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=500, detail='Failed to update group name')
+    
+    logger.info(f"Admin {admin_user.get('email')} renamed group: '{old_name}' -> '{new_name.strip()}' ({group_id})")
+    
+    return {
+        'message': f'Group renamed to "{new_name.strip()}"',
+        'old_name': old_name,
+        'new_name': new_name.strip()
+    }
+
+
+@router.delete("/groups/{group_id}/members/{member_id}")
+async def remove_member_from_group(group_id: str, member_id: str, admin_user: dict = Depends(require_admin)):
+    """Remove a single member from a group"""
+    # Find the group
+    group = await db.groups.find_one({'id': group_id}, {'_id': 0})
+    if not group:
+        raise HTTPException(status_code=404, detail='Group not found')
+    
+    # Check if member is in the group
+    if member_id not in group.get('members', []):
+        raise HTTPException(status_code=404, detail='Member not in this group')
+    
+    # Don't allow removing the coach from their own team
+    if group.get('coach_id') == member_id:
+        raise HTTPException(status_code=400, detail='Cannot remove the coach from their own team. Delete the group instead.')
+    
+    # Get member info for logging
+    member = await db.users.find_one({'id': member_id}, {'_id': 0, 'username': 1, 'name': 1, 'email': 1})
+    member_name = member.get('username') or member.get('name') or member.get('email', 'Unknown') if member else 'Unknown'
+    
+    # Remove member from group
+    await db.groups.update_one(
+        {'id': group_id},
+        {'$pull': {'members': member_id}}
+    )
+    
+    # Remove team_id reference from the user
+    await db.users.update_one(
+        {'id': member_id},
+        {'$unset': {'team_id': '', 'joined_via_coach': ''}}
+    )
+    
+    logger.info(f"Admin {admin_user.get('email')} removed {member_name} from group {group.get('name')} ({group_id})")
+    
+    return {
+        'message': f'{member_name} removed from group',
+        'member_id': member_id,
+        'group_name': group.get('name')
+    }
+
+
 # ============ Site Settings ============
 
 @router.get("/settings")

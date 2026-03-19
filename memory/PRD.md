@@ -72,7 +72,11 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
 - [x] **Groups & Teams management** (NEW - March 19, 2026)
   - View all groups with member details
   - Copy invite codes
-  - See coach teams vs private groups
+  - Search/filter groups (by name, coach, code, type)
+  - Empty groups indicator with visual badges
+  - Delete groups
+  - **Edit group names** (NEW)
+  - **Remove individual members** (NEW)
 
 ### Gamification
 - [x] 30+ achievement badges
