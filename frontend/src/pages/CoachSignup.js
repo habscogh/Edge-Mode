@@ -16,7 +16,8 @@ import {
   Sparkles,
   MessageSquare,
   Share2,
-  Link2
+  Link2,
+  Send
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -105,7 +106,7 @@ export const CoachSignup = () => {
     const teamLink = `${window.location.origin}/join/${result?.invite_code}`;
     return `I want everyone to join this app for the next 2 weeks and track your training and study time daily.
 
-It takes a few seconds and will show you how consistent you really are.
+It takes less than 10 seconds a day and will show you how consistent you really are.
 
 Join here: ${teamLink}`;
   };
@@ -126,6 +127,29 @@ Join here: ${teamLink}`;
     const subject = encodeURIComponent(`Join ${result?.team_name} on Edge Mode`);
     const body = encodeURIComponent(getPreWrittenMessage());
     window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
+  };
+
+  // Primary "Send to Team" button - opens native share sheet with pre-filled message
+  const sendToTeam = async () => {
+    const teamLink = `${window.location.origin}/join/${result?.invite_code}`;
+    const message = getPreWrittenMessage();
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          text: message
+        });
+      } catch (err) {
+        // User cancelled - that's fine, or fallback to copy
+        if (err.name !== 'AbortError') {
+          copyMessage();
+        }
+      }
+    } else {
+      // Fallback for desktop: try SMS first, then copy
+      const smsUrl = `sms:?body=${encodeURIComponent(message)}`;
+      window.open(smsUrl, '_blank');
+    }
   };
 
   const shareNative = async () => {
@@ -326,15 +350,26 @@ Join here: ${teamLink}`;
             <div className="bg-zinc-950 border border-zinc-700 rounded-lg p-4">
               <div className="bg-zinc-900 border-l-4 border-primary rounded-r-lg p-4 text-zinc-300 text-sm leading-relaxed">
                 <p className="mb-3">I want everyone to join this app for the next 2 weeks and track your training and study time daily.</p>
-                <p className="mb-3">It takes a few seconds and will show you how consistent you really are.</p>
+                <p className="mb-3">It takes less than 10 seconds a day and will show you how consistent you really are.</p>
                 <p>Join here: <span className="text-primary font-medium">{window.location.origin}/join/{result.invite_code}</span></p>
               </div>
               
-              {/* Copy Message & Share Link Buttons */}
-              <div className="flex gap-2 mt-4">
+              {/* Primary Action: Send to Team */}
+              <Button
+                onClick={sendToTeam}
+                className="w-full bg-primary hover:bg-primary/90 text-black font-bold mt-4 py-6 text-lg"
+                data-testid="send-to-team-btn"
+              >
+                <Send className="w-5 h-5 mr-2" />
+                Send to Team
+              </Button>
+              
+              {/* Secondary: Copy Message & Copy Link */}
+              <div className="flex gap-2 mt-3">
                 <Button
                   onClick={copyMessage}
-                  className="flex-1 bg-primary hover:bg-primary/90 text-black font-bold"
+                  variant="outline"
+                  className="flex-1 border-zinc-700 text-zinc-300 hover:bg-zinc-800"
                   data-testid="copy-message-btn"
                 >
                   {messageCopied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
@@ -348,42 +383,6 @@ Join here: ${teamLink}`;
                 >
                   {copied ? <Check className="w-4 h-4 mr-2" /> : <Link2 className="w-4 h-4 mr-2" />}
                   Copy Link
-                </Button>
-              </div>
-            </div>
-
-            {/* Share Options */}
-            <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
-              <div className="text-zinc-400 text-xs uppercase tracking-wide mb-3 font-medium">
-                Share via
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                <Button
-                  onClick={shareViaText}
-                  variant="outline"
-                  className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 flex flex-col items-center py-4 h-auto"
-                  data-testid="share-text-btn"
-                >
-                  <MessageSquare className="w-5 h-5 mb-1" />
-                  <span className="text-xs">Text</span>
-                </Button>
-                <Button
-                  onClick={shareViaEmail}
-                  variant="outline"
-                  className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 flex flex-col items-center py-4 h-auto"
-                  data-testid="share-email-btn"
-                >
-                  <Mail className="w-5 h-5 mb-1" />
-                  <span className="text-xs">Email</span>
-                </Button>
-                <Button
-                  onClick={shareNative}
-                  variant="outline"
-                  className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 flex flex-col items-center py-4 h-auto"
-                  data-testid="share-native-btn"
-                >
-                  <Share2 className="w-5 h-5 mb-1" />
-                  <span className="text-xs">Share</span>
                 </Button>
               </div>
             </div>
