@@ -13,7 +13,10 @@ import {
   ArrowRight,
   Copy,
   Check,
-  Sparkles
+  Sparkles,
+  MessageSquare,
+  Share2,
+  Link2
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -94,6 +97,54 @@ export const CoachSignup = () => {
     setCopied(true);
     toast.success('Invite link copied!');
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const [messageCopied, setMessageCopied] = useState(false);
+  
+  const getPreWrittenMessage = () => {
+    const teamLink = `${window.location.origin}/join/${result?.invite_code}`;
+    return `I want everyone to join this app for the next 2 weeks and track your training and study time daily.
+
+It takes a few seconds and will show you how consistent you really are.
+
+Join here: ${teamLink}`;
+  };
+
+  const copyMessage = () => {
+    navigator.clipboard.writeText(getPreWrittenMessage());
+    setMessageCopied(true);
+    toast.success('Message copied!');
+    setTimeout(() => setMessageCopied(false), 2000);
+  };
+
+  const shareViaText = () => {
+    const message = encodeURIComponent(getPreWrittenMessage());
+    window.open(`sms:?body=${message}`, '_blank');
+  };
+
+  const shareViaEmail = () => {
+    const subject = encodeURIComponent(`Join ${result?.team_name} on Edge Mode`);
+    const body = encodeURIComponent(getPreWrittenMessage());
+    window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
+  };
+
+  const shareNative = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Join ${result?.team_name}`,
+          text: getPreWrittenMessage(),
+          url: `${window.location.origin}/join/${result?.invite_code}`
+        });
+      } catch (err) {
+        // User cancelled or error
+        if (err.name !== 'AbortError') {
+          copyMessage();
+        }
+      }
+    } else {
+      copyMessage();
+    }
   };
 
   const goToDashboard = () => {
@@ -246,50 +297,112 @@ export const CoachSignup = () => {
           </form>
         )}
 
-        {/* Step 3: Success */}
+        {/* Step 3: Team Created - Invite Players */}
         {step === 3 && result && (
           <div className="space-y-4">
-            <div className="bg-zinc-900 border border-primary/30 rounded-lg p-6 text-center">
+            {/* Header */}
+            <div className="text-center">
               <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Check className="w-8 h-8 text-primary" />
               </div>
-              <h2 className="text-xl font-bold text-white mb-2">You're All Set!</h2>
-              <p className="text-zinc-400 mb-4">
-                Share this link with your players to join <strong>{result.team_name}</strong>
-              </p>
-
+              <h2 className="text-2xl font-bold text-white mb-1">Team Created</h2>
+              
               {result.has_extended_trial && (
-                <div className="bg-amber-500/20 text-amber-400 text-sm px-3 py-2 rounded-lg mb-4">
-                  ✨ Your players will get a 30-day extended trial!
+                <div className="bg-amber-500/20 text-amber-400 text-sm px-3 py-2 rounded-lg mt-3 inline-block">
+                  Your players get a 30-day extended trial!
                 </div>
               )}
+            </div>
 
-              <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-4 mb-4">
-                <div className="text-zinc-400 text-xs mb-1">Player Invite Link</div>
-                <div className="flex items-center gap-2">
-                  <code className="flex-1 text-primary text-sm truncate">
-                    {window.location.origin}/join/{result.invite_code}
-                  </code>
-                  <Button
-                    onClick={copyInviteLink}
-                    size="sm"
-                    variant="ghost"
-                    className="text-primary"
-                    data-testid="copy-link-btn"
-                  >
-                    {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                  </Button>
-                </div>
+            {/* Primary Message */}
+            <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-6">
+              <h3 className="text-xl font-bold text-white mb-2">Invite your team now</h3>
+              <p className="text-zinc-400 text-sm">
+                Send this to your players to get started with a simple 2-week consistency challenge.
+              </p>
+            </div>
+
+            {/* Pre-Written Message Box */}
+            <div className="bg-zinc-950 border border-zinc-700 rounded-lg p-4">
+              <div className="text-zinc-400 text-xs uppercase tracking-wide mb-3 font-medium">
+                Pre-Written Message (Copy-Ready)
               </div>
-
-              <div className="text-zinc-500 text-sm">
-                Players: {result.has_extended_trial ? '30' : '14'}-day free trial
+              <div className="bg-zinc-900 border-l-4 border-primary rounded-r-lg p-4 text-zinc-300 text-sm leading-relaxed">
+                <p className="mb-3">I want everyone to join this app for the next 2 weeks and track your training and study time daily.</p>
+                <p className="mb-3">It takes a few seconds and will show you how consistent you really are.</p>
+                <p>Join here: <span className="text-primary font-medium">{window.location.origin}/join/{result.invite_code}</span></p>
+              </div>
+              
+              {/* Copy Message & Share Link Buttons */}
+              <div className="flex gap-2 mt-4">
+                <Button
+                  onClick={copyMessage}
+                  className="flex-1 bg-primary hover:bg-primary/90 text-black font-bold"
+                  data-testid="copy-message-btn"
+                >
+                  {messageCopied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
+                  Copy Message
+                </Button>
+                <Button
+                  onClick={copyInviteLink}
+                  variant="outline"
+                  className="flex-1 border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+                  data-testid="copy-link-btn"
+                >
+                  {copied ? <Check className="w-4 h-4 mr-2" /> : <Link2 className="w-4 h-4 mr-2" />}
+                  Copy Link
+                </Button>
               </div>
             </div>
 
+            {/* Share Options */}
+            <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
+              <div className="text-zinc-400 text-xs uppercase tracking-wide mb-3 font-medium">
+                Share via
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <Button
+                  onClick={shareViaText}
+                  variant="outline"
+                  className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 flex flex-col items-center py-4 h-auto"
+                  data-testid="share-text-btn"
+                >
+                  <MessageSquare className="w-5 h-5 mb-1" />
+                  <span className="text-xs">Text</span>
+                </Button>
+                <Button
+                  onClick={shareViaEmail}
+                  variant="outline"
+                  className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 flex flex-col items-center py-4 h-auto"
+                  data-testid="share-email-btn"
+                >
+                  <Mail className="w-5 h-5 mb-1" />
+                  <span className="text-xs">Email</span>
+                </Button>
+                <Button
+                  onClick={shareNative}
+                  variant="outline"
+                  className="border-zinc-700 text-zinc-300 hover:bg-zinc-800 flex flex-col items-center py-4 h-auto"
+                  data-testid="share-native-btn"
+                >
+                  <Share2 className="w-5 h-5 mb-1" />
+                  <span className="text-xs">Share</span>
+                </Button>
+              </div>
+            </div>
+
+            {/* Action Line */}
+            <div className="text-center py-2">
+              <p className="text-zinc-400 text-sm font-medium">
+                Best results come when you introduce this to your team at practice or send it today.
+              </p>
+            </div>
+
+            {/* Go to Dashboard */}
             <Button 
               onClick={goToDashboard}
-              className="w-full bg-primary hover:bg-primary/90 text-black font-bold"
+              variant="outline"
+              className="w-full border-zinc-700 text-zinc-300 hover:bg-zinc-800"
               data-testid="go-dashboard-btn"
             >
               Go to Coach Dashboard
