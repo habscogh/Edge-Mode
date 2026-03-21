@@ -15,6 +15,7 @@
   "categories": ["productivity", "lifestyle", "health", "education"],
   "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
   "prefer_related_applications": false,
+  "related_applications": [],
   "icons": [
     {
       "src": "/icon-48.png",
@@ -91,6 +92,20 @@
       "type": "image/png",
       "form_factor": "narrow",
       "label": "Earn badges and achievements"
+    },
+    {
+      "src": "/screenshots/dashboard-wide.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Dashboard view on desktop"
+    },
+    {
+      "src": "/screenshots/achievements-wide.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Achievements view on desktop"
     }
   ],
   "shortcuts": [
