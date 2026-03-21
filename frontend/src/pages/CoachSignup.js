@@ -324,9 +324,6 @@ Join here: ${teamLink}`;
 
             {/* Pre-Written Message Box */}
             <div className="bg-zinc-950 border border-zinc-700 rounded-lg p-4">
-              <div className="text-zinc-400 text-xs uppercase tracking-wide mb-3 font-medium">
-                Pre-Written Message (Copy-Ready)
-              </div>
               <div className="bg-zinc-900 border-l-4 border-primary rounded-r-lg p-4 text-zinc-300 text-sm leading-relaxed">
                 <p className="mb-3">I want everyone to join this app for the next 2 weeks and track your training and study time daily.</p>
                 <p className="mb-3">It takes a few seconds and will show you how consistent you really are.</p>
