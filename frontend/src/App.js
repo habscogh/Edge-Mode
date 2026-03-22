@@ -34,6 +34,7 @@ import { SchoolLeaderboardScreen } from './pages/SchoolLeaderboardScreen';
 import { JournalScreen } from './pages/JournalScreen';
 import GiftPaymentPage from './pages/GiftPaymentPage';
 import GiftSuccessPage from './pages/GiftSuccessPage';
+import DataDeletionPage from './pages/DataDeletionPage';
 import { BottomNav } from './components/BottomNav';
 import { Toaster } from './components/ui/sonner';
 import axios from 'axios';
@@ -346,6 +347,7 @@ const AppRoutes = () => {
         />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/delete-account" element={<DataDeletionPage />} />
         <Route path="/reset-password" element={<ResetPasswordScreen />} />
         
         {/* Gift Payment Routes (Public - No Auth) */}
