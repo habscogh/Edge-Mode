@@ -429,7 +429,7 @@ async def search_users(
     q: str,
     admin_user: dict = Depends(require_admin)
 ):
-    """Search users by email or username"""
+    """Search users by email, username, name, or school"""
     if len(q) < 2:
         raise HTTPException(status_code=400, detail="Search query must be at least 2 characters")
     
@@ -437,7 +437,9 @@ async def search_users(
         {
             "$or": [
                 {"email": {"$regex": q, "$options": "i"}},
-                {"username": {"$regex": q, "$options": "i"}}
+                {"username": {"$regex": q, "$options": "i"}},
+                {"name": {"$regex": q, "$options": "i"}},
+                {"school": {"$regex": q, "$options": "i"}}
             ]
         },
         {"_id": 0, "password_hash": 0}
