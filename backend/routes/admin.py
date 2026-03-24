@@ -439,7 +439,8 @@ async def search_users(
                 {"email": {"$regex": q, "$options": "i"}},
                 {"username": {"$regex": q, "$options": "i"}},
                 {"name": {"$regex": q, "$options": "i"}},
-                {"school": {"$regex": q, "$options": "i"}}
+                {"school_name": {"$regex": q, "$options": "i"}},
+                {"school_base_name": {"$regex": q, "$options": "i"}}
             ]
         },
         {"_id": 0, "password_hash": 0}
