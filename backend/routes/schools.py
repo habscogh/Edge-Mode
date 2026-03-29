@@ -173,15 +173,21 @@ async def remove_user_school(current_user: dict = Depends(get_current_user)):
 
 
 @router.get("/leaderboard")
-async def get_school_leaderboard():
+async def get_school_leaderboard(limit: int = 25):
     """
     Get school leaderboard data:
     - Top schools by average consistency
     - Top schools by average performance  
     - Schools with most users
+    
+    Query params:
+    - limit: Number of schools to return (default: 25, max: 100)
     """
     from utils.timezone import get_today_eastern
     from datetime import timedelta
+    
+    # Clamp limit between 1 and 100
+    limit = max(1, min(limit, 100))
     
     today = get_today_eastern()
     week_start = today - timedelta(days=today.weekday())  # Monday of current week
@@ -197,6 +203,7 @@ async def get_school_leaderboard():
             "top_consistency": [],
             "top_performance": [],
             "most_users": [],
+            "limit": limit,
             "last_updated": datetime.now(timezone.utc).isoformat()
         }
     
@@ -284,17 +291,18 @@ async def get_school_leaderboard():
     user_count_list.sort(key=lambda x: x["user_count"], reverse=True)
     
     # Add ranks
-    for i, item in enumerate(consistency_list[:10]):
+    for i, item in enumerate(consistency_list[:limit]):
         item["rank"] = i + 1
-    for i, item in enumerate(performance_list[:10]):
+    for i, item in enumerate(performance_list[:limit]):
         item["rank"] = i + 1
-    for i, item in enumerate(user_count_list[:10]):
+    for i, item in enumerate(user_count_list[:limit]):
         item["rank"] = i + 1
     
     return {
-        "top_consistency": consistency_list[:10],
-        "top_performance": performance_list[:10],
-        "most_users": user_count_list[:10],
+        "top_consistency": consistency_list[:limit],
+        "top_performance": performance_list[:limit],
+        "most_users": user_count_list[:limit],
+        "limit": limit,
         "last_updated": datetime.now(timezone.utc).isoformat()
     }
 
