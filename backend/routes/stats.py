@@ -101,6 +101,130 @@ async def get_daily_comparison(current_user: dict = Depends(get_current_user), l
     )
 
 
+@router.get("/progress-insights")
+async def get_progress_insights(current_user: dict = Depends(get_current_user), local_date: str = None):
+    """Get progress insights comparing this week vs last week"""
+    user_id = current_user['id']
+    if local_date:
+        today = date.fromisoformat(local_date)
+    else:
+        today = get_today_eastern()
+    
+    # This week
+    this_week_start = today - timedelta(days=today.weekday())
+    this_week_end = today
+    
+    # Last week
+    last_week_start = this_week_start - timedelta(days=7)
+    last_week_end = this_week_start - timedelta(days=1)
+    
+    # Get sessions for both weeks
+    this_week_sessions = await db.daily_sessions.find({
+        'user_id': user_id,
+        'date': {'$gte': this_week_start.isoformat(), '$lte': this_week_end.isoformat()}
+    }, {'_id': 0}).to_list(1000)
+    
+    last_week_sessions = await db.daily_sessions.find({
+        'user_id': user_id,
+        'date': {'$gte': last_week_start.isoformat(), '$lte': last_week_end.isoformat()}
+    }, {'_id': 0}).to_list(1000)
+    
+    # Calculate metrics
+    this_week_minutes = sum(s.get('minutes_spent', 30) for s in this_week_sessions)
+    last_week_minutes = sum(s.get('minutes_spent', 30) for s in last_week_sessions)
+    
+    this_week_sessions_count = len(this_week_sessions)
+    last_week_sessions_count = len(last_week_sessions)
+    
+    this_week_days = len(set(s['date'] for s in this_week_sessions))
+    last_week_days = len(set(s['date'] for s in last_week_sessions))
+    
+    # Calculate percentages
+    minutes_change = 0
+    if last_week_minutes > 0:
+        minutes_change = round(((this_week_minutes - last_week_minutes) / last_week_minutes) * 100)
+    elif this_week_minutes > 0:
+        minutes_change = 100
+    
+    sessions_change = 0
+    if last_week_sessions_count > 0:
+        sessions_change = round(((this_week_sessions_count - last_week_sessions_count) / last_week_sessions_count) * 100)
+    elif this_week_sessions_count > 0:
+        sessions_change = 100
+    
+    # Get user's personal bests
+    user = await db.users.find_one({'id': user_id}, {'_id': 0})
+    current_streak = user.get('current_streak', 0)
+    longest_streak = user.get('longest_streak', 0)
+    
+    # Check for new personal bests
+    new_personal_bests = []
+    
+    # Check if current streak just became longest
+    if current_streak > 0 and current_streak == longest_streak:
+        new_personal_bests.append({
+            'type': 'streak',
+            'message': f'New longest streak: {longest_streak} days!',
+            'value': longest_streak
+        })
+    
+    # Generate insights
+    insights = []
+    
+    if minutes_change > 0:
+        insights.append({
+            'type': 'positive',
+            'icon': 'trending_up',
+            'message': f'You logged {abs(minutes_change)}% more time than last week!'
+        })
+    elif minutes_change < 0:
+        insights.append({
+            'type': 'neutral',
+            'icon': 'trending_down',
+            'message': f'You logged {abs(minutes_change)}% less time than last week'
+        })
+    
+    if sessions_change > 0:
+        insights.append({
+            'type': 'positive',
+            'icon': 'check_circle',
+            'message': f'{this_week_sessions_count} sessions this week - {abs(sessions_change)}% more than last week!'
+        })
+    
+    if this_week_days >= 5:
+        insights.append({
+            'type': 'positive',
+            'icon': 'fire',
+            'message': f'Great consistency! You logged {this_week_days} days this week'
+        })
+    
+    if current_streak >= 7:
+        insights.append({
+            'type': 'positive',
+            'icon': 'fire',
+            'message': f'{current_streak} day streak! Keep it going!'
+        })
+    
+    return {
+        'this_week': {
+            'minutes': this_week_minutes,
+            'sessions': this_week_sessions_count,
+            'days_logged': this_week_days
+        },
+        'last_week': {
+            'minutes': last_week_minutes,
+            'sessions': last_week_sessions_count,
+            'days_logged': last_week_days
+        },
+        'changes': {
+            'minutes_pct': minutes_change,
+            'sessions_pct': sessions_change
+        },
+        'insights': insights,
+        'personal_bests': new_personal_bests
+    }
+
+
 @router.get("/history", response_model=PerformanceHistory)
 async def get_performance_history(current_user: dict = Depends(get_current_user), days: int = 30, local_date: str = None):
     user_id = current_user['id']

@@ -152,6 +152,25 @@ async def get_coach_group_dashboard(group_id: str, current_user: dict = Depends(
     
     players.sort(key=lambda x: x['performance_index'], reverse=True)
     
+    # Identify inactive players (no sessions in 3+ days)
+    inactive_players = []
+    for player in players:
+        if player['last_active']:
+            last_active_date = datetime.fromisoformat(player['last_active']).date()
+            days_inactive = (today - last_active_date).days
+            if days_inactive >= 3:
+                inactive_players.append({
+                    'id': player['id'],
+                    'username': player['username'],
+                    'days_inactive': days_inactive
+                })
+        else:
+            inactive_players.append({
+                'id': player['id'],
+                'username': player['username'],
+                'days_inactive': 999
+            })
+    
     return {
         'group': group,
         'players': players,
@@ -159,8 +178,10 @@ async def get_coach_group_dashboard(group_id: str, current_user: dict = Depends(
             'total_players': len(players),
             'avg_consistency': round(total_consistency / len(players), 1) if players else 0,
             'avg_performance': round(total_performance / len(players), 1) if players else 0,
-            'total_sessions_this_week': total_sessions
-        }
+            'total_sessions_this_week': total_sessions,
+            'inactive_count': len(inactive_players)
+        },
+        'inactive_players': inactive_players
     }
 
 
@@ -372,6 +393,105 @@ async def get_invitation_history(current_user: dict = Depends(get_current_user))
     
     return {'invitations': invitations}
 
+
+@router.post("/groups/{group_id}/bulk-message")
+async def send_bulk_message(
+    group_id: str,
+    message: str,
+    subject: str = "Message from your Coach",
+    current_user: dict = Depends(get_current_user)
+):
+    """Send an email message to all players in the team"""
+    group = await db.groups.find_one({'id': group_id}, {'_id': 0})
+    if not group:
+        raise HTTPException(status_code=404, detail='Group not found')
+    
+    if group.get('coach_id') != current_user['id']:
+        raise HTTPException(status_code=403, detail='Only the coach can send team messages')
+    
+    if not message or len(message.strip()) < 10:
+        raise HTTPException(status_code=400, detail='Message must be at least 10 characters')
+    
+    if not RESEND_AVAILABLE:
+        raise HTTPException(status_code=503, detail='Email service not available')
+    
+    # Get all player emails (exclude coach)
+    member_ids = [m for m in group.get('members', []) if m != current_user['id']]
+    
+    if not member_ids:
+        raise HTTPException(status_code=400, detail='No players in team to message')
+    
+    players = await db.users.find({'id': {'$in': member_ids}}, {'_id': 0, 'id': 1, 'email': 1, 'username': 1}).to_list(100)
+    
+    coach_name = current_user.get('name') or current_user.get('username', 'Your Coach')
+    team_name = group.get('name', 'your team')
+    
+    sent_count = 0
+    failed = []
+    
+    for player in players:
+        try:
+            resend.Emails.send({
+                "from": "Edge Mode <noreply@edgemodeapp.com>",
+                "to": player['email'],
+                "subject": f"[{team_name}] {subject}",
+                "html": f"""
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <div style="background: #10b981; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
+                        <h2 style="color: white; margin: 0;">Message from {coach_name}</h2>
+                    </div>
+                    <div style="background: #18181b; padding: 30px; color: #fafafa;">
+                        <p style="white-space: pre-wrap; line-height: 1.6;">{message}</p>
+                    </div>
+                    <div style="background: #09090b; padding: 20px; text-align: center; border-radius: 0 0 8px 8px;">
+                        <p style="color: #71717a; margin: 0;">
+                            This message was sent via Edge Mode.<br/>
+                            <a href="https://edgemodeapp.com/dashboard" style="color: #10b981;">Log your progress today</a>
+                        </p>
+                    </div>
+                </div>
+                """
+            })
+            sent_count += 1
+        except Exception as e:
+            failed.append(player.get('email'))
+    
+    # Log the message
+    await db.coach_messages.insert_one({
+        'id': str(uuid.uuid4()),
+        'group_id': group_id,
+        'coach_id': current_user['id'],
+        'subject': subject,
+        'message': message,
+        'sent_to': len(players),
+        'sent_count': sent_count,
+        'failed': failed,
+        'sent_at': datetime.now(timezone.utc).isoformat()
+    })
+    
+    return {
+        'message': f'Message sent to {sent_count} player(s)',
+        'sent_count': sent_count,
+        'failed_count': len(failed)
+    }
+
+
+@router.get("/groups/{group_id}/messages")
+async def get_message_history(group_id: str, current_user: dict = Depends(get_current_user)):
+    """Get history of messages sent to the team"""
+    group = await db.groups.find_one({'id': group_id}, {'_id': 0})
+    if not group:
+        raise HTTPException(status_code=404, detail='Group not found')
+    
+    if group.get('coach_id') != current_user['id']:
+        raise HTTPException(status_code=403, detail='Only the coach can view message history')
+    
+    messages = await db.coach_messages.find(
+        {'group_id': group_id},
+        {'_id': 0}
+    ).sort('sent_at', -1).to_list(50)
+    
+    return {'messages': messages}
 
 
 @router.post("/resend-invitation")

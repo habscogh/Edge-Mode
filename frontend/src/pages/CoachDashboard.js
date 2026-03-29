@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
 import { BulkInviteSection } from '../components/BulkInviteSection';
 import { 
   ArrowLeft, 
@@ -13,7 +14,11 @@ import {
   Target,
   ChevronRight,
   Clock,
-  Award
+  Award,
+  MessageSquare,
+  Send,
+  AlertTriangle,
+  X
 } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -172,6 +177,12 @@ export const CoachDashboard = () => {
   const [dashboard, setDashboard] = useState(null);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [playerDetails, setPlayerDetails] = useState(null);
+  
+  // Bulk message state
+  const [showMessageModal, setShowMessageModal] = useState(false);
+  const [messageSubject, setMessageSubject] = useState('');
+  const [messageText, setMessageText] = useState('');
+  const [sendingMessage, setSendingMessage] = useState(false);
 
   useEffect(() => {
     fetchDashboard();
@@ -202,6 +213,31 @@ export const CoachDashboard = () => {
     } catch (error) {
       console.error('Failed to fetch player details:', error);
       toast.error('Failed to load player details');
+    }
+  };
+
+  const handleSendBulkMessage = async () => {
+    if (!messageText.trim() || messageText.length < 10) {
+      toast.error('Message must be at least 10 characters');
+      return;
+    }
+    
+    setSendingMessage(true);
+    try {
+      const response = await axios.post(`${API}/groups/${groupId}/coach/bulk-message`, null, {
+        params: {
+          message: messageText,
+          subject: messageSubject || 'Message from your Coach'
+        }
+      });
+      toast.success(response.data.message);
+      setShowMessageModal(false);
+      setMessageSubject('');
+      setMessageText('');
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to send message');
+    } finally {
+      setSendingMessage(false);
     }
   };
 
@@ -270,6 +306,89 @@ export const CoachDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Inactive Players Alert */}
+      {dashboard.inactive_players?.length > 0 && (
+        <div className="px-4 py-2">
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4">
+            <div className="flex items-center gap-2 text-amber-400 font-medium mb-2">
+              <AlertTriangle className="w-5 h-5" />
+              {dashboard.inactive_players.length} player{dashboard.inactive_players.length > 1 ? 's' : ''} inactive
+            </div>
+            <div className="space-y-1">
+              {dashboard.inactive_players.slice(0, 3).map((p) => (
+                <div key={p.id} className="text-sm text-amber-200/80">
+                  {p.username} - {p.days_inactive >= 999 ? 'Never logged' : `${p.days_inactive} days ago`}
+                </div>
+              ))}
+              {dashboard.inactive_players.length > 3 && (
+                <div className="text-xs text-amber-500">
+                  +{dashboard.inactive_players.length - 3} more
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Quick Actions */}
+      <div className="px-4 py-2">
+        <Button 
+          onClick={() => setShowMessageModal(true)}
+          className="w-full bg-primary hover:bg-primary/90 text-black font-bold"
+          data-testid="bulk-message-btn"
+        >
+          <MessageSquare className="w-4 h-4 mr-2" />
+          Message All Players
+        </Button>
+      </div>
+
+      {/* Bulk Message Modal */}
+      {showMessageModal && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-lg w-full max-w-md">
+            <div className="flex items-center justify-between p-4 border-b border-zinc-800">
+              <h3 className="text-white font-bold">Message Your Team</h3>
+              <button onClick={() => setShowMessageModal(false)} className="text-zinc-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 space-y-4">
+              <div>
+                <label className="block text-zinc-400 text-sm mb-2">Subject (optional)</label>
+                <Input
+                  value={messageSubject}
+                  onChange={(e) => setMessageSubject(e.target.value)}
+                  placeholder="Motivational message"
+                  className="bg-zinc-950 border-zinc-700"
+                />
+              </div>
+              <div>
+                <label className="block text-zinc-400 text-sm mb-2">Message</label>
+                <textarea
+                  value={messageText}
+                  onChange={(e) => setMessageText(e.target.value)}
+                  placeholder="Great work this week! Let's keep pushing..."
+                  className="w-full h-32 bg-zinc-950 border border-zinc-700 rounded-md px-3 py-2 text-white resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+                <p className="text-zinc-500 text-xs mt-1">{messageText.length} characters (min 10)</p>
+              </div>
+            </div>
+            <div className="p-4 border-t border-zinc-800 flex gap-2">
+              <Button variant="outline" onClick={() => setShowMessageModal(false)} className="flex-1 border-zinc-700">
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleSendBulkMessage}
+                disabled={sendingMessage || messageText.length < 10}
+                className="flex-1 bg-primary hover:bg-primary/90 text-black font-bold"
+              >
+                {sendingMessage ? 'Sending...' : <><Send className="w-4 h-4 mr-2" /> Send</>}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Players List */}
       <div className="p-4">

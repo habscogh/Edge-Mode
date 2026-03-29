@@ -329,7 +329,28 @@ export const LogScreen = () => {
           </div>
 
           <div className="bg-zinc-950 border border-zinc-800 rounded-md p-6">
-            <label className="block text-white font-body mb-3">Time Spent (Optional)</label>
+            <label className="block text-white font-body mb-3">Time Spent</label>
+            
+            {/* Quick Log Buttons */}
+            <div className="grid grid-cols-4 gap-2 mb-4">
+              {[15, 30, 45, 60].map((mins) => (
+                <button
+                  key={mins}
+                  type="button"
+                  onClick={() => setMinutes(mins.toString())}
+                  data-testid={`quick-log-${mins}`}
+                  className={`py-3 px-2 rounded-md font-mono text-sm font-bold transition-all ${
+                    minutes === mins.toString()
+                      ? 'bg-primary text-black'
+                      : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                  }`}
+                >
+                  {mins}m
+                </button>
+              ))}
+            </div>
+            
+            {/* Custom Input */}
             <div className="flex items-center gap-3">
               <Clock className="w-5 h-5 text-zinc-500" />
               <Input
@@ -343,7 +364,7 @@ export const LogScreen = () => {
               />
               <span className="text-zinc-400 font-body whitespace-nowrap">minutes</span>
             </div>
-            <p className="text-zinc-500 text-xs font-body mt-2">Track time for better insights</p>
+            <p className="text-zinc-500 text-xs font-body mt-2">Tap a preset or enter custom time</p>
           </div>
 
           <div className="bg-zinc-950 border border-zinc-800 rounded-md p-6">
