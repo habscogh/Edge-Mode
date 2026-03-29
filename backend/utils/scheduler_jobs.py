@@ -264,7 +264,7 @@ async def send_weekly_summaries_job():
     
     logger.info("Running weekly summary job...")
     now = datetime.now(timezone.utc)
-    week_start = (now - timedelta(days=7)).isoformat()
+    week_start_date = (now.date() - timedelta(days=7)).isoformat()
     
     # Create a unique key for this week to prevent duplicate emails
     week_key = now.strftime('%Y-W%W')
@@ -278,9 +278,10 @@ async def send_weekly_summaries_job():
         
         sent_count = 0
         for user in users:
+            # Query by date field (YYYY-MM-DD format) instead of timestamp
             sessions = await db.daily_sessions.find({
                 'user_id': user['id'],
-                'timestamp': {'$gte': week_start}
+                'date': {'$gte': week_start_date}
             }, {'_id': 0}).to_list(100)
             
             total_sessions = len(sessions)
