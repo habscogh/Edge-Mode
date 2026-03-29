@@ -263,11 +263,16 @@ async def send_weekly_summaries_job():
         return
     
     logger.info("Running weekly summary job...")
-    now = datetime.now(timezone.utc)
-    week_start_date = (now.date() - timedelta(days=7)).isoformat()
+    
+    # Use Eastern Time for date calculations since sessions are logged with Eastern dates
+    from utils.timezone import get_today_eastern
+    today_eastern = get_today_eastern()
+    week_start_date = (today_eastern - timedelta(days=7)).isoformat()
+    
+    logger.info(f"Weekly summary: Looking for sessions from {week_start_date} to {today_eastern.isoformat()}")
     
     # Create a unique key for this week to prevent duplicate emails
-    week_key = now.strftime('%Y-W%W')
+    week_key = today_eastern.strftime('%Y-W%W')
     
     try:
         users = await db.users.find({
@@ -278,7 +283,7 @@ async def send_weekly_summaries_job():
         
         sent_count = 0
         for user in users:
-            # Query by date field (YYYY-MM-DD format) instead of timestamp
+            # Query by date field (YYYY-MM-DD format) - dates are stored in Eastern Time
             sessions = await db.daily_sessions.find({
                 'user_id': user['id'],
                 'date': {'$gte': week_start_date}
@@ -479,8 +484,10 @@ async def send_parent_weekly_summaries_job():
             })
         
         sent_count = 0
-        today = datetime.now(timezone.utc).date()
-        week_start = today - timedelta(days=7)
+        # Use Eastern Time for date calculations since sessions are logged with Eastern dates
+        from utils.timezone import get_today_eastern
+        today = get_today_eastern()
+        week_start = (today - timedelta(days=7)).isoformat()
         
         for parent_email, students in parents_students.items():
             students_html = ""
@@ -492,7 +499,7 @@ async def send_parent_weekly_summaries_job():
                 
                 sessions = await db.daily_sessions.find({
                     'user_id': student_id,
-                    'date': {'$gte': week_start.isoformat()}
+                    'date': {'$gte': week_start}
                 }).to_list(100)
                 
                 unique_days = len(set(s['date'] for s in sessions))
@@ -596,8 +603,10 @@ async def send_parent_inactivity_alerts_job():
     logger.info("Running parent inactivity alert job...")
     
     try:
-        now = datetime.now(timezone.utc)
-        three_days_ago = (now - timedelta(days=3)).date().isoformat()
+        # Use Eastern Time since last_log_date is stored in Eastern Time
+        from utils.timezone import get_today_eastern
+        today_eastern = get_today_eastern()
+        three_days_ago = (today_eastern - timedelta(days=3)).isoformat()
         
         parent_links = await db.parent_links.find({'status': 'active'}).to_list(1000)
         
@@ -618,40 +627,44 @@ async def send_parent_inactivity_alerts_job():
             
             last_log = student.get('last_log_date')
             
-            if last_log and last_log <= three_days_ago:
-                last_log_date = datetime.fromisoformat(last_log).date()
-                days_inactive = (now.date() - last_log_date).days
-                
-                if 3 <= days_inactive <= 7:
-                    html = f"""
-                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #09090b; color: white;">
-                        <div style="text-align: center; padding: 20px 0;">
-                            <h1 style="color: #f97316; margin: 0; font-size: 24px;">⚠️ Activity Alert</h1>
-                        </div>
-                        <div style="padding: 20px; background: #18181b; border-radius: 8px; margin: 20px 0; text-align: center;">
-                            <p style="margin: 0; font-size: 18px; color: #a1a1aa;">Heads up!</p>
-                            <p style="margin: 15px 0; font-size: 20px;"><strong style="color: #10b981;">{student.get('username', 'Your student')}</strong> hasn't logged a session in</p>
-                            <div style="font-size: 48px; font-weight: bold; color: #f97316; margin: 20px 0;">{days_inactive} days</div>
-                            <p style="margin: 15px 0; color: #71717a;">A gentle reminder might help them get back on track!</p>
-                        </div>
-                        <div style="text-align: center; padding: 20px;">
-                            <p style="color: #71717a; font-size: 12px;">Edge Mode - 1% Better Every Day</p>
-                            <p style="color: #52525b; font-size: 11px; margin-top: 10px;">You're receiving this because {student.get('username')} added you as their parent on Edge Mode.</p>
-                        </div>
-                    </div>
-                    """
+            # Compare dates properly - last_log might be date string or datetime string
+            if last_log:
+                # Handle both date-only strings and datetime strings
+                last_log_str = last_log[:10] if len(last_log) > 10 else last_log
+                if last_log_str <= three_days_ago:
+                    last_log_date = datetime.fromisoformat(last_log_str).date()
+                    days_inactive = (today_eastern - last_log_date).days
                     
-                    try:
-                        await asyncio.to_thread(resend.Emails.send, {
-                            "from": SENDER_EMAIL,
-                            "to": [parent_email],
-                            "subject": f"⚠️ {student.get('username', 'Your student')} hasn't logged in for {days_inactive} days",
-                            "html": html
-                        })
-                        sent_count += 1
-                        alerted_pairs.add(pair_key)
-                    except Exception as e:
-                        logger.error(f"Failed to send inactivity alert to parent {parent_email}: {e}")
+                    if 3 <= days_inactive <= 7:
+                        html = f"""
+                        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #09090b; color: white;">
+                            <div style="text-align: center; padding: 20px 0;">
+                                <h1 style="color: #f97316; margin: 0; font-size: 24px;">⚠️ Activity Alert</h1>
+                            </div>
+                            <div style="padding: 20px; background: #18181b; border-radius: 8px; margin: 20px 0; text-align: center;">
+                                <p style="margin: 0; font-size: 18px; color: #a1a1aa;">Heads up!</p>
+                                <p style="margin: 15px 0; font-size: 20px;"><strong style="color: #10b981;">{student.get('username', 'Your student')}</strong> hasn't logged a session in</p>
+                                <div style="font-size: 48px; font-weight: bold; color: #f97316; margin: 20px 0;">{days_inactive} days</div>
+                                <p style="margin: 15px 0; color: #71717a;">A gentle reminder might help them get back on track!</p>
+                            </div>
+                            <div style="text-align: center; padding: 20px;">
+                                <p style="color: #71717a; font-size: 12px;">Edge Mode - 1% Better Every Day</p>
+                                <p style="color: #52525b; font-size: 11px; margin-top: 10px;">You're receiving this because {student.get('username')} added you as their parent on Edge Mode.</p>
+                            </div>
+                        </div>
+                        """
+                        
+                        try:
+                            await asyncio.to_thread(resend.Emails.send, {
+                                "from": SENDER_EMAIL,
+                                "to": [parent_email],
+                                "subject": f"⚠️ {student.get('username', 'Your student')} hasn't logged in for {days_inactive} days",
+                                "html": html
+                            })
+                            sent_count += 1
+                            alerted_pairs.add(pair_key)
+                        except Exception as e:
+                            logger.error(f"Failed to send inactivity alert to parent {parent_email}: {e}")
         
         logger.info(f"Parent inactivity alert job complete. Sent {sent_count} emails.")
     except Exception as e:

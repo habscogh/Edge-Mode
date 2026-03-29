@@ -1054,3 +1054,38 @@ async def get_platform_stats():
         },
         'testimonials': settings.get('testimonials', [])
     }
+
+
+
+@router.get("/debug/sessions")
+async def debug_sessions(admin_user: dict = Depends(require_admin)):
+    """Debug endpoint to check session data - useful for diagnosing weekly summary issues"""
+    from utils.timezone import get_today_eastern
+    
+    today_eastern = get_today_eastern()
+    week_start = (today_eastern - timedelta(days=7)).isoformat()
+    
+    # Get session stats
+    total_sessions = await db.daily_sessions.count_documents({})
+    recent_sessions = await db.daily_sessions.count_documents({'date': {'$gte': week_start}})
+    
+    # Get most recent 10 sessions
+    latest = await db.daily_sessions.find({}, {'_id': 0, 'user_id': 1, 'date': 1, 'pillar': 1}).sort('date', -1).to_list(10)
+    
+    # Get unique dates in last 7 days
+    recent_dates = await db.daily_sessions.distinct('date', {'date': {'$gte': week_start}})
+    
+    # Get users with sessions this week
+    users_with_sessions = await db.daily_sessions.distinct('user_id', {'date': {'$gte': week_start}})
+    
+    return {
+        'debug_info': {
+            'today_eastern': today_eastern.isoformat(),
+            'week_start': week_start,
+            'total_sessions_in_db': total_sessions,
+            'sessions_in_last_7_days': recent_sessions,
+            'unique_users_with_sessions_this_week': len(users_with_sessions),
+            'dates_with_activity_this_week': sorted(recent_dates)
+        },
+        'latest_10_sessions': latest
+    }
