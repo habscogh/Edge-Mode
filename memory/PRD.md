@@ -147,6 +147,18 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
    - FriendChallenges.jsx component
    - Integrated into ChallengesScreen.js
 
+4. **Simplified Parent Access Flow** ✅
+   - Parents no longer need to create an account
+   - Student adds parent's email directly
+   - Parent immediately starts receiving:
+     - Weekly progress reports (Sunday 3 PM UTC)
+     - Streak milestone notifications (7, 14, 30 days)
+     - Achievement/badge notifications
+     - Inactivity alerts (3+ days no activity)
+   - Maximum 2 parent emails per student
+   - Updated FamilyScreen.js with "How it works" explanation
+   - Backwards compatible with legacy /api/parent/invite endpoint
+
 ---
 
 ## Upcoming Tasks (Prioritized)
