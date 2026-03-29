@@ -205,9 +205,14 @@ async def send_weekly_summaries_job():
     now = datetime.now(timezone.utc)
     week_start = (now - timedelta(days=7)).isoformat()
     
+    # Create a unique key for this week to prevent duplicate emails
+    week_key = now.strftime('%Y-W%W')
+    
     try:
         users = await db.users.find({
-            'weekly_summary': {'$ne': False}
+            'weekly_summary': {'$ne': False},
+            # Skip users who already received this week's summary
+            'last_weekly_summary': {'$ne': week_key}
         }, {'_id': 0, 'id': 1, 'email': 1, 'username': 1}).to_list(1000)
         
         sent_count = 0
@@ -219,7 +224,7 @@ async def send_weekly_summaries_job():
             
             total_sessions = len(sessions)
             total_minutes = sum(s.get('minutes_spent', 0) for s in sessions)
-            days_logged = len(set(s.get('date') for s in sessions))
+            days_logged = len(set(s.get('date') for s in sessions if s.get('date')))
             consistency_pct = (days_logged / 7) * 100
             
             stats = {
@@ -237,6 +242,13 @@ async def send_weekly_summaries_job():
                     "subject": "📊 Your Weekly Summary - Edge Mode",
                     "html": html
                 })
+                
+                # Mark user as having received this week's summary
+                await db.users.update_one(
+                    {'id': user['id']},
+                    {'$set': {'last_weekly_summary': week_key}}
+                )
+                
                 sent_count += 1
             except Exception as e:
                 logger.error(f"Failed to send weekly summary to {user['email']}: {e}")
