@@ -25,6 +25,7 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
 - Opt-in global leaderboard
 - School-based leaderboard
 - Coach-player team system with invite links
+- **Friend Challenges (1v1)** - NEW (March 29, 2026)
 
 ### Gamification
 - 30+ achievement badges
@@ -69,71 +70,93 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
 - [x] Fix user subscription status tool
 - [x] Extend user access tool
 - [x] System maintenance tools
-- [x] **Groups & Teams management** (NEW - March 19, 2026)
+- [x] Groups & Teams management
   - View all groups with member details
   - Copy invite codes
-  - Search/filter groups (by name, coach, code, type)
-  - Empty groups indicator with visual badges
-  - Delete groups
-  - **Edit group names** (NEW)
-  - **Remove individual members** (NEW)
+  - Search/filter groups
+  - Edit group names
+  - Remove individual members
+
+### Coach Dashboard (March 29, 2026)
+- [x] Team Analytics with player stats
+- [x] Inactive player alerts
+- [x] Bulk messaging to team players
 
 ### Gamification
 - [x] 30+ achievement badges
-- [x] Automated challenges
+- [x] Automated challenges (weekly/monthly)
+- [x] **Friend Challenges (1v1)** - NEW (March 29, 2026)
+  - Challenge friends via email
+  - Competition types: sessions, minutes, consistency
+  - Duration: 3 days to 1 month
+  - Real-time score tracking
+  - Accept/decline challenges
+  - Challenge history with win/loss records
+  - New badges: friend_challenger, friend_wins_3, friend_wins_10
 - [x] Leaderboards (global, school, team)
 - [x] Streak system with milestones
 - [x] Shareable achievement cards
 
-### Engagement
+### Notifications & Engagement
 - [x] Social proof section on landing page
 - [x] Daily motivational quotes
 - [x] Rotating habit quotes
 - [x] Push notifications for awards/inactivity
 - [x] Email notifications (signup, trial ending)
+- [x] Streak reminders (8 PM UTC)
+- [x] Weekly summaries (Sunday 2 PM UTC)
+- [x] Inactive user reminders (6 PM UTC)
+- [x] **Morning Motivation** - NEW (March 29, 2026)
+  - Opt-in daily motivational emails at 8 AM Eastern
+  - Random inspirational quotes
+  - User's pillars displayed
+  - Streak status included
+  - Toggle in Profile settings
 
 ### Technical
-- [x] PWA capabilities
+- [x] PWA capabilities (ready for App Store)
 - [x] US/Eastern timezone handling
 - [x] Hot reload for development
 
 ---
 
-## Verified Working (March 19, 2026)
+## Completed This Session (March 29, 2026)
 
-### Coach Invite Flow ✅
-- Coach registration creates team with invite code
-- `/api/team/{code}` returns team info (public)
-- Player registration via invite adds to team
-- Frontend join page renders correctly
+1. **Coach Tools (Team Analytics & Bulk Messaging)** ✅
+   - Fixed API path mismatch in CoachDashboard.js
+   - Team analytics dashboard working
+   - Bulk email messaging to players
+   - Inactive player alerts
+
+2. **Morning Reminder Notifications** ✅
+   - New notification setting (morning_reminders)
+   - Scheduler job at 1 PM UTC (8 AM Eastern)
+   - HTML email template with motivational quotes
+   - User's pillars and streak displayed
+   - Profile page toggle with "New" badge
+
+3. **Friends Challenges (1v1)** ✅
+   - Full CRUD for 1v1 challenges
+   - Create challenge with friend's email
+   - Competition types: sessions, minutes, consistency
+   - Duration options: 3 days, 1 week, 2 weeks, 1 month
+   - Accept/decline pending challenges
+   - Real-time score tracking during active challenges
+   - Challenge history with win/loss records
+   - New badges for friend challenges
+   - FriendChallenges.jsx component
+   - Integrated into ChallengesScreen.js
 
 ---
 
 ## Upcoming Tasks (Prioritized)
 
-### P1 - Progress Insights
-Add motivational messages to dashboard:
-- "You logged 20% more than last week"
-- "3rd consecutive week hitting targets"
-- Compare current vs previous week metrics
-
-### P1 - Quick Log Buttons
-Add one-tap presets on logging screen:
-- 15 min / 30 min / 60 min buttons
-- Reduce friction for common log durations
-
-### P2 - Export Data (CSV)
-Allow users to download their session history:
-- Date, pillar, duration, notes
-- Downloadable CSV format
-
----
-
-## Future/Backlog
+### P1
+- **Export Data (CSV)** - Download session history
 
 ### P2
+- **Streak Recovery** - Save a streak once per month if missed
 - "Streak Shield" subscription tier ($0.99/mo)
-- Daily login reminder push notifications
 
 ### P3
 - NCES school database integration
@@ -153,9 +176,11 @@ Allow users to download their session history:
 - **Auth:** JWT
 
 ## Key Files
-- Backend: `/app/backend/routes/auth.py`, `/app/backend/routes/payments.py`
-- Frontend: `/app/frontend/src/pages/Dashboard.js`, `/app/frontend/src/pages/JoinTeam.js`
+- Backend: `/app/backend/routes/auth.py`, `/app/backend/routes/payments.py`, `/app/backend/routes/challenges.py`
+- Frontend: `/app/frontend/src/pages/Dashboard.js`, `/app/frontend/src/pages/ChallengesScreen.js`
+- Coach: `/app/frontend/src/pages/CoachDashboard.js`
 - Admin: `/app/frontend/src/pages/AdminDashboard.js`
 
 ## Test Credentials
 - Admin: `admin@edgemodeapp.com` / `EdgeAdmin2024!`
+- Coach: `testcoach@edgemode.com` / `TestCoach123!`

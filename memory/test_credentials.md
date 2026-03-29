@@ -11,3 +11,8 @@
 - Role: Coach
 - Team: Test Warriors
 - Invite Code: `TEAM-16E6FF5D`
+
+## Test Player (Added by Testing Agent)
+- Email: `testplayer1@edgemode.com`
+- Password: `TestPlayer123!`
+- Role: Player (joined Test Warriors team)
