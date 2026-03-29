@@ -1,6 +1,7 @@
 """
 Coach dashboard routes for Edge Mode
 """
+import uuid
 from fastapi import APIRouter, HTTPException, Depends
 from datetime import datetime, timezone, timedelta
 

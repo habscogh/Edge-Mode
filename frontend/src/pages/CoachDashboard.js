@@ -190,7 +190,7 @@ export const CoachDashboard = () => {
 
   const fetchDashboard = async () => {
     try {
-      const response = await axios.get(`${API}/groups/${groupId}/coach/dashboard`);
+      const response = await axios.get(`${API}/coach/groups/${groupId}/dashboard`);
       setDashboard(response.data);
     } catch (error) {
       console.error('Failed to fetch coach dashboard:', error);
@@ -207,7 +207,7 @@ export const CoachDashboard = () => {
 
   const handleViewPlayerDetails = async (playerId) => {
     try {
-      const response = await axios.get(`${API}/groups/${groupId}/coach/player/${playerId}`);
+      const response = await axios.get(`${API}/coach/groups/${groupId}/player/${playerId}`);
       setPlayerDetails(response.data);
       setSelectedPlayer(playerId);
     } catch (error) {
@@ -224,7 +224,7 @@ export const CoachDashboard = () => {
     
     setSendingMessage(true);
     try {
-      const response = await axios.post(`${API}/groups/${groupId}/coach/bulk-message`, null, {
+      const response = await axios.post(`${API}/coach/groups/${groupId}/bulk-message`, null, {
         params: {
           message: messageText,
           subject: messageSubject || 'Message from your Coach'
