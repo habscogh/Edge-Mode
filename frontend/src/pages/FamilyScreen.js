@@ -8,10 +8,9 @@ import {
   Users, 
   Mail,
   Check,
-  Clock,
   Trash2,
   Plus,
-  Copy
+  Send
 } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -39,47 +38,44 @@ export const FamilyScreen = () => {
     }
   };
 
-  const handleInviteParent = async () => {
+  const handleAddParent = async () => {
     if (!email.trim()) {
       toast.error('Please enter an email address');
       return;
     }
 
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+
     setSending(true);
     try {
-      const response = await axios.post(`${API}/parent/invite`, { parent_email: email.trim() });
-      toast.success('Invitation sent!');
+      const response = await axios.post(`${API}/parent/add`, { parent_email: email.trim() });
+      toast.success(response.data.message);
       setEmail('');
       fetchParentLinks();
-      
-      // Show invite code
-      if (response.data.invite_code) {
-        toast.success(`Invite code: ${response.data.invite_code}`, { duration: 10000 });
-      }
     } catch (error) {
-      console.error('Failed to send invite:', error);
-      toast.error(error.response?.data?.detail || 'Failed to send invitation');
+      console.error('Failed to add parent:', error);
+      toast.error(error.response?.data?.detail || 'Failed to add parent');
     } finally {
       setSending(false);
     }
   };
 
-  const handleUnlink = async (linkId) => {
-    if (!window.confirm('Are you sure you want to remove this parent?')) return;
+  const handleRemoveParent = async (linkId, parentEmail) => {
+    if (!window.confirm(`Remove ${parentEmail} from receiving your reports?`)) return;
 
     try {
-      await axios.delete(`${API}/parent/unlink/${linkId}`);
-      toast.success('Parent unlinked');
+      await axios.delete(`${API}/parent/remove/${linkId}`);
+      toast.success('Parent removed');
       fetchParentLinks();
     } catch (error) {
-      console.error('Failed to unlink:', error);
-      toast.error('Failed to unlink parent');
+      console.error('Failed to remove parent:', error);
+      toast.error('Failed to remove parent');
     }
-  };
-
-  const copyInviteCode = (code) => {
-    navigator.clipboard.writeText(code);
-    toast.success('Invite code copied!');
   };
 
   if (loading) {
@@ -100,21 +96,47 @@ export const FamilyScreen = () => {
           </button>
           <div>
             <h1 className="text-xl font-bold text-white">Family Access</h1>
-            <p className="text-zinc-500 text-sm">Let parents track your progress</p>
+            <p className="text-zinc-500 text-sm">Parents receive weekly progress reports</p>
           </div>
         </div>
       </div>
 
       <div className="p-4">
-        {/* Invite Parent Section */}
+        {/* How it works */}
+        <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-4 mb-6">
+          <h3 className="text-white font-medium mb-3 flex items-center gap-2">
+            <Mail className="w-4 h-4 text-primary" />
+            How it works
+          </h3>
+          <ul className="text-zinc-400 text-sm space-y-2">
+            <li className="flex items-start gap-2">
+              <span className="text-primary font-bold">1.</span>
+              Add your parent's email below
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-primary font-bold">2.</span>
+              They receive a welcome email (no account needed!)
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-primary font-bold">3.</span>
+              Every Sunday, they get your progress report
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-primary font-bold">4.</span>
+              They also get notified of streak milestones & badges
+            </li>
+          </ul>
+        </div>
+
+        {/* Add Parent Section */}
         {parentData?.slots_remaining > 0 && (
           <div className="bg-zinc-900 rounded-lg p-4 mb-6">
             <h3 className="text-white font-medium mb-2 flex items-center gap-2">
               <Plus className="w-4 h-4 text-primary" />
-              Invite a Parent
+              Add Parent Email
             </h3>
             <p className="text-zinc-500 text-sm mb-3">
-              They'll be able to view your progress, streaks, and achievements
+              They'll start receiving your weekly reports automatically
             </p>
             <div className="flex gap-2">
               <input
@@ -124,31 +146,32 @@ export const FamilyScreen = () => {
                 placeholder="parent@email.com"
                 className="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg px-4 py-2 text-white placeholder-zinc-600 focus:outline-none focus:border-primary"
                 data-testid="parent-email-input"
+                onKeyPress={(e) => e.key === 'Enter' && handleAddParent()}
               />
               <Button
-                onClick={handleInviteParent}
+                onClick={handleAddParent}
                 disabled={sending}
-                className="bg-primary hover:bg-primary/90 text-black"
-                data-testid="send-invite-btn"
+                className="bg-primary hover:bg-primary/90 text-black font-bold"
+                data-testid="add-parent-btn"
               >
-                {sending ? 'Sending...' : 'Invite'}
+                {sending ? 'Adding...' : <><Send className="w-4 h-4 mr-1" /> Add</>}
               </Button>
             </div>
             <p className="text-zinc-600 text-xs mt-2">
-              {parentData?.slots_remaining} of 2 invite slots remaining
+              {parentData?.slots_remaining} of 2 slots remaining
             </p>
           </div>
         )}
 
-        {/* Active Parents */}
-        {parentData?.active_parents?.length > 0 && (
+        {/* Added Parents */}
+        {parentData?.parents?.length > 0 && (
           <div className="mb-6">
             <h2 className="text-white font-medium mb-3 flex items-center gap-2">
               <Check className="w-4 h-4 text-primary" />
-              Linked Parents ({parentData.active_parents.length})
+              Receiving Reports ({parentData.parents.length})
             </h2>
             <div className="space-y-3">
-              {parentData.active_parents.map((parent, idx) => (
+              {parentData.parents.map((parent, idx) => (
                 <div key={idx} className="bg-zinc-950 border border-zinc-800 rounded-lg p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -156,60 +179,21 @@ export const FamilyScreen = () => {
                         <Users className="w-5 h-5 text-primary" />
                       </div>
                       <div>
-                        <div className="text-white font-medium">
-                          {parent.parent_username || parent.parent_email}
+                        <div className="text-white font-medium">{parent.parent_email}</div>
+                        <div className="text-zinc-500 text-xs">
+                          Added {new Date(parent.added_at).toLocaleDateString()}
                         </div>
-                        <div className="text-zinc-500 text-sm">{parent.parent_email}</div>
                       </div>
                     </div>
                     <Button
-                      onClick={() => handleUnlink(parent.link_id)}
+                      onClick={() => handleRemoveParent(parent.link_id, parent.parent_email)}
                       variant="ghost"
                       size="sm"
                       className="text-red-500 hover:text-red-400 hover:bg-red-500/10"
+                      data-testid={`remove-parent-${idx}`}
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Pending Invites */}
-        {parentData?.pending_invites?.length > 0 && (
-          <div>
-            <h2 className="text-white font-medium mb-3 flex items-center gap-2">
-              <Clock className="w-4 h-4 text-amber-500" />
-              Pending Invites ({parentData.pending_invites.length})
-            </h2>
-            <div className="space-y-3">
-              {parentData.pending_invites.map((invite, idx) => (
-                <div key={idx} className="bg-zinc-950 border border-amber-500/30 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-amber-500/20 rounded-full flex items-center justify-center">
-                        <Mail className="w-5 h-5 text-amber-500" />
-                      </div>
-                      <div>
-                        <div className="text-white">{invite.parent_email}</div>
-                        <div className="text-zinc-500 text-sm">
-                          Invited {new Date(invite.invited_at).toLocaleDateString()}
-                        </div>
-                      </div>
-                    </div>
-                    <Button
-                      onClick={() => handleUnlink(invite.link_id)}
-                      variant="ghost"
-                      size="sm"
-                      className="text-zinc-500 hover:text-zinc-400"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                  <div className="text-xs text-zinc-500">
-                    Waiting for parent to accept the invitation
                   </div>
                 </div>
               ))}
@@ -218,12 +202,21 @@ export const FamilyScreen = () => {
         )}
 
         {/* Empty State */}
-        {parentData?.active_parents?.length === 0 && parentData?.pending_invites?.length === 0 && (
+        {parentData?.parents?.length === 0 && (
           <div className="text-center py-12 bg-zinc-900 rounded-lg">
             <Users className="w-12 h-12 text-zinc-700 mx-auto mb-4" />
-            <h3 className="text-zinc-400 font-medium mb-2">No parents linked yet</h3>
+            <h3 className="text-zinc-400 font-medium mb-2">No parents added yet</h3>
             <p className="text-zinc-500 text-sm">
-              Invite up to 2 parents to track your progress
+              Add up to 2 parent emails to share your progress
+            </p>
+          </div>
+        )}
+
+        {/* Max Parents Reached */}
+        {parentData?.slots_remaining === 0 && (
+          <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-4 text-center">
+            <p className="text-zinc-400 text-sm">
+              Maximum 2 parents added. Remove one to add a different email.
             </p>
           </div>
         )}

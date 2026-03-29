@@ -1,5 +1,6 @@
 """
 Parent-Student linking routes for Edge Mode
+Simplified flow: Students add parent email, parents receive weekly reports without needing an account
 """
 from fastapi import APIRouter, HTTPException, Depends
 from datetime import datetime, timezone, timedelta
@@ -38,14 +39,15 @@ async def notify_parents_of_streak_milestone(student_id: str, student_username: 
     if streak not in [7, 14, 30]:
         return
     
+    # Get all parent links (active ones - now just email-based)
     parent_links = await db.parent_links.find({
         'student_id': student_id,
         'status': 'active'
     }).to_list(10)
     
     for link in parent_links:
-        parent = await db.users.find_one({'id': link['parent_id']}, {'_id': 0})
-        if not parent:
+        parent_email = link.get('parent_email')
+        if not parent_email:
             continue
         
         milestone_emoji = "🔥" if streak == 7 else "⚡" if streak == 14 else "🏆"
@@ -62,11 +64,12 @@ async def notify_parents_of_streak_milestone(student_id: str, student_username: 
             </div>
             <div style="text-align: center; padding: 20px;">
                 <p style="color: #71717a; font-size: 12px;">Edge Mode - 1% Better Every Day</p>
+                <p style="color: #52525b; font-size: 11px; margin-top: 10px;">You're receiving this because {student_username} added you as a parent on Edge Mode.</p>
             </div>
         </div>
         """
         await send_parent_notification(
-            parent['email'],
+            parent_email,
             f"🎉 {student_username} hit a {streak}-day streak!",
             html
         )
@@ -80,8 +83,8 @@ async def notify_parents_of_new_badge(student_id: str, student_username: str, ba
     }).to_list(10)
     
     for link in parent_links:
-        parent = await db.users.find_one({'id': link['parent_id']}, {'_id': 0})
-        if not parent:
+        parent_email = link.get('parent_email')
+        if not parent_email:
             continue
         
         html = f"""
@@ -97,11 +100,12 @@ async def notify_parents_of_new_badge(student_id: str, student_username: str, ba
             </div>
             <div style="text-align: center; padding: 20px;">
                 <p style="color: #71717a; font-size: 12px;">Edge Mode - 1% Better Every Day</p>
+                <p style="color: #52525b; font-size: 11px; margin-top: 10px;">You're receiving this because {student_username} added you as a parent on Edge Mode.</p>
             </div>
         </div>
         """
         await send_parent_notification(
-            parent['email'],
+            parent_email,
             f"🏅 {student_username} earned a new badge: {badge_name}",
             html
         )
@@ -109,16 +113,16 @@ async def notify_parents_of_new_badge(student_id: str, student_username: str, ba
 
 # ============ Parent Routes ============
 
-@router.post("/parent/invite")
-async def invite_parent(invite_data: ParentInvite, current_user: dict = Depends(get_current_user)):
-    """Student invites a parent via email"""
+@router.post("/parent/add")
+async def add_parent_email(invite_data: ParentInvite, current_user: dict = Depends(get_current_user)):
+    """Student adds a parent's email to receive weekly reports (no account needed for parent)"""
     existing_links = await db.parent_links.count_documents({
         'student_id': current_user['id'],
-        'status': {'$in': ['pending', 'active']}
+        'status': 'active'
     })
     
     if existing_links >= 2:
-        raise HTTPException(status_code=400, detail='Maximum of 2 parents can be linked')
+        raise HTTPException(status_code=400, detail='Maximum of 2 parents can be added')
     
     existing_invite = await db.parent_links.find_one({
         'student_id': current_user['id'],
@@ -126,74 +130,68 @@ async def invite_parent(invite_data: ParentInvite, current_user: dict = Depends(
     })
     
     if existing_invite:
-        if existing_invite['status'] == 'active':
-            raise HTTPException(status_code=400, detail='This parent is already linked')
-        else:
-            raise HTTPException(status_code=400, detail='Invitation already sent to this email')
-    
-    invite_code = f"PARENT-{generate_invite_code()}"
+        raise HTTPException(status_code=400, detail='This parent email is already added')
     
     link_doc = {
         'id': str(uuid.uuid4()),
         'student_id': current_user['id'],
         'student_username': current_user.get('username'),
-        'parent_id': None,
+        'parent_id': None,  # No account needed
         'parent_email': invite_data.parent_email.lower(),
-        'status': 'pending',
-        'invite_code': invite_code,
-        'invited_at': datetime.now(timezone.utc).isoformat(),
-        'accepted_at': None
+        'status': 'active',  # Immediately active - no confirmation needed
+        'added_at': datetime.now(timezone.utc).isoformat()
     }
     
     await db.parent_links.insert_one(link_doc)
     
+    # Send welcome email to parent
     try:
         if RESEND_API_KEY:
             resend.api_key = RESEND_API_KEY
             
-            app_url = "https://edgemodeapp.com"
-            
             resend.Emails.send({
                 "from": "Edge Mode <noreply@edgemodeapp.com>",
                 "to": invite_data.parent_email,
-                "subject": f"{current_user.get('username')} invited you to track their progress on Edge Mode",
+                "subject": f"📊 You've been added to track {current_user.get('username')}'s progress on Edge Mode",
                 "html": f"""
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                    <h2 style="color: #10b981;">You've Been Invited! 🎉</h2>
-                    <p><strong>{current_user.get('username')}</strong> wants you to track their self-improvement journey on <strong>Edge Mode</strong>.</p>
-                    <p>As a parent, you'll be able to:</p>
-                    <ul>
-                        <li>View their progress, streaks, and achievements</li>
-                        <li>Receive notifications about milestones</li>
-                        <li>See their weekly consistency and performance</li>
-                    </ul>
-                    <p><strong>To accept this invitation:</strong></p>
-                    <ol>
-                        <li>Visit <a href="{app_url}" style="color: #10b981; font-weight: bold;">EdgeModeApp.com</a></li>
-                        <li>Create an account or log in</li>
-                        <li>Enter your invitation code in the Parent section</li>
-                    </ol>
-                    <p>Your invitation code:</p>
-                    <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
-                        <span style="font-size: 24px; font-weight: bold; color: #10b981; letter-spacing: 2px;">{invite_code}</span>
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #09090b; color: white;">
+                    <div style="text-align: center; padding: 20px 0;">
+                        <h1 style="color: #10b981; margin: 0; font-size: 28px;">📊 Weekly Progress Reports</h1>
                     </div>
-                    <div style="text-align: center; margin: 30px 0;">
-                        <a href="{app_url}" style="background: #10b981; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Go to Edge Mode</a>
+                    <div style="padding: 20px; background: #18181b; border-radius: 8px; margin: 20px 0;">
+                        <p style="margin: 0; font-size: 16px; color: #a1a1aa;">Hi there!</p>
+                        <p style="margin: 15px 0; color: white;"><strong style="color: #10b981;">{current_user.get('username')}</strong> has added you to receive their weekly progress reports from <strong>Edge Mode</strong>.</p>
+                        <p style="margin: 15px 0; color: #a1a1aa;">You'll automatically receive:</p>
+                        <ul style="color: #a1a1aa; padding-left: 20px;">
+                            <li style="margin: 8px 0;">📧 Weekly progress summaries every Sunday</li>
+                            <li style="margin: 8px 0;">🔥 Streak milestone celebrations</li>
+                            <li style="margin: 8px 0;">🏅 Achievement notifications</li>
+                            <li style="margin: 8px 0;">⚠️ Inactivity alerts (if they miss 3+ days)</li>
+                        </ul>
+                        <p style="margin: 15px 0; color: #71717a; font-size: 14px;">No account creation needed - reports will come directly to this email.</p>
                     </div>
-                    <p style="color: #666; font-size: 14px;">This invitation was sent by {current_user.get('username')} from Edge Mode.<br/>
-                    Questions? Visit <a href="{app_url}" style="color: #10b981;">EdgeModeApp.com</a></p>
+                    <div style="text-align: center; padding: 20px;">
+                        <p style="color: #71717a; font-size: 12px;">Edge Mode - 1% Better Every Day</p>
+                        <p style="color: #52525b; font-size: 11px; margin-top: 10px;">If you didn't expect this, please ignore this email.</p>
+                    </div>
                 </div>
                 """
             })
-            logger.info(f"Parent invitation email sent to {invite_data.parent_email}")
+            logger.info(f"Parent welcome email sent to {invite_data.parent_email}")
     except Exception as e:
-        logger.error(f"Failed to send parent invitation email: {e}")
+        logger.error(f"Failed to send parent welcome email: {e}")
     
     return {
-        'message': 'Invitation sent successfully',
-        'invite_code': invite_code,
+        'message': f'Parent added successfully. {invite_data.parent_email} will receive weekly reports.',
         'parent_email': invite_data.parent_email
     }
+
+
+# Keep the old invite endpoint for backwards compatibility but redirect to new flow
+@router.post("/parent/invite")
+async def invite_parent(invite_data: ParentInvite, current_user: dict = Depends(get_current_user)):
+    """Legacy endpoint - now just adds parent email directly"""
+    return await add_parent_email(invite_data, current_user)
 
 
 @router.post("/parent/accept")
@@ -327,50 +325,38 @@ async def get_student_dashboard_for_parent(student_id: str, current_user: dict =
 
 @router.get("/student/linked-parents")
 async def get_linked_parents(current_user: dict = Depends(get_current_user)):
-    """Student views their linked parents"""
+    """Student views their linked parent emails"""
     links = await db.parent_links.find({
-        'student_id': current_user['id']
+        'student_id': current_user['id'],
+        'status': 'active'
     }, {'_id': 0}).to_list(10)
     
-    active_links = []
-    pending_links = []
-    
+    parent_list = []
     for link in links:
-        if link['status'] == 'active' and link.get('parent_id'):
-            parent = await db.users.find_one({'id': link['parent_id']}, {'_id': 0, 'password': 0})
-            if parent:
-                active_links.append({
-                    'link_id': link['id'],
-                    'parent_email': link['parent_email'],
-                    'parent_username': parent.get('username'),
-                    'linked_at': link.get('accepted_at')
-                })
-        elif link['status'] == 'pending':
-            pending_links.append({
-                'link_id': link['id'],
-                'parent_email': link['parent_email'],
-                'invited_at': link['invited_at']
-            })
+        parent_list.append({
+            'link_id': link['id'],
+            'parent_email': link['parent_email'],
+            'added_at': link.get('added_at')
+        })
     
     return {
-        'active_parents': active_links,
-        'pending_invites': pending_links,
+        'parents': parent_list,
         'max_parents': 2,
-        'slots_remaining': 2 - len(active_links) - len(pending_links)
+        'slots_remaining': 2 - len(parent_list)
     }
 
 
-@router.delete("/parent/unlink/{link_id}")
-async def unlink_parent(link_id: str, current_user: dict = Depends(get_current_user)):
-    """Student or parent can unlink the relationship"""
+@router.delete("/parent/remove/{link_id}")
+async def remove_parent(link_id: str, current_user: dict = Depends(get_current_user)):
+    """Student removes a parent from receiving reports"""
     link = await db.parent_links.find_one({'id': link_id})
     
     if not link:
-        raise HTTPException(status_code=404, detail='Link not found')
+        raise HTTPException(status_code=404, detail='Parent link not found')
     
-    if link['student_id'] != current_user['id'] and link.get('parent_id') != current_user['id']:
-        raise HTTPException(status_code=403, detail='Not authorized to unlink')
+    if link['student_id'] != current_user['id']:
+        raise HTTPException(status_code=403, detail='Not authorized to remove this parent')
     
     await db.parent_links.delete_one({'id': link_id})
     
-    return {'message': 'Successfully unlinked'}
+    return {'message': f"Removed {link['parent_email']} from receiving reports"}

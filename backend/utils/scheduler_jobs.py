@@ -392,7 +392,7 @@ async def send_trial_ending_reminders_job():
 
 
 async def send_parent_weekly_summaries_job():
-    """Send weekly progress summaries to all parents (runs every Sunday)"""
+    """Send weekly progress summaries to all parent emails (runs every Sunday)"""
     if not RESEND_API_KEY:
         logger.warning("RESEND_API_KEY not set, skipping parent weekly summaries")
         return
@@ -400,26 +400,30 @@ async def send_parent_weekly_summaries_job():
     logger.info("Running parent weekly summary job...")
     
     try:
+        # Get all active parent links (now email-based, no account needed)
         parent_links = await db.parent_links.find({'status': 'active'}).to_list(1000)
         
+        # Group by parent email (in case one parent has multiple students)
         parents_students = {}
         for link in parent_links:
-            parent_id = link['parent_id']
-            if parent_id not in parents_students:
-                parents_students[parent_id] = []
-            parents_students[parent_id].append(link['student_id'])
+            parent_email = link.get('parent_email')
+            if not parent_email:
+                continue
+            if parent_email not in parents_students:
+                parents_students[parent_email] = []
+            parents_students[parent_email].append({
+                'student_id': link['student_id'],
+                'student_username': link.get('student_username')
+            })
         
         sent_count = 0
         today = datetime.now(timezone.utc).date()
         week_start = today - timedelta(days=7)
         
-        for parent_id, student_ids in parents_students.items():
-            parent = await db.users.find_one({'id': parent_id}, {'_id': 0})
-            if not parent:
-                continue
-            
+        for parent_email, students in parents_students.items():
             students_html = ""
-            for student_id in student_ids:
+            for student_info in students:
+                student_id = student_info['student_id']
                 student = await db.users.find_one({'id': student_id}, {'_id': 0, 'password': 0})
                 if not student:
                     continue
@@ -473,6 +477,7 @@ async def send_parent_weekly_summaries_job():
                 </div>
                 <div style="text-align: center; padding: 20px;">
                     <p style="color: #71717a; font-size: 12px;">Edge Mode - 1% Better Every Day</p>
+                    <p style="color: #52525b; font-size: 11px; margin-top: 10px;">You're receiving this because a student added you as their parent on Edge Mode.</p>
                 </div>
             </div>
             """
@@ -480,13 +485,13 @@ async def send_parent_weekly_summaries_job():
             try:
                 await asyncio.to_thread(resend.Emails.send, {
                     "from": SENDER_EMAIL,
-                    "to": [parent['email']],
+                    "to": [parent_email],
                     "subject": "📊 Your Child's Weekly Progress Report - Edge Mode",
                     "html": html
                 })
                 sent_count += 1
             except Exception as e:
-                logger.error(f"Failed to send weekly summary to parent {parent['email']}: {e}")
+                logger.error(f"Failed to send weekly summary to parent {parent_email}: {e}")
         
         logger.info(f"Parent weekly summary job complete. Sent {sent_count} emails.")
     except Exception as e:
@@ -512,10 +517,10 @@ async def send_parent_inactivity_alerts_job():
         
         for link in parent_links:
             student_id = link['student_id']
-            parent_id = link['parent_id']
-            pair_key = f"{parent_id}_{student_id}"
+            parent_email = link.get('parent_email')
+            pair_key = f"{parent_email}_{student_id}"
             
-            if pair_key in alerted_pairs:
+            if pair_key in alerted_pairs or not parent_email:
                 continue
             
             student = await db.users.find_one({'id': student_id}, {'_id': 0, 'password': 0})
@@ -529,10 +534,6 @@ async def send_parent_inactivity_alerts_job():
                 days_inactive = (now.date() - last_log_date).days
                 
                 if 3 <= days_inactive <= 7:
-                    parent = await db.users.find_one({'id': parent_id}, {'_id': 0})
-                    if not parent:
-                        continue
-                    
                     html = f"""
                     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #09090b; color: white;">
                         <div style="text-align: center; padding: 20px 0;">
@@ -546,6 +547,7 @@ async def send_parent_inactivity_alerts_job():
                         </div>
                         <div style="text-align: center; padding: 20px;">
                             <p style="color: #71717a; font-size: 12px;">Edge Mode - 1% Better Every Day</p>
+                            <p style="color: #52525b; font-size: 11px; margin-top: 10px;">You're receiving this because {student.get('username')} added you as their parent on Edge Mode.</p>
                         </div>
                     </div>
                     """
@@ -553,14 +555,14 @@ async def send_parent_inactivity_alerts_job():
                     try:
                         await asyncio.to_thread(resend.Emails.send, {
                             "from": SENDER_EMAIL,
-                            "to": [parent['email']],
+                            "to": [parent_email],
                             "subject": f"⚠️ {student.get('username', 'Your student')} hasn't logged in for {days_inactive} days",
                             "html": html
                         })
                         sent_count += 1
                         alerted_pairs.add(pair_key)
                     except Exception as e:
-                        logger.error(f"Failed to send inactivity alert to parent {parent['email']}: {e}")
+                        logger.error(f"Failed to send inactivity alert to parent {parent_email}: {e}")
         
         logger.info(f"Parent inactivity alert job complete. Sent {sent_count} emails.")
     except Exception as e:
