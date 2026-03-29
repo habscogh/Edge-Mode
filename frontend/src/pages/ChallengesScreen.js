@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { Button } from '../components/ui/button';
+import FriendChallenges from '../components/FriendChallenges';
 import { 
   Trophy, 
   Calendar, 
@@ -442,8 +443,17 @@ export const ChallengesScreen = () => {
         </div>
       </div>
 
-      {/* Challenge List */}
+      {/* Friend Challenges Section */}
       <div className="p-4">
+        <FriendChallenges />
+      </div>
+
+      {/* Challenge List */}
+      <div className="p-4 pt-0">
+        <h3 className="text-white font-bold mb-4 flex items-center gap-2">
+          <Trophy className="w-5 h-5 text-amber-400" />
+          Global Challenges
+        </h3>
         {filteredChallenges.length === 0 ? (
           <div className="text-center py-12">
             <Trophy className="w-12 h-12 text-zinc-700 mx-auto mb-4" />

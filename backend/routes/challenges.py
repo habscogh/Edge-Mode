@@ -765,3 +765,323 @@ async def admin_finalize_challenge(challenge_id: str, current_user: dict = Depen
         'winners': winners,
         'badges_awarded': badges_awarded
     }
+
+
+
+# ============ Friend Challenges (1v1) ============
+
+from models.schemas import FriendChallengeCreate, FriendChallengeResponse
+
+
+@router.post("/friend/create")
+async def create_friend_challenge(
+    data: FriendChallengeCreate,
+    current_user: dict = Depends(get_current_user)
+):
+    """Create a 1v1 challenge with a friend"""
+    # Check if friend exists
+    friend = await db.users.find_one({'email': data.friend_email.lower()}, {'_id': 0, 'password': 0})
+    if not friend:
+        raise HTTPException(status_code=404, detail='User not found with that email')
+    
+    if friend['id'] == current_user['id']:
+        raise HTTPException(status_code=400, detail="You can't challenge yourself!")
+    
+    # Check if there's already a pending challenge between these users
+    existing = await db.friend_challenges.find_one({
+        '$or': [
+            {'challenger_id': current_user['id'], 'challenged_id': friend['id'], 'status': 'pending'},
+            {'challenger_id': friend['id'], 'challenged_id': current_user['id'], 'status': 'pending'}
+        ]
+    })
+    if existing:
+        raise HTTPException(status_code=400, detail='There is already a pending challenge between you two')
+    
+    now = datetime.now(timezone.utc)
+    challenge_id = str(uuid.uuid4())
+    
+    # Map goal_type to metric_type
+    metric_map = {
+        'sessions': 'total_sessions',
+        'minutes': 'total_minutes',
+        'consistency': 'consistency'
+    }
+    metric_type = metric_map.get(data.goal_type, 'total_sessions')
+    
+    # Create the challenge
+    challenge_doc = {
+        'id': challenge_id,
+        'name': data.name,
+        'challenger_id': current_user['id'],
+        'challenger_name': current_user.get('username') or current_user.get('name'),
+        'challenged_id': friend['id'],
+        'challenged_name': friend.get('username') or friend.get('name'),
+        'goal_type': data.goal_type,
+        'goal_value': data.goal_value,
+        'metric_type': metric_type,
+        'duration_days': data.duration_days,
+        'pillar': data.pillar,
+        'status': 'pending',  # pending, active, completed, declined
+        'created_at': now.isoformat(),
+        'challenger_score': 0,
+        'challenged_score': 0,
+        'winner_id': None
+    }
+    
+    await db.friend_challenges.insert_one(challenge_doc)
+    
+    # Send notification to the challenged user
+    try:
+        from routes.push import send_push_to_user, PushMessage
+        await send_push_to_user(friend['id'], PushMessage(
+            title="🎯 Challenge Received!",
+            body=f"{current_user.get('username')} challenged you to: {data.name}",
+            url="/challenges",
+            tag="friend-challenge"
+        ))
+    except Exception as e:
+        logger.error(f"Failed to send challenge notification: {e}")
+    
+    return {
+        'message': f"Challenge sent to {friend.get('username')}!",
+        'challenge_id': challenge_id,
+        'status': 'pending'
+    }
+
+
+@router.get("/friend/pending")
+async def get_pending_friend_challenges(current_user: dict = Depends(get_current_user)):
+    """Get all pending friend challenges (received and sent)"""
+    received = await db.friend_challenges.find({
+        'challenged_id': current_user['id'],
+        'status': 'pending'
+    }, {'_id': 0}).to_list(50)
+    
+    sent = await db.friend_challenges.find({
+        'challenger_id': current_user['id'],
+        'status': 'pending'
+    }, {'_id': 0}).to_list(50)
+    
+    return {
+        'received': received,
+        'sent': sent
+    }
+
+
+@router.get("/friend/active")
+async def get_active_friend_challenges(current_user: dict = Depends(get_current_user)):
+    """Get all active friend challenges"""
+    challenges = await db.friend_challenges.find({
+        '$or': [
+            {'challenger_id': current_user['id']},
+            {'challenged_id': current_user['id']}
+        ],
+        'status': 'active'
+    }, {'_id': 0}).to_list(50)
+    
+    # Calculate current scores for each challenge
+    for challenge in challenges:
+        now = datetime.now(timezone.utc).date()
+        start_date = datetime.fromisoformat(challenge['start_date'].replace('Z', '+00:00')).date()
+        
+        # Query sessions for both users
+        query_base = {
+            'date': {'$gte': start_date.isoformat(), '$lte': now.isoformat()}
+        }
+        if challenge.get('pillar'):
+            query_base['pillar'] = challenge['pillar']
+        
+        challenger_query = {**query_base, 'user_id': challenge['challenger_id']}
+        challenged_query = {**query_base, 'user_id': challenge['challenged_id']}
+        
+        challenger_sessions = await db.daily_sessions.find(challenger_query, {'_id': 0}).to_list(1000)
+        challenged_sessions = await db.daily_sessions.find(challenged_query, {'_id': 0}).to_list(1000)
+        
+        # Calculate scores based on metric type
+        if challenge['metric_type'] == 'total_sessions':
+            challenge['challenger_score'] = len(challenger_sessions)
+            challenge['challenged_score'] = len(challenged_sessions)
+        elif challenge['metric_type'] == 'total_minutes':
+            challenge['challenger_score'] = sum(s.get('minutes_spent', 30) for s in challenger_sessions)
+            challenge['challenged_score'] = sum(s.get('minutes_spent', 30) for s in challenged_sessions)
+        elif challenge['metric_type'] == 'consistency':
+            total_days = (now - start_date).days + 1
+            challenger_days = len(set(s['date'] for s in challenger_sessions))
+            challenged_days = len(set(s['date'] for s in challenged_sessions))
+            challenge['challenger_score'] = round((challenger_days / total_days) * 100, 1)
+            challenge['challenged_score'] = round((challenged_days / total_days) * 100, 1)
+        
+        # Calculate days remaining
+        end_date = datetime.fromisoformat(challenge['end_date'].replace('Z', '+00:00')).date()
+        challenge['days_remaining'] = max(0, (end_date - now).days)
+        
+        # Mark if current user is challenger or challenged
+        challenge['is_challenger'] = challenge['challenger_id'] == current_user['id']
+    
+    return {'challenges': challenges}
+
+
+@router.post("/friend/respond")
+async def respond_to_friend_challenge(
+    data: FriendChallengeResponse,
+    current_user: dict = Depends(get_current_user)
+):
+    """Accept or decline a friend challenge"""
+    challenge = await db.friend_challenges.find_one({
+        'id': data.challenge_id,
+        'challenged_id': current_user['id'],
+        'status': 'pending'
+    })
+    
+    if not challenge:
+        raise HTTPException(status_code=404, detail='Challenge not found or already responded to')
+    
+    now = datetime.now(timezone.utc)
+    
+    if data.action == 'decline':
+        await db.friend_challenges.update_one(
+            {'id': data.challenge_id},
+            {'$set': {'status': 'declined', 'declined_at': now.isoformat()}}
+        )
+        return {'message': 'Challenge declined', 'status': 'declined'}
+    
+    elif data.action == 'accept':
+        start_date = now.date()
+        end_date = start_date + timedelta(days=challenge['duration_days'])
+        
+        await db.friend_challenges.update_one(
+            {'id': data.challenge_id},
+            {'$set': {
+                'status': 'active',
+                'accepted_at': now.isoformat(),
+                'start_date': start_date.isoformat(),
+                'end_date': end_date.isoformat()
+            }}
+        )
+        
+        # Notify the challenger
+        try:
+            from routes.push import send_push_to_user, PushMessage
+            await send_push_to_user(challenge['challenger_id'], PushMessage(
+                title="🎉 Challenge Accepted!",
+                body=f"{current_user.get('username')} accepted your challenge: {challenge['name']}",
+                url="/challenges",
+                tag="friend-challenge"
+            ))
+        except Exception as e:
+            logger.error(f"Failed to send acceptance notification: {e}")
+        
+        return {
+            'message': 'Challenge accepted! Game on!',
+            'status': 'active',
+            'start_date': start_date.isoformat(),
+            'end_date': end_date.isoformat()
+        }
+    else:
+        raise HTTPException(status_code=400, detail='Invalid action. Use "accept" or "decline"')
+
+
+@router.get("/friend/history")
+async def get_friend_challenge_history(current_user: dict = Depends(get_current_user)):
+    """Get completed friend challenges history"""
+    challenges = await db.friend_challenges.find({
+        '$or': [
+            {'challenger_id': current_user['id']},
+            {'challenged_id': current_user['id']}
+        ],
+        'status': 'completed'
+    }, {'_id': 0}).sort('completed_at', -1).to_list(50)
+    
+    # Add win/loss info
+    for challenge in challenges:
+        challenge['won'] = challenge.get('winner_id') == current_user['id']
+        challenge['is_challenger'] = challenge['challenger_id'] == current_user['id']
+    
+    return {'challenges': challenges}
+
+
+async def finalize_friend_challenges():
+    """Finalize friend challenges that have ended (called by scheduler)"""
+    now = datetime.now(timezone.utc)
+    today = now.date().isoformat()
+    
+    ended_challenges = await db.friend_challenges.find({
+        'status': 'active',
+        'end_date': {'$lt': today}
+    }).to_list(100)
+    
+    for challenge in ended_challenges:
+        # Calculate final scores
+        start_date = challenge['start_date']
+        end_date = challenge['end_date']
+        
+        query_base = {'date': {'$gte': start_date, '$lte': end_date}}
+        if challenge.get('pillar'):
+            query_base['pillar'] = challenge['pillar']
+        
+        challenger_sessions = await db.daily_sessions.find(
+            {**query_base, 'user_id': challenge['challenger_id']}, {'_id': 0}
+        ).to_list(1000)
+        challenged_sessions = await db.daily_sessions.find(
+            {**query_base, 'user_id': challenge['challenged_id']}, {'_id': 0}
+        ).to_list(1000)
+        
+        if challenge['metric_type'] == 'total_sessions':
+            challenger_score = len(challenger_sessions)
+            challenged_score = len(challenged_sessions)
+        elif challenge['metric_type'] == 'total_minutes':
+            challenger_score = sum(s.get('minutes_spent', 30) for s in challenger_sessions)
+            challenged_score = sum(s.get('minutes_spent', 30) for s in challenged_sessions)
+        else:  # consistency
+            total_days = (datetime.fromisoformat(end_date).date() - datetime.fromisoformat(start_date).date()).days + 1
+            challenger_days = len(set(s['date'] for s in challenger_sessions))
+            challenged_days = len(set(s['date'] for s in challenged_sessions))
+            challenger_score = round((challenger_days / total_days) * 100, 1)
+            challenged_score = round((challenged_days / total_days) * 100, 1)
+        
+        # Determine winner
+        if challenger_score > challenged_score:
+            winner_id = challenge['challenger_id']
+        elif challenged_score > challenger_score:
+            winner_id = challenge['challenged_id']
+        else:
+            winner_id = 'tie'
+        
+        await db.friend_challenges.update_one(
+            {'id': challenge['id']},
+            {'$set': {
+                'status': 'completed',
+                'completed_at': now.isoformat(),
+                'challenger_score': challenger_score,
+                'challenged_score': challenged_score,
+                'winner_id': winner_id
+            }}
+        )
+        
+        # Award badge for completing a friend challenge
+        await award_badge(challenge['challenger_id'], 'friend_challenger')
+        await award_badge(challenge['challenged_id'], 'friend_challenger')
+        
+        # Notify both users
+        try:
+            from routes.push import send_push_to_user, PushMessage
+            
+            if winner_id == 'tie':
+                result_text = "It's a tie!"
+            elif winner_id == challenge['challenger_id']:
+                result_text = f"{challenge['challenger_name']} wins!"
+            else:
+                result_text = f"{challenge['challenged_name']} wins!"
+            
+            for user_id in [challenge['challenger_id'], challenge['challenged_id']]:
+                await send_push_to_user(user_id, PushMessage(
+                    title="🏆 Challenge Complete!",
+                    body=f"{challenge['name']}: {result_text}",
+                    url="/challenges",
+                    tag="friend-challenge-complete"
+                ))
+        except Exception as e:
+            logger.error(f"Failed to send completion notification: {e}")
+    
+    if ended_challenges:
+        logger.info(f"Finalized {len(ended_challenges)} friend challenges")

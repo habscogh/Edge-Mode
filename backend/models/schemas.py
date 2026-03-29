@@ -294,6 +294,20 @@ class ChallengeCreate(BaseModel):
     pillar: Optional[str] = None
 
 
+class FriendChallengeCreate(BaseModel):
+    friend_email: EmailStr
+    name: str
+    goal_type: str  # 'sessions', 'minutes', 'consistency'
+    goal_value: int  # Target value (e.g., 10 sessions, 300 minutes)
+    duration_days: int = 7  # Default 1 week
+    pillar: Optional[str] = None  # Optional specific pillar
+
+
+class FriendChallengeResponse(BaseModel):
+    challenge_id: str
+    action: str  # 'accept' or 'decline'
+
+
 # ============ Payment Models ============
 class CreateCheckoutRequest(BaseModel):
     origin_url: str
@@ -304,6 +318,14 @@ class CreateCheckoutRequest(BaseModel):
 class EmailSettings(BaseModel):
     streak_reminders: bool = True
     weekly_summary: bool = True
+    morning_reminders: bool = False
+
+
+class NotificationSettingsUpdate(BaseModel):
+    streak_reminders: Optional[bool] = None
+    weekly_summary: Optional[bool] = None
+    morning_reminders: Optional[bool] = None
+    morning_reminder_time: Optional[str] = None  # e.g., "08:00"
 
 
 # ============ Referral Models ============

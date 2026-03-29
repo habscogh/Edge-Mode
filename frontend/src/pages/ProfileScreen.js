@@ -35,7 +35,8 @@ export const ProfileScreen = () => {
   const [linkedStudents, setLinkedStudents] = useState([]);
   const [notificationSettings, setNotificationSettings] = useState({
     streak_reminders: true,
-    weekly_summary: true
+    weekly_summary: true,
+    morning_reminders: false
   });
 
   const isAdmin = user && ADMIN_EMAILS.includes(user.email);
@@ -530,6 +531,27 @@ export const ProfileScreen = () => {
               >
                 <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${
                   notificationSettings.weekly_summary ? 'translate-x-6' : 'translate-x-0.5'
+                }`} />
+              </button>
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-white font-body flex items-center gap-2">
+                  Morning Motivation
+                  <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">New</span>
+                </div>
+                <div className="text-zinc-500 text-xs font-body">Daily motivational email at 8 AM</div>
+              </div>
+              <button
+                data-testid="toggle-morning-reminders"
+                onClick={() => handleNotificationToggle('morning_reminders')}
+                className={`w-12 h-6 rounded-full transition-colors relative ${
+                  notificationSettings.morning_reminders ? 'bg-primary' : 'bg-zinc-700'
+                }`}
+              >
+                <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 transition-transform ${
+                  notificationSettings.morning_reminders ? 'translate-x-6' : 'translate-x-0.5'
                 }`} />
               </button>
             </div>

@@ -302,6 +302,28 @@ BADGES = {
         "description": "Active member for 1+ year",
         "icon": "⭐",
         "category": "special"
+    },
+    # Friend Challenges
+    "friend_challenger": {
+        "id": "friend_challenger",
+        "name": "Friend Challenger",
+        "description": "Complete your first 1v1 friend challenge",
+        "icon": "🤝",
+        "category": "social"
+    },
+    "friend_wins_3": {
+        "id": "friend_wins_3",
+        "name": "Friendly Rival",
+        "description": "Win 3 friend challenges",
+        "icon": "🏅",
+        "category": "social"
+    },
+    "friend_wins_10": {
+        "id": "friend_wins_10",
+        "name": "Champion Friend",
+        "description": "Win 10 friend challenges",
+        "icon": "🏆",
+        "category": "social"
     }
 }
 

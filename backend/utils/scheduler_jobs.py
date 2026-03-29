@@ -565,3 +565,122 @@ async def send_parent_inactivity_alerts_job():
         logger.info(f"Parent inactivity alert job complete. Sent {sent_count} emails.")
     except Exception as e:
         logger.error(f"Parent inactivity alert job failed: {e}")
+
+
+
+# ============ Morning Reminder Templates ============
+
+MORNING_QUOTES = [
+    "Today is a new opportunity to become 1% better than yesterday.",
+    "Champions are made in the moments when no one is watching.",
+    "Small steps every day lead to massive results over time.",
+    "Your future self will thank you for the work you put in today.",
+    "Success is the sum of small efforts repeated day in and day out.",
+    "The only bad workout is the one that didn't happen.",
+    "Discipline is choosing between what you want now and what you want most.",
+    "Every expert was once a beginner. Start where you are.",
+    "Progress, not perfection. Show up and give your best today.",
+    "The harder you work today, the easier it gets tomorrow."
+]
+
+
+def get_morning_reminder_html(username: str, streak: int, quote: str, pillars: list) -> str:
+    """Generate HTML for morning reminder email"""
+    streak_section = ""
+    if streak > 0:
+        streak_section = f"""
+            <div style="display: inline-block; padding: 10px 20px; background: #27272a; border-radius: 8px; margin: 10px 0;">
+                <span style="color: #f97316; font-weight: bold; font-size: 18px;">🔥 {streak}-day streak</span>
+            </div>
+        """
+    
+    pillars_section = ""
+    if pillars:
+        pillar_items = "".join([
+            f'<span style="display: inline-block; background: #10b98120; color: #10b981; padding: 4px 10px; border-radius: 4px; margin: 2px; font-size: 12px;">{p}</span>'
+            for p in pillars[:3]
+        ])
+        pillars_section = f"""
+            <div style="margin: 15px 0;">
+                <p style="color: #71717a; font-size: 12px; margin-bottom: 5px;">Your focus areas today:</p>
+                {pillar_items}
+            </div>
+        """
+    
+    return f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #09090b; color: white;">
+        <div style="text-align: center; padding: 20px 0;">
+            <h1 style="color: #10b981; margin: 0; font-size: 24px;">☀️ Good Morning, {username}!</h1>
+        </div>
+        <div style="padding: 20px; background: #18181b; border-radius: 8px; margin: 20px 0; text-align: center;">
+            <p style="font-size: 16px; font-style: italic; color: #a1a1aa; margin: 0;">"{quote}"</p>
+            {streak_section}
+            {pillars_section}
+            <p style="margin: 20px 0 10px 0; color: #71717a; font-size: 14px;">Ready to crush it today? 💪</p>
+        </div>
+        <div style="text-align: center; padding: 20px;">
+            <a href="https://edgemodeapp.com/dashboard" style="display: inline-block; background: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">Log Your Progress</a>
+        </div>
+        <div style="text-align: center; padding: 10px;">
+            <p style="color: #71717a; font-size: 12px;">Edge Mode - 1% Better Every Day</p>
+        </div>
+    </div>
+    """
+
+
+async def send_morning_reminders_job():
+    """Send morning motivational reminder emails to opted-in users"""
+    if not RESEND_API_KEY:
+        logger.warning("RESEND_API_KEY not set, skipping morning reminders")
+        return
+    
+    logger.info("Running morning reminder job...")
+    import random
+    
+    try:
+        # Find users who have opted into morning reminders
+        users = await db.users.find({
+            'morning_reminders': True,
+            'is_admin': {'$ne': True}
+        }, {'_id': 0, 'id': 1, 'email': 1, 'username': 1, 'current_streak': 1}).to_list(1000)
+        
+        sent_count = 0
+        for user in users:
+            # Get user's pillars
+            pillars_docs = await db.user_pillars.find({'user_id': user['id']}, {'_id': 0, 'pillar_name': 1}).to_list(5)
+            pillar_names = [p['pillar_name'].split('/')[0] for p in pillars_docs]
+            
+            # Pick a random motivational quote
+            quote = random.choice(MORNING_QUOTES)
+            
+            html = get_morning_reminder_html(
+                user.get('username', 'Champion'),
+                user.get('current_streak', 0),
+                quote,
+                pillar_names
+            )
+            
+            try:
+                await asyncio.to_thread(resend.Emails.send, {
+                    "from": SENDER_EMAIL,
+                    "to": [user['email']],
+                    "subject": "☀️ Good Morning! Your Daily Motivation - Edge Mode",
+                    "html": html
+                })
+                sent_count += 1
+            except Exception as e:
+                logger.error(f"Failed to send morning reminder to {user['email']}: {e}")
+            
+            # Also send push notification if enabled
+            if user.get('push_enabled'):
+                await send_push(
+                    user['id'],
+                    "☀️ Good Morning!",
+                    quote[:60] + "..." if len(quote) > 60 else quote,
+                    "/dashboard",
+                    "morning-reminder"
+                )
+        
+        logger.info(f"Morning reminder job complete. Sent {sent_count} emails.")
+    except Exception as e:
+        logger.error(f"Morning reminder job failed: {e}")

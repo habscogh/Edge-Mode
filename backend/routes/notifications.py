@@ -7,7 +7,7 @@ import asyncio
 import resend
 
 from config import db, logger, RESEND_API_KEY, SENDER_EMAIL
-from models.schemas import EmailSettings
+from models.schemas import EmailSettings, NotificationSettingsUpdate
 from utils.auth import get_current_user
 
 router = APIRouter(prefix="/notifications", tags=["Notifications"])
@@ -156,22 +156,32 @@ def get_trial_ending_html(username: str, days_left: int, streak: int, consistenc
 @router.get("/settings")
 async def get_notification_settings(current_user: dict = Depends(get_current_user)):
     user = await db.users.find_one({'id': current_user['id']}, {'_id': 0})
-    return EmailSettings(
-        streak_reminders=user.get('streak_reminders', True),
-        weekly_summary=user.get('weekly_summary', True)
-    )
+    return {
+        'streak_reminders': user.get('streak_reminders', True),
+        'weekly_summary': user.get('weekly_summary', True),
+        'morning_reminders': user.get('morning_reminders', False),
+        'morning_reminder_time': user.get('morning_reminder_time', '08:00')
+    }
 
 
 @router.put("/settings")
-async def update_notification_settings(settings: EmailSettings, current_user: dict = Depends(get_current_user)):
-    await db.users.update_one(
-        {'id': current_user['id']},
-        {'$set': {
-            'streak_reminders': settings.streak_reminders,
-            'weekly_summary': settings.weekly_summary
-        }}
-    )
-    return {'message': 'Notification settings updated'}
+async def update_notification_settings(settings: NotificationSettingsUpdate, current_user: dict = Depends(get_current_user)):
+    update_fields = {}
+    if settings.streak_reminders is not None:
+        update_fields['streak_reminders'] = settings.streak_reminders
+    if settings.weekly_summary is not None:
+        update_fields['weekly_summary'] = settings.weekly_summary
+    if settings.morning_reminders is not None:
+        update_fields['morning_reminders'] = settings.morning_reminders
+    if settings.morning_reminder_time is not None:
+        update_fields['morning_reminder_time'] = settings.morning_reminder_time
+    
+    if update_fields:
+        await db.users.update_one(
+            {'id': current_user['id']},
+            {'$set': update_fields}
+        )
+    return {'message': 'Notification settings updated', 'updated_fields': list(update_fields.keys())}
 
 
 @router.post("/send-streak-reminder")

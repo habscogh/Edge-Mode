@@ -44,13 +44,15 @@ from utils.scheduler_jobs import (
     send_inactive_reminders_job,
     send_trial_ending_reminders_job,
     send_parent_weekly_summaries_job,
-    send_parent_inactivity_alerts_job
+    send_parent_inactivity_alerts_job,
+    send_morning_reminders_job
 )
 
 # Import challenge functions
 from routes.challenges import (
     challenges_daily_job,
-    seed_initial_challenges
+    seed_initial_challenges,
+    finalize_friend_challenges
 )
 
 # Initialize Resend
@@ -128,6 +130,7 @@ async def get_scheduler_status():
         'scheduler_running': scheduler.running,
         'jobs': job_info,
         'schedule': {
+            'morning_reminders': '1:00 PM UTC daily (8:00 AM Eastern)',
             'streak_reminders': '8:00 PM UTC daily (3:00 PM Eastern)',
             'inactive_reminders': '6:00 PM UTC daily (2:00 PM Eastern) - for 3-7 days inactive',
             'trial_ending_reminders': '4:00 PM UTC daily (12:00 PM Eastern) - for users with 1-3 days left',
@@ -229,8 +232,24 @@ async def startup_scheduler():
         replace_existing=True
     )
     
+    # Morning reminders - daily at 1 PM UTC (8 AM Eastern, 9 AM Central)
+    scheduler.add_job(
+        send_morning_reminders_job,
+        CronTrigger(hour=13, minute=0),
+        id="morning_reminders",
+        replace_existing=True
+    )
+    
+    # Finalize friend challenges - daily at 12:10 AM UTC
+    scheduler.add_job(
+        finalize_friend_challenges,
+        CronTrigger(hour=0, minute=10),
+        id="friend_challenges",
+        replace_existing=True
+    )
+    
     scheduler.start()
-    logger.info("Email scheduler started - Streak: 8PM UTC, Inactive: 6PM UTC, Trial Ending: 4PM UTC, Weekly: Sun 2PM UTC, Parent Weekly: Sun 3PM UTC, Parent Alerts: 7PM UTC, Challenges: 12:05AM UTC")
+    logger.info("Email scheduler started - Morning: 1PM UTC (8AM Eastern), Streak: 8PM UTC, Inactive: 6PM UTC, Trial Ending: 4PM UTC, Weekly: Sun 2PM UTC, Parent Weekly: Sun 3PM UTC, Parent Alerts: 7PM UTC, Challenges: 12:05AM UTC, Friend Challenges: 12:10AM UTC")
 
 
 @app.on_event("shutdown")
