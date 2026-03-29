@@ -44,6 +44,47 @@ def get_streak_reminder_html(username: str, streak: int) -> str:
 
 
 def get_weekly_summary_html(username: str, stats: dict) -> str:
+    consistency_pct = stats.get('consistency_pct', 0)
+    
+    # Determine consistency rating and color
+    if consistency_pct >= 85:
+        rating = "ELITE"
+        rating_color = "#22c55e"  # Green
+        rating_emoji = "🏆"
+        message = "Outstanding! You're in the top tier of performers."
+    elif consistency_pct >= 70:
+        rating = "STRONG"
+        rating_color = "#10b981"  # Teal
+        rating_emoji = "💪"
+        message = "Great work! You're building solid habits."
+    elif consistency_pct >= 50:
+        rating = "BUILDING"
+        rating_color = "#f59e0b"  # Amber
+        rating_emoji = "📈"
+        message = "Good progress! Keep pushing for more consistency."
+    elif consistency_pct >= 25:
+        rating = "DEVELOPING"
+        rating_color = "#f97316"  # Orange
+        rating_emoji = "🌱"
+        message = "You're getting started. Aim for 4+ days next week!"
+    else:
+        rating = "NEEDS FOCUS"
+        rating_color = "#ef4444"  # Red
+        rating_emoji = "🎯"
+        message = "Let's reset and aim higher next week. You've got this!"
+    
+    # Calculate days logged
+    days_logged = round((consistency_pct / 100) * 7)
+    
+    # Build the consistency breakdown visual
+    days_visual = ""
+    day_names = ["M", "T", "W", "T", "F", "S", "S"]
+    for i, day in enumerate(day_names):
+        if i < days_logged:
+            days_visual += f'<span style="display: inline-block; width: 28px; height: 28px; line-height: 28px; margin: 2px; background: {rating_color}; border-radius: 4px; text-align: center; font-weight: bold; font-size: 11px;">{day}</span>'
+        else:
+            days_visual += f'<span style="display: inline-block; width: 28px; height: 28px; line-height: 28px; margin: 2px; background: #27272a; border-radius: 4px; text-align: center; font-size: 11px; color: #52525b;">{day}</span>'
+    
     return f"""
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #09090b; color: white;">
         <div style="text-align: center; padding: 20px 0;">
@@ -52,7 +93,9 @@ def get_weekly_summary_html(username: str, stats: dict) -> str:
         <div style="padding: 20px; background: #18181b; border-radius: 8px; margin: 20px 0;">
             <p style="margin: 0; font-size: 16px;">Hey <strong>{username}</strong>,</p>
             <p style="margin: 15px 0;">Here's how you did this week:</p>
-            <div style="display: flex; justify-content: space-around; padding: 15px 0;">
+            
+            <!-- Stats Row -->
+            <div style="display: flex; justify-content: space-around; padding: 15px 0; border-bottom: 1px solid #27272a;">
                 <div style="text-align: center;">
                     <div style="font-size: 28px; font-weight: bold; color: #f97316;">{stats.get('total_sessions', 0)}</div>
                     <div style="color: #71717a; font-size: 12px;">Sessions</div>
@@ -62,12 +105,30 @@ def get_weekly_summary_html(username: str, stats: dict) -> str:
                     <div style="color: #71717a; font-size: 12px;">Minutes</div>
                 </div>
                 <div style="text-align: center;">
-                    <div style="font-size: 28px; font-weight: bold; color: #3b82f6;">{stats.get('consistency_pct', 0):.0f}%</div>
-                    <div style="color: #71717a; font-size: 12px;">Consistency</div>
+                    <div style="font-size: 28px; font-weight: bold; color: #3b82f6;">{days_logged}/7</div>
+                    <div style="color: #71717a; font-size: 12px;">Days Active</div>
                 </div>
+            </div>
+            
+            <!-- Consistency Rating Section -->
+            <div style="padding: 20px 0; text-align: center;">
+                <div style="font-size: 14px; color: #71717a; margin-bottom: 10px;">CONSISTENCY RATING</div>
+                <div style="font-size: 48px; margin-bottom: 5px;">{rating_emoji}</div>
+                <div style="font-size: 24px; font-weight: bold; color: {rating_color}; letter-spacing: 2px;">{rating}</div>
+                <div style="font-size: 32px; font-weight: bold; color: white; margin: 10px 0;">{consistency_pct:.0f}%</div>
+                <p style="color: #a1a1aa; font-size: 14px; margin: 10px 0;">{message}</p>
+            </div>
+            
+            <!-- Days Breakdown -->
+            <div style="text-align: center; padding: 15px; background: #0f0f10; border-radius: 8px;">
+                <div style="font-size: 11px; color: #71717a; margin-bottom: 8px;">YOUR WEEK</div>
+                {days_visual}
             </div>
         </div>
         <div style="text-align: center; padding: 20px;">
+            <a href="https://edgemodeapp.com/dashboard" style="display: inline-block; background: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">View Full Dashboard</a>
+        </div>
+        <div style="text-align: center; padding: 10px;">
             <p style="color: #71717a; font-size: 12px;">Edge Mode - 1% Better Every Day</p>
         </div>
     </div>
@@ -437,25 +498,52 @@ async def send_parent_weekly_summaries_job():
                 total_minutes = sum(s.get('minutes_spent', 30) for s in sessions)
                 consistency_pct = round((unique_days / 7) * 100, 1)
                 
+                # Determine consistency rating
+                if consistency_pct >= 85:
+                    rating = "ELITE"
+                    rating_color = "#22c55e"
+                    rating_emoji = "🏆"
+                elif consistency_pct >= 70:
+                    rating = "STRONG"
+                    rating_color = "#10b981"
+                    rating_emoji = "💪"
+                elif consistency_pct >= 50:
+                    rating = "BUILDING"
+                    rating_color = "#f59e0b"
+                    rating_emoji = "📈"
+                elif consistency_pct >= 25:
+                    rating = "DEVELOPING"
+                    rating_color = "#f97316"
+                    rating_emoji = "🌱"
+                else:
+                    rating = "NEEDS FOCUS"
+                    rating_color = "#ef4444"
+                    rating_emoji = "🎯"
+                
                 streak_color = "#f97316" if student.get('current_streak', 0) >= 7 else "#10b981"
                 
                 students_html += f"""
                 <div style="padding: 15px; background: #27272a; border-radius: 8px; margin: 10px 0;">
-                    <div style="font-size: 18px; font-weight: bold; color: white; margin-bottom: 10px;">{student.get('username', 'Student')}</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <div style="font-size: 18px; font-weight: bold; color: white;">{student.get('username', 'Student')}</div>
+                        <div style="background: {rating_color}20; color: {rating_color}; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold;">
+                            {rating_emoji} {rating}
+                        </div>
+                    </div>
                     <div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
-                        <div style="text-align: center; padding: 10px; flex: 1; min-width: 80px;">
+                        <div style="text-align: center; padding: 10px; flex: 1; min-width: 70px;">
                             <div style="font-size: 24px; font-weight: bold; color: {streak_color};">🔥 {student.get('current_streak', 0)}</div>
                             <div style="color: #71717a; font-size: 11px;">Day Streak</div>
                         </div>
-                        <div style="text-align: center; padding: 10px; flex: 1; min-width: 80px;">
+                        <div style="text-align: center; padding: 10px; flex: 1; min-width: 70px;">
                             <div style="font-size: 24px; font-weight: bold; color: #10b981;">{len(sessions)}</div>
                             <div style="color: #71717a; font-size: 11px;">Sessions</div>
                         </div>
-                        <div style="text-align: center; padding: 10px; flex: 1; min-width: 80px;">
-                            <div style="font-size: 24px; font-weight: bold; color: white;">{consistency_pct}%</div>
+                        <div style="text-align: center; padding: 10px; flex: 1; min-width: 70px;">
+                            <div style="font-size: 24px; font-weight: bold; color: {rating_color};">{consistency_pct}%</div>
                             <div style="color: #71717a; font-size: 11px;">Consistency</div>
                         </div>
-                        <div style="text-align: center; padding: 10px; flex: 1; min-width: 80px;">
+                        <div style="text-align: center; padding: 10px; flex: 1; min-width: 70px;">
                             <div style="font-size: 24px; font-weight: bold; color: #a1a1aa;">{total_minutes}</div>
                             <div style="color: #71717a; font-size: 11px;">Minutes</div>
                         </div>
