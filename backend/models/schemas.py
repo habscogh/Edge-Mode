@@ -318,7 +318,7 @@ class CreateCheckoutRequest(BaseModel):
 class EmailSettings(BaseModel):
     streak_reminders: bool = True
     weekly_summary: bool = True
-    morning_reminders: bool = False
+    morning_reminders: bool = True
 
 
 class NotificationSettingsUpdate(BaseModel):

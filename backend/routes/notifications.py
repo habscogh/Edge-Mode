@@ -159,7 +159,7 @@ async def get_notification_settings(current_user: dict = Depends(get_current_use
     return {
         'streak_reminders': user.get('streak_reminders', True),
         'weekly_summary': user.get('weekly_summary', True),
-        'morning_reminders': user.get('morning_reminders', False),
+        'morning_reminders': user.get('morning_reminders', True),
         'morning_reminder_time': user.get('morning_reminder_time', '08:00')
     }
 
