@@ -194,6 +194,13 @@ export const LandingPage = () => {
           </Button>
         </div>
 
+        {/* Beta Access Banner */}
+        <div className="text-center mb-4">
+          <span className="inline-block bg-primary/20 text-primary px-4 py-2 rounded-full font-bold text-sm uppercase tracking-wider">
+            Beta Access is Free Right Now
+          </span>
+        </div>
+
         {/* CTA Button */}
         <Button
           data-testid="activate-edge-mode-btn"
