@@ -219,7 +219,7 @@ export const LandingPage = () => {
           className="w-full border-2 border-primary text-primary hover:bg-primary/10 font-heading uppercase tracking-wide font-bold py-6 mb-6"
         >
           <Users className="w-5 h-5 mr-2" />
-          Coaches: Sign Up Your Team Free
+          Coaches: Click Here to Create Your Free Team Group Account
         </Button>
 
         {/* Support Email */}
