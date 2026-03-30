@@ -208,12 +208,20 @@ async def send_streak_reminders_job():
         return
     
     logger.info("Running streak reminder job...")
-    today = datetime.now(timezone.utc).date().isoformat()
+    
+    # Use Eastern Time for consistency with session dates
+    from utils.timezone import get_today_eastern
+    today = get_today_eastern().isoformat()
+    
+    # Create a unique key for today to prevent duplicate emails
+    reminder_key = f"streak_{today}"
     
     try:
         users = await db.users.find({
             'streak_reminders': {'$ne': False},
-            'current_streak': {'$gt': 0}
+            'current_streak': {'$gt': 0},
+            # Skip users who already received today's reminder
+            'last_streak_reminder': {'$ne': reminder_key}
         }, {'_id': 0, 'id': 1, 'email': 1, 'username': 1, 'current_streak': 1}).to_list(1000)
         
         sent_count = 0
@@ -238,6 +246,12 @@ async def send_streak_reminders_job():
                         "html": html
                     })
                     sent_count += 1
+                    
+                    # Mark this user as having received today's reminder
+                    await db.users.update_one(
+                        {'id': user['id']},
+                        {'$set': {'last_streak_reminder': reminder_key}}
+                    )
                 except Exception as e:
                     logger.error(f"Failed to send streak reminder to {user['email']}: {e}")
                 
@@ -335,12 +349,18 @@ async def send_inactive_reminders_job():
     now = datetime.now(timezone.utc)
     two_days_ago = (now - timedelta(days=2)).date().isoformat()
     
+    # Create a unique key for today to prevent duplicate emails
+    from utils.timezone import get_today_eastern
+    today_eastern = get_today_eastern().isoformat()
+    reminder_key = f"inactive_{today_eastern}"
+    
     try:
         # Only send to trial users OR users who opted in to reminders
-        # Exclude admin users and paid subscribers who haven't explicitly opted in
+        # Exclude admin users and users who already received today's reminder
         users = await db.users.find({
             'streak_reminders': {'$ne': False},
-            'is_admin': {'$ne': True}  # Don't send to admins
+            'is_admin': {'$ne': True},
+            'last_inactive_reminder': {'$ne': reminder_key}
         }, {'_id': 0, 'id': 1, 'email': 1, 'username': 1, 'last_log_date': 1, 'is_trial': 1, 'subscription_active': 1}).to_list(1000)
         
         sent_count = 0
@@ -372,6 +392,12 @@ async def send_inactive_reminders_job():
                             "html": html
                         })
                         sent_count += 1
+                        
+                        # Mark this user as having received today's inactive reminder
+                        await db.users.update_one(
+                            {'id': user['id']},
+                            {'$set': {'last_inactive_reminder': reminder_key}}
+                        )
                     except Exception as e:
                         logger.error(f"Failed to send inactive reminder to {user['email']}: {e}")
                     
@@ -741,11 +767,17 @@ async def send_morning_reminders_job():
     logger.info("Running morning reminder job...")
     import random
     
+    # Create a unique key for today to prevent duplicate emails
+    from utils.timezone import get_today_eastern
+    today_eastern = get_today_eastern().isoformat()
+    reminder_key = f"morning_{today_eastern}"
+    
     try:
-        # Find users who have opted into morning reminders
+        # Find users who have opted into morning reminders and haven't received today's
         users = await db.users.find({
             'morning_reminders': True,
-            'is_admin': {'$ne': True}
+            'is_admin': {'$ne': True},
+            'last_morning_reminder': {'$ne': reminder_key}
         }, {'_id': 0, 'id': 1, 'email': 1, 'username': 1, 'current_streak': 1}).to_list(1000)
         
         sent_count = 0
@@ -772,6 +804,12 @@ async def send_morning_reminders_job():
                     "html": html
                 })
                 sent_count += 1
+                
+                # Mark this user as having received today's morning reminder
+                await db.users.update_one(
+                    {'id': user['id']},
+                    {'$set': {'last_morning_reminder': reminder_key}}
+                )
             except Exception as e:
                 logger.error(f"Failed to send morning reminder to {user['email']}: {e}")
             
