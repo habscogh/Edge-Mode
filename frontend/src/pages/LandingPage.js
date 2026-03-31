@@ -144,15 +144,15 @@ export const LandingPage = () => {
         {/* Pricing Section */}
         <div className="bg-zinc-950 border border-zinc-800 rounded-md p-8 mb-8" data-testid="pricing-section">
           {/* Features Grid */}
-          <div className="border-b border-zinc-800 pb-6 mb-6">
-            <p className="text-zinc-400 text-sm font-body uppercase tracking-wide mb-4 text-center">
+          <div className="border-b border-zinc-800 pb-8 mb-8">
+            <p className="text-zinc-400 text-sm font-body uppercase tracking-widest mb-8 text-center">
               Everything included:
             </p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-5">
               {features.map((feature, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <feature.icon className="w-4 h-4 text-primary flex-shrink-0" />
-                  <span className="text-zinc-300 text-xs font-body">{feature.text}</span>
+                <div key={index} className="flex items-start gap-3">
+                  <feature.icon className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                  <span className="text-white text-sm font-body leading-tight">{feature.text}</span>
                 </div>
               ))}
             </div>
