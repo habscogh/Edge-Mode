@@ -6,6 +6,7 @@ from fastapi import FastAPI, APIRouter
 from starlette.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
+from datetime import datetime, timezone
 import asyncio
 import os
 
@@ -165,7 +166,34 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup_scheduler():
-    """Start the scheduler when app starts"""
+    """Start the scheduler when app starts - only if we're the primary worker"""
+    import os
+    
+    # Only start scheduler in the main process to prevent duplicate jobs
+    # Check if we're running with multiple workers
+    worker_id = os.environ.get('APP_WORKER_ID', '0')
+    if worker_id != '0':
+        logger.info(f"Worker {worker_id}: Skipping scheduler start (handled by worker 0)")
+        return
+    
+    # Use a database lock to ensure only one scheduler runs across all instances
+    lock_doc = await db.scheduler_locks.find_one({'_id': 'streak_scheduler'})
+    now = datetime.now(timezone.utc)
+    
+    # If lock exists and was updated in the last 5 minutes, another instance is running
+    if lock_doc and lock_doc.get('updated_at'):
+        lock_time = datetime.fromisoformat(lock_doc['updated_at'].replace('Z', '+00:00'))
+        if (now - lock_time).total_seconds() < 300:  # 5 minutes
+            logger.info("Scheduler lock held by another instance, skipping")
+            return
+    
+    # Acquire the lock
+    await db.scheduler_locks.update_one(
+        {'_id': 'streak_scheduler'},
+        {'$set': {'updated_at': now.isoformat(), 'instance': os.getpid()}},
+        upsert=True
+    )
+    logger.info(f"Acquired scheduler lock for PID {os.getpid()}")
     
     # Seed initial challenges if none exist
     try:

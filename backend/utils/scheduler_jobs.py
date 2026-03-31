@@ -220,6 +220,7 @@ async def send_streak_reminders_job():
         users = await db.users.find({
             'streak_reminders': {'$ne': False},
             'current_streak': {'$gt': 0},
+            'is_admin': {'$ne': True},  # Don't send to admins
             # Skip users who already received today's reminder
             'last_streak_reminder': {'$ne': reminder_key}
         }, {'_id': 0, 'id': 1, 'email': 1, 'username': 1, 'current_streak': 1}).to_list(1000)
