@@ -113,6 +113,34 @@ export const LandingPage = () => {
         {/* Social Proof Section - Platform Stats & Testimonials */}
         <SocialProofSection />
 
+        {/* Beta Access Banner */}
+        <div className="text-center mb-4">
+          <span className="inline-block bg-primary/20 text-primary px-4 py-2 rounded-full font-bold text-sm uppercase tracking-wider">
+            Beta Access is Free Right Now
+          </span>
+        </div>
+
+        {/* CTA Button */}
+        <Button
+          data-testid="activate-edge-mode-btn"
+          onClick={() => navigate('/auth')}
+          className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading uppercase tracking-wide font-bold text-xl py-8 mb-4"
+        >
+          <Zap className="w-6 h-6 mr-3" />
+          Activate Edge Mode
+        </Button>
+
+        {/* Coach Signup Button - More Prominent */}
+        <Button
+          data-testid="coach-signup-btn"
+          onClick={() => navigate('/coach-signup')}
+          variant="outline"
+          className="w-full border-2 border-primary text-primary hover:bg-primary/10 font-heading uppercase tracking-wide font-bold py-6 mb-6"
+        >
+          <Users className="w-5 h-5 mr-2" />
+          Coaches: Click Here to Create Your Free Team Group Account
+        </Button>
+
         {/* Pricing Section */}
         <div className="bg-zinc-950 border border-zinc-800 rounded-md p-8 mb-8" data-testid="pricing-section">
           <h3 className="text-2xl font-heading font-bold uppercase tracking-tight text-white mb-6 text-center">
@@ -190,34 +218,6 @@ export const LandingPage = () => {
             Start 14-Day Free Trial
           </Button>
         </div>
-
-        {/* Beta Access Banner */}
-        <div className="text-center mb-4">
-          <span className="inline-block bg-primary/20 text-primary px-4 py-2 rounded-full font-bold text-sm uppercase tracking-wider">
-            Beta Access is Free Right Now
-          </span>
-        </div>
-
-        {/* CTA Button */}
-        <Button
-          data-testid="activate-edge-mode-btn"
-          onClick={() => navigate('/auth')}
-          className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading uppercase tracking-wide font-bold text-xl py-8 mb-4"
-        >
-          <Zap className="w-6 h-6 mr-3" />
-          Activate Edge Mode
-        </Button>
-
-        {/* Coach Signup Button - More Prominent */}
-        <Button
-          data-testid="coach-signup-btn"
-          onClick={() => navigate('/coach-signup')}
-          variant="outline"
-          className="w-full border-2 border-primary text-primary hover:bg-primary/10 font-heading uppercase tracking-wide font-bold py-6 mb-6"
-        >
-          <Users className="w-5 h-5 mr-2" />
-          Coaches: Click Here to Create Your Free Team Group Account
-        </Button>
 
         {/* Support Email */}
         <div className="text-center">
