@@ -147,6 +147,21 @@ export const LandingPage = () => {
             Simple Pricing
           </h3>
 
+          {/* Features Grid */}
+          <div className="border-b border-zinc-800 pb-6 mb-6">
+            <p className="text-zinc-400 text-sm font-body uppercase tracking-wide mb-4 text-center">
+              Everything included:
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {features.map((feature, index) => (
+                <div key={index} className="flex items-center gap-3">
+                  <feature.icon className="w-4 h-4 text-primary flex-shrink-0" />
+                  <span className="text-zinc-300 text-sm font-body">{feature.text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Toggle */}
           <div className="flex items-center justify-center gap-4 mb-6">
             <span className={`font-body text-sm ${!isYearly ? 'text-white' : 'text-zinc-500'}`}>Monthly</span>
@@ -163,7 +178,7 @@ export const LandingPage = () => {
           </div>
 
           {/* Price Display */}
-          <div className="text-center mb-6">
+          <div className="text-center">
             <div className="flex items-end justify-center gap-1">
               <span className="text-5xl font-mono font-bold text-white">
                 ${isYearly ? '49.99' : '4.99'}
@@ -193,30 +208,6 @@ export const LandingPage = () => {
               </div>
             </div>
           </div>
-
-          {/* Features Grid */}
-          <div className="border-t border-zinc-800 pt-6 mb-6">
-            <p className="text-zinc-400 text-sm font-body uppercase tracking-wide mb-4 text-center">
-              Everything included:
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {features.map((feature, index) => (
-                <div key={index} className="flex items-center gap-3">
-                  <feature.icon className="w-4 h-4 text-primary flex-shrink-0" />
-                  <span className="text-zinc-300 text-sm font-body">{feature.text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Free Trial CTA */}
-          <Button
-            data-testid="start-trial-btn"
-            onClick={() => navigate('/auth')}
-            className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-heading uppercase tracking-wide font-bold text-lg py-6"
-          >
-            Start 14-Day Free Trial
-          </Button>
         </div>
 
         {/* Support Email */}
