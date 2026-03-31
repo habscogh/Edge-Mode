@@ -135,10 +135,10 @@ export const LandingPage = () => {
           data-testid="coach-signup-btn"
           onClick={() => navigate('/coach-signup')}
           variant="outline"
-          className="w-full border-2 border-primary text-primary hover:bg-primary/10 font-heading uppercase tracking-wide font-bold py-6 mb-6"
+          className="w-full border-2 border-primary text-primary hover:bg-primary/10 font-heading uppercase tracking-wide font-bold py-6 mb-6 h-auto whitespace-normal text-center leading-tight"
         >
-          <Users className="w-5 h-5 mr-2" />
-          Coaches: Click Here to Create Your Free Team Group Account
+          <Users className="w-5 h-5 mr-2 flex-shrink-0" />
+          <span>Coaches: Click Here to Create Your Free Team Group Account</span>
         </Button>
 
         {/* Pricing Section */}
