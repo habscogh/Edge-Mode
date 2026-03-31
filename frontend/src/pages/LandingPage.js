@@ -143,24 +143,24 @@ export const LandingPage = () => {
 
         {/* Pricing Section */}
         <div className="bg-zinc-950 border border-zinc-800 rounded-md p-8 mb-8" data-testid="pricing-section">
-          <h3 className="text-2xl font-heading font-bold uppercase tracking-tight text-white mb-6 text-center">
-            Simple Pricing
-          </h3>
-
           {/* Features Grid */}
           <div className="border-b border-zinc-800 pb-6 mb-6">
             <p className="text-zinc-400 text-sm font-body uppercase tracking-wide mb-4 text-center">
               Everything included:
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               {features.map((feature, index) => (
-                <div key={index} className="flex items-center gap-3">
+                <div key={index} className="flex items-center gap-2">
                   <feature.icon className="w-4 h-4 text-primary flex-shrink-0" />
-                  <span className="text-zinc-300 text-sm font-body">{feature.text}</span>
+                  <span className="text-zinc-300 text-xs font-body">{feature.text}</span>
                 </div>
               ))}
             </div>
           </div>
+
+          <h3 className="text-2xl font-heading font-bold uppercase tracking-tight text-white mb-6 text-center">
+            Simple Pricing
+          </h3>
 
           {/* Toggle */}
           <div className="flex items-center justify-center gap-4 mb-6">
