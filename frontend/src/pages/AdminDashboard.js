@@ -159,6 +159,16 @@ export const AdminDashboard = () => {
       return;
     }
 
+    // Confirmation for Send to All
+    if (sendToAll) {
+      const confirmed = window.confirm(
+        '⚠️ WARNING: You are about to send this announcement to ALL users.\n\n' +
+        'This action cannot be undone.\n\n' +
+        'Are you sure you want to proceed?'
+      );
+      if (!confirmed) return;
+    }
+
     setSendingAnnouncement(true);
     try {
       const res = await axios.post(`${API}/admin/announcements/send`, {
