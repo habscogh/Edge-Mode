@@ -58,3 +58,8 @@ def get_eastern_date_from_datetime(dt: datetime) -> str:
     """Get the Eastern Time date string from a datetime"""
     eastern_dt = datetime_to_eastern(dt)
     return eastern_dt.date().isoformat()
+
+
+def get_eastern_now() -> datetime:
+    """Alias for get_current_eastern_time - returns current datetime in Eastern Time"""
+    return get_current_eastern_time()

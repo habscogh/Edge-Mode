@@ -23,6 +23,7 @@ import { toast } from 'sonner';
 import { getLocalDateString } from '../utils/dateUtils';
 import { StreakRecoveryModal, useStreakRecovery } from '../components/StreakRecoveryModal';
 import EngagementStatus from '../components/EngagementStatus';
+import QuestsSection from '../components/Quests';
 
 // Rotating habit quotes
 const HABIT_QUOTES = [
@@ -352,6 +353,11 @@ export const Dashboard = () => {
 
         {/* Featured Challenges */}
         <FeaturedChallenges />
+
+        {/* Daily & Weekly Quests */}
+        <div className="mb-6" data-testid="quests-dashboard-section">
+          <QuestsSection compact />
+        </div>
 
         <div data-testid="performance-graph-card" className="bg-zinc-950 border border-zinc-800 rounded-md p-4 mb-6">
           <h3 className="text-sm font-heading uppercase tracking-wide text-white mb-4">30-Day Performance</h3>

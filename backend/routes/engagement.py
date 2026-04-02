@@ -194,6 +194,12 @@ async def claim_daily_login(current_user: dict = Depends(get_current_user)):
     # Award XP for daily login (with event multiplier)
     xp_result = await award_xp(user_id, XP_REWARDS['daily_login'], 'daily_login', 'daily_login')
     
+    # Track quest progress
+    from routes.quests import track_login, track_xp_earned
+    await track_login(user_id)
+    if xp_result:
+        await track_xp_earned(user_id, xp_result.get('xp_earned', 0))
+    
     # Update user
     current_coins = user.get('coins', 0)
     await db.users.update_one(

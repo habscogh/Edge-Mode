@@ -113,6 +113,15 @@ async def complete_session(session_data: SessionComplete, current_user: dict = D
     
     xp_result = await award_xp(user_id, xp_earned, '+'.join(xp_reasons), 'sessions')
     
+    # Track quest progress
+    from routes.quests import track_session_logged, track_xp_earned, track_streak_days
+    await track_session_logged(user_id)
+    if xp_result:
+        await track_xp_earned(user_id, xp_result.get('xp_earned', 0))
+    if streak_result:
+        current_streak, longest_streak, total_sessions = streak_result
+        await track_streak_days(user_id, current_streak)
+    
     # Check for newly earned badges
     new_badges = await check_and_award_badges(user_id)
     
