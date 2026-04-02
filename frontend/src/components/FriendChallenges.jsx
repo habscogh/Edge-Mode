@@ -3,6 +3,7 @@ import axios from 'axios';
 import { toast } from 'sonner';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
+import FriendStreaks from './FriendStreaks';
 import {
   Users,
   Swords,
@@ -343,22 +344,27 @@ const FriendChallenges = () => {
   }
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden">
-      <div className="p-4 border-b border-zinc-800 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Swords className="w-5 h-5 text-primary" />
-          <h3 className="text-white font-bold">Friend Challenges</h3>
-          <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">1v1</span>
+    <div className="space-y-4">
+      {/* Friend Streaks Section */}
+      <FriendStreaks compact />
+
+      {/* Friend Challenges Section */}
+      <div className="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden">
+        <div className="p-4 border-b border-zinc-800 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Swords className="w-5 h-5 text-primary" />
+            <h3 className="text-white font-bold">Friend Challenges</h3>
+            <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">1v1</span>
+          </div>
+          <Button
+            onClick={() => setShowCreateModal(true)}
+            size="sm"
+            className="bg-primary hover:bg-primary/90 text-black font-bold"
+            data-testid="create-friend-challenge-btn"
+          >
+            <Plus className="w-4 h-4 mr-1" /> Challenge
+          </Button>
         </div>
-        <Button
-          onClick={() => setShowCreateModal(true)}
-          size="sm"
-          className="bg-primary hover:bg-primary/90 text-black font-bold"
-          data-testid="create-friend-challenge-btn"
-        >
-          <Plus className="w-4 h-4 mr-1" /> Challenge
-        </Button>
-      </div>
 
       {/* Tabs */}
       <div className="flex border-b border-zinc-800">
@@ -483,6 +489,7 @@ const FriendChallenges = () => {
           onCreated={fetchData}
         />
       )}
+      </div>
     </div>
   );
 };

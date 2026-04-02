@@ -327,6 +327,65 @@ BADGES = {
     }
 }
 
+# ============ XP & Leveling System ============
+# XP rewards for various actions
+XP_REWARDS = {
+    'daily_login': 10,
+    'log_session': 25,
+    'streak_day': 5,  # Bonus per streak day
+    'earn_badge': 50,
+    'complete_challenge': 100,
+    'win_friend_challenge': 75,
+    'first_session_of_day': 15,
+    'weekly_target_met': 50,
+}
+
+# Level thresholds (cumulative XP needed for each level)
+LEVEL_THRESHOLDS = [
+    0,      # Level 1
+    100,    # Level 2
+    250,    # Level 3
+    500,    # Level 4
+    800,    # Level 5
+    1200,   # Level 6
+    1700,   # Level 7
+    2300,   # Level 8
+    3000,   # Level 9
+    4000,   # Level 10
+    5200,   # Level 11
+    6600,   # Level 12
+    8200,   # Level 13
+    10000,  # Level 14
+    12500,  # Level 15
+    15500,  # Level 16
+    19000,  # Level 17
+    23000,  # Level 18
+    27500,  # Level 19
+    32500,  # Level 20
+    40000,  # Level 21+
+]
+
+LEVEL_TITLES = {
+    1: "Rookie",
+    5: "Rising Star",
+    10: "Achiever",
+    15: "Champion",
+    20: "Legend",
+    25: "Elite",
+}
+
+# Daily login streak bonuses (coins)
+LOGIN_STREAK_BONUSES = {
+    1: 5,    # Day 1
+    2: 10,   # Day 2
+    3: 15,   # Day 3
+    4: 20,   # Day 4
+    5: 25,   # Day 5
+    6: 30,   # Day 6
+    7: 50,   # Day 7 (weekly bonus!)
+}
+
+
 # Logging setup
 logging.basicConfig(
     level=logging.INFO,

@@ -89,8 +89,37 @@ async def complete_session(session_data: SessionComplete, current_user: dict = D
         {'$set': {'last_log_date': today}}
     )
     
+    # Award XP for logging session
+    from routes.engagement import award_xp
+    from config import XP_REWARDS
+    
+    xp_earned = XP_REWARDS['log_session']
+    xp_reasons = ['log_session']
+    
+    # Check if this is first session of the day
+    sessions_today = await db.daily_sessions.count_documents({
+        'user_id': user_id,
+        'date': today
+    })
+    if sessions_today == 1:
+        xp_earned += XP_REWARDS['first_session_of_day']
+        xp_reasons.append('first_session_of_day')
+    
+    # Bonus XP for streak
+    if streak_result:
+        current_streak, longest_streak, total_sessions = streak_result
+        streak_bonus = min(current_streak * XP_REWARDS['streak_day'], 100)  # Cap at 100 bonus
+        xp_earned += streak_bonus
+    
+    xp_result = await award_xp(user_id, xp_earned, '+'.join(xp_reasons))
+    
     # Check for newly earned badges
     new_badges = await check_and_award_badges(user_id)
+    
+    # Award XP for badges
+    if new_badges:
+        for badge in new_badges:
+            await award_xp(user_id, XP_REWARDS['earn_badge'], f'badge_{badge["id"]}')
     
     # Parent notifications (run in background)
     if streak_result:
@@ -119,7 +148,10 @@ async def complete_session(session_data: SessionComplete, current_user: dict = D
     
     return {
         'session': DailySession(**session_doc).model_dump(),
-        'new_badges': new_badges
+        'new_badges': new_badges,
+        'xp_earned': xp_earned,
+        'leveled_up': xp_result.get('leveled_up', False) if xp_result else False,
+        'level_info': xp_result.get('level_info') if xp_result else None
     }
 
 

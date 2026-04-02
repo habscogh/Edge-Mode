@@ -35,7 +35,8 @@ from routes import (
     schools,
     ambassador,
     reflections,
-    streak_recovery
+    streak_recovery,
+    engagement
 )
 
 # Import scheduler jobs
@@ -96,6 +97,7 @@ api_router.include_router(schools.router)  # School search and leaderboard
 api_router.include_router(ambassador.router)  # Founding Ambassador program
 api_router.include_router(reflections.router)  # Daily reflections & growth journal
 api_router.include_router(streak_recovery.router)  # Streak recovery feature
+api_router.include_router(engagement.router)  # XP, Levels, Daily Rewards, Friend Streaks
 
 
 # Health check endpoints

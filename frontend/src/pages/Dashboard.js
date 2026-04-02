@@ -22,6 +22,7 @@ import { useOfflineSync } from '../hooks/useOfflineSync';
 import { toast } from 'sonner';
 import { getLocalDateString } from '../utils/dateUtils';
 import { StreakRecoveryModal, useStreakRecovery } from '../components/StreakRecoveryModal';
+import EngagementStatus from '../components/EngagementStatus';
 
 // Rotating habit quotes
 const HABIT_QUOTES = [
@@ -269,6 +270,11 @@ export const Dashboard = () => {
 
         {/* Daily Motivational Quote */}
         <DailyQuote className="mb-6" />
+
+        {/* XP & Daily Rewards Section */}
+        <div className="mb-6" data-testid="engagement-status-section">
+          <EngagementStatus />
+        </div>
 
         {/* Progress Insights */}
         <div className="mb-6">
