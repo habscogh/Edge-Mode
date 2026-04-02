@@ -175,6 +175,25 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
    - Dashboard coins display links directly to Shop
    - All tests passing (32/32 backend, 100% frontend)
 
+9. **Daily & Weekly Quests** ✅
+   - 5 Daily Quests:
+     - Daily Check-In (1 login, 5 coins)
+     - One Session Wonder (1 session, 10 coins + 5 XP)
+     - Triple Threat (3 sessions, 25 coins + 15 XP)
+     - XP Hunter (50 XP, 15 coins)
+     - Streak Keeper (maintain streak, 10 coins + 5 XP)
+   - 6 Weekly Quests:
+     - Consistency Champion (10 sessions, 50 coins + 30 XP)
+     - Dedication Master (20 sessions, 100 coins + 50 XP)
+     - XP Grinder (200 XP, 40 coins)
+     - Perfect Week (7-day streak, 75 coins + 50 XP)
+     - Dedicated User (5 login days, 30 coins + 20 XP)
+     - Challenge Accepted (2 challenges, 60 coins + 40 XP)
+   - Progress tracking integrated with sessions and engagement
+   - Claim individual or all rewards
+   - Frontend: `Quests.jsx` component with Daily/Weekly tabs on Dashboard
+   - All tests passing (24/24 backend, 100% frontend)
+
 ## Previous Session (March 29, 2026)
 
 1. **Coach Tools (Team Analytics & Bulk Messaging)** ✅
@@ -246,9 +265,11 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
 - Backend: `/app/backend/routes/auth.py`, `/app/backend/routes/payments.py`, `/app/backend/routes/challenges.py`
 - Backend Engagement: `/app/backend/routes/engagement.py` (XP, Levels, Daily Rewards, Friend Streaks, XP Events)
 - Backend Shop: `/app/backend/routes/shop.py` (Coin Shop, Items, Inventory, Purchases)
+- Backend Quests: `/app/backend/routes/quests.py` (Daily & Weekly Quests)
 - Frontend: `/app/frontend/src/pages/Dashboard.js`, `/app/frontend/src/pages/ChallengesScreen.js`
 - Frontend Engagement: `/app/frontend/src/components/EngagementStatus.jsx`, `/app/frontend/src/components/FriendStreaks.jsx`
 - Frontend Shop: `/app/frontend/src/pages/ShopScreen.js`
+- Frontend Quests: `/app/frontend/src/components/Quests.jsx`
 - Coach: `/app/frontend/src/pages/CoachDashboard.js`
 - Admin: `/app/frontend/src/pages/AdminDashboard.js`
 
