@@ -1089,3 +1089,152 @@ async def debug_sessions(admin_user: dict = Depends(require_admin)):
         },
         'latest_10_sessions': latest
     }
+
+
+# ============ Email Announcements ============
+
+class AnnouncementRequest(BaseModel):
+    subject: str
+    message: str
+    user_ids: List[str] = []  # List of user IDs to send to
+    send_to_all: bool = False  # If true, sends to all users
+
+
+def get_announcement_email_html(subject: str, message: str) -> str:
+    """Generate HTML template for announcement emails"""
+    # Convert newlines to <br> for HTML
+    formatted_message = message.replace('\n', '<br>')
+    
+    return f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #09090b; color: white;">
+        <div style="text-align: center; padding: 20px 0; border-bottom: 1px solid #27272a;">
+            <h1 style="color: #22c55e; margin: 0; font-size: 24px;">Edge Mode</h1>
+            <p style="color: #71717a; margin: 5px 0 0 0; font-size: 12px;">1% Better Every Day</p>
+        </div>
+        
+        <div style="padding: 30px 20px;">
+            <h2 style="color: #fafafa; margin: 0 0 20px 0; font-size: 20px;">{subject}</h2>
+            <div style="color: #d1d5db; font-size: 15px; line-height: 1.6;">
+                {formatted_message}
+            </div>
+        </div>
+        
+        <div style="padding: 20px; background: #18181b; border-radius: 8px; margin: 20px;">
+            <p style="color: #a1a1aa; font-size: 14px; margin: 0; text-align: center;">
+                Check out your new features in the app!
+            </p>
+            <div style="text-align: center; margin-top: 15px;">
+                <a href="https://edgemodeapp.com/dashboard" style="display: inline-block; background: #22c55e; color: black; padding: 12px 30px; border-radius: 6px; text-decoration: none; font-weight: bold;">Open Edge Mode</a>
+            </div>
+        </div>
+        
+        <div style="text-align: center; padding: 20px; border-top: 1px solid #27272a;">
+            <p style="color: #71717a; font-size: 12px; margin: 0;">
+                © 2026 Edge Mode. All rights reserved.
+            </p>
+        </div>
+    </div>
+    """
+
+
+@router.get("/users/list")
+async def get_users_list(
+    admin_user: dict = Depends(require_admin),
+    search: Optional[str] = None,
+    limit: int = 100
+):
+    """Get list of users for selection (admin only)"""
+    query = {}
+    if search:
+        query['$or'] = [
+            {'email': {'$regex': search, '$options': 'i'}},
+            {'username': {'$regex': search, '$options': 'i'}}
+        ]
+    
+    users = await db.users.find(
+        query,
+        {'_id': 0, 'id': 1, 'email': 1, 'username': 1, 'role': 1, 'created_at': 1}
+    ).sort('created_at', -1).to_list(limit)
+    
+    return {'users': users, 'total': len(users)}
+
+
+@router.post("/announcements/send")
+async def send_announcement(
+    request: AnnouncementRequest,
+    admin_user: dict = Depends(require_admin)
+):
+    """Send announcement email to selected users (admin only)"""
+    if not RESEND_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Email service not configured")
+    
+    if not request.subject or not request.message:
+        raise HTTPException(status_code=400, detail="Subject and message are required")
+    
+    if not request.send_to_all and not request.user_ids:
+        raise HTTPException(status_code=400, detail="Select users or check 'Send to All'")
+    
+    # Get users to send to
+    if request.send_to_all:
+        users = await db.users.find({}, {'_id': 0, 'id': 1, 'email': 1, 'username': 1}).to_list(10000)
+    else:
+        users = await db.users.find(
+            {'id': {'$in': request.user_ids}},
+            {'_id': 0, 'id': 1, 'email': 1, 'username': 1}
+        ).to_list(len(request.user_ids))
+    
+    if not users:
+        raise HTTPException(status_code=400, detail="No users found")
+    
+    # Generate email HTML
+    html_content = get_announcement_email_html(request.subject, request.message)
+    
+    # Send emails
+    sent_count = 0
+    failed_emails = []
+    
+    sender_email = os.environ.get('SENDER_EMAIL', 'noreply@edgemodeapp.com')
+    
+    for user in users:
+        try:
+            resend.Emails.send({
+                "from": sender_email,
+                "to": [user['email']],
+                "subject": f"📢 {request.subject}",
+                "html": html_content
+            })
+            sent_count += 1
+        except Exception as e:
+            logger.error(f"Failed to send announcement to {user['email']}: {e}")
+            failed_emails.append(user['email'])
+    
+    # Log the announcement
+    await db.announcements.insert_one({
+        'id': str(uuid.uuid4()),
+        'subject': request.subject,
+        'message': request.message,
+        'sent_to_count': sent_count,
+        'failed_count': len(failed_emails),
+        'send_to_all': request.send_to_all,
+        'sent_by': admin_user['id'],
+        'sent_at': datetime.now(timezone.utc).isoformat()
+    })
+    
+    return {
+        'message': f"Announcement sent to {sent_count} users",
+        'sent_count': sent_count,
+        'failed_count': len(failed_emails),
+        'failed_emails': failed_emails[:10] if failed_emails else []  # Only show first 10 failures
+    }
+
+
+@router.get("/announcements/history")
+async def get_announcement_history(admin_user: dict = Depends(require_admin)):
+    """Get history of sent announcements (admin only)"""
+    announcements = await db.announcements.find(
+        {},
+        {'_id': 0}
+    ).sort('sent_at', -1).to_list(50)
+    
+    return {'announcements': announcements}
+

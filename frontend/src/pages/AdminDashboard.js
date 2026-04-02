@@ -58,6 +58,17 @@ export const AdminDashboard = () => {
   const [newTestimonial, setNewTestimonial] = useState({ name: '', role: '', quote: '', avatar_url: '' });
   const [addingTestimonial, setAddingTestimonial] = useState(false);
 
+  // Announcement State
+  const [showAnnouncements, setShowAnnouncements] = useState(false);
+  const [announcementSubject, setAnnouncementSubject] = useState('');
+  const [announcementMessage, setAnnouncementMessage] = useState('');
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [sendToAll, setSendToAll] = useState(false);
+  const [userSearchQuery, setUserSearchQuery] = useState('');
+  const [userSearchResults, setUserSearchResults] = useState([]);
+  const [sendingAnnouncement, setSendingAnnouncement] = useState(false);
+  const [announcementHistory, setAnnouncementHistory] = useState([]);
+
   useEffect(() => {
     fetchAdminData();
   }, []);
@@ -101,6 +112,73 @@ export const AdminDashboard = () => {
     } catch (err) {
       console.error('Failed to fetch subscribers:', err);
       toast.error('Failed to load subscribers');
+    }
+  };
+
+  // Announcement Functions
+  const searchUsersForAnnouncement = async (query) => {
+    if (query.length < 2) {
+      setUserSearchResults([]);
+      return;
+    }
+    try {
+      const res = await axios.get(`${API}/admin/users/list?search=${encodeURIComponent(query)}&limit=20`);
+      setUserSearchResults(res.data.users || []);
+    } catch (err) {
+      console.error('Failed to search users:', err);
+    }
+  };
+
+  const toggleUserSelection = (user) => {
+    setSelectedUsers(prev => {
+      const exists = prev.find(u => u.id === user.id);
+      if (exists) {
+        return prev.filter(u => u.id !== user.id);
+      } else {
+        return [...prev, user];
+      }
+    });
+  };
+
+  const fetchAnnouncementHistory = async () => {
+    try {
+      const res = await axios.get(`${API}/admin/announcements/history`);
+      setAnnouncementHistory(res.data.announcements || []);
+    } catch (err) {
+      console.error('Failed to fetch announcement history:', err);
+    }
+  };
+
+  const sendAnnouncement = async () => {
+    if (!announcementSubject.trim() || !announcementMessage.trim()) {
+      toast.error('Please fill in subject and message');
+      return;
+    }
+    if (!sendToAll && selectedUsers.length === 0) {
+      toast.error('Please select users or check "Send to All"');
+      return;
+    }
+
+    setSendingAnnouncement(true);
+    try {
+      const res = await axios.post(`${API}/admin/announcements/send`, {
+        subject: announcementSubject,
+        message: announcementMessage,
+        user_ids: selectedUsers.map(u => u.id),
+        send_to_all: sendToAll
+      });
+
+      toast.success(res.data.message);
+      setAnnouncementSubject('');
+      setAnnouncementMessage('');
+      setSelectedUsers([]);
+      setSendToAll(false);
+      fetchAnnouncementHistory();
+    } catch (err) {
+      console.error('Failed to send announcement:', err);
+      toast.error(err.response?.data?.detail || 'Failed to send announcement');
+    } finally {
+      setSendingAnnouncement(false);
     }
   };
 
@@ -737,6 +815,186 @@ export const AdminDashboard = () => {
               Removes duplicate weekly/monthly challenges, keeping only one of each type per period.
             </p>
           </div>
+        </div>
+
+        {/* Email Announcements */}
+        <div className="bg-zinc-950 border border-zinc-800 rounded-md p-6 mb-6" data-testid="announcements-section">
+          <div 
+            className="flex items-center justify-between cursor-pointer"
+            onClick={() => {
+              setShowAnnouncements(!showAnnouncements);
+              if (!showAnnouncements) fetchAnnouncementHistory();
+            }}
+          >
+            <h3 className="text-lg font-heading font-bold uppercase text-white flex items-center gap-2">
+              <Mail className="w-5 h-5 text-blue-400" />
+              Email Announcements
+            </h3>
+            {showAnnouncements ? (
+              <ChevronUp className="w-5 h-5 text-zinc-400" />
+            ) : (
+              <ChevronDown className="w-5 h-5 text-zinc-400" />
+            )}
+          </div>
+          
+          {showAnnouncements && (
+            <div className="mt-4 space-y-6">
+              {/* Compose Announcement */}
+              <div className="bg-zinc-900 p-4 rounded-lg space-y-4">
+                <h4 className="text-white font-medium flex items-center gap-2">
+                  <Send className="w-4 h-4 text-primary" />
+                  Compose Announcement
+                </h4>
+                
+                <div>
+                  <label className="text-zinc-400 text-sm mb-1 block">Subject</label>
+                  <Input
+                    placeholder="e.g., New Features Released!"
+                    value={announcementSubject}
+                    onChange={(e) => setAnnouncementSubject(e.target.value)}
+                    className="bg-zinc-800 border-zinc-700 text-white"
+                    data-testid="announcement-subject"
+                  />
+                </div>
+                
+                <div>
+                  <label className="text-zinc-400 text-sm mb-1 block">Message</label>
+                  <textarea
+                    placeholder="Write your announcement message here..."
+                    value={announcementMessage}
+                    onChange={(e) => setAnnouncementMessage(e.target.value)}
+                    rows={5}
+                    className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                    data-testid="announcement-message"
+                  />
+                </div>
+
+                {/* User Selection */}
+                <div className="border-t border-zinc-800 pt-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <label className="text-zinc-400 text-sm">Recipients</label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={sendToAll}
+                        onChange={(e) => {
+                          setSendToAll(e.target.checked);
+                          if (e.target.checked) setSelectedUsers([]);
+                        }}
+                        className="w-4 h-4 rounded bg-zinc-800 border-zinc-600"
+                        data-testid="send-to-all-checkbox"
+                      />
+                      <span className="text-zinc-300 text-sm">Send to All Users</span>
+                    </label>
+                  </div>
+
+                  {!sendToAll && (
+                    <>
+                      {/* Search Users */}
+                      <div className="relative mb-3">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                        <Input
+                          placeholder="Search users by email or username..."
+                          value={userSearchQuery}
+                          onChange={(e) => {
+                            setUserSearchQuery(e.target.value);
+                            searchUsersForAnnouncement(e.target.value);
+                          }}
+                          className="pl-10 bg-zinc-800 border-zinc-700 text-white"
+                          data-testid="user-search-input"
+                        />
+                      </div>
+
+                      {/* Search Results */}
+                      {userSearchResults.length > 0 && (
+                        <div className="bg-zinc-800 rounded-lg p-2 mb-3 max-h-40 overflow-y-auto">
+                          {userSearchResults.map(user => (
+                            <div
+                              key={user.id}
+                              onClick={() => toggleUserSelection(user)}
+                              className={`flex items-center justify-between p-2 rounded cursor-pointer transition-colors ${
+                                selectedUsers.find(u => u.id === user.id)
+                                  ? 'bg-primary/20 text-primary'
+                                  : 'hover:bg-zinc-700 text-zinc-300'
+                              }`}
+                              data-testid={`user-option-${user.id}`}
+                            >
+                              <div>
+                                <p className="text-sm font-medium">{user.username || 'No username'}</p>
+                                <p className="text-xs opacity-70">{user.email}</p>
+                              </div>
+                              {selectedUsers.find(u => u.id === user.id) && (
+                                <CheckCircle className="w-4 h-4" />
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Selected Users */}
+                      {selectedUsers.length > 0 && (
+                        <div className="mb-3">
+                          <p className="text-zinc-400 text-xs mb-2">Selected ({selectedUsers.length}):</p>
+                          <div className="flex flex-wrap gap-2">
+                            {selectedUsers.map(user => (
+                              <span
+                                key={user.id}
+                                onClick={() => toggleUserSelection(user)}
+                                className="inline-flex items-center gap-1 bg-primary/20 text-primary text-xs px-2 py-1 rounded-full cursor-pointer hover:bg-primary/30"
+                              >
+                                {user.email}
+                                <XCircle className="w-3 h-3" />
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                <Button
+                  onClick={sendAnnouncement}
+                  disabled={sendingAnnouncement || (!sendToAll && selectedUsers.length === 0)}
+                  className="w-full bg-blue-600 hover:bg-blue-700"
+                  data-testid="send-announcement-btn"
+                >
+                  {sendingAnnouncement ? (
+                    <>Sending...</>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4 mr-2" />
+                      Send Announcement {sendToAll ? 'to All' : `to ${selectedUsers.length} User(s)`}
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              {/* Announcement History */}
+              {announcementHistory.length > 0 && (
+                <div className="bg-zinc-900 p-4 rounded-lg">
+                  <h4 className="text-white font-medium mb-3">Recent Announcements</h4>
+                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                    {announcementHistory.map((ann, idx) => (
+                      <div key={ann.id || idx} className="bg-zinc-800 p-3 rounded-lg">
+                        <div className="flex items-center justify-between mb-1">
+                          <p className="text-white text-sm font-medium">{ann.subject}</p>
+                          <p className="text-zinc-500 text-xs">
+                            {ann.sent_at ? format(parseISO(ann.sent_at), 'MMM d, h:mm a') : 'Unknown'}
+                          </p>
+                        </div>
+                        <p className="text-zinc-400 text-xs line-clamp-2">{ann.message}</p>
+                        <p className="text-zinc-500 text-xs mt-1">
+                          Sent to {ann.sent_to_count} users {ann.send_to_all && '(all)'}
+                          {ann.failed_count > 0 && <span className="text-red-400 ml-2">({ann.failed_count} failed)</span>}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Site Settings - Social Proof & Testimonials */}
