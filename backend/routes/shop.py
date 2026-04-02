@@ -1,0 +1,647 @@
+"""
+Shop routes for Edge Mode - Coin Shop, Items, Inventory, Purchases
+"""
+from fastapi import APIRouter, HTTPException, Depends
+from datetime import datetime, timezone
+from typing import Optional, List
+from pydantic import BaseModel
+import uuid
+
+from config import db
+from utils.auth import get_current_user, require_admin as get_current_admin
+
+router = APIRouter(prefix="/shop", tags=["Shop"])
+
+
+# ============ Shop Item Categories ============
+
+SHOP_CATEGORIES = {
+    "themes": {
+        "name": "Profile Themes",
+        "description": "Customize your profile appearance",
+        "icon": "🎨"
+    },
+    "badges": {
+        "name": "Custom Badges",
+        "description": "Show off exclusive badges",
+        "icon": "🏅"
+    },
+    "streak_shields": {
+        "name": "Streak Shields",
+        "description": "Protect your streaks from breaking",
+        "icon": "🛡️"
+    },
+    "avatars": {
+        "name": "Avatar Frames",
+        "description": "Stand out with unique avatar frames",
+        "icon": "👤"
+    },
+    "effects": {
+        "name": "Special Effects",
+        "description": "Add flair to your achievements",
+        "icon": "✨"
+    }
+}
+
+
+# ============ Default Shop Items (Seeded on first run) ============
+
+DEFAULT_SHOP_ITEMS = [
+    # Themes
+    {
+        "id": "theme-midnight",
+        "name": "Midnight Purple",
+        "description": "Deep purple gradient theme",
+        "category": "themes",
+        "price": 50,
+        "rarity": "common",
+        "preview_color": "#7c3aed",
+        "icon": "🌙"
+    },
+    {
+        "id": "theme-ocean",
+        "name": "Ocean Blue",
+        "description": "Calming ocean-inspired theme",
+        "category": "themes",
+        "price": 50,
+        "rarity": "common",
+        "preview_color": "#0ea5e9",
+        "icon": "🌊"
+    },
+    {
+        "id": "theme-sunset",
+        "name": "Sunset Fire",
+        "description": "Warm orange and red gradient",
+        "category": "themes",
+        "price": 75,
+        "rarity": "uncommon",
+        "preview_color": "#f97316",
+        "icon": "🌅"
+    },
+    {
+        "id": "theme-neon",
+        "name": "Neon Glow",
+        "description": "Cyberpunk neon aesthetic",
+        "category": "themes",
+        "price": 100,
+        "rarity": "rare",
+        "preview_color": "#ec4899",
+        "icon": "💜"
+    },
+    {
+        "id": "theme-gold",
+        "name": "Golden Legend",
+        "description": "Prestigious gold theme for champions",
+        "category": "themes",
+        "price": 200,
+        "rarity": "legendary",
+        "preview_color": "#fbbf24",
+        "icon": "👑"
+    },
+    
+    # Custom Badges
+    {
+        "id": "badge-fire",
+        "name": "Fire Starter",
+        "description": "Show you're on fire!",
+        "category": "badges",
+        "price": 30,
+        "rarity": "common",
+        "icon": "🔥"
+    },
+    {
+        "id": "badge-diamond",
+        "name": "Diamond Mind",
+        "description": "Unbreakable focus badge",
+        "category": "badges",
+        "price": 75,
+        "rarity": "uncommon",
+        "icon": "💎"
+    },
+    {
+        "id": "badge-rocket",
+        "name": "Rocket Riser",
+        "description": "Always climbing higher",
+        "category": "badges",
+        "price": 100,
+        "rarity": "rare",
+        "icon": "🚀"
+    },
+    {
+        "id": "badge-crown",
+        "name": "Crown Achiever",
+        "description": "Royal excellence badge",
+        "category": "badges",
+        "price": 150,
+        "rarity": "epic",
+        "icon": "👑"
+    },
+    
+    # Streak Shields
+    {
+        "id": "shield-bronze",
+        "name": "Bronze Shield",
+        "description": "Protects your streak once",
+        "category": "streak_shields",
+        "price": 25,
+        "rarity": "common",
+        "uses": 1,
+        "icon": "🛡️"
+    },
+    {
+        "id": "shield-silver",
+        "name": "Silver Shield",
+        "description": "Protects your streak 3 times",
+        "category": "streak_shields",
+        "price": 60,
+        "rarity": "uncommon",
+        "uses": 3,
+        "icon": "🛡️"
+    },
+    {
+        "id": "shield-gold",
+        "name": "Gold Shield",
+        "description": "Protects your streak 7 times",
+        "category": "streak_shields",
+        "price": 120,
+        "rarity": "rare",
+        "uses": 7,
+        "icon": "🛡️"
+    },
+    
+    # Avatar Frames
+    {
+        "id": "frame-basic",
+        "name": "Glow Frame",
+        "description": "Subtle glowing border",
+        "category": "avatars",
+        "price": 40,
+        "rarity": "common",
+        "icon": "⭕"
+    },
+    {
+        "id": "frame-lightning",
+        "name": "Lightning Frame",
+        "description": "Electric energy border",
+        "category": "avatars",
+        "price": 80,
+        "rarity": "uncommon",
+        "icon": "⚡"
+    },
+    {
+        "id": "frame-flame",
+        "name": "Flame Frame",
+        "description": "Burning fire border",
+        "category": "avatars",
+        "price": 100,
+        "rarity": "rare",
+        "icon": "🔥"
+    },
+    
+    # Special Effects
+    {
+        "id": "effect-sparkle",
+        "name": "Sparkle Trail",
+        "description": "Sparkles on your achievements",
+        "category": "effects",
+        "price": 50,
+        "rarity": "common",
+        "icon": "✨"
+    },
+    {
+        "id": "effect-confetti",
+        "name": "Confetti Burst",
+        "description": "Celebrate with confetti!",
+        "category": "effects",
+        "price": 75,
+        "rarity": "uncommon",
+        "icon": "🎉"
+    },
+    {
+        "id": "effect-rainbow",
+        "name": "Rainbow Aura",
+        "description": "Colorful rainbow effects",
+        "category": "effects",
+        "price": 150,
+        "rarity": "epic",
+        "icon": "🌈"
+    }
+]
+
+
+# ============ Pydantic Models ============
+
+class CreateShopItem(BaseModel):
+    name: str
+    description: str
+    category: str
+    price: int
+    rarity: str = "common"  # common, uncommon, rare, epic, legendary
+    icon: str = "🎁"
+    preview_color: Optional[str] = None
+    uses: Optional[int] = None  # For consumables like streak shields
+    is_limited: bool = False
+    stock: Optional[int] = None
+
+
+class UpdateShopItem(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    price: Optional[int] = None
+    is_active: Optional[bool] = None
+    stock: Optional[int] = None
+
+
+# ============ Helper Functions ============
+
+async def seed_shop_items():
+    """Seed default shop items if they don't exist"""
+    for item in DEFAULT_SHOP_ITEMS:
+        existing = await db.shop_items.find_one({'id': item['id']})
+        if not existing:
+            item_doc = {
+                **item,
+                'is_active': True,
+                'is_limited': False,
+                'stock': None,
+                'total_sold': 0,
+                'created_at': datetime.now(timezone.utc).isoformat()
+            }
+            await db.shop_items.insert_one(item_doc)
+
+
+def get_rarity_color(rarity: str) -> str:
+    """Get color for rarity level"""
+    colors = {
+        "common": "#9ca3af",      # Gray
+        "uncommon": "#22c55e",    # Green
+        "rare": "#3b82f6",        # Blue
+        "epic": "#a855f7",        # Purple
+        "legendary": "#fbbf24"    # Gold
+    }
+    return colors.get(rarity, "#9ca3af")
+
+
+# ============ Public Shop Endpoints ============
+
+@router.get("/categories")
+async def get_shop_categories():
+    """Get all shop categories"""
+    return {"categories": SHOP_CATEGORIES}
+
+
+@router.get("/items")
+async def get_shop_items(category: Optional[str] = None):
+    """Get all available shop items"""
+    # Seed items on first access
+    await seed_shop_items()
+    
+    query = {'is_active': True}
+    if category:
+        query['category'] = category
+    
+    items = await db.shop_items.find(query, {'_id': 0}).to_list(100)
+    
+    # Add rarity color to each item
+    for item in items:
+        item['rarity_color'] = get_rarity_color(item.get('rarity', 'common'))
+    
+    return {'items': items}
+
+
+@router.get("/items/{item_id}")
+async def get_shop_item(item_id: str):
+    """Get a specific shop item"""
+    item = await db.shop_items.find_one({'id': item_id, 'is_active': True}, {'_id': 0})
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+    
+    item['rarity_color'] = get_rarity_color(item.get('rarity', 'common'))
+    return {'item': item}
+
+
+@router.get("/featured")
+async def get_featured_items():
+    """Get featured/popular shop items"""
+    await seed_shop_items()
+    
+    # Get top selling items
+    items = await db.shop_items.find(
+        {'is_active': True},
+        {'_id': 0}
+    ).sort('total_sold', -1).to_list(6)
+    
+    for item in items:
+        item['rarity_color'] = get_rarity_color(item.get('rarity', 'common'))
+    
+    return {'featured': items}
+
+
+# ============ User Inventory & Purchase Endpoints ============
+
+@router.get("/inventory")
+async def get_user_inventory(current_user: dict = Depends(get_current_user)):
+    """Get user's purchased items"""
+    inventory = await db.user_inventory.find(
+        {'user_id': current_user['id']},
+        {'_id': 0}
+    ).to_list(100)
+    
+    # Get item details for each inventory item
+    for inv_item in inventory:
+        item = await db.shop_items.find_one({'id': inv_item['item_id']}, {'_id': 0})
+        if item:
+            inv_item['item'] = item
+            inv_item['item']['rarity_color'] = get_rarity_color(item.get('rarity', 'common'))
+    
+    return {'inventory': inventory}
+
+
+@router.get("/equipped")
+async def get_equipped_items(current_user: dict = Depends(get_current_user)):
+    """Get user's currently equipped items"""
+    equipped = await db.user_inventory.find(
+        {'user_id': current_user['id'], 'is_equipped': True},
+        {'_id': 0}
+    ).to_list(10)
+    
+    # Get item details
+    for inv_item in equipped:
+        item = await db.shop_items.find_one({'id': inv_item['item_id']}, {'_id': 0})
+        if item:
+            inv_item['item'] = item
+    
+    return {'equipped': equipped}
+
+
+@router.post("/purchase/{item_id}")
+async def purchase_item(item_id: str, current_user: dict = Depends(get_current_user)):
+    """Purchase a shop item with coins"""
+    # Get item
+    item = await db.shop_items.find_one({'id': item_id, 'is_active': True}, {'_id': 0})
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+    
+    # Check stock for limited items
+    if item.get('is_limited') and item.get('stock', 0) <= 0:
+        raise HTTPException(status_code=400, detail="Item is out of stock")
+    
+    # Get user's coin balance
+    user = await db.users.find_one({'id': current_user['id']}, {'_id': 0})
+    current_coins = user.get('coins', 0)
+    
+    if current_coins < item['price']:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Not enough coins. You have {current_coins}, need {item['price']}"
+        )
+    
+    # Check if user already owns this item (for non-consumables)
+    if item['category'] != 'streak_shields':
+        existing = await db.user_inventory.find_one({
+            'user_id': current_user['id'],
+            'item_id': item_id
+        })
+        if existing:
+            raise HTTPException(status_code=400, detail="You already own this item")
+    
+    # Deduct coins
+    new_balance = current_coins - item['price']
+    await db.users.update_one(
+        {'id': current_user['id']},
+        {'$set': {'coins': new_balance}}
+    )
+    
+    # Add to inventory
+    inventory_item = {
+        'id': str(uuid.uuid4()),
+        'user_id': current_user['id'],
+        'item_id': item_id,
+        'category': item['category'],
+        'is_equipped': False,
+        'uses_remaining': item.get('uses'),  # For consumables
+        'purchased_at': datetime.now(timezone.utc).isoformat()
+    }
+    await db.user_inventory.insert_one(inventory_item)
+    
+    # Update stock and sales count
+    update_ops = {'$inc': {'total_sold': 1}}
+    if item.get('is_limited'):
+        update_ops['$inc']['stock'] = -1
+    await db.shop_items.update_one({'id': item_id}, update_ops)
+    
+    # Log transaction
+    await db.coin_transactions.insert_one({
+        'user_id': current_user['id'],
+        'amount': -item['price'],
+        'reason': f"Purchased {item['name']}",
+        'item_id': item_id,
+        'timestamp': datetime.now(timezone.utc).isoformat(),
+        'new_balance': new_balance
+    })
+    
+    return {
+        'message': f"🎉 Purchased {item['name']}!",
+        'item': item,
+        'coins_spent': item['price'],
+        'new_balance': new_balance,
+        'inventory_id': inventory_item['id']
+    }
+
+
+@router.post("/equip/{inventory_id}")
+async def equip_item(inventory_id: str, current_user: dict = Depends(get_current_user)):
+    """Equip an item from inventory"""
+    # Get inventory item
+    inv_item = await db.user_inventory.find_one({
+        'id': inventory_id,
+        'user_id': current_user['id']
+    })
+    if not inv_item:
+        raise HTTPException(status_code=404, detail="Item not found in your inventory")
+    
+    # Get item details
+    item = await db.shop_items.find_one({'id': inv_item['item_id']}, {'_id': 0})
+    if not item:
+        raise HTTPException(status_code=404, detail="Item no longer exists")
+    
+    # Unequip other items in the same category
+    await db.user_inventory.update_many(
+        {
+            'user_id': current_user['id'],
+            'category': item['category'],
+            'is_equipped': True
+        },
+        {'$set': {'is_equipped': False}}
+    )
+    
+    # Equip this item
+    await db.user_inventory.update_one(
+        {'id': inventory_id},
+        {'$set': {'is_equipped': True, 'equipped_at': datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    return {
+        'message': f"Equipped {item['name']}!",
+        'item': item
+    }
+
+
+@router.post("/unequip/{inventory_id}")
+async def unequip_item(inventory_id: str, current_user: dict = Depends(get_current_user)):
+    """Unequip an item"""
+    result = await db.user_inventory.update_one(
+        {'id': inventory_id, 'user_id': current_user['id']},
+        {'$set': {'is_equipped': False}}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Item not found in your inventory")
+    
+    return {'message': 'Item unequipped'}
+
+
+@router.post("/use-shield")
+async def use_streak_shield(current_user: dict = Depends(get_current_user)):
+    """Use a streak shield to protect streak"""
+    # Find an available streak shield
+    shield = await db.user_inventory.find_one({
+        'user_id': current_user['id'],
+        'category': 'streak_shields',
+        'uses_remaining': {'$gt': 0}
+    })
+    
+    if not shield:
+        raise HTTPException(status_code=400, detail="No streak shields available")
+    
+    # Decrement uses
+    new_uses = shield['uses_remaining'] - 1
+    if new_uses <= 0:
+        # Remove from inventory if used up
+        await db.user_inventory.delete_one({'id': shield['id']})
+    else:
+        await db.user_inventory.update_one(
+            {'id': shield['id']},
+            {'$set': {'uses_remaining': new_uses}}
+        )
+    
+    return {
+        'message': '🛡️ Streak shield activated! Your streak is protected.',
+        'shields_remaining': new_uses
+    }
+
+
+@router.get("/coin-history")
+async def get_coin_history(current_user: dict = Depends(get_current_user), limit: int = 20):
+    """Get user's coin transaction history"""
+    transactions = await db.coin_transactions.find(
+        {'user_id': current_user['id']},
+        {'_id': 0}
+    ).sort('timestamp', -1).to_list(limit)
+    
+    return {'transactions': transactions}
+
+
+# ============ Admin Shop Management ============
+
+@router.post("/admin/items")
+async def create_shop_item(item_data: CreateShopItem, current_user: dict = Depends(get_current_admin)):
+    """Admin: Create a new shop item"""
+    if item_data.category not in SHOP_CATEGORIES:
+        raise HTTPException(status_code=400, detail=f"Invalid category. Choose from: {list(SHOP_CATEGORIES.keys())}")
+    
+    item_doc = {
+        'id': str(uuid.uuid4()),
+        'name': item_data.name,
+        'description': item_data.description,
+        'category': item_data.category,
+        'price': item_data.price,
+        'rarity': item_data.rarity,
+        'icon': item_data.icon,
+        'preview_color': item_data.preview_color,
+        'uses': item_data.uses,
+        'is_limited': item_data.is_limited,
+        'stock': item_data.stock,
+        'is_active': True,
+        'total_sold': 0,
+        'created_by': current_user['id'],
+        'created_at': datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.shop_items.insert_one(item_doc)
+    
+    return {
+        'message': f"Shop item '{item_data.name}' created!",
+        'item': {k: v for k, v in item_doc.items() if k != '_id'}
+    }
+
+
+@router.put("/admin/items/{item_id}")
+async def update_shop_item(item_id: str, update_data: UpdateShopItem, current_user: dict = Depends(get_current_admin)):
+    """Admin: Update a shop item"""
+    item = await db.shop_items.find_one({'id': item_id})
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+    
+    updates = {}
+    if update_data.name is not None:
+        updates['name'] = update_data.name
+    if update_data.description is not None:
+        updates['description'] = update_data.description
+    if update_data.price is not None:
+        updates['price'] = update_data.price
+    if update_data.is_active is not None:
+        updates['is_active'] = update_data.is_active
+    if update_data.stock is not None:
+        updates['stock'] = update_data.stock
+    
+    if updates:
+        updates['updated_at'] = datetime.now(timezone.utc).isoformat()
+        await db.shop_items.update_one({'id': item_id}, {'$set': updates})
+    
+    return {'message': 'Item updated', 'updates': updates}
+
+
+@router.delete("/admin/items/{item_id}")
+async def delete_shop_item(item_id: str, current_user: dict = Depends(get_current_admin)):
+    """Admin: Delete a shop item"""
+    result = await db.shop_items.delete_one({'id': item_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Item not found")
+    
+    return {'message': 'Item deleted'}
+
+
+@router.get("/admin/stats")
+async def get_shop_stats(current_user: dict = Depends(get_current_admin)):
+    """Admin: Get shop statistics"""
+    # Total items
+    total_items = await db.shop_items.count_documents({'is_active': True})
+    
+    # Total sales
+    pipeline = [
+        {'$group': {'_id': None, 'total_sold': {'$sum': '$total_sold'}}}
+    ]
+    sales_result = await db.shop_items.aggregate(pipeline).to_list(1)
+    total_sales = sales_result[0]['total_sold'] if sales_result else 0
+    
+    # Total coins spent
+    pipeline = [
+        {'$match': {'amount': {'$lt': 0}}},
+        {'$group': {'_id': None, 'total': {'$sum': {'$abs': '$amount'}}}}
+    ]
+    coins_result = await db.coin_transactions.aggregate(pipeline).to_list(1)
+    total_coins_spent = coins_result[0]['total'] if coins_result else 0
+    
+    # Top selling items
+    top_items = await db.shop_items.find(
+        {'is_active': True},
+        {'_id': 0, 'id': 1, 'name': 1, 'total_sold': 1, 'category': 1}
+    ).sort('total_sold', -1).to_list(5)
+    
+    return {
+        'total_items': total_items,
+        'total_sales': total_sales,
+        'total_coins_spent': total_coins_spent,
+        'top_selling_items': top_items
+    }

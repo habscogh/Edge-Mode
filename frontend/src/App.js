@@ -35,6 +35,7 @@ import { JournalScreen } from './pages/JournalScreen';
 import GiftPaymentPage from './pages/GiftPaymentPage';
 import GiftSuccessPage from './pages/GiftSuccessPage';
 import DataDeletionPage from './pages/DataDeletionPage';
+import ShopScreen from './pages/ShopScreen';
 import { BottomNav } from './components/BottomNav';
 import { Toaster } from './components/ui/sonner';
 import axios from 'axios';
@@ -302,6 +303,14 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <ChallengesScreen />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/shop"
+          element={
+            <ProtectedRoute>
+              <ShopScreen />
             </ProtectedRoute>
           }
         />

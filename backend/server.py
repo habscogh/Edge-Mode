@@ -99,6 +99,8 @@ api_router.include_router(ambassador.router)  # Founding Ambassador program
 api_router.include_router(reflections.router)  # Daily reflections & growth journal
 api_router.include_router(streak_recovery.router)  # Streak recovery feature
 api_router.include_router(engagement.router)  # XP, Levels, Daily Rewards, Friend Streaks
+from routes import shop
+api_router.include_router(shop.router)  # Coin Shop
 
 
 # Health check endpoints
