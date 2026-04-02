@@ -140,6 +140,20 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
    - Mutual Friend Streaks: `FriendStreaks.jsx` showing activity streaks with friends
    - All tests passing (17/17 backend, 100% frontend)
 
+6. **XP Booster Events** ✅
+   - Admin can create time-limited XP multiplier events
+   - Quick event creators:
+     - Double XP Weekend (2x, Sat-Sun)
+     - Challenge Rush (custom multiplier, custom duration)
+   - Event types: "all", "sessions", "daily_login", "challenges"
+   - Multiplier range: 1.0x - 10.0x
+   - XPEventBanner component with:
+     - Animated shimmer gradient background
+     - Event name, multiplier badge (e.g., "3x XP")
+     - Description and countdown timer
+   - XP transactions log event info (event_id, event_name, multiplier)
+   - All tests passing (25/25 backend, 100% frontend)
+
 ## Previous Session (March 29, 2026)
 
 1. **Coach Tools (Team Analytics & Bulk Messaging)** ✅
