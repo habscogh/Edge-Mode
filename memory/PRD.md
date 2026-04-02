@@ -194,6 +194,15 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
    - Frontend: `Quests.jsx` component with Daily/Weekly tabs on Dashboard
    - All tests passing (24/24 backend, 100% frontend)
 
+10. **Admin Email Announcements** ✅
+    - Compose announcements with subject and message
+    - Search and select specific users by email/username
+    - "Send to All Users" option for bulk announcements
+    - Beautiful HTML email template with Edge Mode branding
+    - Announcement history with sent/failed counts
+    - Frontend: Email Announcements section in Admin Dashboard
+    - All tests passing (15/15 backend, 100% frontend)
+
 ## Previous Session (March 29, 2026)
 
 1. **Coach Tools (Team Analytics & Bulk Messaging)** ✅
