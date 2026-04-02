@@ -1,10 +1,84 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'sonner';
-import { Gift, Coins, Zap, Star, TrendingUp } from 'lucide-react';
+import { Gift, Coins, Zap, Star, TrendingUp, Timer, Sparkles } from 'lucide-react';
 import { Button } from './ui/button';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+
+// XP Event Banner Component
+const XPEventBanner = ({ event }) => {
+  const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0 });
+
+  useEffect(() => {
+    if (!event?.ends_at) return;
+
+    const updateTimer = () => {
+      const now = new Date();
+      const endsAt = new Date(event.ends_at);
+      const diff = endsAt - now;
+      
+      if (diff <= 0) {
+        setTimeLeft({ hours: 0, minutes: 0 });
+        return;
+      }
+      
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      setTimeLeft({ hours, minutes });
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 60000); // Update every minute
+    return () => clearInterval(interval);
+  }, [event?.ends_at]);
+
+  if (!event) return null;
+
+  return (
+    <div 
+      className="relative overflow-hidden rounded-lg p-3 bg-gradient-to-r from-purple-600/20 via-pink-500/20 to-orange-500/20 border border-purple-500/30"
+      data-testid="xp-event-banner"
+    >
+      {/* Animated shimmer effect */}
+      <div 
+        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+        style={{
+          animation: 'shimmer 2s infinite',
+          backgroundSize: '200% 100%'
+        }}
+      />
+      <style>{`
+        @keyframes shimmer {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+      `}</style>
+      
+      <div className="relative flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="text-2xl animate-bounce">{event.icon || '⚡'}</div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-white font-bold text-sm">{event.name}</span>
+              <span className="px-2 py-0.5 bg-purple-500/30 text-purple-300 text-xs font-bold rounded-full">
+                {event.multiplier}x XP
+              </span>
+            </div>
+            <p className="text-zinc-400 text-xs">{event.description}</p>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-1 text-amber-400 bg-black/30 px-2 py-1 rounded-lg">
+          <Timer className="w-3 h-3" />
+          <span className="text-xs font-mono font-bold">
+            {timeLeft.hours}h {timeLeft.minutes}m
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const DailyRewardPopup = ({ isOpen, onClose, rewardData }) => {
   if (!isOpen || !rewardData) return null;
@@ -163,6 +237,11 @@ const EngagementStatus = () => {
   return (
     <>
       <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 space-y-4">
+        {/* Active XP Event Banner */}
+        {status?.active_event && (
+          <XPEventBanner event={status.active_event} />
+        )}
+
         {/* Daily Reward Button */}
         {status?.can_claim_daily && (
           <Button
@@ -172,7 +251,16 @@ const EngagementStatus = () => {
             data-testid="claim-daily-btn"
           >
             <Gift className="w-5 h-5 mr-2" />
-            {claiming ? 'Claiming...' : 'Claim Daily Reward!'}
+            {claiming ? 'Claiming...' : (
+              <>
+                Claim Daily Reward!
+                {status?.active_event && (
+                  <span className="ml-2 text-xs bg-black/20 px-2 py-0.5 rounded-full">
+                    {status.active_event.multiplier}x XP
+                  </span>
+                )}
+              </>
+            )}
           </Button>
         )}
 
@@ -214,5 +302,5 @@ const EngagementStatus = () => {
   );
 };
 
-export { EngagementStatus, LevelBadge, XPProgressBar, DailyRewardPopup };
+export { EngagementStatus, LevelBadge, XPProgressBar, DailyRewardPopup, XPEventBanner };
 export default EngagementStatus;

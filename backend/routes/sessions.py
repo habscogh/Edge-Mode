@@ -111,7 +111,7 @@ async def complete_session(session_data: SessionComplete, current_user: dict = D
         streak_bonus = min(current_streak * XP_REWARDS['streak_day'], 100)  # Cap at 100 bonus
         xp_earned += streak_bonus
     
-    xp_result = await award_xp(user_id, xp_earned, '+'.join(xp_reasons))
+    xp_result = await award_xp(user_id, xp_earned, '+'.join(xp_reasons), 'sessions')
     
     # Check for newly earned badges
     new_badges = await check_and_award_badges(user_id)

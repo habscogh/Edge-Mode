@@ -1,15 +1,64 @@
 """
-Engagement routes for Edge Mode - XP, Levels, Daily Rewards, Friend Streaks
+Engagement routes for Edge Mode - XP, Levels, Daily Rewards, Friend Streaks, XP Events
 """
 from fastapi import APIRouter, HTTPException, Depends
 from datetime import datetime, timezone, timedelta
 from typing import Optional
+from pydantic import BaseModel
+import uuid
 
 from config import db, XP_REWARDS, LEVEL_THRESHOLDS, LEVEL_TITLES, LOGIN_STREAK_BONUSES
-from utils.auth import get_current_user
+from utils.auth import get_current_user, require_admin as get_current_admin
 from utils.timezone import get_today_eastern
 
 router = APIRouter(prefix="/engagement", tags=["Engagement"])
+
+
+# ============ XP Event Models ============
+
+class CreateXPEvent(BaseModel):
+    name: str
+    description: str
+    multiplier: float = 2.0  # 2x XP by default
+    event_type: str = "all"  # "all", "sessions", "daily_login", "challenges"
+    starts_at: str  # ISO datetime
+    ends_at: str  # ISO datetime
+    icon: str = "⚡"
+
+
+class UpdateXPEvent(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    multiplier: Optional[float] = None
+    is_active: Optional[bool] = None
+
+
+# ============ XP Event Helpers ============
+
+async def get_active_xp_event(event_type: str = "all") -> Optional[dict]:
+    """Get the currently active XP event that applies to a given action type"""
+    now = datetime.now(timezone.utc).isoformat()
+    
+    # Find active events that match this action type
+    event = await db.xp_events.find_one({
+        'is_active': True,
+        'starts_at': {'$lte': now},
+        'ends_at': {'$gte': now},
+        '$or': [
+            {'event_type': 'all'},
+            {'event_type': event_type}
+        ]
+    }, {'_id': 0})
+    
+    return event
+
+
+async def get_xp_multiplier(event_type: str = "all") -> tuple[float, Optional[dict]]:
+    """Get current XP multiplier and event info"""
+    event = await get_active_xp_event(event_type)
+    if event:
+        return event.get('multiplier', 1.0), event
+    return 1.0, None
 
 
 def calculate_level(xp: int) -> dict:
@@ -52,14 +101,18 @@ def calculate_level(xp: int) -> dict:
     }
 
 
-async def award_xp(user_id: str, amount: int, reason: str) -> dict:
-    """Award XP to a user and return updated level info"""
+async def award_xp(user_id: str, amount: int, reason: str, event_type: str = "all") -> dict:
+    """Award XP to a user and return updated level info. Applies active event multipliers."""
     user = await db.users.find_one({'id': user_id}, {'_id': 0})
     if not user:
         return None
     
+    # Check for active XP event
+    multiplier, active_event = await get_xp_multiplier(event_type)
+    boosted_amount = int(amount * multiplier)
+    
     current_xp = user.get('xp', 0)
-    new_xp = current_xp + amount
+    new_xp = current_xp + boosted_amount
     
     old_level_info = calculate_level(current_xp)
     new_level_info = calculate_level(new_xp)
@@ -73,16 +126,29 @@ async def award_xp(user_id: str, amount: int, reason: str) -> dict:
     )
     
     # Log XP transaction
-    await db.xp_transactions.insert_one({
+    transaction = {
         'user_id': user_id,
-        'amount': amount,
+        'amount': boosted_amount,
+        'base_amount': amount,
         'reason': reason,
         'timestamp': datetime.now(timezone.utc).isoformat(),
         'new_total': new_xp
-    })
+    }
+    
+    # Add event info if boosted
+    if active_event:
+        transaction['event_id'] = active_event.get('id')
+        transaction['event_name'] = active_event.get('name')
+        transaction['multiplier'] = multiplier
+    
+    await db.xp_transactions.insert_one(transaction)
     
     return {
-        'xp_earned': amount,
+        'xp_earned': boosted_amount,
+        'base_xp': amount,
+        'multiplier': multiplier,
+        'event_active': active_event is not None,
+        'event_name': active_event.get('name') if active_event else None,
         'reason': reason,
         'leveled_up': leveled_up,
         'old_level': old_level_info['level'],
@@ -125,8 +191,8 @@ async def claim_daily_login(current_user: dict = Depends(get_current_user)):
     streak_day = ((new_login_streak - 1) % 7) + 1
     coins_earned = LOGIN_STREAK_BONUSES.get(streak_day, 5)
     
-    # Award XP for daily login
-    xp_result = await award_xp(user_id, XP_REWARDS['daily_login'], 'daily_login')
+    # Award XP for daily login (with event multiplier)
+    xp_result = await award_xp(user_id, XP_REWARDS['daily_login'], 'daily_login', 'daily_login')
     
     # Update user
     current_coins = user.get('coins', 0)
@@ -154,11 +220,14 @@ async def claim_daily_login(current_user: dict = Depends(get_current_user)):
 
 @router.get("/status")
 async def get_engagement_status(current_user: dict = Depends(get_current_user)):
-    """Get user's current XP, level, coins, and streaks"""
+    """Get user's current XP, level, coins, streaks, and active events"""
     user = await db.users.find_one({'id': current_user['id']}, {'_id': 0, 'password': 0})
     
     today = get_today_eastern().isoformat()
     can_claim_daily = user.get('last_login_claim') != today
+    
+    # Check for active XP event
+    active_event = await get_active_xp_event()
     
     return {
         'xp': user.get('xp', 0),
@@ -167,7 +236,15 @@ async def get_engagement_status(current_user: dict = Depends(get_current_user)):
         'login_streak': user.get('login_streak', 0),
         'session_streak': user.get('current_streak', 0),
         'can_claim_daily': can_claim_daily,
-        'last_login_claim': user.get('last_login_claim')
+        'last_login_claim': user.get('last_login_claim'),
+        'active_event': {
+            'id': active_event.get('id'),
+            'name': active_event.get('name'),
+            'description': active_event.get('description'),
+            'multiplier': active_event.get('multiplier'),
+            'icon': active_event.get('icon', '⚡'),
+            'ends_at': active_event.get('ends_at')
+        } if active_event else None
     }
 
 
@@ -299,3 +376,171 @@ async def get_xp_history(current_user: dict = Depends(get_current_user), limit: 
     ).sort('timestamp', -1).to_list(limit)
     
     return {'transactions': transactions}
+
+
+# ============ XP Events Endpoints ============
+
+@router.get("/events/active")
+async def get_active_events():
+    """Get all currently active XP events (public endpoint)"""
+    now = datetime.now(timezone.utc).isoformat()
+    
+    events = await db.xp_events.find({
+        'is_active': True,
+        'starts_at': {'$lte': now},
+        'ends_at': {'$gte': now}
+    }, {'_id': 0}).to_list(10)
+    
+    # Calculate time remaining for each event
+    for event in events:
+        ends_at = datetime.fromisoformat(event['ends_at'].replace('Z', '+00:00'))
+        now_dt = datetime.now(timezone.utc)
+        remaining = ends_at - now_dt
+        event['hours_remaining'] = max(0, int(remaining.total_seconds() / 3600))
+        event['minutes_remaining'] = max(0, int((remaining.total_seconds() % 3600) / 60))
+    
+    return {'events': events}
+
+
+@router.get("/events/upcoming")
+async def get_upcoming_events():
+    """Get upcoming XP events (starts within 7 days)"""
+    now = datetime.now(timezone.utc).isoformat()
+    week_later = (datetime.now(timezone.utc) + timedelta(days=7)).isoformat()
+    
+    events = await db.xp_events.find({
+        'is_active': True,
+        'starts_at': {'$gt': now, '$lte': week_later}
+    }, {'_id': 0}).sort('starts_at', 1).to_list(10)
+    
+    return {'events': events}
+
+
+@router.get("/events")
+async def list_all_events(current_user: dict = Depends(get_current_admin)):
+    """Admin: List all XP events"""
+    events = await db.xp_events.find({}, {'_id': 0}).sort('created_at', -1).to_list(100)
+    return {'events': events}
+
+
+@router.post("/events")
+async def create_xp_event(event_data: CreateXPEvent, current_user: dict = Depends(get_current_admin)):
+    """Admin: Create a new XP event"""
+    # Validate dates
+    try:
+        starts_at = datetime.fromisoformat(event_data.starts_at.replace('Z', '+00:00'))
+        ends_at = datetime.fromisoformat(event_data.ends_at.replace('Z', '+00:00'))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid date format. Use ISO format.")
+    
+    if ends_at <= starts_at:
+        raise HTTPException(status_code=400, detail="End date must be after start date")
+    
+    if event_data.multiplier < 1.0 or event_data.multiplier > 10.0:
+        raise HTTPException(status_code=400, detail="Multiplier must be between 1.0 and 10.0")
+    
+    event_doc = {
+        'id': str(uuid.uuid4()),
+        'name': event_data.name,
+        'description': event_data.description,
+        'multiplier': event_data.multiplier,
+        'event_type': event_data.event_type,
+        'icon': event_data.icon,
+        'starts_at': starts_at.isoformat(),
+        'ends_at': ends_at.isoformat(),
+        'is_active': True,
+        'created_by': current_user['id'],
+        'created_at': datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.xp_events.insert_one(event_doc)
+    
+    return {
+        'message': f"XP Event '{event_data.name}' created!",
+        'event': {k: v for k, v in event_doc.items() if k != '_id'}
+    }
+
+
+@router.put("/events/{event_id}")
+async def update_xp_event(event_id: str, update_data: UpdateXPEvent, current_user: dict = Depends(get_current_admin)):
+    """Admin: Update an XP event"""
+    event = await db.xp_events.find_one({'id': event_id}, {'_id': 0})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    updates = {}
+    if update_data.name is not None:
+        updates['name'] = update_data.name
+    if update_data.description is not None:
+        updates['description'] = update_data.description
+    if update_data.multiplier is not None:
+        if update_data.multiplier < 1.0 or update_data.multiplier > 10.0:
+            raise HTTPException(status_code=400, detail="Multiplier must be between 1.0 and 10.0")
+        updates['multiplier'] = update_data.multiplier
+    if update_data.is_active is not None:
+        updates['is_active'] = update_data.is_active
+    
+    if updates:
+        updates['updated_at'] = datetime.now(timezone.utc).isoformat()
+        await db.xp_events.update_one({'id': event_id}, {'$set': updates})
+    
+    return {'message': 'Event updated', 'updates': updates}
+
+
+@router.delete("/events/{event_id}")
+async def delete_xp_event(event_id: str, current_user: dict = Depends(get_current_admin)):
+    """Admin: Delete an XP event"""
+    result = await db.xp_events.delete_one({'id': event_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    return {'message': 'Event deleted'}
+
+
+# ============ Quick Event Creation Helpers ============
+
+@router.post("/events/quick/double-xp-weekend")
+async def create_double_xp_weekend(current_user: dict = Depends(get_current_admin)):
+    """Admin: Quick create a Double XP Weekend (Sat-Sun)"""
+    now = datetime.now(timezone.utc)
+    
+    # Find next Saturday
+    days_until_saturday = (5 - now.weekday()) % 7
+    if days_until_saturday == 0 and now.hour >= 12:
+        days_until_saturday = 7  # Next week's Saturday
+    
+    saturday = now + timedelta(days=days_until_saturday)
+    saturday = saturday.replace(hour=0, minute=0, second=0, microsecond=0)
+    sunday_end = saturday + timedelta(days=2)  # End of Sunday
+    
+    event_data = CreateXPEvent(
+        name="🔥 Double XP Weekend!",
+        description="Earn 2x XP on all activities this weekend!",
+        multiplier=2.0,
+        event_type="all",
+        starts_at=saturday.isoformat(),
+        ends_at=sunday_end.isoformat(),
+        icon="🔥"
+    )
+    
+    return await create_xp_event(event_data, current_user)
+
+
+@router.post("/events/quick/challenge-rush")
+async def create_challenge_rush(hours: int = 24, multiplier: float = 3.0, current_user: dict = Depends(get_current_admin)):
+    """Admin: Quick create a Challenge Rush event (bonus XP for challenges)"""
+    now = datetime.now(timezone.utc)
+    ends_at = now + timedelta(hours=hours)
+    
+    event_data = CreateXPEvent(
+        name=f"⚡ {int(multiplier)}x Challenge Rush!",
+        description=f"Earn {int(multiplier)}x XP for the next {hours} hours!",
+        multiplier=multiplier,
+        event_type="all",
+        starts_at=now.isoformat(),
+        ends_at=ends_at.isoformat(),
+        icon="⚡"
+    )
+    
+    return await create_xp_event(event_data, current_user)
+
