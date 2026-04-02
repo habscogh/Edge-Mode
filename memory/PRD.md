@@ -163,6 +163,18 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
    - Push notification functions: send_xp_event_started_push, send_xp_event_ending_push
    - All tests passing (15/15 backend)
 
+8. **XP Shop (Coin Shop)** ✅
+   - 5 Categories: Profile Themes, Custom Badges, Streak Shields, Avatar Frames, Special Effects
+   - 18 default items seeded automatically
+   - Rarity system: Common, Uncommon, Rare, Epic, Legendary (with colored borders)
+   - Purchase flow with coin validation
+   - Inventory management with equip/unequip
+   - Streak Shields are consumable items with uses_remaining
+   - Admin endpoints for item CRUD and shop stats
+   - Frontend: `ShopScreen.js` with Shop/Inventory tabs, category filters, Featured Items section
+   - Dashboard coins display links directly to Shop
+   - All tests passing (32/32 backend, 100% frontend)
+
 ## Previous Session (March 29, 2026)
 
 1. **Coach Tools (Team Analytics & Bulk Messaging)** ✅
@@ -232,9 +244,11 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
 
 ## Key Files
 - Backend: `/app/backend/routes/auth.py`, `/app/backend/routes/payments.py`, `/app/backend/routes/challenges.py`
-- Backend Engagement: `/app/backend/routes/engagement.py` (XP, Levels, Daily Rewards, Friend Streaks)
+- Backend Engagement: `/app/backend/routes/engagement.py` (XP, Levels, Daily Rewards, Friend Streaks, XP Events)
+- Backend Shop: `/app/backend/routes/shop.py` (Coin Shop, Items, Inventory, Purchases)
 - Frontend: `/app/frontend/src/pages/Dashboard.js`, `/app/frontend/src/pages/ChallengesScreen.js`
 - Frontend Engagement: `/app/frontend/src/components/EngagementStatus.jsx`, `/app/frontend/src/components/FriendStreaks.jsx`
+- Frontend Shop: `/app/frontend/src/pages/ShopScreen.js`
 - Coach: `/app/frontend/src/pages/CoachDashboard.js`
 - Admin: `/app/frontend/src/pages/AdminDashboard.js`
 
