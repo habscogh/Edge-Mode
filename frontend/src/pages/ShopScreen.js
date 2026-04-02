@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { Button } from '../components/ui/button';
@@ -14,6 +15,7 @@ import {
   Check,
   Lock,
   ChevronRight,
+  ChevronLeft,
   Star,
   Crown
 } from 'lucide-react';
@@ -166,6 +168,7 @@ const InventoryItemCard = ({ inventoryItem, onEquip, onUnequip }) => {
 
 // Main Shop Screen
 const ShopScreen = () => {
+  const navigate = useNavigate();
   const [categories, setCategories] = useState({});
   const [items, setItems] = useState([]);
   const [inventory, setInventory] = useState([]);
@@ -248,6 +251,13 @@ const ShopScreen = () => {
       <div className="sticky top-0 z-10 bg-black/95 backdrop-blur-sm border-b border-zinc-800 p-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate(-1)}
+              className="p-2 -ml-2 text-zinc-400 hover:text-white transition-colors"
+              data-testid="back-button"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
             <ShoppingBag className="w-6 h-6 text-primary" />
             <h1 className="text-xl font-bold text-white">XP Shop</h1>
           </div>
