@@ -135,7 +135,18 @@ def get_weekly_summary_html(username: str, stats: dict) -> str:
     """
 
 
-def get_inactive_reminder_html(username: str, days_inactive: int) -> str:
+def get_inactive_reminder_html(username: str, days_inactive: int, total_platform_sessions: int = None) -> str:
+    # Add community stats section for 7+ days inactive
+    community_section = ""
+    if total_platform_sessions and days_inactive >= 7:
+        community_section = f"""
+            <div style="text-align: center; padding: 15px; background: #27272a; border-radius: 8px; margin: 15px 0;">
+                <p style="margin: 0; color: #a1a1aa; font-size: 14px;">While you've been away...</p>
+                <div style="font-size: 28px; font-weight: bold; color: #10b981; margin: 10px 0;">{total_platform_sessions:,}</div>
+                <p style="margin: 0; color: #71717a; font-size: 12px;">total sessions logged by students</p>
+            </div>
+        """
+    
     return f"""
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #09090b; color: white;">
         <div style="text-align: center; padding: 20px 0;">
@@ -144,10 +155,14 @@ def get_inactive_reminder_html(username: str, days_inactive: int) -> str:
         <div style="padding: 20px; background: #18181b; border-radius: 8px; margin: 20px 0;">
             <p style="margin: 0; font-size: 16px;">Hey <strong>{username}</strong>,</p>
             <p style="margin: 15px 0;">It's been <strong style="color: #f97316;">{days_inactive} days</strong> since your last session.</p>
+            {community_section}
             <p style="margin: 15px 0;">Remember: <em>Small steps lead to big changes.</em> Even 15 minutes today counts!</p>
             <p style="margin: 15px 0;">Your future self will thank you. 💪</p>
         </div>
         <div style="text-align: center; padding: 20px;">
+            <a href="https://edgemodeapp.com/dashboard" style="display: inline-block; background: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">Log a Session Now</a>
+        </div>
+        <div style="text-align: center; padding: 10px;">
             <p style="color: #71717a; font-size: 12px;">Edge Mode - 1% Better Every Day</p>
         </div>
     </div>
@@ -341,28 +356,36 @@ async def send_weekly_summaries_job():
 
 
 async def send_inactive_reminders_job():
-    """Send reminder emails to users who haven't logged in 2+ days"""
+    """Send reminder emails to inactive users:
+    - Days 2, 4, 6: Every other day reminders
+    - Days 7, 10, 14, 21, 30: Extended reminders with community stats
+    """
     if not RESEND_API_KEY:
         logger.warning("RESEND_API_KEY not set, skipping inactive reminders")
         return
     
     logger.info("Running inactive user reminder job...")
     now = datetime.now(timezone.utc)
-    two_days_ago = (now - timedelta(days=2)).date().isoformat()
     
     # Create a unique key for today to prevent duplicate emails
     from utils.timezone import get_today_eastern
     today_eastern = get_today_eastern().isoformat()
     reminder_key = f"inactive_{today_eastern}"
     
+    # Define which days to send reminders
+    REMINDER_DAYS = [2, 4, 6, 7, 10, 14, 21, 30]
+    
     try:
-        # Only send to trial users OR users who opted in to reminders
+        # Get total platform sessions for community stats (used for 7+ day reminders)
+        total_platform_sessions = await db.daily_sessions.count_documents({})
+        
+        # Only send to users who opted in to reminders
         # Exclude admin users and users who already received today's reminder
         users = await db.users.find({
             'streak_reminders': {'$ne': False},
             'is_admin': {'$ne': True},
             'last_inactive_reminder': {'$ne': reminder_key}
-        }, {'_id': 0, 'id': 1, 'email': 1, 'username': 1, 'last_log_date': 1, 'is_trial': 1, 'subscription_active': 1}).to_list(1000)
+        }, {'_id': 0, 'id': 1, 'email': 1, 'username': 1, 'last_log_date': 1}).to_list(1000)
         
         sent_count = 0
         for user in users:
@@ -372,45 +395,51 @@ async def send_inactive_reminders_job():
             if not last_log:
                 continue
             
-            # Check if user is inactive
-            if last_log <= two_days_ago:
-                last_log_date = datetime.fromisoformat(last_log).date()
-                days_inactive = (now.date() - last_log_date).days
+            # Calculate days inactive
+            last_log_str = last_log[:10] if len(last_log) > 10 else last_log
+            last_log_date = datetime.fromisoformat(last_log_str).date()
+            days_inactive = (today_eastern - last_log_date).days
+            
+            # Only send on specific reminder days
+            if days_inactive not in REMINDER_DAYS:
+                continue
+            
+            # Include community stats for 7+ days inactive
+            include_stats = days_inactive >= 7
+            
+            html = get_inactive_reminder_html(
+                user.get('username', 'User'),
+                days_inactive,
+                total_platform_sessions if include_stats else None
+            )
+            
+            # Send email
+            try:
+                await asyncio.to_thread(resend.Emails.send, {
+                    "from": SENDER_EMAIL,
+                    "to": [user['email']],
+                    "subject": "👋 We Miss You! - Edge Mode",
+                    "html": html
+                })
+                sent_count += 1
                 
-                # Only send if 2-7 days inactive
-                if 2 <= days_inactive <= 7:
-                    html = get_inactive_reminder_html(
-                        user.get('username', 'User'),
-                        days_inactive
-                    )
-                    
-                    # Send email
-                    try:
-                        await asyncio.to_thread(resend.Emails.send, {
-                            "from": SENDER_EMAIL,
-                            "to": [user['email']],
-                            "subject": "👋 We Miss You! - Edge Mode",
-                            "html": html
-                        })
-                        sent_count += 1
-                        
-                        # Mark this user as having received today's inactive reminder
-                        await db.users.update_one(
-                            {'id': user['id']},
-                            {'$set': {'last_inactive_reminder': reminder_key}}
-                        )
-                    except Exception as e:
-                        logger.error(f"Failed to send inactive reminder to {user['email']}: {e}")
-                    
-                    # Send push notification
-                    if user.get('push_enabled'):
-                        await send_push(
-                            user['id'],
-                            "👋 We Miss You!",
-                            f"It's been {days_inactive} days. Small steps lead to big changes!",
-                            "/dashboard",
-                            "inactivity"
-                        )
+                # Mark this user as having received today's inactive reminder
+                await db.users.update_one(
+                    {'id': user['id']},
+                    {'$set': {'last_inactive_reminder': reminder_key}}
+                )
+            except Exception as e:
+                logger.error(f"Failed to send inactive reminder to {user['email']}: {e}")
+            
+            # Send push notification
+            if user.get('push_enabled'):
+                await send_push(
+                    user['id'],
+                    "👋 We Miss You!",
+                    f"It's been {days_inactive} days. Small steps lead to big changes!",
+                    "/dashboard",
+                    "inactivity"
+                )
         
         logger.info(f"Inactive reminder job complete. Sent {sent_count} emails.")
     except Exception as e:
