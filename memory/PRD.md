@@ -32,6 +32,9 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
 - Opt-in challenges
 - Streak milestones and celebrations
 - Shareable achievement cards
+- **XP & Leveling System** - NEW (April 2, 2026)
+- **Daily Login Rewards** - NEW (April 2, 2026)
+- **Mutual Friend Streaks** - NEW (April 2, 2026)
 
 ### Monetization
 - Subscription: $4.99/mo or $49.99/yr
@@ -120,7 +123,24 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
 
 ---
 
-## Completed This Session (March 29, 2026)
+## Completed This Session (April 2, 2026)
+
+5. **Teen Engagement Features (XP/Leveling, Daily Rewards, Friend Streaks)** ✅
+   - Backend: `/app/backend/routes/engagement.py` with 6 endpoints
+   - XP System:
+     - 10 XP for daily login
+     - 25 XP for logging a session (+15 bonus for first session of day)
+     - 50 XP for earning badges
+     - 75-100 XP for challenges
+     - Streak day bonuses (5 XP per day, capped at 100)
+   - Leveling: 21 levels with exponential thresholds (100, 250, 500, 800, 1200...)
+   - Level Titles: Rookie → Rising Star → Achiever → Champion → Legend → Elite
+   - Daily Login Rewards: 5-50 coins based on streak day (7-day cycle)
+   - Frontend: `EngagementStatus.jsx` component on Dashboard
+   - Mutual Friend Streaks: `FriendStreaks.jsx` showing activity streaks with friends
+   - All tests passing (17/17 backend, 100% frontend)
+
+## Previous Session (March 29, 2026)
 
 1. **Coach Tools (Team Analytics & Bulk Messaging)** ✅
    - Fixed API path mismatch in CoachDashboard.js
@@ -189,10 +209,13 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
 
 ## Key Files
 - Backend: `/app/backend/routes/auth.py`, `/app/backend/routes/payments.py`, `/app/backend/routes/challenges.py`
+- Backend Engagement: `/app/backend/routes/engagement.py` (XP, Levels, Daily Rewards, Friend Streaks)
 - Frontend: `/app/frontend/src/pages/Dashboard.js`, `/app/frontend/src/pages/ChallengesScreen.js`
+- Frontend Engagement: `/app/frontend/src/components/EngagementStatus.jsx`, `/app/frontend/src/components/FriendStreaks.jsx`
 - Coach: `/app/frontend/src/pages/CoachDashboard.js`
 - Admin: `/app/frontend/src/pages/AdminDashboard.js`
 
 ## Test Credentials
 - Admin: `admin@edgemodeapp.com` / `EdgeAdmin2024!`
 - Coach: `testcoach@edgemode.com` / `TestCoach123!`
+- Test Player: `testplayer1@edgemode.com` / `TestPlayer123!`

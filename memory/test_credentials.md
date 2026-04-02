@@ -16,3 +16,5 @@
 - Email: `testplayer1@edgemode.com`
 - Password: `TestPlayer123!`
 - Role: Player (joined Test Warriors team)
+- Onboarding: Completed with pillars: Fitness/Training, Study/Academics, Reading/Learning
+- XP: 195 (Level 2)
