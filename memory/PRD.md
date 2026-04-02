@@ -154,6 +154,15 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
    - XP transactions log event info (event_id, event_name, multiplier)
    - All tests passing (25/25 backend, 100% frontend)
 
+7. **XP Event Push Notifications** ✅
+   - Scheduler job runs every 30 minutes to check for events
+   - Notifications when events start (email + push)
+   - Notifications 1-2 hours before events end (email + push)
+   - Admin manual broadcast: `POST /api/engagement/events/{id}/broadcast`
+   - Beautiful HTML email templates for event started and ending soon
+   - Push notification functions: send_xp_event_started_push, send_xp_event_ending_push
+   - All tests passing (15/15 backend)
+
 ## Previous Session (March 29, 2026)
 
 1. **Coach Tools (Team Analytics & Bulk Messaging)** ✅
