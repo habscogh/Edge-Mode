@@ -544,3 +544,22 @@ async def create_challenge_rush(hours: int = 24, multiplier: float = 3.0, curren
     
     return await create_xp_event(event_data, current_user)
 
+
+@router.post("/events/{event_id}/broadcast")
+async def broadcast_event_notification(event_id: str, current_user: dict = Depends(get_current_admin)):
+    """Admin: Manually broadcast push notifications for an event"""
+    event = await db.xp_events.find_one({'id': event_id}, {'_id': 0})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    # Import push functions
+    from routes.push import broadcast_xp_event_started
+    
+    # Send notifications
+    sent_count = await broadcast_xp_event_started(event)
+    
+    return {
+        'message': f"Broadcast sent for '{event.get('name')}'",
+        'notifications_sent': sent_count
+    }
+

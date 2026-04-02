@@ -307,3 +307,70 @@ async def send_challenge_winner_push(user_id: str, place: int, challenge_name: s
         url="/achievements",
         tag=f"challenge-winner-{challenge_name.lower().replace(' ', '-')}"
     ))
+
+
+# ============ XP Event Push Notifications ============
+
+async def send_xp_event_started_push(user_id: str, event_name: str, multiplier: float, icon: str = "⚡"):
+    """Send push notification when an XP event starts"""
+    await send_push_to_user(user_id, PushMessage(
+        title=f"{icon} {event_name} is LIVE!",
+        body=f"Earn {int(multiplier)}x XP on all activities! Log in now!",
+        url="/dashboard",
+        tag="xp-event-started"
+    ))
+
+
+async def send_xp_event_ending_push(user_id: str, event_name: str, hours_left: int, icon: str = "⚡"):
+    """Send push notification when an XP event is ending soon"""
+    await send_push_to_user(user_id, PushMessage(
+        title=f"⏰ {event_name} Ending Soon!",
+        body=f"Only {hours_left} hour{'s' if hours_left > 1 else ''} left! Maximize your XP now!",
+        url="/dashboard",
+        tag="xp-event-ending"
+    ))
+
+
+async def broadcast_xp_event_started(event: dict):
+    """Send XP event started notification to all users with push enabled"""
+    users = await db.users.find(
+        {'push_enabled': True},
+        {'_id': 0, 'id': 1}
+    ).to_list(10000)
+    
+    total_sent = 0
+    event_name = event.get('name', 'XP Event')
+    multiplier = event.get('multiplier', 2.0)
+    icon = event.get('icon', '⚡')
+    
+    for user in users:
+        try:
+            sent = await send_xp_event_started_push(user['id'], event_name, multiplier, icon)
+            total_sent += sent
+        except Exception as e:
+            logger.error(f"Failed to send XP event push to user {user['id']}: {e}")
+    
+    logger.info(f"Broadcast XP event '{event_name}' notification to {total_sent} devices")
+    return total_sent
+
+
+async def broadcast_xp_event_ending(event: dict, hours_left: int):
+    """Send XP event ending notification to all users with push enabled"""
+    users = await db.users.find(
+        {'push_enabled': True},
+        {'_id': 0, 'id': 1}
+    ).to_list(10000)
+    
+    total_sent = 0
+    event_name = event.get('name', 'XP Event')
+    icon = event.get('icon', '⚡')
+    
+    for user in users:
+        try:
+            sent = await send_xp_event_ending_push(user['id'], event_name, hours_left, icon)
+            total_sent += sent
+        except Exception as e:
+            logger.error(f"Failed to send XP event ending push to user {user['id']}: {e}")
+    
+    logger.info(f"Broadcast XP event ending notification to {total_sent} devices")
+    return total_sent

@@ -886,3 +886,207 @@ async def send_morning_reminders_job():
         logger.info(f"Morning reminder job complete. Sent {sent_count} emails.")
     except Exception as e:
         logger.error(f"Morning reminder job failed: {e}")
+
+
+# ============ XP Event Notifications ============
+
+def get_xp_event_started_html(event_name: str, multiplier: float, description: str, icon: str, hours_left: int) -> str:
+    """Email template for XP event started"""
+    return f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #1a0033 0%, #09090b 100%); color: white;">
+        <div style="text-align: center; padding: 30px 0;">
+            <div style="font-size: 60px; margin-bottom: 10px;">{icon}</div>
+            <h1 style="color: #fff; margin: 0; font-size: 28px;">{event_name}</h1>
+            <p style="color: #a78bfa; font-size: 16px; margin: 10px 0;">IS NOW LIVE!</p>
+        </div>
+        <div style="padding: 25px; background: linear-gradient(135deg, #7c3aed20 0%, #ec489920 100%); border: 1px solid #7c3aed50; border-radius: 12px; margin: 20px 0; text-align: center;">
+            <div style="font-size: 48px; font-weight: bold; color: #a78bfa;">{int(multiplier)}x XP</div>
+            <p style="color: #d1d5db; margin: 10px 0 0 0;">{description}</p>
+        </div>
+        <div style="background: #18181b; border-radius: 8px; padding: 20px; margin: 20px 0;">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <span style="color: #fbbf24; font-size: 24px;">⏰</span>
+                <span style="color: #fbbf24; font-size: 18px; font-weight: bold;">{hours_left} hours remaining</span>
+            </div>
+        </div>
+        <div style="text-align: center; padding: 20px;">
+            <a href="https://edgemodeapp.com/dashboard" style="display: inline-block; background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%); color: white; padding: 15px 40px; border-radius: 25px; text-decoration: none; font-weight: bold; font-size: 16px;">Log In & Earn XP!</a>
+        </div>
+        <div style="text-align: center; padding: 20px;">
+            <p style="color: #71717a; font-size: 12px;">Edge Mode - 1% Better Every Day</p>
+        </div>
+    </div>
+    """
+
+
+def get_xp_event_ending_html(event_name: str, multiplier: float, hours_left: int, icon: str) -> str:
+    """Email template for XP event ending soon"""
+    return f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #09090b; color: white;">
+        <div style="text-align: center; padding: 30px 0;">
+            <div style="font-size: 40px; margin-bottom: 10px;">⏰</div>
+            <h1 style="color: #fbbf24; margin: 0; font-size: 24px;">HURRY! Event Ending Soon!</h1>
+        </div>
+        <div style="padding: 25px; background: #18181b; border: 1px solid #fbbf24; border-radius: 12px; margin: 20px 0; text-align: center;">
+            <div style="font-size: 36px; margin-bottom: 10px;">{icon}</div>
+            <div style="font-size: 20px; font-weight: bold; color: white;">{event_name}</div>
+            <div style="font-size: 32px; font-weight: bold; color: #a78bfa; margin: 10px 0;">{int(multiplier)}x XP</div>
+            <p style="color: #ef4444; font-weight: bold; margin: 15px 0 0 0;">Only {hours_left} hour{'s' if hours_left > 1 else ''} left!</p>
+        </div>
+        <div style="text-align: center; padding: 20px;">
+            <a href="https://edgemodeapp.com/dashboard" style="display: inline-block; background: #fbbf24; color: black; padding: 15px 40px; border-radius: 25px; text-decoration: none; font-weight: bold; font-size: 16px;">Maximize Your XP Now!</a>
+        </div>
+        <div style="text-align: center; padding: 20px;">
+            <p style="color: #71717a; font-size: 12px;">Edge Mode - 1% Better Every Day</p>
+        </div>
+    </div>
+    """
+
+
+async def send_xp_event_notifications_job():
+    """
+    Check for XP events that:
+    1. Just started (within last hour) - send "event started" notification
+    2. Ending soon (1-2 hours left) - send "event ending" reminder
+    
+    Run this job every 30 minutes.
+    """
+    if not RESEND_API_KEY:
+        logger.warning("Resend API key not configured, skipping XP event notifications")
+        return
+    
+    try:
+        now = datetime.now(timezone.utc)
+        one_hour_ago = now - timedelta(hours=1)
+        
+        # Find events that started in the last hour (for "just started" notifications)
+        just_started_events = await db.xp_events.find({
+            'is_active': True,
+            'starts_at': {
+                '$gte': one_hour_ago.isoformat(),
+                '$lte': now.isoformat()
+            },
+            'start_notified': {'$ne': True}  # Haven't sent start notification yet
+        }, {'_id': 0}).to_list(10)
+        
+        # Find events ending in 1-2 hours (for "ending soon" notifications)
+        one_hour_later = now + timedelta(hours=1)
+        two_hours_later = now + timedelta(hours=2)
+        
+        ending_soon_events = await db.xp_events.find({
+            'is_active': True,
+            'ends_at': {
+                '$gte': one_hour_later.isoformat(),
+                '$lte': two_hours_later.isoformat()
+            },
+            'end_notified': {'$ne': True}  # Haven't sent ending notification yet
+        }, {'_id': 0}).to_list(10)
+        
+        # Get all users who have email notifications enabled (or all users for important events)
+        users = await db.users.find(
+            {},  # All users for XP events
+            {'_id': 0, 'id': 1, 'email': 1, 'username': 1, 'push_enabled': 1}
+        ).to_list(10000)
+        
+        # Send "Event Started" notifications
+        for event in just_started_events:
+            event_name = event.get('name', 'XP Event')
+            multiplier = event.get('multiplier', 2.0)
+            description = event.get('description', f'Earn {int(multiplier)}x XP!')
+            icon = event.get('icon', '⚡')
+            
+            # Calculate hours left
+            ends_at = datetime.fromisoformat(event['ends_at'].replace('Z', '+00:00'))
+            hours_left = max(1, int((ends_at - now).total_seconds() / 3600))
+            
+            sent_count = 0
+            push_count = 0
+            
+            for user in users:
+                # Send email
+                try:
+                    html = get_xp_event_started_html(event_name, multiplier, description, icon, hours_left)
+                    await asyncio.to_thread(resend.Emails.send, {
+                        "from": SENDER_EMAIL,
+                        "to": [user['email']],
+                        "subject": f"{icon} {event_name} - Earn {int(multiplier)}x XP NOW!",
+                        "html": html
+                    })
+                    sent_count += 1
+                except Exception as e:
+                    logger.error(f"Failed to send XP event email to {user['email']}: {e}")
+                
+                # Send push notification if enabled
+                if user.get('push_enabled'):
+                    try:
+                        await send_push(
+                            user['id'],
+                            f"{icon} {event_name} is LIVE!",
+                            f"Earn {int(multiplier)}x XP on all activities! Log in now!",
+                            "/dashboard",
+                            "xp-event-started"
+                        )
+                        push_count += 1
+                    except Exception as e:
+                        logger.error(f"Failed to send XP event push to {user['id']}: {e}")
+            
+            # Mark event as notified
+            await db.xp_events.update_one(
+                {'id': event['id']},
+                {'$set': {'start_notified': True, 'start_notified_at': now.isoformat()}}
+            )
+            
+            logger.info(f"XP Event '{event_name}' started: sent {sent_count} emails, {push_count} push notifications")
+        
+        # Send "Event Ending Soon" notifications
+        for event in ending_soon_events:
+            event_name = event.get('name', 'XP Event')
+            multiplier = event.get('multiplier', 2.0)
+            icon = event.get('icon', '⚡')
+            
+            # Calculate hours left
+            ends_at = datetime.fromisoformat(event['ends_at'].replace('Z', '+00:00'))
+            hours_left = max(1, int((ends_at - now).total_seconds() / 3600))
+            
+            sent_count = 0
+            push_count = 0
+            
+            for user in users:
+                # Send email
+                try:
+                    html = get_xp_event_ending_html(event_name, multiplier, hours_left, icon)
+                    await asyncio.to_thread(resend.Emails.send, {
+                        "from": SENDER_EMAIL,
+                        "to": [user['email']],
+                        "subject": f"⏰ HURRY! {event_name} ends in {hours_left} hour{'s' if hours_left > 1 else ''}!",
+                        "html": html
+                    })
+                    sent_count += 1
+                except Exception as e:
+                    logger.error(f"Failed to send XP event ending email to {user['email']}: {e}")
+                
+                # Send push notification if enabled
+                if user.get('push_enabled'):
+                    try:
+                        await send_push(
+                            user['id'],
+                            f"⏰ {event_name} Ending Soon!",
+                            f"Only {hours_left} hour{'s' if hours_left > 1 else ''} left! Maximize your XP!",
+                            "/dashboard",
+                            "xp-event-ending"
+                        )
+                        push_count += 1
+                    except Exception as e:
+                        logger.error(f"Failed to send XP event ending push to {user['id']}: {e}")
+            
+            # Mark event as end-notified
+            await db.xp_events.update_one(
+                {'id': event['id']},
+                {'$set': {'end_notified': True, 'end_notified_at': now.isoformat()}}
+            )
+            
+            logger.info(f"XP Event '{event_name}' ending soon: sent {sent_count} emails, {push_count} push notifications")
+        
+        logger.info(f"XP event notification job complete. Processed {len(just_started_events)} started events, {len(ending_soon_events)} ending events.")
+    except Exception as e:
+        logger.error(f"XP event notification job failed: {e}")

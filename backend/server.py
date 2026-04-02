@@ -47,7 +47,8 @@ from utils.scheduler_jobs import (
     send_trial_ending_reminders_job,
     send_parent_weekly_summaries_job,
     send_parent_inactivity_alerts_job,
-    send_morning_reminders_job
+    send_morning_reminders_job,
+    send_xp_event_notifications_job
 )
 
 # Import challenge functions
@@ -140,7 +141,8 @@ async def get_scheduler_status():
             'weekly_summary': 'Sunday 2:00 PM UTC (10:00 AM Eastern)',
             'parent_weekly_summaries': 'Sunday 3:00 PM UTC (11:00 AM Eastern)',
             'parent_inactivity_alerts': '7:00 PM UTC daily (3:00 PM Eastern)',
-            'challenges_daily': '12:05 AM UTC daily'
+            'challenges_daily': '12:05 AM UTC daily',
+            'xp_event_notifications': 'Every 30 minutes - notifies on event start and 1-2 hours before end'
         }
     }
 
@@ -278,8 +280,16 @@ async def startup_scheduler():
         replace_existing=True
     )
     
+    # XP Event notifications - every 30 minutes to catch event starts and endings
+    scheduler.add_job(
+        send_xp_event_notifications_job,
+        CronTrigger(minute='0,30'),  # At :00 and :30 of every hour
+        id="xp_event_notifications",
+        replace_existing=True
+    )
+    
     scheduler.start()
-    logger.info("Email scheduler started - Morning: 1PM UTC (8AM Eastern), Streak: 8PM UTC, Inactive: 6PM UTC, Trial Ending: 4PM UTC, Weekly: Sun 2PM UTC, Parent Weekly: Sun 3PM UTC, Parent Alerts: 7PM UTC, Challenges: 12:05AM UTC, Friend Challenges: 12:10AM UTC")
+    logger.info("Email scheduler started - Morning: 1PM UTC, Streak: 8PM UTC, Inactive: 6PM UTC, Trial: 4PM UTC, Weekly: Sun 2PM UTC, Parent Weekly: Sun 3PM UTC, Parent Alerts: 7PM UTC, Challenges: 12:05AM UTC, Friend Challenges: 12:10AM UTC, XP Events: every 30min")
 
 
 @app.on_event("shutdown")
