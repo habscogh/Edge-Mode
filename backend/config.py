@@ -374,15 +374,15 @@ LEVEL_TITLES = {
     25: "Elite",
 }
 
-# Daily login streak bonuses (coins)
+# Daily login streak bonuses (coins) - adjusted for balanced economy
 LOGIN_STREAK_BONUSES = {
-    1: 5,    # Day 1
-    2: 10,   # Day 2
-    3: 15,   # Day 3
-    4: 20,   # Day 4
-    5: 25,   # Day 5
-    6: 30,   # Day 6
-    7: 50,   # Day 7 (weekly bonus!)
+    1: 1,    # Day 1
+    2: 1,    # Day 2
+    3: 2,    # Day 3
+    4: 2,    # Day 4
+    5: 3,    # Day 5
+    6: 3,    # Day 6
+    7: 5,    # Day 7 (weekly bonus!)
 }
 
 

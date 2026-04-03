@@ -23,7 +23,7 @@ DAILY_QUESTS = [
         "description": "Log in to the app",
         "icon": "👋",
         "target": 1,
-        "reward_coins": 5,
+        "reward_coins": 1,
         "reward_xp": 0,
         "track_field": "logins",
         "difficulty": "easy"
@@ -34,7 +34,7 @@ DAILY_QUESTS = [
         "description": "Log at least 1 session today",
         "icon": "📝",
         "target": 1,
-        "reward_coins": 10,
+        "reward_coins": 2,
         "reward_xp": 5,
         "track_field": "sessions_logged",
         "difficulty": "easy"
@@ -45,7 +45,7 @@ DAILY_QUESTS = [
         "description": "Log 3 sessions today",
         "icon": "🎯",
         "target": 3,
-        "reward_coins": 25,
+        "reward_coins": 3,
         "reward_xp": 15,
         "track_field": "sessions_logged",
         "difficulty": "medium"
@@ -56,7 +56,7 @@ DAILY_QUESTS = [
         "description": "Earn 50 XP today",
         "icon": "⚡",
         "target": 50,
-        "reward_coins": 15,
+        "reward_coins": 2,
         "reward_xp": 0,
         "track_field": "xp_earned",
         "difficulty": "medium"
@@ -67,7 +67,7 @@ DAILY_QUESTS = [
         "description": "Maintain your streak today",
         "icon": "🔥",
         "target": 1,
-        "reward_coins": 10,
+        "reward_coins": 2,
         "reward_xp": 5,
         "track_field": "streak_maintained",
         "difficulty": "easy"
@@ -81,7 +81,7 @@ WEEKLY_QUESTS = [
         "description": "Log 10 sessions this week",
         "icon": "🏆",
         "target": 10,
-        "reward_coins": 50,
+        "reward_coins": 5,
         "reward_xp": 30,
         "track_field": "sessions_logged",
         "difficulty": "medium"
@@ -92,7 +92,7 @@ WEEKLY_QUESTS = [
         "description": "Log 20 sessions this week",
         "icon": "💪",
         "target": 20,
-        "reward_coins": 100,
+        "reward_coins": 10,
         "reward_xp": 50,
         "track_field": "sessions_logged",
         "difficulty": "hard"
@@ -103,7 +103,7 @@ WEEKLY_QUESTS = [
         "description": "Earn 200 XP this week",
         "icon": "⚡",
         "target": 200,
-        "reward_coins": 40,
+        "reward_coins": 4,
         "reward_xp": 0,
         "track_field": "xp_earned",
         "difficulty": "medium"
@@ -114,7 +114,7 @@ WEEKLY_QUESTS = [
         "description": "Maintain a 7-day streak",
         "icon": "🌟",
         "target": 7,
-        "reward_coins": 75,
+        "reward_coins": 8,
         "reward_xp": 50,
         "track_field": "streak_days",
         "difficulty": "hard"
@@ -125,7 +125,7 @@ WEEKLY_QUESTS = [
         "description": "Log in 5 different days this week",
         "icon": "📅",
         "target": 5,
-        "reward_coins": 30,
+        "reward_coins": 3,
         "reward_xp": 20,
         "track_field": "login_days",
         "difficulty": "easy"
@@ -136,7 +136,7 @@ WEEKLY_QUESTS = [
         "description": "Complete 2 challenges this week",
         "icon": "🎮",
         "target": 2,
-        "reward_coins": 60,
+        "reward_coins": 6,
         "reward_xp": 40,
         "track_field": "challenges_completed",
         "difficulty": "hard"

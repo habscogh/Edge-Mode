@@ -45,6 +45,7 @@ SHOP_CATEGORIES = {
 
 
 # ============ Default Shop Items (Seeded on first run) ============
+# Pricing: Common ~100 coins (2 weeks), Mid-tier ~200 (1 month), Legendary ~600 (3 months)
 
 DEFAULT_SHOP_ITEMS = [
     # Themes
@@ -53,7 +54,7 @@ DEFAULT_SHOP_ITEMS = [
         "name": "Midnight Purple",
         "description": "Deep purple gradient theme",
         "category": "themes",
-        "price": 50,
+        "price": 100,
         "rarity": "common",
         "preview_color": "#7c3aed",
         "icon": "🌙"
@@ -63,7 +64,7 @@ DEFAULT_SHOP_ITEMS = [
         "name": "Ocean Blue",
         "description": "Calming ocean-inspired theme",
         "category": "themes",
-        "price": 50,
+        "price": 100,
         "rarity": "common",
         "preview_color": "#0ea5e9",
         "icon": "🌊"
@@ -73,7 +74,7 @@ DEFAULT_SHOP_ITEMS = [
         "name": "Sunset Fire",
         "description": "Warm orange and red gradient",
         "category": "themes",
-        "price": 75,
+        "price": 150,
         "rarity": "uncommon",
         "preview_color": "#f97316",
         "icon": "🌅"
@@ -83,7 +84,7 @@ DEFAULT_SHOP_ITEMS = [
         "name": "Neon Glow",
         "description": "Cyberpunk neon aesthetic",
         "category": "themes",
-        "price": 100,
+        "price": 250,
         "rarity": "rare",
         "preview_color": "#ec4899",
         "icon": "💜"
@@ -93,7 +94,7 @@ DEFAULT_SHOP_ITEMS = [
         "name": "Golden Legend",
         "description": "Prestigious gold theme for champions",
         "category": "themes",
-        "price": 200,
+        "price": 600,
         "rarity": "legendary",
         "preview_color": "#fbbf24",
         "icon": "👑"
@@ -105,7 +106,7 @@ DEFAULT_SHOP_ITEMS = [
         "name": "Fire Starter",
         "description": "Show you're on fire!",
         "category": "badges",
-        "price": 30,
+        "price": 100,
         "rarity": "common",
         "icon": "🔥"
     },
@@ -114,7 +115,7 @@ DEFAULT_SHOP_ITEMS = [
         "name": "Diamond Mind",
         "description": "Unbreakable focus badge",
         "category": "badges",
-        "price": 75,
+        "price": 175,
         "rarity": "uncommon",
         "icon": "💎"
     },
@@ -123,7 +124,7 @@ DEFAULT_SHOP_ITEMS = [
         "name": "Rocket Riser",
         "description": "Always climbing higher",
         "category": "badges",
-        "price": 100,
+        "price": 250,
         "rarity": "rare",
         "icon": "🚀"
     },
@@ -132,7 +133,7 @@ DEFAULT_SHOP_ITEMS = [
         "name": "Crown Achiever",
         "description": "Royal excellence badge",
         "category": "badges",
-        "price": 150,
+        "price": 400,
         "rarity": "epic",
         "icon": "👑"
     },
@@ -143,7 +144,7 @@ DEFAULT_SHOP_ITEMS = [
         "name": "Bronze Shield",
         "description": "Protects your streak once",
         "category": "streak_shields",
-        "price": 25,
+        "price": 100,
         "rarity": "common",
         "uses": 1,
         "icon": "🛡️"
@@ -153,7 +154,7 @@ DEFAULT_SHOP_ITEMS = [
         "name": "Silver Shield",
         "description": "Protects your streak 3 times",
         "category": "streak_shields",
-        "price": 60,
+        "price": 200,
         "rarity": "uncommon",
         "uses": 3,
         "icon": "🛡️"
@@ -163,7 +164,7 @@ DEFAULT_SHOP_ITEMS = [
         "name": "Gold Shield",
         "description": "Protects your streak 7 times",
         "category": "streak_shields",
-        "price": 120,
+        "price": 350,
         "rarity": "rare",
         "uses": 7,
         "icon": "🛡️"
@@ -175,7 +176,7 @@ DEFAULT_SHOP_ITEMS = [
         "name": "Glow Frame",
         "description": "Subtle glowing border",
         "category": "avatars",
-        "price": 40,
+        "price": 100,
         "rarity": "common",
         "icon": "⭕"
     },
@@ -184,7 +185,7 @@ DEFAULT_SHOP_ITEMS = [
         "name": "Lightning Frame",
         "description": "Electric energy border",
         "category": "avatars",
-        "price": 80,
+        "price": 175,
         "rarity": "uncommon",
         "icon": "⚡"
     },
@@ -193,7 +194,7 @@ DEFAULT_SHOP_ITEMS = [
         "name": "Flame Frame",
         "description": "Burning fire border",
         "category": "avatars",
-        "price": 100,
+        "price": 250,
         "rarity": "rare",
         "icon": "🔥"
     },
@@ -204,7 +205,7 @@ DEFAULT_SHOP_ITEMS = [
         "name": "Sparkle Trail",
         "description": "Sparkles on your achievements",
         "category": "effects",
-        "price": 50,
+        "price": 125,
         "rarity": "common",
         "icon": "✨"
     },
@@ -213,7 +214,7 @@ DEFAULT_SHOP_ITEMS = [
         "name": "Confetti Burst",
         "description": "Celebrate with confetti!",
         "category": "effects",
-        "price": 75,
+        "price": 200,
         "rarity": "uncommon",
         "icon": "🎉"
     },
@@ -222,7 +223,7 @@ DEFAULT_SHOP_ITEMS = [
         "name": "Rainbow Aura",
         "description": "Colorful rainbow effects",
         "category": "effects",
-        "price": 150,
+        "price": 450,
         "rarity": "epic",
         "icon": "🌈"
     }
@@ -255,7 +256,7 @@ class UpdateShopItem(BaseModel):
 # ============ Helper Functions ============
 
 async def seed_shop_items():
-    """Seed default shop items if they don't exist"""
+    """Seed default shop items if they don't exist, or update prices if they do"""
     for item in DEFAULT_SHOP_ITEMS:
         existing = await db.shop_items.find_one({'id': item['id']})
         if not existing:
@@ -268,6 +269,13 @@ async def seed_shop_items():
                 'created_at': datetime.now(timezone.utc).isoformat()
             }
             await db.shop_items.insert_one(item_doc)
+        else:
+            # Update price if it changed
+            if existing.get('price') != item['price']:
+                await db.shop_items.update_one(
+                    {'id': item['id']},
+                    {'$set': {'price': item['price']}}
+                )
 
 
 def get_rarity_color(rarity: str) -> str:
