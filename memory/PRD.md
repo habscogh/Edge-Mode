@@ -203,6 +203,26 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
     - Frontend: Email Announcements section in Admin Dashboard
     - All tests passing (15/15 backend, 100% frontend)
 
+11. **Economy Rebalance** ✅
+    - Reduced daily quest coin rewards (~7 coins/day max)
+    - Increased shop item prices (100-600 coins)
+    - Pacing: Cheapest item ~2 weeks, Mid-tier ~1 month, Legendary ~3 months
+
+12. **Referral Exclusive Shop Items** ✅ (April 4, 2026)
+    - 4 exclusive items only unlockable by referring friends:
+      - Recruiter Badge (1 friend)
+      - Squad Leader Frame (3 friends)
+      - Connector Theme (5 friends)
+      - Golden Aura (10 friends)
+    - Shop UI enhancements:
+      - "Referral" badge (emerald green) on exclusive items
+      - Shows "X friends" instead of coin price
+      - "Invite" button navigates to /invite page
+      - Dedicated "Referral Exclusives" section with green gradient
+      - Explanation: "These items can only be unlocked by referring friends"
+      - "Invite Friends" link in section header
+    - All tests passing (100% backend, 100% frontend)
+
 ## Previous Session (March 29, 2026)
 
 1. **Coach Tools (Team Analytics & Bulk Messaging)** ✅
@@ -275,10 +295,12 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
 - Backend Engagement: `/app/backend/routes/engagement.py` (XP, Levels, Daily Rewards, Friend Streaks, XP Events)
 - Backend Shop: `/app/backend/routes/shop.py` (Coin Shop, Items, Inventory, Purchases)
 - Backend Quests: `/app/backend/routes/quests.py` (Daily & Weekly Quests)
+- Backend Referrals: `/app/backend/routes/referrals.py` (Referral milestones, exclusive items)
 - Frontend: `/app/frontend/src/pages/Dashboard.js`, `/app/frontend/src/pages/ChallengesScreen.js`
 - Frontend Engagement: `/app/frontend/src/components/EngagementStatus.jsx`, `/app/frontend/src/components/FriendStreaks.jsx`
-- Frontend Shop: `/app/frontend/src/pages/ShopScreen.js`
+- Frontend Shop: `/app/frontend/src/pages/ShopScreen.js` (includes Referral Exclusives section)
 - Frontend Quests: `/app/frontend/src/components/Quests.jsx`
+- Frontend Invite: `/app/frontend/src/pages/InviteFriendsScreen.js` (Referral milestones, invite link)
 - Coach: `/app/frontend/src/pages/CoachDashboard.js`
 - Admin: `/app/frontend/src/pages/AdminDashboard.js`
 
