@@ -221,6 +221,11 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
       - Dedicated "Referral Exclusives" section with green gradient
       - Explanation: "These items can only be unlocked by referring friends"
       - "Invite Friends" link in section header
+    - **Referral Qualification System** (3 sessions minimum):
+      - Referrals only count after friend logs 3 sessions
+      - Flow: Apply code → Status "pending" → 3 sessions → Status "qualified" → Rewards triggered
+      - Invite page shows "Qualified Referrals" + "Pending" counts separately
+      - Pending referrals display in amber with status text
     - All tests passing (100% backend, 100% frontend)
 
 ## Previous Session (March 29, 2026)
