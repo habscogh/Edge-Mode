@@ -220,8 +220,12 @@ export const InviteFriendsScreen = () => {
               </span>
             </div>
             
-            <p className="text-zinc-400 text-sm font-body mb-4">
+            <p className="text-zinc-400 text-sm font-body mb-2">
               Unlock exclusive items by inviting friends!
+            </p>
+            <p className="text-amber-400/80 text-xs font-body mb-4 flex items-center gap-1">
+              <Trophy className="w-3 h-3" />
+              Note: Referrals must log a minimum of 3 sessions to count.
             </p>
 
             <div className="space-y-3">

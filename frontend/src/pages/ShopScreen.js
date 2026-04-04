@@ -389,8 +389,12 @@ const ShopScreen = () => {
                       <ChevronRight className="w-4 h-4" />
                     </Link>
                   </div>
-                  <p className="text-zinc-400 text-sm mb-4">
+                  <p className="text-zinc-400 text-sm mb-2">
                     These items can only be unlocked by referring friends to Edge Mode. Share your invite link and earn these exclusive rewards!
+                  </p>
+                  <p className="text-amber-400/80 text-xs mb-4 flex items-center gap-1">
+                    <Star className="w-3 h-3" />
+                    Note: Referrals must log a minimum of 3 sessions to count.
                   </p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                     {items.filter(i => i.is_referral_exclusive).map(item => (
