@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { Button } from '../components/ui/button';
@@ -17,7 +17,9 @@ import {
   ChevronRight,
   ChevronLeft,
   Star,
-  Crown
+  Crown,
+  UserPlus,
+  Gift
 } from 'lucide-react';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -37,7 +39,8 @@ const rarityStyles = {
   uncommon: 'border-green-500/50 bg-green-900/20',
   rare: 'border-blue-500/50 bg-blue-900/20',
   epic: 'border-purple-500/50 bg-purple-900/20',
-  legendary: 'border-yellow-500/50 bg-yellow-900/20 ring-1 ring-yellow-500/30'
+  legendary: 'border-yellow-500/50 bg-yellow-900/20 ring-1 ring-yellow-500/30',
+  exclusive: 'border-emerald-500/50 bg-emerald-900/20 ring-1 ring-emerald-500/30'
 };
 
 const rarityLabels = {
@@ -45,17 +48,19 @@ const rarityLabels = {
   uncommon: { text: 'Uncommon', color: 'text-green-400' },
   rare: { text: 'Rare', color: 'text-blue-400' },
   epic: { text: 'Epic', color: 'text-purple-400' },
-  legendary: { text: 'Legendary', color: 'text-yellow-400' }
+  legendary: { text: 'Legendary', color: 'text-yellow-400' },
+  exclusive: { text: 'Exclusive', color: 'text-emerald-400' }
 };
 
 // Shop Item Card Component
-const ShopItemCard = ({ item, owned, onPurchase, userCoins }) => {
+const ShopItemCard = ({ item, owned, onPurchase, userCoins, navigate }) => {
   const [purchasing, setPurchasing] = useState(false);
   const canAfford = userCoins >= item.price;
   const RarityInfo = rarityLabels[item.rarity] || rarityLabels.common;
+  const isReferralExclusive = item.is_referral_exclusive === true;
 
   const handlePurchase = async () => {
-    if (owned || !canAfford) return;
+    if (owned || !canAfford || isReferralExclusive) return;
     
     setPurchasing(true);
     try {
@@ -81,8 +86,16 @@ const ShopItemCard = ({ item, owned, onPurchase, userCoins }) => {
         {RarityInfo.text}
       </div>
 
+      {/* Referral Exclusive indicator */}
+      {isReferralExclusive && (
+        <div className="absolute top-2 left-2 flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+          <Gift className="w-3 h-3" />
+          <span>Referral</span>
+        </div>
+      )}
+
       {/* Item icon */}
-      <div className="text-4xl mb-3">{item.icon}</div>
+      <div className={`text-4xl mb-3 ${isReferralExclusive && !owned ? 'mt-4' : ''}`}>{item.icon}</div>
 
       {/* Item info */}
       <h3 className="text-white font-bold text-sm mb-1">{item.name}</h3>
@@ -90,16 +103,33 @@ const ShopItemCard = ({ item, owned, onPurchase, userCoins }) => {
 
       {/* Price and action */}
       <div className="flex items-center justify-between mt-auto">
-        <div className="flex items-center gap-1 text-yellow-400">
-          <Coins className="w-4 h-4" />
-          <span className="font-bold">{item.price}</span>
-        </div>
+        {isReferralExclusive ? (
+          <div className="flex items-center gap-1 text-emerald-400 text-xs">
+            <UserPlus className="w-3 h-3" />
+            <span>{item.referrals_required || '?'} friends</span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-1 text-yellow-400">
+            <Coins className="w-4 h-4" />
+            <span className="font-bold">{item.price}</span>
+          </div>
+        )}
 
         {owned ? (
           <span className="flex items-center gap-1 text-green-400 text-sm">
             <Check className="w-4 h-4" />
             Owned
           </span>
+        ) : isReferralExclusive ? (
+          <Button
+            onClick={() => navigate('/invite')}
+            size="sm"
+            className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs"
+            data-testid={`invite-for-${item.id}`}
+          >
+            <UserPlus className="w-3 h-3 mr-1" />
+            Invite
+          </Button>
         ) : (
           <Button
             onClick={handlePurchase}
@@ -333,8 +363,47 @@ const ShopScreen = () => {
                       owned={ownedItemIds.includes(item.id)}
                       onPurchase={handlePurchase}
                       userCoins={userCoins}
+                      navigate={navigate}
                     />
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* Referral Exclusives Section */}
+            {activeCategory === 'all' && items.filter(i => i.is_referral_exclusive).length > 0 && (
+              <div className="mb-6">
+                <div className="bg-gradient-to-r from-emerald-900/30 to-teal-900/30 border border-emerald-500/30 rounded-xl p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <Gift className="w-5 h-5 text-emerald-400" />
+                      <h2 className="text-white font-bold">Referral Exclusives</h2>
+                    </div>
+                    <Link 
+                      to="/invite" 
+                      className="flex items-center gap-1 text-emerald-400 text-sm hover:text-emerald-300 transition-colors"
+                      data-testid="invite-friends-link"
+                    >
+                      <UserPlus className="w-4 h-4" />
+                      Invite Friends
+                      <ChevronRight className="w-4 h-4" />
+                    </Link>
+                  </div>
+                  <p className="text-zinc-400 text-sm mb-4">
+                    These items can only be unlocked by referring friends to Edge Mode. Share your invite link and earn these exclusive rewards!
+                  </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {items.filter(i => i.is_referral_exclusive).map(item => (
+                      <ShopItemCard
+                        key={item.id}
+                        item={item}
+                        owned={ownedItemIds.includes(item.id)}
+                        onPurchase={handlePurchase}
+                        userCoins={userCoins}
+                        navigate={navigate}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
@@ -358,6 +427,7 @@ const ShopScreen = () => {
                       owned={ownedItemIds.includes(item.id)}
                       onPurchase={handlePurchase}
                       userCoins={userCoins}
+                      navigate={navigate}
                     />
                   ))}
                 </div>

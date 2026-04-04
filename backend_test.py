@@ -4,7 +4,7 @@ from datetime import datetime
 import json
 
 class ForgeAPITester:
-    def __init__(self, base_url="https://engagement-xp-test.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://xp-leveling-lab.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.token = None
         self.user_id = None
