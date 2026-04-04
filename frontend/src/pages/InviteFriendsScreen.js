@@ -161,12 +161,20 @@ export const InviteFriendsScreen = () => {
             <div className="w-14 h-14 bg-primary/20 rounded-full flex items-center justify-center">
               <Users className="w-7 h-7 text-primary" />
             </div>
-            <div>
+            <div className="flex-1">
               <div className="text-3xl font-mono font-bold text-white">
                 {referralInfo?.total_referrals || 0}
               </div>
-              <div className="text-zinc-500 text-sm font-body">Friends Joined</div>
+              <div className="text-zinc-500 text-sm font-body">Qualified Referrals</div>
             </div>
+            {referralInfo?.pending_referrals > 0 && (
+              <div className="text-right">
+                <div className="text-xl font-mono font-bold text-amber-400">
+                  {referralInfo.pending_referrals}
+                </div>
+                <div className="text-amber-400/70 text-xs font-body">Pending</div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -417,19 +425,40 @@ export const InviteFriendsScreen = () => {
               {referralInfo.referrals.map((ref, index) => (
                 <div 
                   key={index}
-                  className="bg-zinc-950 border border-zinc-800 rounded-lg p-3 flex items-center justify-between"
+                  className={`bg-zinc-950 border rounded-lg p-3 flex items-center justify-between ${
+                    ref.status === 'pending' ? 'border-amber-500/30' : 'border-zinc-800'
+                  }`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
-                      <UserPlus className="w-4 h-4 text-primary" />
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                      ref.status === 'pending' ? 'bg-amber-500/20' : 'bg-primary/20'
+                    }`}>
+                      <UserPlus className={`w-4 h-4 ${
+                        ref.status === 'pending' ? 'text-amber-400' : 'text-primary'
+                      }`} />
                     </div>
-                    <span className="text-zinc-300 text-sm font-body">
-                      {ref.referred_email}
-                    </span>
+                    <div>
+                      <span className="text-zinc-300 text-sm font-body block">
+                        {ref.referred_email}
+                      </span>
+                      {ref.status === 'pending' && (
+                        <span className="text-amber-400/80 text-xs">
+                          Pending (needs 3 sessions)
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <span className="text-zinc-500 text-xs font-mono">
-                    {format(parseISO(ref.created_at), 'MMM d')}
-                  </span>
+                  <div className="text-right">
+                    <span className="text-zinc-500 text-xs font-mono block">
+                      {format(parseISO(ref.created_at), 'MMM d')}
+                    </span>
+                    {ref.status === 'qualified' && (
+                      <span className="text-emerald-400 text-xs flex items-center gap-1 justify-end">
+                        <Check className="w-3 h-3" />
+                        Qualified
+                      </span>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

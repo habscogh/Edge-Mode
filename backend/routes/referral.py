@@ -63,20 +63,71 @@ async def get_referral_info(current_user: dict = Depends(get_current_user)):
             {'$set': {'referral_code': referral_code}}
         )
     
-    # Count successful referrals (people who signed up)
-    referral_count = await db.referrals.count_documents({'referrer_id': user_id})
+    # Count QUALIFIED referrals only (from referral_logs with status='qualified')
+    qualified_count = await db.referral_logs.count_documents({
+        'referrer_id': user_id,
+        'status': 'qualified'
+    })
+    
+    # Count pending referrals
+    pending_count = await db.referral_logs.count_documents({
+        'referrer_id': user_id,
+        'status': 'pending'
+    })
+    
+    # Also check legacy referrals collection
+    legacy_count = await db.referrals.count_documents({'referrer_id': user_id})
+    
+    # Total qualified = new qualified + legacy (legacy were counted immediately)
+    total_qualified = qualified_count + legacy_count
     
     # Count rewards claimed
     rewards_claimed = current_user.get('referral_rewards_claimed', 0)
     
-    # Calculate progress to next reward
-    progress = referral_count % REFERRAL_REWARD_THRESHOLD
-    rewards_available = (referral_count // REFERRAL_REWARD_THRESHOLD) - rewards_claimed
+    # Calculate progress to next reward (only qualified count)
+    progress = total_qualified % REFERRAL_REWARD_THRESHOLD
+    rewards_available = (total_qualified // REFERRAL_REWARD_THRESHOLD) - rewards_claimed
     
-    referrals = await db.referrals.find(
+    # Get referral list with status
+    referrals = []
+    
+    # Get from new referral_logs (with status)
+    new_referrals = await db.referral_logs.find(
+        {'referrer_id': user_id},
+        {'_id': 0, 'referred_id': 1, 'status': 1, 'created_at': 1, 'qualified_at': 1}
+    ).sort('created_at', -1).to_list(50)
+    
+    for ref in new_referrals:
+        # Get referred user info
+        referred_user = await db.users.find_one(
+            {'id': ref['referred_id']},
+            {'_id': 0, 'email': 1, 'username': 1}
+        )
+        if referred_user:
+            referrals.append({
+                'referred_email': referred_user.get('email', 'Unknown'),
+                'referred_username': referred_user.get('username'),
+                'created_at': ref['created_at'],
+                'status': ref.get('status', 'qualified'),  # Default to qualified for legacy
+                'qualified_at': ref.get('qualified_at')
+            })
+    
+    # Get from legacy referrals collection
+    legacy_referrals = await db.referrals.find(
         {'referrer_id': user_id},
         {'_id': 0, 'referred_email': 1, 'referred_username': 1, 'created_at': 1}
     ).sort('created_at', -1).to_list(50)
+    
+    for ref in legacy_referrals:
+        referrals.append({
+            'referred_email': ref.get('referred_email', 'Unknown'),
+            'referred_username': ref.get('referred_username'),
+            'created_at': ref['created_at'],
+            'status': 'qualified'  # Legacy referrals were counted immediately
+        })
+    
+    # Sort by created_at descending
+    referrals.sort(key=lambda x: x['created_at'], reverse=True)
     
     base_url = "https://edgemodeapp.com"
     referral_link = f"{base_url}/auth?ref={referral_code}"
@@ -84,13 +135,15 @@ async def get_referral_info(current_user: dict = Depends(get_current_user)):
     return {
         'referral_code': referral_code,
         'referral_link': referral_link,
-        'total_referrals': referral_count,
-        'referrals': referrals,
+        'total_referrals': total_qualified,
+        'pending_referrals': pending_count,
+        'referrals': referrals[:50],  # Limit to 50
         'reward_threshold': REFERRAL_REWARD_THRESHOLD,
         'reward_days': REFERRAL_REWARD_DAYS,
         'progress_to_next_reward': progress,
         'rewards_available': max(0, rewards_available),
-        'rewards_claimed': rewards_claimed
+        'rewards_claimed': rewards_claimed,
+        'min_sessions_required': 3  # For frontend info
     }
 
 

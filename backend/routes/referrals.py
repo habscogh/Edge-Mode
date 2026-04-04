@@ -112,6 +112,9 @@ REFERRAL_EXCLUSIVE_ITEMS = [
 
 # ============ Helper Functions ============
 
+# Minimum sessions required for a referral to count
+REFERRAL_MIN_SESSIONS = 3
+
 def generate_referral_code(username: str) -> str:
     """Generate a unique referral code for a user"""
     # Use first 4 chars of username + 4 random chars
@@ -140,6 +143,72 @@ async def get_or_create_referral_code(user_id: str, username: str) -> str:
     )
     
     return code
+
+
+async def check_referral_qualification(user_id: str) -> dict:
+    """
+    Check if a referred user has logged enough sessions to qualify.
+    Called after each session is logged.
+    Returns info about qualification status and any rewards triggered.
+    """
+    # Get user info
+    user = await db.users.find_one({'id': user_id}, {'_id': 0})
+    if not user:
+        return {'qualified': False}
+    
+    # Check if user was referred and is still pending
+    if not user.get('referred_by') or user.get('referral_status') != 'pending':
+        return {'qualified': False, 'reason': 'not_pending_referral'}
+    
+    # Count user's total sessions
+    session_count = await db.daily_sessions.count_documents({'user_id': user_id})
+    
+    if session_count < REFERRAL_MIN_SESSIONS:
+        return {
+            'qualified': False,
+            'reason': 'not_enough_sessions',
+            'sessions_logged': session_count,
+            'sessions_required': REFERRAL_MIN_SESSIONS
+        }
+    
+    # User has qualified! Update their status
+    await db.users.update_one(
+        {'id': user_id},
+        {'$set': {
+            'referral_status': 'qualified',
+            'referral_qualified_at': datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    # Update the referral log
+    await db.referral_logs.update_one(
+        {'referred_id': user_id, 'status': 'pending'},
+        {'$set': {
+            'status': 'qualified',
+            'qualified_at': datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    # NOW increment the referrer's count
+    referrer_id = user['referred_by']
+    await db.users.update_one(
+        {'id': referrer_id},
+        {'$inc': {'referral_count': 1}}
+    )
+    
+    # Check for new milestones for referrer
+    new_rewards = await check_and_award_referral_milestones(referrer_id)
+    
+    # Get referrer info for response
+    referrer = await db.users.find_one({'id': referrer_id}, {'_id': 0, 'username': 1, 'referral_count': 1})
+    
+    return {
+        'qualified': True,
+        'referrer_id': referrer_id,
+        'referrer_username': referrer.get('username', 'Friend'),
+        'referrer_new_count': referrer.get('referral_count', 0) + 1,
+        'new_rewards_for_referrer': new_rewards
+    }
 
 
 async def check_and_award_referral_milestones(user_id: str) -> list:
@@ -280,20 +349,19 @@ async def apply_referral_code(code: str, current_user: dict = Depends(get_curren
     if referrer['id'] == current_user['id']:
         raise HTTPException(status_code=400, detail="You can't use your own referral code")
     
-    # Update current user
+    # Update current user - mark as PENDING (not qualified yet)
+    # Referral only counts after user logs 3 sessions
     await db.users.update_one(
         {'id': current_user['id']},
-        {'$set': {'referred_by': referrer['id'], 'referred_at': datetime.now(timezone.utc).isoformat()}}
+        {'$set': {
+            'referred_by': referrer['id'],
+            'referred_at': datetime.now(timezone.utc).isoformat(),
+            'referral_status': 'pending'  # Will become 'qualified' after 3 sessions
+        }}
     )
     
-    # Increment referrer's count
-    await db.users.update_one(
-        {'id': referrer['id']},
-        {'$inc': {'referral_count': 1}}
-    )
-    
-    # Check for new milestones for referrer
-    new_rewards = await check_and_award_referral_milestones(referrer['id'])
+    # DO NOT increment referrer's count yet - wait for 3 sessions
+    # The count will be incremented when check_referral_qualification() is called
     
     # Give welcome bonus to new user
     welcome_bonus = 25
@@ -308,13 +376,15 @@ async def apply_referral_code(code: str, current_user: dict = Depends(get_curren
         'referrer_id': referrer['id'],
         'referred_id': current_user['id'],
         'code_used': code.upper(),
+        'status': 'pending',  # Will be updated to 'qualified' after 3 sessions
         'created_at': datetime.now(timezone.utc).isoformat()
     })
     
     return {
         'message': f"Welcome bonus! +{welcome_bonus} coins",
         'referred_by': referrer.get('username', 'A friend'),
-        'coins_earned': welcome_bonus
+        'coins_earned': welcome_bonus,
+        'note': 'Your referral will count once you log 3 sessions!'
     }
 
 

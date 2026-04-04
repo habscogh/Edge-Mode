@@ -122,6 +122,10 @@ async def complete_session(session_data: SessionComplete, current_user: dict = D
         current_streak, longest_streak, total_sessions = streak_result
         await track_streak_days(user_id, current_streak)
     
+    # Check referral qualification (only counts after 3 sessions)
+    from routes.referrals import check_referral_qualification
+    referral_result = await check_referral_qualification(user_id)
+    
     # Check for newly earned badges
     new_badges = await check_and_award_badges(user_id)
     
@@ -160,7 +164,8 @@ async def complete_session(session_data: SessionComplete, current_user: dict = D
         'new_badges': new_badges,
         'xp_earned': xp_earned,
         'leveled_up': xp_result.get('leveled_up', False) if xp_result else False,
-        'level_info': xp_result.get('level_info') if xp_result else None
+        'level_info': xp_result.get('level_info') if xp_result else None,
+        'referral_qualified': referral_result.get('qualified', False) if referral_result else False
     }
 
 
