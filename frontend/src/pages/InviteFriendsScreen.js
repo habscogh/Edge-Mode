@@ -14,7 +14,9 @@ import {
   ChevronRight,
   ArrowLeft,
   Gift,
-  Trophy
+  Trophy,
+  Lock,
+  Sparkles
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -27,6 +29,7 @@ export const InviteFriendsScreen = () => {
   const { user, fetchUser } = useAuth();
   const navigate = useNavigate();
   const [referralInfo, setReferralInfo] = useState(null);
+  const [exclusiveRewards, setExclusiveRewards] = useState(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
@@ -38,6 +41,7 @@ export const InviteFriendsScreen = () => {
 
   useEffect(() => {
     fetchReferralInfo();
+    fetchExclusiveRewards();
   }, []);
 
   const fetchReferralInfo = async () => {
@@ -48,6 +52,15 @@ export const InviteFriendsScreen = () => {
       console.error('Failed to fetch referral info:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchExclusiveRewards = async () => {
+    try {
+      const response = await axios.get(`${API}/referrals/my-code`);
+      setExclusiveRewards(response.data);
+    } catch (error) {
+      console.error('Failed to fetch exclusive rewards:', error);
     }
   };
 
@@ -196,6 +209,74 @@ export const InviteFriendsScreen = () => {
             </Button>
           )}
         </div>
+
+        {/* Exclusive Rewards Section */}
+        {exclusiveRewards?.milestones && (
+          <div className="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/30 rounded-lg p-4 mb-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Sparkles className="w-5 h-5 text-emerald-400" />
+              <span className="text-sm font-heading uppercase tracking-wide text-emerald-400">
+                Exclusive Rewards
+              </span>
+            </div>
+            
+            <p className="text-zinc-400 text-sm font-body mb-4">
+              Unlock exclusive items by inviting friends!
+            </p>
+
+            <div className="space-y-3">
+              {exclusiveRewards.milestones.map((milestone) => (
+                <div 
+                  key={milestone.id}
+                  className={`p-3 rounded-lg border transition-all ${
+                    milestone.is_claimed 
+                      ? 'bg-emerald-900/30 border-emerald-500/50' 
+                      : milestone.is_unlocked
+                        ? 'bg-primary/20 border-primary/50'
+                        : 'bg-zinc-900/50 border-zinc-700'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`text-2xl ${!milestone.is_unlocked && 'grayscale opacity-50'}`}>
+                      {milestone.reward_icon}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-white font-medium text-sm">{milestone.reward_name}</span>
+                        {milestone.is_claimed && (
+                          <Check className="w-4 h-4 text-emerald-400" />
+                        )}
+                        {milestone.is_unlocked && !milestone.is_claimed && (
+                          <span className="text-xs bg-primary/30 text-primary px-2 py-0.5 rounded-full">NEW!</span>
+                        )}
+                      </div>
+                      <p className="text-zinc-500 text-xs">{milestone.reward_description}</p>
+                      
+                      {/* Progress bar */}
+                      <div className="mt-2">
+                        <div className="flex justify-between text-xs mb-1">
+                          <span className="text-zinc-400">
+                            {milestone.current}/{milestone.referrals_required} friends
+                          </span>
+                          <span className="text-yellow-400">+{milestone.coins_bonus} coins</span>
+                        </div>
+                        <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full transition-all ${milestone.is_claimed ? 'bg-emerald-500' : 'bg-primary'}`}
+                            style={{ width: `${milestone.progress_pct}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    {!milestone.is_unlocked && (
+                      <Lock className="w-4 h-4 text-zinc-600" />
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Share Link Section */}
         <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-4 mb-4">
