@@ -397,7 +397,11 @@ const ShopScreen = () => {
       </div>
 
       {/* Earn More Coins Banner */}
-      <div className="fixed bottom-20 left-4 right-4 bg-gradient-to-r from-yellow-600/90 to-orange-600/90 rounded-xl p-4 backdrop-blur-sm">
+      <div 
+        onClick={() => navigate('/dashboard')}
+        className="fixed bottom-20 left-4 right-4 bg-gradient-to-r from-yellow-600/90 to-orange-600/90 rounded-xl p-4 backdrop-blur-sm cursor-pointer hover:from-yellow-500/90 hover:to-orange-500/90 transition-colors"
+        data-testid="earn-coins-banner"
+      >
         <div className="flex items-center justify-between">
           <div>
             <p className="text-white font-bold text-sm">Need more coins?</p>
