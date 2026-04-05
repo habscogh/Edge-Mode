@@ -305,17 +305,35 @@ async def send_weekly_summaries_job():
     week_key = today_eastern.strftime('%Y-W%W')
     
     try:
-        users = await db.users.find({
-            'weekly_summary': {'$ne': False},
-            # Skip users who already received this week's summary
-            'last_weekly_summary': {'$ne': week_key}
-        }, {'_id': 0, 'id': 1, 'email': 1, 'username': 1}).to_list(1000)
-        
+        # Use findAndModify pattern to atomically mark users and prevent duplicates
         sent_count = 0
-        for user in users:
-            # Query by date field (YYYY-MM-DD format) - dates are stored in Eastern Time
+        
+        while True:
+            # Atomically find and mark ONE user at a time to prevent race conditions
+            user = await db.users.find_one_and_update(
+                {
+                    'weekly_summary': {'$ne': False},
+                    'last_weekly_summary': {'$ne': week_key},
+                    'email': {'$exists': True, '$ne': None}
+                },
+                {'$set': {'last_weekly_summary': week_key}},
+                projection={'_id': 0, 'id': 1, 'email': 1, 'username': 1},
+                return_document=False  # Return the document BEFORE update
+            )
+            
+            if not user:
+                break  # No more users to process
+            
+            user_id = user.get('id')
+            user_email = user.get('email')
+            username = user.get('username', 'User')
+            
+            if not user_email or not user_id:
+                continue
+            
+            # Query sessions for this user
             sessions = await db.daily_sessions.find({
-                'user_id': user['id'],
+                'user_id': user_id,
                 'date': {'$gte': week_start_date}
             }, {'_id': 0}).to_list(100)
             
@@ -330,25 +348,20 @@ async def send_weekly_summaries_job():
                 'consistency_pct': consistency_pct
             }
             
-            html = get_weekly_summary_html(user.get('username', 'User'), stats)
+            html = get_weekly_summary_html(username, stats)
             
             try:
                 await asyncio.to_thread(resend.Emails.send, {
                     "from": SENDER_EMAIL,
-                    "to": [user['email']],
+                    "to": [user_email],
                     "subject": "📊 Your Weekly Summary - Edge Mode",
                     "html": html
                 })
-                
-                # Mark user as having received this week's summary
-                await db.users.update_one(
-                    {'id': user['id']},
-                    {'$set': {'last_weekly_summary': week_key}}
-                )
-                
                 sent_count += 1
+                logger.info(f"Weekly summary sent to {user_email}: {total_sessions} sessions, {total_minutes} mins")
             except Exception as e:
-                logger.error(f"Failed to send weekly summary to {user['email']}: {e}")
+                logger.error(f"Failed to send weekly summary to {user_email}: {e}")
+                # Even if email fails, we've already marked the user to prevent retry spam
         
         logger.info(f"Weekly summary job complete. Sent {sent_count} emails.")
     except Exception as e:
