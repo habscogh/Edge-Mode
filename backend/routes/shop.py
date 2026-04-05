@@ -276,6 +276,31 @@ async def seed_shop_items():
                     {'id': item['id']},
                     {'$set': {'price': item['price']}}
                 )
+    
+    # Also seed/update referral exclusive items from referrals module
+    from routes.referrals import REFERRAL_EXCLUSIVE_ITEMS
+    for item in REFERRAL_EXCLUSIVE_ITEMS:
+        existing = await db.shop_items.find_one({'id': item['id']})
+        if not existing:
+            item_doc = {
+                **item,
+                'is_active': True,
+                'is_limited': False,
+                'stock': None,
+                'total_sold': 0,
+                'created_at': datetime.now(timezone.utc).isoformat()
+            }
+            await db.shop_items.insert_one(item_doc)
+        else:
+            # Update price and other fields if changed
+            await db.shop_items.update_one(
+                {'id': item['id']},
+                {'$set': {
+                    'price': item['price'],
+                    'referrals_required': item.get('referrals_required'),
+                    'is_referral_exclusive': item.get('is_referral_exclusive', True)
+                }}
+            )
 
 
 def get_rarity_color(rarity: str) -> str:
@@ -389,6 +414,19 @@ async def purchase_item(item_id: str, current_user: dict = Depends(get_current_u
     item = await db.shop_items.find_one({'id': item_id, 'is_active': True}, {'_id': 0})
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
+    
+    # Check if item is referral exclusive
+    if item.get('is_referral_exclusive'):
+        # User must have unlocked this item via referrals first
+        user = await db.users.find_one({'id': current_user['id']}, {'_id': 0})
+        referral_count = user.get('referral_count', 0)
+        required_referrals = item.get('referrals_required', 999)
+        
+        if referral_count < required_referrals:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"This item requires {required_referrals} referrals to unlock. You have {referral_count}."
+            )
     
     # Check stock for limited items
     if item.get('is_limited') and item.get('stock', 0) <= 0:

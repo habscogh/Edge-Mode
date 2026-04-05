@@ -53,14 +53,17 @@ const rarityLabels = {
 };
 
 // Shop Item Card Component
-const ShopItemCard = ({ item, owned, onPurchase, userCoins, navigate }) => {
+const ShopItemCard = ({ item, owned, onPurchase, userCoins, navigate, userReferralCount = 0 }) => {
   const [purchasing, setPurchasing] = useState(false);
   const canAfford = userCoins >= item.price;
   const RarityInfo = rarityLabels[item.rarity] || rarityLabels.common;
   const isReferralExclusive = item.is_referral_exclusive === true;
+  const referralsRequired = item.referrals_required || 0;
+  const isUnlocked = !isReferralExclusive || userReferralCount >= referralsRequired;
+  const canBuy = canAfford && isUnlocked && !owned;
 
   const handlePurchase = async () => {
-    if (owned || !canAfford || isReferralExclusive) return;
+    if (owned || !canAfford || !isUnlocked) return;
     
     setPurchasing(true);
     try {
@@ -103,24 +106,26 @@ const ShopItemCard = ({ item, owned, onPurchase, userCoins, navigate }) => {
 
       {/* Price and action */}
       <div className="flex items-center justify-between mt-auto">
-        {isReferralExclusive ? (
-          <div className="flex items-center gap-1 text-emerald-400 text-xs">
-            <UserPlus className="w-3 h-3" />
-            <span>{item.referrals_required || '?'} friends</span>
-          </div>
-        ) : (
+        {/* Always show price */}
+        <div className="flex flex-col">
           <div className="flex items-center gap-1 text-yellow-400">
             <Coins className="w-4 h-4" />
             <span className="font-bold">{item.price}</span>
           </div>
-        )}
+          {isReferralExclusive && (
+            <div className={`flex items-center gap-1 text-xs mt-1 ${isUnlocked ? 'text-emerald-400' : 'text-zinc-500'}`}>
+              <UserPlus className="w-3 h-3" />
+              <span>{isUnlocked ? 'Unlocked!' : `${referralsRequired} friends`}</span>
+            </div>
+          )}
+        </div>
 
         {owned ? (
           <span className="flex items-center gap-1 text-green-400 text-sm">
             <Check className="w-4 h-4" />
             Owned
           </span>
-        ) : isReferralExclusive ? (
+        ) : isReferralExclusive && !isUnlocked ? (
           <Button
             onClick={() => navigate('/invite')}
             size="sm"
@@ -133,16 +138,16 @@ const ShopItemCard = ({ item, owned, onPurchase, userCoins, navigate }) => {
         ) : (
           <Button
             onClick={handlePurchase}
-            disabled={!canAfford || purchasing}
+            disabled={!canBuy || purchasing}
             size="sm"
             className={`${
-              canAfford 
+              canBuy 
                 ? 'bg-primary hover:bg-primary/90 text-black' 
                 : 'bg-zinc-700 text-zinc-400 cursor-not-allowed'
             }`}
             data-testid={`buy-${item.id}`}
           >
-            {purchasing ? 'Buying...' : canAfford ? 'Buy' : <Lock className="w-4 h-4" />}
+            {purchasing ? 'Buying...' : canBuy ? 'Buy' : <Lock className="w-4 h-4" />}
           </Button>
         )}
       </div>
@@ -205,6 +210,7 @@ const ShopScreen = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [activeTab, setActiveTab] = useState('shop'); // 'shop' or 'inventory'
   const [userCoins, setUserCoins] = useState(0);
+  const [userReferralCount, setUserReferralCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -213,16 +219,18 @@ const ShopScreen = () => {
 
   const fetchData = async () => {
     try {
-      const [categoriesRes, itemsRes, inventoryRes, statusRes] = await Promise.all([
+      const [categoriesRes, itemsRes, inventoryRes, statusRes, referralRes] = await Promise.all([
         axios.get(`${API}/shop/categories`),
         axios.get(`${API}/shop/items`),
         axios.get(`${API}/shop/inventory`),
-        axios.get(`${API}/engagement/status`)
+        axios.get(`${API}/engagement/status`),
+        axios.get(`${API}/referral/info`).catch(() => ({ data: { total_referrals: 0 } }))
       ]);
 
       setCategories(categoriesRes.data.categories);
       setItems(itemsRes.data.items);
       setInventory(inventoryRes.data.inventory);
+      setUserReferralCount(referralRes.data.total_referrals || 0);
       setUserCoins(statusRes.data.coins || 0);
     } catch (error) {
       console.error('Failed to fetch shop data:', error);
@@ -363,6 +371,7 @@ const ShopScreen = () => {
                       owned={ownedItemIds.includes(item.id)}
                       onPurchase={handlePurchase}
                       userCoins={userCoins}
+                      userReferralCount={userReferralCount}
                       navigate={navigate}
                     />
                   ))}
@@ -390,7 +399,7 @@ const ShopScreen = () => {
                     </Link>
                   </div>
                   <p className="text-zinc-400 text-sm mb-2">
-                    These items can only be unlocked by referring friends to Edge Mode. Share your invite link and earn these exclusive rewards!
+                    Refer friends to unlock the ability to purchase these exclusive items!
                   </p>
                   <p className="text-amber-400/80 text-xs mb-4 flex items-center gap-1">
                     <Star className="w-3 h-3" />
@@ -404,6 +413,7 @@ const ShopScreen = () => {
                         owned={ownedItemIds.includes(item.id)}
                         onPurchase={handlePurchase}
                         userCoins={userCoins}
+                        userReferralCount={userReferralCount}
                         navigate={navigate}
                       />
                     ))}
@@ -431,6 +441,7 @@ const ShopScreen = () => {
                       owned={ownedItemIds.includes(item.id)}
                       onPurchase={handlePurchase}
                       userCoins={userCoins}
+                      userReferralCount={userReferralCount}
                       navigate={navigate}
                     />
                   ))}
