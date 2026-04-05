@@ -1087,7 +1087,49 @@ async def debug_sessions(admin_user: dict = Depends(require_admin)):
             'unique_users_with_sessions_this_week': len(users_with_sessions),
             'dates_with_activity_this_week': sorted(recent_dates)
         },
-        'latest_10_sessions': latest
+        'latest_10_sessions': latest,
+        'users_with_sessions_this_week': users_with_sessions
+    }
+
+
+@router.get("/debug/user-sessions/{user_email}")
+async def debug_user_sessions(user_email: str, admin_user: dict = Depends(require_admin)):
+    """Debug endpoint to check sessions for a specific user by email"""
+    from utils.timezone import get_today_eastern
+    
+    # Find user by email
+    user = await db.users.find_one({'email': user_email}, {'_id': 0, 'id': 1, 'email': 1, 'username': 1})
+    if not user:
+        return {'error': f'User not found with email: {user_email}'}
+    
+    user_id = user['id']
+    today_eastern = get_today_eastern()
+    week_start = (today_eastern - timedelta(days=7)).isoformat()
+    
+    # Get all sessions for this user
+    all_sessions = await db.daily_sessions.find(
+        {'user_id': user_id}, 
+        {'_id': 0}
+    ).sort('date', -1).to_list(100)
+    
+    # Get sessions in last 7 days
+    recent_sessions = await db.daily_sessions.find(
+        {'user_id': user_id, 'date': {'$gte': week_start}}, 
+        {'_id': 0}
+    ).to_list(100)
+    
+    return {
+        'user': user,
+        'query_info': {
+            'user_id': user_id,
+            'today_eastern': today_eastern.isoformat(),
+            'week_start': week_start,
+            'query_filter': {'user_id': user_id, 'date': {'$gte': week_start}}
+        },
+        'total_sessions_all_time': len(all_sessions),
+        'sessions_last_7_days': len(recent_sessions),
+        'recent_sessions_detail': recent_sessions[:20],
+        'all_sessions_dates': [s.get('date') for s in all_sessions][:30]
     }
 
 
