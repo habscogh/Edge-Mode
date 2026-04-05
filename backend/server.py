@@ -105,6 +105,8 @@ from routes import quests
 api_router.include_router(quests.router)  # Daily & Weekly Quests
 from routes import referrals
 api_router.include_router(referrals.router)  # Referral System
+from routes import pets
+api_router.include_router(pets.router)  # Virtual Pets
 
 
 # Health check endpoints

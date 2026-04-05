@@ -24,6 +24,7 @@ import { getLocalDateString } from '../utils/dateUtils';
 import { StreakRecoveryModal, useStreakRecovery } from '../components/StreakRecoveryModal';
 import EngagementStatus from '../components/EngagementStatus';
 import QuestsSection from '../components/Quests';
+import PetDisplay from '../components/PetDisplay';
 
 // Rotating habit quotes
 const HABIT_QUOTES = [
@@ -275,6 +276,11 @@ export const Dashboard = () => {
         {/* XP & Daily Rewards Section */}
         <div className="mb-6" data-testid="engagement-status-section">
           <EngagementStatus />
+        </div>
+
+        {/* Virtual Pet Companion */}
+        <div className="mb-6" data-testid="pet-section">
+          <PetDisplay onSelectPet={() => navigate('/pets')} />
         </div>
 
         {/* Progress Insights */}

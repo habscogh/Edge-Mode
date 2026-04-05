@@ -126,6 +126,13 @@ async def complete_session(session_data: SessionComplete, current_user: dict = D
     from routes.referrals import check_referral_qualification
     referral_result = await check_referral_qualification(user_id)
     
+    # Check pet evolution based on streak
+    pet_evolution = None
+    if streak_result:
+        current_streak, longest_streak, total_sessions = streak_result
+        from routes.pets import check_and_evolve_pet
+        pet_evolution = await check_and_evolve_pet(user_id, current_streak)
+    
     # Check for newly earned badges
     new_badges = await check_and_award_badges(user_id)
     
@@ -165,7 +172,9 @@ async def complete_session(session_data: SessionComplete, current_user: dict = D
         'xp_earned': xp_earned,
         'leveled_up': xp_result.get('leveled_up', False) if xp_result else False,
         'level_info': xp_result.get('level_info') if xp_result else None,
-        'referral_qualified': referral_result.get('qualified', False) if referral_result else False
+        'referral_qualified': referral_result.get('qualified', False) if referral_result else False,
+        'pet_evolved': pet_evolution.get('evolved', False) if pet_evolution else False,
+        'pet_evolution': pet_evolution if pet_evolution and pet_evolution.get('evolved') else None
     }
 
 

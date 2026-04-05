@@ -107,6 +107,10 @@ export const LandingPage = () => {
               <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
               <p className="text-white font-body">Review your weekly performance</p>
             </div>
+            <div className="flex items-start gap-4">
+              <CheckCircle2 className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
+              <p className="text-white font-body">Raise a virtual pet that grows with your progress</p>
+            </div>
           </div>
         </div>
 
