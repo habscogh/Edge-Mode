@@ -153,6 +153,45 @@ def get_trial_ending_html(username: str, days_left: int, streak: int, consistenc
 
 # ============ Notification Routes ============
 
+@router.get("/inbox")
+async def get_notifications(current_user: dict = Depends(get_current_user)):
+    """Get user's in-app notifications"""
+    notifications = await db.notifications.find(
+        {'user_id': current_user['id']},
+        {'_id': 0}
+    ).sort('created_at', -1).limit(50).to_list(50)
+    
+    unread_count = await db.notifications.count_documents({
+        'user_id': current_user['id'],
+        'read': False
+    })
+    
+    return {
+        'notifications': notifications,
+        'unread_count': unread_count
+    }
+
+
+@router.post("/mark-read/{notification_id}")
+async def mark_notification_read(notification_id: str, current_user: dict = Depends(get_current_user)):
+    """Mark a notification as read"""
+    result = await db.notifications.update_one(
+        {'id': notification_id, 'user_id': current_user['id']},
+        {'$set': {'read': True}}
+    )
+    return {'success': result.modified_count > 0}
+
+
+@router.post("/mark-all-read")
+async def mark_all_notifications_read(current_user: dict = Depends(get_current_user)):
+    """Mark all notifications as read"""
+    result = await db.notifications.update_many(
+        {'user_id': current_user['id'], 'read': False},
+        {'$set': {'read': True}}
+    )
+    return {'marked_read': result.modified_count}
+
+
 @router.get("/settings")
 async def get_notification_settings(current_user: dict = Depends(get_current_user)):
     user = await db.users.find_one({'id': current_user['id']}, {'_id': 0})

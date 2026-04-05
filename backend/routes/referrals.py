@@ -8,11 +8,23 @@ from pydantic import BaseModel
 import uuid
 import random
 import string
+import os
+import asyncio
 
 from config import db
 from utils.auth import get_current_user
 
 router = APIRouter(prefix="/referrals", tags=["Referrals"])
+
+# Email setup
+try:
+    import resend
+    resend.api_key = os.environ.get('RESEND_API_KEY')
+    RESEND_API_KEY = os.environ.get('RESEND_API_KEY')
+    SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'Edge Mode <noreply@edgemodeapp.com>')
+except ImportError:
+    RESEND_API_KEY = None
+    SENDER_EMAIL = None
 
 
 # ============ Referral Milestones & Exclusive Rewards ============
@@ -115,6 +127,100 @@ REFERRAL_EXCLUSIVE_ITEMS = [
 # Minimum sessions required for a referral to count
 REFERRAL_MIN_SESSIONS = 3
 
+
+def get_referral_notification_html(referrer_username: str, referred_username: str, 
+                                    new_count: int, new_rewards: list) -> str:
+    """Generate HTML email for referral qualification notification"""
+    rewards_html = ""
+    if new_rewards:
+        rewards_list = "".join([
+            f'<li style="color: #22c55e; margin: 5px 0;">🎁 {r["reward_name"]} (+{r["coins_bonus"]} coins)</li>'
+            for r in new_rewards
+        ])
+        rewards_html = f'''
+        <div style="background: #14532d; border: 1px solid #22c55e; border-radius: 8px; padding: 15px; margin: 20px 0;">
+            <h3 style="color: #22c55e; margin: 0 0 10px 0;">🏆 New Rewards Unlocked!</h3>
+            <ul style="margin: 0; padding-left: 20px;">{rewards_list}</ul>
+        </div>
+        '''
+    
+    return f'''
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #09090b; color: white;">
+        <div style="text-align: center; padding: 20px 0; border-bottom: 1px solid #27272a;">
+            <h1 style="color: #22c55e; margin: 0; font-size: 28px;">🎉 Great News!</h1>
+        </div>
+        
+        <div style="padding: 30px 20px; text-align: center;">
+            <p style="color: #d1d5db; font-size: 18px; line-height: 1.6;">
+                Hey <strong style="color: #fff;">{referrer_username}</strong>,
+            </p>
+            <p style="color: #d1d5db; font-size: 18px; line-height: 1.6;">
+                Your friend <strong style="color: #22c55e;">{referred_username}</strong> just logged their 3rd session!
+            </p>
+            <p style="color: #d1d5db; font-size: 16px; line-height: 1.6;">
+                This referral now counts toward your rewards.
+            </p>
+            
+            <div style="background: #18181b; border-radius: 12px; padding: 20px; margin: 20px 0;">
+                <p style="color: #71717a; margin: 0; font-size: 14px;">Total Qualified Referrals</p>
+                <p style="color: #22c55e; font-size: 48px; font-weight: bold; margin: 10px 0;">{new_count}</p>
+            </div>
+            
+            {rewards_html}
+            
+            <p style="color: #71717a; font-size: 14px; margin-top: 20px;">
+                Keep inviting friends to unlock exclusive badges and rewards!
+            </p>
+        </div>
+        
+        <div style="text-align: center; padding: 20px; border-top: 1px solid #27272a;">
+            <p style="color: #71717a; font-size: 12px; margin: 0;">
+                Edge Mode - 1% Better Every Day
+            </p>
+        </div>
+    </div>
+    '''
+
+
+async def notify_referrer_of_qualification(referrer_id: str, referrer_email: str, 
+                                            referrer_username: str, referred_username: str,
+                                            new_referral_count: int, new_rewards: list):
+    """Send notification to referrer when their referral qualifies"""
+    
+    # Create in-app notification
+    notification = {
+        'id': str(uuid.uuid4()),
+        'user_id': referrer_id,
+        'type': 'referral_qualified',
+        'title': '🎉 Referral Qualified!',
+        'message': f'{referred_username} logged 3 sessions! Your referral now counts.',
+        'data': {
+            'referred_username': referred_username,
+            'new_count': new_referral_count,
+            'new_rewards': [r['reward_name'] for r in new_rewards] if new_rewards else []
+        },
+        'read': False,
+        'created_at': datetime.now(timezone.utc).isoformat()
+    }
+    await db.notifications.insert_one(notification)
+    
+    # Send email notification if configured
+    if RESEND_API_KEY and referrer_email:
+        try:
+            html = get_referral_notification_html(
+                referrer_username, referred_username, 
+                new_referral_count, new_rewards
+            )
+            await asyncio.to_thread(resend.Emails.send, {
+                "from": SENDER_EMAIL,
+                "to": [referrer_email],
+                "subject": f"🎉 {referred_username} is now an active user!",
+                "html": html
+            })
+        except Exception as e:
+            print(f"Failed to send referral notification email: {e}")
+
+
 def generate_referral_code(username: str) -> str:
     """Generate a unique referral code for a user"""
     # Use first 4 chars of username + 4 random chars
@@ -199,8 +305,24 @@ async def check_referral_qualification(user_id: str) -> dict:
     # Check for new milestones for referrer
     new_rewards = await check_and_award_referral_milestones(referrer_id)
     
-    # Get referrer info for response
-    referrer = await db.users.find_one({'id': referrer_id}, {'_id': 0, 'username': 1, 'referral_count': 1})
+    # Get referrer info for response and notification
+    referrer = await db.users.find_one(
+        {'id': referrer_id}, 
+        {'_id': 0, 'username': 1, 'referral_count': 1, 'email': 1}
+    )
+    
+    # Get referred user's username for the notification
+    referred_username = user.get('username', 'Your friend')
+    
+    # Send notification to referrer about the qualified referral
+    await notify_referrer_of_qualification(
+        referrer_id=referrer_id,
+        referrer_email=referrer.get('email'),
+        referrer_username=referrer.get('username', 'Friend'),
+        referred_username=referred_username,
+        new_referral_count=referrer.get('referral_count', 0) + 1,
+        new_rewards=new_rewards
+    )
     
     return {
         'qualified': True,
