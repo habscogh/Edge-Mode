@@ -288,6 +288,82 @@ PET_MESSAGES = {
     ]
 }
 
+# Interaction types with animations and responses
+INTERACTION_TYPES = {
+    "pet": {
+        "animations": ["bounce", "hearts", "wiggle", "spin"],
+        "messages": [
+            "{pet_name} loves the pets! 💕",
+            "{pet_name} purrs happily!",
+            "{pet_name} nuzzles your hand!",
+            "{pet_name} wags with joy!",
+            "{pet_name} does a happy wiggle!",
+        ],
+        "happiness_boost": 5,
+        "cooldown_seconds": 0
+    },
+    "feed": {
+        "animations": ["eat", "hearts", "satisfied"],
+        "messages": [
+            "{pet_name} gobbles up the treat! Yummy!",
+            "{pet_name} munches happily!",
+            "{pet_name} thanks you for the snack!",
+            "That was delicious! {pet_name} is satisfied!",
+            "{pet_name} licks their lips!",
+        ],
+        "happiness_boost": 10,
+        "cooldown_seconds": 3600  # 1 hour
+    },
+    "play": {
+        "animations": ["jump", "run", "spin", "bounce"],
+        "messages": [
+            "{pet_name} chases their tail excitedly!",
+            "Wheee! {pet_name} loves playtime!",
+            "{pet_name} does zoomies around you!",
+            "{pet_name} brings back the toy proudly!",
+            "{pet_name} jumps around playfully!",
+        ],
+        "happiness_boost": 8,
+        "cooldown_seconds": 1800  # 30 min
+    },
+    "train": {
+        "animations": ["focus", "levelup", "sparkle"],
+        "messages": [
+            "{pet_name} learned something new!",
+            "Good job! {pet_name} is getting smarter!",
+            "{pet_name} shows off a new trick!",
+            "{pet_name} is ready for any challenge!",
+            "Training complete! {pet_name} feels stronger!",
+        ],
+        "happiness_boost": 7,
+        "cooldown_seconds": 7200  # 2 hours
+    },
+    "sleep": {
+        "animations": ["sleep", "zzz", "dream"],
+        "messages": [
+            "{pet_name} curls up for a cozy nap... 💤",
+            "Shhh... {pet_name} is dreaming!",
+            "{pet_name} snores softly...",
+            "{pet_name} is resting peacefully!",
+            "Sweet dreams, {pet_name}!",
+        ],
+        "happiness_boost": 3,
+        "cooldown_seconds": 0
+    },
+    "dance": {
+        "animations": ["dance", "spin", "bounce", "wiggle"],
+        "messages": [
+            "{pet_name} breaks into a dance! 💃",
+            "Look at {pet_name} go!",
+            "{pet_name} has got the moves!",
+            "Dance party with {pet_name}!",
+            "{pet_name} grooves to the beat!",
+        ],
+        "happiness_boost": 6,
+        "cooldown_seconds": 300  # 5 min
+    }
+}
+
 
 # ============ Pydantic Models ============
 
@@ -557,7 +633,7 @@ async def set_active_pet(pet_id: str, current_user: dict = Depends(get_current_u
 
 @router.post("/interact")
 async def interact_with_pet(request: InteractRequest, current_user: dict = Depends(get_current_user)):
-    """Interact with your pet (tap, pet, play)"""
+    """Interact with your pet with various actions"""
     user_pet = await db.user_pets.find_one(
         {'user_id': current_user['id'], 'is_active': True},
         {'_id': 0}
@@ -566,31 +642,106 @@ async def interact_with_pet(request: InteractRequest, current_user: dict = Depen
     if not user_pet:
         raise HTTPException(status_code=404, detail="No active pet found")
     
+    interaction_type = request.interaction_type
+    
+    # Validate interaction type
+    if interaction_type not in INTERACTION_TYPES:
+        raise HTTPException(status_code=400, detail=f"Invalid interaction type. Choose from: {', '.join(INTERACTION_TYPES.keys())}")
+    
+    interaction = INTERACTION_TYPES[interaction_type]
+    
+    # Check cooldown for this interaction
+    cooldown = interaction['cooldown_seconds']
+    if cooldown > 0:
+        last_key = f'last_{interaction_type}'
+        last_time = user_pet.get(last_key)
+        if last_time:
+            last_dt = datetime.fromisoformat(last_time.replace('Z', '+00:00'))
+            elapsed = (datetime.now(timezone.utc) - last_dt).total_seconds()
+            if elapsed < cooldown:
+                remaining = int(cooldown - elapsed)
+                mins = remaining // 60
+                secs = remaining % 60
+                raise HTTPException(
+                    status_code=400, 
+                    detail=f"{interaction_type.title()} is on cooldown. Try again in {mins}m {secs}s"
+                )
+    
     pet_type = user_pet['pet_type']
     pet_info = PET_TYPES.get(pet_type)
     pet_name = user_pet.get('custom_name') or pet_info['name']
     
     # Update happiness and last interaction
-    new_happiness = min(100, user_pet.get('happiness', 100) + 5)
+    happiness_boost = interaction['happiness_boost']
+    new_happiness = min(100, user_pet.get('happiness', 100) + happiness_boost)
+    
+    update_fields = {
+        'happiness': new_happiness,
+        'last_interaction': datetime.now(timezone.utc).isoformat(),
+        f'last_{interaction_type}': datetime.now(timezone.utc).isoformat()
+    }
     
     await db.user_pets.update_one(
         {'id': user_pet['id']},
-        {
-            '$set': {
-                'happiness': new_happiness,
-                'last_interaction': datetime.now(timezone.utc).isoformat()
-            }
-        }
+        {'$set': update_fields}
     )
     
-    # Get a celebration message
-    message = get_random_message('celebration', pet_name)
+    # Get random message and animation for this interaction
+    message_template = random.choice(interaction['messages'])
+    message = message_template.format(pet_name=pet_name)
+    animation = random.choice(interaction['animations'])
     
     return {
         'message': message,
+        'animation': animation,
         'happiness': new_happiness,
+        'happiness_boost': happiness_boost,
         'pet_name': pet_name,
-        'interaction': request.interaction_type
+        'interaction': interaction_type,
+        'cooldown_seconds': cooldown
+    }
+
+
+@router.get("/interactions")
+async def get_available_interactions(current_user: dict = Depends(get_current_user)):
+    """Get available interaction types and their cooldown status"""
+    user_pet = await db.user_pets.find_one(
+        {'user_id': current_user['id'], 'is_active': True},
+        {'_id': 0}
+    )
+    
+    if not user_pet:
+        return {'interactions': [], 'has_pet': False}
+    
+    interactions = []
+    now = datetime.now(timezone.utc)
+    
+    for int_type, info in INTERACTION_TYPES.items():
+        cooldown = info['cooldown_seconds']
+        available = True
+        remaining_seconds = 0
+        
+        if cooldown > 0:
+            last_key = f'last_{int_type}'
+            last_time = user_pet.get(last_key)
+            if last_time:
+                last_dt = datetime.fromisoformat(last_time.replace('Z', '+00:00'))
+                elapsed = (now - last_dt).total_seconds()
+                if elapsed < cooldown:
+                    available = False
+                    remaining_seconds = int(cooldown - elapsed)
+        
+        interactions.append({
+            'type': int_type,
+            'available': available,
+            'cooldown_seconds': cooldown,
+            'remaining_seconds': remaining_seconds,
+            'happiness_boost': info['happiness_boost']
+        })
+    
+    return {
+        'interactions': interactions,
+        'has_pet': True
     }
 
 

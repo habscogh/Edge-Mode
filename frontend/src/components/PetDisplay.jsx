@@ -8,8 +8,12 @@ import {
   Sparkles, 
   ChevronRight,
   Star,
-  Gift,
-  Zap
+  Zap,
+  Cookie,
+  Gamepad2,
+  GraduationCap,
+  Moon,
+  Music
 } from 'lucide-react';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -23,12 +27,42 @@ const rarityColors = {
   legendary: 'text-yellow-400 border-yellow-500/50'
 };
 
-const PetDisplay = ({ onSelectPet }) => {
+// Interaction button configs
+const interactionButtons = [
+  { type: 'pet', icon: Heart, label: 'Pet', color: 'text-pink-400 hover:bg-pink-500/20' },
+  { type: 'feed', icon: Cookie, label: 'Feed', color: 'text-orange-400 hover:bg-orange-500/20' },
+  { type: 'play', icon: Gamepad2, label: 'Play', color: 'text-green-400 hover:bg-green-500/20' },
+  { type: 'train', icon: GraduationCap, label: 'Train', color: 'text-blue-400 hover:bg-blue-500/20' },
+  { type: 'dance', icon: Music, label: 'Dance', color: 'text-purple-400 hover:bg-purple-500/20' },
+  { type: 'sleep', icon: Moon, label: 'Sleep', color: 'text-indigo-400 hover:bg-indigo-500/20' },
+];
+
+// Animation classes
+const animationClasses = {
+  bounce: 'animate-bounce',
+  hearts: 'animate-pulse',
+  wiggle: 'animate-wiggle',
+  spin: 'animate-spin',
+  eat: 'animate-pulse',
+  satisfied: 'animate-pulse',
+  jump: 'animate-bounce',
+  run: 'animate-pulse',
+  focus: 'animate-pulse',
+  levelup: 'animate-bounce',
+  sparkle: 'animate-pulse',
+  sleep: 'animate-pulse',
+  zzz: 'animate-pulse',
+  dream: 'animate-pulse',
+  dance: 'animate-bounce',
+};
+
+const PetDisplay = ({ onSelectPet, compact = false }) => {
   const navigate = useNavigate();
   const [petData, setPetData] = useState(null);
+  const [interactions, setInteractions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [interacting, setInteracting] = useState(false);
-  const [showHearts, setShowHearts] = useState(false);
+  const [currentAnimation, setCurrentAnimation] = useState(null);
+  const [showEmoji, setShowEmoji] = useState(null);
 
   useEffect(() => {
     fetchPetData();
@@ -36,8 +70,12 @@ const PetDisplay = ({ onSelectPet }) => {
 
   const fetchPetData = async () => {
     try {
-      const response = await axios.get(`${API}/pets/my-pet`);
-      setPetData(response.data);
+      const [petRes, intRes] = await Promise.all([
+        axios.get(`${API}/pets/my-pet`),
+        axios.get(`${API}/pets/interactions`).catch(() => ({ data: { interactions: [] } }))
+      ]);
+      setPetData(petRes.data);
+      setInteractions(intRes.data.interactions || []);
     } catch (error) {
       console.error('Failed to fetch pet:', error);
     } finally {
@@ -45,24 +83,53 @@ const PetDisplay = ({ onSelectPet }) => {
     }
   };
 
-  const handleInteract = async () => {
-    if (interacting || !petData?.has_pet) return;
-    
-    setInteracting(true);
-    setShowHearts(true);
+  const handleInteract = async (interactionType) => {
+    if (currentAnimation || !petData?.has_pet) return;
     
     try {
       const response = await axios.post(`${API}/pets/interact`, {
-        interaction_type: 'pet'
+        interaction_type: interactionType
       });
+      
+      // Show animation
+      setCurrentAnimation(response.data.animation);
+      
+      // Show emoji based on interaction
+      const emojis = {
+        pet: '💕',
+        feed: '🍖',
+        play: '⚡',
+        train: '📚',
+        dance: '🎵',
+        sleep: '💤'
+      };
+      setShowEmoji(emojis[interactionType] || '✨');
+      
       toast.success(response.data.message);
-      fetchPetData(); // Refresh happiness
+      
+      // Clear animation after delay
+      setTimeout(() => {
+        setCurrentAnimation(null);
+        setShowEmoji(null);
+        fetchPetData(); // Refresh data
+      }, 1500);
+      
     } catch (error) {
-      console.error('Interaction failed:', error);
-    } finally {
-      setInteracting(false);
-      setTimeout(() => setShowHearts(false), 1000);
+      toast.error(error.response?.data?.detail || 'Interaction failed');
     }
+  };
+
+  const getInteractionStatus = (type) => {
+    const interaction = interactions.find(i => i.type === type);
+    return interaction || { available: true, remaining_seconds: 0 };
+  };
+
+  const formatCooldown = (seconds) => {
+    if (seconds < 60) return `${seconds}s`;
+    const mins = Math.floor(seconds / 60);
+    if (mins < 60) return `${mins}m`;
+    const hours = Math.floor(mins / 60);
+    return `${hours}h`;
   };
 
   if (loading) {
@@ -113,16 +180,16 @@ const PetDisplay = ({ onSelectPet }) => {
       <div className="flex items-center gap-4">
         {/* Pet Icon - Tappable */}
         <div 
-          className={`relative w-16 h-16 bg-zinc-800 rounded-full flex items-center justify-center text-4xl cursor-pointer transition-transform hover:scale-110 ${interacting ? 'animate-bounce' : ''}`}
-          onClick={handleInteract}
+          className={`relative w-16 h-16 bg-zinc-800 rounded-full flex items-center justify-center text-4xl cursor-pointer transition-transform hover:scale-110 ${currentAnimation ? animationClasses[currentAnimation] || 'animate-bounce' : ''}`}
+          onClick={() => handleInteract('pet')}
           data-testid="pet-tap-area"
         >
           {pet.icon}
           
-          {/* Hearts animation */}
-          {showHearts && (
-            <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-              <Heart className="w-4 h-4 text-red-500 animate-ping" />
+          {/* Floating emoji animation */}
+          {showEmoji && (
+            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 text-2xl animate-bounce">
+              {showEmoji}
             </div>
           )}
         </div>
@@ -183,10 +250,42 @@ const PetDisplay = ({ onSelectPet }) => {
         )}
       </div>
 
-      {/* Tap hint */}
-      <p className="text-center text-zinc-600 text-xs mt-2">
-        Tap your pet to interact! 💕
-      </p>
+      {/* Interaction Buttons */}
+      {!compact && (
+        <div className="mt-4 flex flex-wrap gap-2 justify-center">
+          {interactionButtons.map(({ type, icon: Icon, label, color }) => {
+            const status = getInteractionStatus(type);
+            const isAvailable = status.available;
+            
+            return (
+              <button
+                key={type}
+                onClick={() => handleInteract(type)}
+                disabled={!isAvailable || currentAnimation}
+                className={`flex flex-col items-center justify-center p-2 rounded-lg transition-all ${
+                  isAvailable 
+                    ? `bg-zinc-800/50 ${color} cursor-pointer` 
+                    : 'bg-zinc-900/50 text-zinc-600 cursor-not-allowed'
+                }`}
+                title={isAvailable ? label : `Cooldown: ${formatCooldown(status.remaining_seconds)}`}
+                data-testid={`pet-action-${type}`}
+              >
+                <Icon className="w-5 h-5" />
+                <span className="text-[10px] mt-1">
+                  {isAvailable ? label : formatCooldown(status.remaining_seconds)}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Tap hint for compact mode */}
+      {compact && (
+        <p className="text-center text-zinc-600 text-xs mt-2">
+          Tap your pet to interact! 💕
+        </p>
+      )}
     </div>
   );
 };
