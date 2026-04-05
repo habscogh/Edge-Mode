@@ -37,23 +37,23 @@ const interactionButtons = [
   { type: 'sleep', icon: Moon, label: 'Sleep', color: 'text-indigo-400 hover:bg-indigo-500/20' },
 ];
 
-// Animation classes
+// Animation classes mapped to CSS
 const animationClasses = {
-  bounce: 'animate-bounce',
-  hearts: 'animate-pulse',
-  wiggle: 'animate-wiggle',
-  spin: 'animate-spin',
-  eat: 'animate-pulse',
-  satisfied: 'animate-pulse',
-  jump: 'animate-bounce',
-  run: 'animate-pulse',
-  focus: 'animate-pulse',
-  levelup: 'animate-bounce',
-  sparkle: 'animate-pulse',
-  sleep: 'animate-pulse',
-  zzz: 'animate-pulse',
-  dream: 'animate-pulse',
-  dance: 'animate-bounce',
+  bounce: 'pet-bounce',
+  hearts: 'pet-hearts',
+  wiggle: 'pet-wiggle',
+  spin: 'pet-spin',
+  eat: 'pet-eat',
+  satisfied: 'pet-hearts',
+  jump: 'pet-jump',
+  run: 'pet-run',
+  focus: 'pet-sparkle',
+  levelup: 'pet-sparkle',
+  sparkle: 'pet-sparkle',
+  sleep: 'pet-sleep',
+  zzz: 'pet-sleep',
+  dream: 'pet-sleep',
+  dance: 'pet-dance',
 };
 
 const PetDisplay = ({ onSelectPet, compact = false }) => {
@@ -188,7 +188,7 @@ const PetDisplay = ({ onSelectPet, compact = false }) => {
           
           {/* Floating emoji animation */}
           {showEmoji && (
-            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 text-2xl animate-bounce">
+            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 text-2xl pet-float-up">
               {showEmoji}
             </div>
           )}
