@@ -82,33 +82,33 @@ PET_TYPES = {
     "sports": {
         "name": "Champ",
         "category": "activity",
-        "description": "An athletic companion that trains alongside you",
+        "description": "A swift cheetah that races alongside your progress",
         "rarity": "common",
         "price": 0,
         "is_starter": True,
         "stages": {
-            1: {"icon": "⚽", "name": "Rookie Ball"},
-            2: {"icon": "🏀", "name": "Junior Athlete"},
-            3: {"icon": "🏆", "name": "Rising Star"},
-            4: {"icon": "🥇", "name": "Champion"},
-            5: {"icon": "🌟", "name": "All-Star"},
-            6: {"icon": "👑", "name": "Legend of the Game"}
+            1: {"icon": "🐆", "name": "Cheetah Cub"},
+            2: {"icon": "🐆", "name": "Young Cheetah"},
+            3: {"icon": "🐆", "name": "Swift Runner"},
+            4: {"icon": "🐆", "name": "Sprint Champion"},
+            5: {"icon": "🐆", "name": "Lightning Cheetah"},
+            6: {"icon": "🐆", "name": "Legendary Speedster"}
         }
     },
     "music": {
         "name": "Melody",
         "category": "activity",
-        "description": "A musical spirit that harmonizes with your progress",
+        "description": "A songbird that sings sweeter as you grow",
         "rarity": "common",
         "price": 0,
         "is_starter": True,
         "stages": {
-            1: {"icon": "🎵", "name": "Little Note"},
-            2: {"icon": "🎶", "name": "Young Melody"},
-            3: {"icon": "🎸", "name": "Rising Artist"},
-            4: {"icon": "🎹", "name": "Virtuoso"},
-            5: {"icon": "🎼", "name": "Maestro"},
-            6: {"icon": "🎭", "name": "Legendary Composer"}
+            1: {"icon": "🐦", "name": "Little Songbird"},
+            2: {"icon": "🐦", "name": "Young Warbler"},
+            3: {"icon": "🦜", "name": "Colorful Singer"},
+            4: {"icon": "🦜", "name": "Melodic Parrot"},
+            5: {"icon": "🦚", "name": "Majestic Peacock"},
+            6: {"icon": "🦅", "name": "Legendary Phoenix Bird"}
         }
     },
     "study": {
@@ -119,12 +119,12 @@ PET_TYPES = {
         "price": 0,
         "is_starter": True,
         "stages": {
-            1: {"icon": "📚", "name": "Bookworm"},
+            1: {"icon": "🦉", "name": "Owlet"},
             2: {"icon": "🦉", "name": "Young Owl"},
-            3: {"icon": "🎓", "name": "Student"},
-            4: {"icon": "📖", "name": "Scholar"},
-            5: {"icon": "🧠", "name": "Sage"},
-            6: {"icon": "🏛️", "name": "Grand Master"}
+            3: {"icon": "🦉", "name": "Wise Owl"},
+            4: {"icon": "🦉", "name": "Scholar Owl"},
+            5: {"icon": "🦉", "name": "Sage Owl"},
+            6: {"icon": "🦉", "name": "Grand Owl Master"}
         }
     },
     "fox": {
@@ -138,9 +138,9 @@ PET_TYPES = {
             1: {"icon": "🦊", "name": "Fox Kit"},
             2: {"icon": "🦊", "name": "Young Fox"},
             3: {"icon": "🦊", "name": "Swift Fox"},
-            4: {"icon": "🔥", "name": "Fire Fox"},
-            5: {"icon": "✨", "name": "Spirit Fox"},
-            6: {"icon": "🌟", "name": "Nine-Tail Legend"}
+            4: {"icon": "🦊", "name": "Fire Fox"},
+            5: {"icon": "🦊", "name": "Spirit Fox"},
+            6: {"icon": "🦊", "name": "Nine-Tail Legend"}
         }
     },
     
