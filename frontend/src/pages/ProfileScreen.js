@@ -4,7 +4,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { User, LogOut, CreditCard, Trophy, Settings, Mail, Lock, Trash2, Bell, Shield, UserPlus, ChevronRight, HelpCircle, Target, Swords, Users, Sun, Moon, School } from 'lucide-react';
+import { User, LogOut, CreditCard, Trophy, Settings, Mail, Lock, Trash2, Bell, Shield, UserPlus, ChevronRight, HelpCircle, Target, Swords, Users, Sun, Moon, School, PawPrint } from 'lucide-react';
 import { format } from 'date-fns';
 import axios from 'axios';
 import { toast } from 'sonner';
@@ -39,6 +39,7 @@ export const ProfileScreen = () => {
     weekly_summary: true,
     morning_reminders: false
   });
+  const [myPet, setMyPet] = useState(null);
 
   const isAdmin = user && ADMIN_EMAILS.includes(user.email);
   const isParent = user?.is_parent || linkedStudents.length > 0;
@@ -46,7 +47,17 @@ export const ProfileScreen = () => {
   useEffect(() => {
     fetchNotificationSettings();
     fetchLinkedStudents();
+    fetchMyPet();
   }, []);
+
+  const fetchMyPet = async () => {
+    try {
+      const response = await axios.get(`${API}/pets/my-pet`);
+      setMyPet(response.data);
+    } catch (error) {
+      // No pet or error - that's fine
+    }
+  };
 
   const fetchLinkedStudents = async () => {
     try {
@@ -239,6 +250,50 @@ export const ProfileScreen = () => {
         {/* Badge Summary - links to full achievements page */}
         <div className="mb-4">
           <BadgeSummary />
+        </div>
+
+        {/* My Pet Section */}
+        <div 
+          className="bg-zinc-950 border border-purple-500/30 rounded-lg p-4 mb-4 cursor-pointer hover:border-purple-500/50 transition-colors"
+          onClick={() => navigate('/pets')}
+          data-testid="my-pet-btn"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {myPet?.has_pet ? (
+                <>
+                  <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center text-2xl">
+                    {myPet.pet.icon}
+                  </div>
+                  <div>
+                    <div className="text-white font-body font-medium flex items-center gap-2">
+                      {myPet.pet.name}
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-400">
+                        {myPet.pet.stage_name}
+                      </span>
+                    </div>
+                    <div className="text-zinc-500 text-sm font-body">
+                      {myPet.next_evolution 
+                        ? `${myPet.days_until_evolution} days until evolution`
+                        : 'Max Evolution!'
+                      }
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center">
+                    <PawPrint className="w-6 h-6 text-purple-400" />
+                  </div>
+                  <div>
+                    <div className="text-white font-body font-medium">Get a Pet!</div>
+                    <div className="text-zinc-500 text-sm font-body">Choose your companion</div>
+                  </div>
+                </>
+              )}
+            </div>
+            <ChevronRight className="w-5 h-5 text-purple-400" />
+          </div>
         </div>
 
         {/* Founding Ambassador Section */}
