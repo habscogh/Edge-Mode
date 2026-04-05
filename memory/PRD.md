@@ -228,6 +228,19 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
       - Pending referrals display in amber with status text
     - All tests passing (100% backend, 100% frontend)
 
+13. **Virtual Pets** ✅ (April 5, 2026)
+    - Pet types:
+      - Starters (FREE): Puppy, Kitten, Bunny
+      - Shop pets (coins): Dragon (300), Phoenix (450), Unicorn (400), Slime (150), Spirit (250), Crystal (600), Robot (350)
+    - Growth-based evolution tied to streaks:
+      - Baby (0 days), Young (7 days), Teen (14 days), Adult (30 days), Elder (60 days), Legendary (100 days)
+    - Bonuses per evolution: XP bonus (2-10%) + daily coin bonus (1-3)
+    - Light interactions: Tap to pet, happiness updates, encouragement messages
+    - Dashboard integration: PetDisplay component shows pet or "Get Your Companion!" prompt
+    - Pet Selection screen at /pets with starter/shop tabs
+    - Landing page updated: "Raise a virtual pet that grows with your progress"
+    - All tests passing (100% backend, 100% frontend)
+
 ## Previous Session (March 29, 2026)
 
 1. **Coach Tools (Team Analytics & Bulk Messaging)** ✅
@@ -301,11 +314,13 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
 - Backend Shop: `/app/backend/routes/shop.py` (Coin Shop, Items, Inventory, Purchases)
 - Backend Quests: `/app/backend/routes/quests.py` (Daily & Weekly Quests)
 - Backend Referrals: `/app/backend/routes/referrals.py` (Referral milestones, exclusive items)
+- Backend Pets: `/app/backend/routes/pets.py` (Virtual Pets - ownership, evolution, interactions)
 - Frontend: `/app/frontend/src/pages/Dashboard.js`, `/app/frontend/src/pages/ChallengesScreen.js`
 - Frontend Engagement: `/app/frontend/src/components/EngagementStatus.jsx`, `/app/frontend/src/components/FriendStreaks.jsx`
 - Frontend Shop: `/app/frontend/src/pages/ShopScreen.js` (includes Referral Exclusives section)
 - Frontend Quests: `/app/frontend/src/components/Quests.jsx`
 - Frontend Invite: `/app/frontend/src/pages/InviteFriendsScreen.js` (Referral milestones, invite link)
+- Frontend Pets: `/app/frontend/src/components/PetDisplay.jsx`, `/app/frontend/src/pages/PetSelectionScreen.js`
 - Coach: `/app/frontend/src/pages/CoachDashboard.js`
 - Admin: `/app/frontend/src/pages/AdminDashboard.js`
 
