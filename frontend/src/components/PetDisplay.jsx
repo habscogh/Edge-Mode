@@ -107,12 +107,12 @@ const PetDisplay = ({ onSelectPet, compact = false }) => {
       
       toast.success(response.data.message);
       
-      // Clear animation after delay
+      // Clear animation after delay (match animation duration)
       setTimeout(() => {
         setCurrentAnimation(null);
         setShowEmoji(null);
         fetchPetData(); // Refresh data
-      }, 1500);
+      }, 2500);
       
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Interaction failed');
