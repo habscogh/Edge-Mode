@@ -275,20 +275,21 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
     - **30+ Accessories** across 5 categories:
       - **Hats & Headwear:** Champion Cap, DJ Headphones, Pirate Hat, Space Helmet, Wizard Hat, Party Hat, Crowns
       - **Glasses & Eyewear:** Cool Shades, Cyber Visor, Scholar Glasses, Star Glasses
-      - **Collars & Necklaces:** LED Glow Collar, Musical Chain, Crystal Pendant, Champion Medal, Friendship Collar
-      - **Wings & Back Items:** Butterfly Wings, Flame Wings, Jetpack, Explorer Backpack, Champion Cape, Angel Wings
+      - **Collars & Necklaces:** LED Glow Collar, Musical Chain, Crystal Pendant, Friendship Collar
+      - **Wings & Back Items:** Butterfly Wings, Flame Wings, Jetpack, Champion Cape, Angel Wings
       - **Auras & Effects:** Sparkle Aura, Fire/Ice/Lightning Aura, Rainbow Trail, Galaxy Swirl, Heart Bubbles, Neon Glow, Music Waves
-    - **4 Unlock Types:**
-      - Shop (coins) - 19 purchasable items (75-450 coins)
-      - Level-based - Sparkle Aura (L5), Golden Crown (L10), Diamond Crown (L20), Galaxy Swirl (L21)
-      - Streak-based - Party Hat (30d), Rainbow Trail (50d), Star Glasses (60d), Angel Wings (100d)
-      - Achievement-based - Wizard Hat, Scholar Glasses, Champion Medal, Explorer Backpack
-      - Referral-based - Friendship Collar (3 referrals)
-    - **Theme Matching Bonus** - Accessories that match pet theme get visual highlight
+    - **Milestone-Based Unlocks** (with achievement badges awarded):
+      - 7-day streak → 🔥 Week Warrior badge + 🎉 Party Hat, ✨ Sparkle Aura
+      - 21-day streak → 🔥 Three Week Titan badge + 🧙 Wizard Hat
+      - 45-day streak → 🔥 Six Week Superstar badge + 👓 Scholar Glasses, 🌈 Rainbow Trail
+      - 60-day streak → 🔥 Two Month Titan badge + ⭐ Star Glasses
+      - 90-day streak → 🔥 Quarter Master badge + 👑 Golden Crown, 🌌 Galaxy Swirl
+      - 120-day streak → 👑 Four Month Legend badge + 💎 Diamond Crown, 👼 Angel Wings
+      - 5 referrals → 🤝 Friend Magnet badge + 💕 Friendship Collar
+    - **Shop Purchases** - 19 items (75-450 coins)
+    - **Theme Matching Bonus** - Accessories matching pet theme get visual highlight
     - **5 Equipment Slots:** Head, Face, Neck, Back, Aura
     - **Accessories Screen** at `/pets/accessories` with Shop/Inventory/Unlock tabs
-    - **Dashboard Integration** - "Accessories & Gear" button in pet widget
-    - **Pet Display** - Shows equipped accessories overlaid on pet icon
     - All tests passing (100% backend, 100% frontend)
 
 ## Previous Session (March 29, 2026)
