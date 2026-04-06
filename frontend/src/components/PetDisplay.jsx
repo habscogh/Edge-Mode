@@ -125,6 +125,7 @@ const PetDisplay = ({ onSelectPet, compact = false }) => {
   const navigate = useNavigate();
   const [petData, setPetData] = useState(null);
   const [interactions, setInteractions] = useState([]);
+  const [equippedAccessories, setEquippedAccessories] = useState({});
   const [loading, setLoading] = useState(true);
   const [currentAnimation, setCurrentAnimation] = useState(null);
   const [currentEffect, setCurrentEffect] = useState(null);
@@ -137,12 +138,14 @@ const PetDisplay = ({ onSelectPet, compact = false }) => {
 
   const fetchPetData = async () => {
     try {
-      const [petRes, intRes] = await Promise.all([
+      const [petRes, intRes, accRes] = await Promise.all([
         axios.get(`${API}/pets/my-pet`),
-        axios.get(`${API}/pets/interactions`).catch(() => ({ data: { interactions: [] } }))
+        axios.get(`${API}/pets/interactions`).catch(() => ({ data: { interactions: [] } })),
+        axios.get(`${API}/pets/accessories/equipped`).catch(() => ({ data: { equipped: {} } }))
       ]);
       setPetData(petRes.data);
       setInteractions(intRes.data.interactions || []);
+      setEquippedAccessories(accRes.data.equipped || {});
     } catch (error) {
       console.error('Failed to fetch pet:', error);
     } finally {
@@ -300,7 +303,7 @@ const PetDisplay = ({ onSelectPet, compact = false }) => {
       )}
 
       <div className="flex items-center gap-4">
-        {/* Pet Icon - Enhanced interactive area */}
+        {/* Pet Icon - Enhanced interactive area with accessories */}
         <div 
           className={`relative w-20 h-20 bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-full flex items-center justify-center text-5xl cursor-pointer transition-all hover:scale-110 border-2 border-zinc-700 ${currentAnimation || ''}`}
           onClick={() => handleInteract('pet')}
@@ -311,7 +314,43 @@ const PetDisplay = ({ onSelectPet, compact = false }) => {
             <div className="absolute inset-0 rounded-full border-4 border-yellow-400/50 animate-ping" />
           )}
           
+          {/* Aura effect (equipped) */}
+          {equippedAccessories.aura && (
+            <div className="absolute inset-0 rounded-full flex items-center justify-center text-3xl opacity-60 animate-pulse">
+              {equippedAccessories.aura.icon}
+            </div>
+          )}
+          
+          {/* Back item (wings/jetpack) */}
+          {equippedAccessories.back && (
+            <div className="absolute -left-2 top-1/2 -translate-y-1/2 text-2xl opacity-80">
+              {equippedAccessories.back.icon}
+            </div>
+          )}
+          
+          {/* Pet icon */}
           {pet.icon}
+          
+          {/* Head accessory (hat) */}
+          {equippedAccessories.head && (
+            <div className="absolute -top-2 left-1/2 -translate-x-1/2 text-xl">
+              {equippedAccessories.head.icon}
+            </div>
+          )}
+          
+          {/* Face accessory (glasses) */}
+          {equippedAccessories.face && (
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-lg opacity-90">
+              {equippedAccessories.face.icon}
+            </div>
+          )}
+          
+          {/* Neck accessory (collar/necklace) */}
+          {equippedAccessories.neck && (
+            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-lg">
+              {equippedAccessories.neck.icon}
+            </div>
+          )}
         </div>
 
         {/* Pet Info */}
@@ -444,6 +483,24 @@ const PetDisplay = ({ onSelectPet, compact = false }) => {
             );
           })}
         </div>
+      )}
+
+      {/* Accessories Button */}
+      {!compact && (
+        <button
+          onClick={() => navigate('/pets/accessories')}
+          className="mt-3 w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600/20 to-pink-600/20 hover:from-purple-600/30 hover:to-pink-600/30 border border-purple-500/30 rounded-xl py-2.5 text-sm text-purple-300 transition-all"
+          data-testid="pet-accessories-btn"
+        >
+          <span>👑</span>
+          <span className="font-medium">Accessories & Gear</span>
+          {Object.keys(equippedAccessories).length > 0 && (
+            <span className="bg-purple-500/30 px-2 py-0.5 rounded-full text-xs">
+              {Object.keys(equippedAccessories).length} equipped
+            </span>
+          )}
+          <ChevronRight className="w-4 h-4" />
+        </button>
       )}
 
       {/* Tap hint for compact mode */}

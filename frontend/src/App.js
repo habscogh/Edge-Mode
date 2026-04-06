@@ -37,6 +37,7 @@ import GiftSuccessPage from './pages/GiftSuccessPage';
 import DataDeletionPage from './pages/DataDeletionPage';
 import ShopScreen from './pages/ShopScreen';
 import PetSelectionScreen from './pages/PetSelectionScreen';
+import PetAccessoriesScreen from './pages/PetAccessoriesScreen';
 import { BottomNav } from './components/BottomNav';
 import { Toaster } from './components/ui/sonner';
 import axios from 'axios';
@@ -320,6 +321,14 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <PetSelectionScreen />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/pets/accessories"
+          element={
+            <ProtectedRoute>
+              <PetAccessoriesScreen />
             </ProtectedRoute>
           }
         />

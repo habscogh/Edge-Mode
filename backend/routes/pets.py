@@ -506,6 +506,384 @@ INTERACTION_TYPES = {
 }
 
 
+# ============ Pet Accessories System ============
+
+# Accessory categories and items
+ACCESSORY_CATEGORIES = {
+    "hats": {"name": "Hats & Headwear", "icon": "🎩", "slot": "head"},
+    "glasses": {"name": "Glasses & Eyewear", "icon": "👓", "slot": "face"},
+    "necklaces": {"name": "Collars & Necklaces", "icon": "📿", "slot": "neck"},
+    "back": {"name": "Wings & Back Items", "icon": "🦋", "slot": "back"},
+    "effects": {"name": "Auras & Effects", "icon": "✨", "slot": "aura"},
+}
+
+# All available accessories
+PET_ACCESSORIES = {
+    # ============ HATS & HEADWEAR ============
+    # Achievement Unlocks
+    "crown_gold": {
+        "name": "Golden Crown",
+        "category": "hats",
+        "description": "A majestic crown for reaching Level 10",
+        "icon": "👑",
+        "rarity": "epic",
+        "unlock_type": "level",
+        "unlock_value": 10,
+        "price": 0,
+        "theme_bonus": ["fantasy"],
+    },
+    "crown_diamond": {
+        "name": "Diamond Crown",
+        "category": "hats",
+        "description": "A dazzling diamond crown for reaching Level 20",
+        "icon": "💎👑",
+        "rarity": "legendary",
+        "unlock_type": "level",
+        "unlock_value": 20,
+        "price": 0,
+        "theme_bonus": ["fantasy"],
+    },
+    "wizard_hat": {
+        "name": "Wizard Hat",
+        "category": "hats",
+        "description": "A mystical wizard hat for study masters",
+        "icon": "🧙",
+        "rarity": "rare",
+        "unlock_type": "achievement",
+        "unlock_value": "study_master",
+        "price": 0,
+        "theme_bonus": ["fantasy", "wisdom"],
+    },
+    "party_hat": {
+        "name": "Party Hat",
+        "category": "hats",
+        "description": "Celebrate your 30-day streak!",
+        "icon": "🎉",
+        "rarity": "uncommon",
+        "unlock_type": "streak",
+        "unlock_value": 30,
+        "price": 0,
+        "theme_bonus": [],
+    },
+    # Shop Items
+    "pirate_hat": {
+        "name": "Pirate Hat",
+        "category": "hats",
+        "description": "Arrr! Adventure awaits!",
+        "icon": "🏴‍☠️",
+        "rarity": "uncommon",
+        "unlock_type": "shop",
+        "unlock_value": None,
+        "price": 150,
+        "theme_bonus": [],
+    },
+    "sports_cap": {
+        "name": "Champion Cap",
+        "category": "hats",
+        "description": "The cap of a true champion",
+        "icon": "🧢",
+        "rarity": "common",
+        "unlock_type": "shop",
+        "unlock_value": None,
+        "price": 75,
+        "theme_bonus": ["sports"],
+    },
+    "headphones": {
+        "name": "DJ Headphones",
+        "category": "hats",
+        "description": "Feel the beat with these epic headphones",
+        "icon": "🎧",
+        "rarity": "rare",
+        "unlock_type": "shop",
+        "unlock_value": None,
+        "price": 200,
+        "theme_bonus": ["music"],
+    },
+    "space_helmet": {
+        "name": "Space Helmet",
+        "category": "hats",
+        "description": "Ready for cosmic adventures",
+        "icon": "👨‍🚀",
+        "rarity": "epic",
+        "unlock_type": "shop",
+        "unlock_value": None,
+        "price": 350,
+        "theme_bonus": ["cosmic", "scifi", "tech"],
+    },
+    
+    # ============ GLASSES & EYEWEAR ============
+    "reading_glasses": {
+        "name": "Scholar Glasses",
+        "category": "glasses",
+        "description": "The mark of a true scholar",
+        "icon": "👓",
+        "rarity": "common",
+        "unlock_type": "achievement",
+        "unlock_value": "bookworm",
+        "price": 0,
+        "theme_bonus": ["wisdom"],
+    },
+    "cool_shades": {
+        "name": "Cool Shades",
+        "category": "glasses",
+        "description": "Looking cool never gets old",
+        "icon": "😎",
+        "rarity": "uncommon",
+        "unlock_type": "shop",
+        "unlock_value": None,
+        "price": 100,
+        "theme_bonus": ["sports"],
+    },
+    "cyber_visor": {
+        "name": "Cyber Visor",
+        "category": "glasses",
+        "description": "High-tech visor with LED display",
+        "icon": "🥽",
+        "rarity": "rare",
+        "unlock_type": "shop",
+        "unlock_value": None,
+        "price": 250,
+        "theme_bonus": ["tech", "scifi", "neon"],
+    },
+    "star_glasses": {
+        "name": "Star Glasses",
+        "category": "glasses",
+        "description": "Be the star you are!",
+        "icon": "⭐",
+        "rarity": "epic",
+        "unlock_type": "streak",
+        "unlock_value": 60,
+        "price": 0,
+        "theme_bonus": [],
+    },
+    
+    # ============ COLLARS & NECKLACES ============
+    "friendship_collar": {
+        "name": "Friendship Collar",
+        "category": "necklaces",
+        "description": "For pets with lots of friends",
+        "icon": "💕",
+        "rarity": "uncommon",
+        "unlock_type": "referral",
+        "unlock_value": 3,
+        "price": 0,
+        "theme_bonus": [],
+    },
+    "champion_medal": {
+        "name": "Champion Medal",
+        "category": "necklaces",
+        "description": "Won 5 friend challenges",
+        "icon": "🏅",
+        "rarity": "rare",
+        "unlock_type": "achievement",
+        "unlock_value": "friend_wins_5",
+        "price": 0,
+        "theme_bonus": ["sports"],
+    },
+    "led_collar": {
+        "name": "LED Glow Collar",
+        "category": "necklaces",
+        "description": "A collar that glows with neon light",
+        "icon": "💡",
+        "rarity": "rare",
+        "unlock_type": "shop",
+        "unlock_value": None,
+        "price": 175,
+        "theme_bonus": ["neon", "tech", "scifi"],
+    },
+    "music_notes_chain": {
+        "name": "Musical Chain",
+        "category": "necklaces",
+        "description": "A chain with floating music notes",
+        "icon": "🎵",
+        "rarity": "uncommon",
+        "unlock_type": "shop",
+        "unlock_value": None,
+        "price": 125,
+        "theme_bonus": ["music"],
+    },
+    "crystal_pendant": {
+        "name": "Crystal Pendant",
+        "category": "necklaces",
+        "description": "A magical crystal that shimmers",
+        "icon": "💎",
+        "rarity": "epic",
+        "unlock_type": "shop",
+        "unlock_value": None,
+        "price": 300,
+        "theme_bonus": ["fantasy", "crystal"],
+    },
+    
+    # ============ WINGS & BACK ITEMS ============
+    "angel_wings": {
+        "name": "Angel Wings",
+        "category": "back",
+        "description": "Majestic white wings for the pure of heart",
+        "icon": "👼",
+        "rarity": "legendary",
+        "unlock_type": "streak",
+        "unlock_value": 100,
+        "price": 0,
+        "theme_bonus": ["fantasy", "light"],
+    },
+    "flame_wings": {
+        "name": "Flame Wings",
+        "category": "back",
+        "description": "Wings of pure fire",
+        "icon": "🔥",
+        "rarity": "epic",
+        "unlock_type": "shop",
+        "unlock_value": None,
+        "price": 400,
+        "theme_bonus": ["fire", "fantasy"],
+    },
+    "jetpack": {
+        "name": "Jetpack",
+        "category": "back",
+        "description": "Blast off with this high-tech jetpack",
+        "icon": "🚀",
+        "rarity": "epic",
+        "unlock_type": "shop",
+        "unlock_value": None,
+        "price": 450,
+        "theme_bonus": ["tech", "scifi", "cosmic"],
+    },
+    "butterfly_wings": {
+        "name": "Butterfly Wings",
+        "category": "back",
+        "description": "Delicate and beautiful wings",
+        "icon": "🦋",
+        "rarity": "rare",
+        "unlock_type": "shop",
+        "unlock_value": None,
+        "price": 200,
+        "theme_bonus": [],
+    },
+    "explorer_backpack": {
+        "name": "Explorer Backpack",
+        "category": "back",
+        "description": "Ready for any adventure",
+        "icon": "🎒",
+        "rarity": "uncommon",
+        "unlock_type": "achievement",
+        "unlock_value": "adventurer",
+        "price": 0,
+        "theme_bonus": [],
+    },
+    "sports_cape": {
+        "name": "Champion Cape",
+        "category": "back",
+        "description": "The cape of a true sports champion",
+        "icon": "🦸",
+        "rarity": "rare",
+        "unlock_type": "shop",
+        "unlock_value": None,
+        "price": 225,
+        "theme_bonus": ["sports"],
+    },
+    
+    # ============ AURAS & EFFECTS ============
+    "sparkle_aura": {
+        "name": "Sparkle Aura",
+        "category": "effects",
+        "description": "Constant sparkles around your pet",
+        "icon": "✨",
+        "rarity": "common",
+        "unlock_type": "level",
+        "unlock_value": 5,
+        "price": 0,
+        "theme_bonus": [],
+    },
+    "fire_aura": {
+        "name": "Fire Aura",
+        "category": "effects",
+        "description": "Flames dance around your pet",
+        "icon": "🔥",
+        "rarity": "rare",
+        "unlock_type": "shop",
+        "unlock_value": None,
+        "price": 275,
+        "theme_bonus": ["fire"],
+    },
+    "ice_aura": {
+        "name": "Ice Aura",
+        "category": "effects",
+        "description": "Frost crystals float around your pet",
+        "icon": "❄️",
+        "rarity": "rare",
+        "unlock_type": "shop",
+        "unlock_value": None,
+        "price": 275,
+        "theme_bonus": ["ice"],
+    },
+    "rainbow_trail": {
+        "name": "Rainbow Trail",
+        "category": "effects",
+        "description": "Leave a rainbow wherever you go",
+        "icon": "🌈",
+        "rarity": "epic",
+        "unlock_type": "streak",
+        "unlock_value": 50,
+        "price": 0,
+        "theme_bonus": ["light"],
+    },
+    "lightning_aura": {
+        "name": "Lightning Aura",
+        "category": "effects",
+        "description": "Electric bolts crackle around your pet",
+        "icon": "⚡",
+        "rarity": "epic",
+        "unlock_type": "shop",
+        "unlock_value": None,
+        "price": 350,
+        "theme_bonus": ["lightning", "tech"],
+    },
+    "galaxy_swirl": {
+        "name": "Galaxy Swirl",
+        "category": "effects",
+        "description": "Stars and galaxies orbit your pet",
+        "icon": "🌌",
+        "rarity": "legendary",
+        "unlock_type": "level",
+        "unlock_value": 21,
+        "price": 0,
+        "theme_bonus": ["cosmic"],
+    },
+    "heart_bubbles": {
+        "name": "Heart Bubbles",
+        "category": "effects",
+        "description": "Floating hearts surround your pet",
+        "icon": "💕",
+        "rarity": "uncommon",
+        "unlock_type": "shop",
+        "unlock_value": None,
+        "price": 100,
+        "theme_bonus": [],
+    },
+    "music_waves": {
+        "name": "Music Waves",
+        "category": "effects",
+        "description": "Musical notes float around your pet",
+        "icon": "🎶",
+        "rarity": "uncommon",
+        "unlock_type": "shop",
+        "unlock_value": None,
+        "price": 125,
+        "theme_bonus": ["music"],
+    },
+    "neon_glow": {
+        "name": "Neon Glow",
+        "category": "effects",
+        "description": "Your pet glows with vibrant neon colors",
+        "icon": "💜",
+        "rarity": "rare",
+        "unlock_type": "shop",
+        "unlock_value": None,
+        "price": 200,
+        "theme_bonus": ["neon", "tech"],
+    },
+}
+
 # ============ Pydantic Models ============
 
 class SelectPetRequest(BaseModel):
@@ -515,6 +893,11 @@ class SelectPetRequest(BaseModel):
 
 class InteractRequest(BaseModel):
     interaction_type: str = "pet"  # "pet", "feed", "play"
+
+
+class EquipAccessoryRequest(BaseModel):
+    accessory_id: str
+    slot: Optional[str] = None  # Auto-detect from accessory if not provided
 
 
 # ============ Helper Functions ============
@@ -991,4 +1374,526 @@ async def get_pet_shop(current_user: dict = Depends(get_current_user)):
     return {
         'pets': shop_pets,
         'user_coins': user_coins
+    }
+
+
+
+# ============ Accessory Helper Functions ============
+
+async def check_accessory_unlock(user_id: str, accessory_id: str) -> dict:
+    """Check if user has unlocked a specific accessory"""
+    accessory = PET_ACCESSORIES.get(accessory_id)
+    if not accessory:
+        return {"unlocked": False, "reason": "Accessory not found"}
+    
+    unlock_type = accessory['unlock_type']
+    unlock_value = accessory['unlock_value']
+    
+    # Shop items are always "unlocked" but need purchase
+    if unlock_type == "shop":
+        # Check if already purchased
+        owned = await db.user_accessories.find_one({
+            'user_id': user_id,
+            'accessory_id': accessory_id
+        })
+        if owned:
+            return {"unlocked": True, "owned": True, "reason": "Already purchased"}
+        return {"unlocked": True, "owned": False, "reason": "Available for purchase", "price": accessory['price']}
+    
+    # Level-based unlock
+    if unlock_type == "level":
+        user = await db.users.find_one({'id': user_id}, {'_id': 0, 'level': 1})
+        user_level = user.get('level', 1)
+        if user_level >= unlock_value:
+            return {"unlocked": True, "reason": f"Unlocked at Level {unlock_value}"}
+        return {"unlocked": False, "reason": f"Reach Level {unlock_value} to unlock", "progress": f"{user_level}/{unlock_value}"}
+    
+    # Streak-based unlock
+    if unlock_type == "streak":
+        user = await db.users.find_one({'id': user_id}, {'_id': 0, 'longest_streak': 1, 'current_streak': 1})
+        longest = user.get('longest_streak', 0)
+        current = user.get('current_streak', 0)
+        best = max(longest, current)
+        if best >= unlock_value:
+            return {"unlocked": True, "reason": f"Unlocked with {unlock_value}-day streak"}
+        return {"unlocked": False, "reason": f"Reach a {unlock_value}-day streak to unlock", "progress": f"{best}/{unlock_value}"}
+    
+    # Achievement-based unlock
+    if unlock_type == "achievement":
+        badge = await db.user_badges.find_one({
+            'user_id': user_id,
+            'badge_id': unlock_value
+        })
+        if badge:
+            return {"unlocked": True, "reason": f"Unlocked with '{unlock_value}' achievement"}
+        return {"unlocked": False, "reason": f"Earn the '{unlock_value}' badge to unlock"}
+    
+    # Referral-based unlock
+    if unlock_type == "referral":
+        user = await db.users.find_one({'id': user_id}, {'_id': 0, 'referral_count': 1})
+        referrals = user.get('referral_count', 0)
+        if referrals >= unlock_value:
+            return {"unlocked": True, "reason": f"Unlocked with {unlock_value} referrals"}
+        return {"unlocked": False, "reason": f"Refer {unlock_value} friends to unlock", "progress": f"{referrals}/{unlock_value}"}
+    
+    return {"unlocked": False, "reason": "Unknown unlock type"}
+
+
+def get_theme_match_bonus(accessory_id: str, pet_type: str) -> bool:
+    """Check if accessory theme matches pet theme for bonus"""
+    accessory = PET_ACCESSORIES.get(accessory_id)
+    pet = PET_TYPES.get(pet_type)
+    
+    if not accessory or not pet:
+        return False
+    
+    pet_theme = pet.get('theme', '')
+    accessory_themes = accessory.get('theme_bonus', [])
+    
+    return pet_theme in accessory_themes
+
+
+# ============ Accessory API Endpoints ============
+
+@router.get("/accessories")
+async def get_all_accessories(current_user: dict = Depends(get_current_user)):
+    """Get all available accessories with unlock status"""
+    user_id = current_user['id']
+    
+    # Get user's owned accessories
+    owned_accessories = await db.user_accessories.find(
+        {'user_id': user_id},
+        {'_id': 0}
+    ).to_list(100)
+    owned_ids = {a['accessory_id'] for a in owned_accessories}
+    
+    # Get user's active pet for theme matching
+    user_pet = await db.user_pets.find_one(
+        {'user_id': user_id, 'is_active': True},
+        {'_id': 0, 'pet_type': 1}
+    )
+    pet_type = user_pet.get('pet_type') if user_pet else None
+    
+    # Get user coins
+    user = await db.users.find_one({'id': user_id}, {'_id': 0, 'coins': 1})
+    user_coins = user.get('coins', 0)
+    
+    accessories_by_category = {}
+    
+    for acc_id, acc_info in PET_ACCESSORIES.items():
+        category = acc_info['category']
+        if category not in accessories_by_category:
+            accessories_by_category[category] = {
+                'name': ACCESSORY_CATEGORIES[category]['name'],
+                'icon': ACCESSORY_CATEGORIES[category]['icon'],
+                'slot': ACCESSORY_CATEGORIES[category]['slot'],
+                'items': []
+            }
+        
+        # Check unlock status
+        unlock_status = await check_accessory_unlock(user_id, acc_id)
+        is_owned = acc_id in owned_ids
+        
+        # Check theme match bonus
+        theme_match = get_theme_match_bonus(acc_id, pet_type) if pet_type else False
+        
+        accessories_by_category[category]['items'].append({
+            'id': acc_id,
+            'name': acc_info['name'],
+            'description': acc_info['description'],
+            'icon': acc_info['icon'],
+            'rarity': acc_info['rarity'],
+            'unlock_type': acc_info['unlock_type'],
+            'price': acc_info['price'],
+            'owned': is_owned,
+            'unlocked': unlock_status.get('unlocked', False),
+            'unlock_reason': unlock_status.get('reason', ''),
+            'unlock_progress': unlock_status.get('progress'),
+            'theme_match': theme_match,
+            'can_afford': user_coins >= acc_info['price'] if acc_info['unlock_type'] == 'shop' else True
+        })
+    
+    return {
+        'categories': accessories_by_category,
+        'user_coins': user_coins,
+        'total_accessories': len(PET_ACCESSORIES),
+        'owned_count': len(owned_ids)
+    }
+
+
+@router.get("/accessories/equipped")
+async def get_equipped_accessories(current_user: dict = Depends(get_current_user)):
+    """Get currently equipped accessories for active pet"""
+    user_pet = await db.user_pets.find_one(
+        {'user_id': current_user['id'], 'is_active': True},
+        {'_id': 0}
+    )
+    
+    if not user_pet:
+        return {'has_pet': False, 'equipped': {}}
+    
+    equipped = user_pet.get('equipped_accessories', {})
+    
+    # Enrich with accessory info
+    equipped_details = {}
+    for slot, acc_id in equipped.items():
+        if acc_id and acc_id in PET_ACCESSORIES:
+            acc_info = PET_ACCESSORIES[acc_id]
+            equipped_details[slot] = {
+                'id': acc_id,
+                'name': acc_info['name'],
+                'icon': acc_info['icon'],
+                'rarity': acc_info['rarity'],
+                'category': acc_info['category']
+            }
+    
+    return {
+        'has_pet': True,
+        'pet_id': user_pet['id'],
+        'equipped': equipped_details,
+        'slots': list(ACCESSORY_CATEGORIES.keys())
+    }
+
+
+@router.post("/accessories/purchase/{accessory_id}")
+async def purchase_accessory(accessory_id: str, current_user: dict = Depends(get_current_user)):
+    """Purchase an accessory from the shop"""
+    if accessory_id not in PET_ACCESSORIES:
+        raise HTTPException(status_code=404, detail="Accessory not found")
+    
+    accessory = PET_ACCESSORIES[accessory_id]
+    
+    # Check if it's a shop item
+    if accessory['unlock_type'] != 'shop':
+        raise HTTPException(status_code=400, detail="This accessory cannot be purchased - it must be unlocked through achievements")
+    
+    # Check if already owned
+    existing = await db.user_accessories.find_one({
+        'user_id': current_user['id'],
+        'accessory_id': accessory_id
+    })
+    if existing:
+        raise HTTPException(status_code=400, detail="You already own this accessory")
+    
+    # Check coins
+    user = await db.users.find_one({'id': current_user['id']}, {'_id': 0, 'coins': 1})
+    user_coins = user.get('coins', 0)
+    
+    if user_coins < accessory['price']:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Not enough coins. You have {user_coins}, need {accessory['price']}"
+        )
+    
+    # Deduct coins
+    await db.users.update_one(
+        {'id': current_user['id']},
+        {'$inc': {'coins': -accessory['price']}}
+    )
+    
+    # Add to user's accessories
+    user_accessory = {
+        'id': str(uuid.uuid4()),
+        'user_id': current_user['id'],
+        'accessory_id': accessory_id,
+        'acquired_at': datetime.now(timezone.utc).isoformat(),
+        'acquired_via': 'purchase'
+    }
+    await db.user_accessories.insert_one(user_accessory)
+    
+    return {
+        'message': f"You purchased {accessory['name']}!",
+        'accessory': {
+            'id': accessory_id,
+            'name': accessory['name'],
+            'icon': accessory['icon'],
+            'rarity': accessory['rarity']
+        },
+        'coins_spent': accessory['price'],
+        'coins_remaining': user_coins - accessory['price']
+    }
+
+
+@router.post("/accessories/claim/{accessory_id}")
+async def claim_accessory(accessory_id: str, current_user: dict = Depends(get_current_user)):
+    """Claim an unlocked accessory (non-shop items)"""
+    if accessory_id not in PET_ACCESSORIES:
+        raise HTTPException(status_code=404, detail="Accessory not found")
+    
+    accessory = PET_ACCESSORIES[accessory_id]
+    
+    # Check if it's NOT a shop item
+    if accessory['unlock_type'] == 'shop':
+        raise HTTPException(status_code=400, detail="This accessory must be purchased, not claimed")
+    
+    # Check if already owned
+    existing = await db.user_accessories.find_one({
+        'user_id': current_user['id'],
+        'accessory_id': accessory_id
+    })
+    if existing:
+        raise HTTPException(status_code=400, detail="You already own this accessory")
+    
+    # Check unlock status
+    unlock_status = await check_accessory_unlock(current_user['id'], accessory_id)
+    if not unlock_status.get('unlocked'):
+        raise HTTPException(status_code=400, detail=f"Cannot claim: {unlock_status.get('reason', 'Not unlocked yet')}")
+    
+    # Add to user's accessories
+    user_accessory = {
+        'id': str(uuid.uuid4()),
+        'user_id': current_user['id'],
+        'accessory_id': accessory_id,
+        'acquired_at': datetime.now(timezone.utc).isoformat(),
+        'acquired_via': accessory['unlock_type']
+    }
+    await db.user_accessories.insert_one(user_accessory)
+    
+    return {
+        'message': f"You claimed {accessory['name']}!",
+        'accessory': {
+            'id': accessory_id,
+            'name': accessory['name'],
+            'icon': accessory['icon'],
+            'rarity': accessory['rarity']
+        },
+        'unlock_type': accessory['unlock_type']
+    }
+
+
+@router.post("/accessories/equip")
+async def equip_accessory(request: EquipAccessoryRequest, current_user: dict = Depends(get_current_user)):
+    """Equip an owned accessory to your active pet"""
+    accessory_id = request.accessory_id
+    
+    if accessory_id not in PET_ACCESSORIES:
+        raise HTTPException(status_code=404, detail="Accessory not found")
+    
+    # Check if user owns this accessory
+    owned = await db.user_accessories.find_one({
+        'user_id': current_user['id'],
+        'accessory_id': accessory_id
+    })
+    if not owned:
+        raise HTTPException(status_code=400, detail="You don't own this accessory")
+    
+    # Get user's active pet
+    user_pet = await db.user_pets.find_one(
+        {'user_id': current_user['id'], 'is_active': True},
+        {'_id': 0}
+    )
+    if not user_pet:
+        raise HTTPException(status_code=400, detail="No active pet to equip accessory on")
+    
+    accessory = PET_ACCESSORIES[accessory_id]
+    slot = ACCESSORY_CATEGORIES[accessory['category']]['slot']
+    
+    # Update equipped accessories
+    equipped = user_pet.get('equipped_accessories', {})
+    equipped[slot] = accessory_id
+    
+    await db.user_pets.update_one(
+        {'id': user_pet['id']},
+        {'$set': {'equipped_accessories': equipped}}
+    )
+    
+    # Check for theme bonus
+    pet_type = user_pet['pet_type']
+    theme_match = get_theme_match_bonus(accessory_id, pet_type)
+    
+    return {
+        'message': f"Equipped {accessory['name']}!",
+        'slot': slot,
+        'accessory': {
+            'id': accessory_id,
+            'name': accessory['name'],
+            'icon': accessory['icon']
+        },
+        'theme_bonus': theme_match,
+        'theme_bonus_message': f"Theme match! {accessory['name']} looks great on your pet!" if theme_match else None
+    }
+
+
+@router.post("/accessories/unequip/{slot}")
+async def unequip_accessory(slot: str, current_user: dict = Depends(get_current_user)):
+    """Unequip an accessory from a slot"""
+    valid_slots = ['head', 'face', 'neck', 'back', 'aura']
+    if slot not in valid_slots:
+        raise HTTPException(status_code=400, detail=f"Invalid slot. Choose from: {', '.join(valid_slots)}")
+    
+    # Get user's active pet
+    user_pet = await db.user_pets.find_one(
+        {'user_id': current_user['id'], 'is_active': True},
+        {'_id': 0}
+    )
+    if not user_pet:
+        raise HTTPException(status_code=400, detail="No active pet")
+    
+    equipped = user_pet.get('equipped_accessories', {})
+    
+    if slot not in equipped or not equipped[slot]:
+        raise HTTPException(status_code=400, detail=f"Nothing equipped in {slot} slot")
+    
+    # Remove from slot
+    old_accessory_id = equipped[slot]
+    equipped[slot] = None
+    
+    await db.user_pets.update_one(
+        {'id': user_pet['id']},
+        {'$set': {'equipped_accessories': equipped}}
+    )
+    
+    old_accessory = PET_ACCESSORIES.get(old_accessory_id, {})
+    
+    return {
+        'message': f"Unequipped {old_accessory.get('name', 'accessory')} from {slot}",
+        'slot': slot
+    }
+
+
+@router.get("/accessories/inventory")
+async def get_accessory_inventory(current_user: dict = Depends(get_current_user)):
+    """Get all accessories owned by the user"""
+    owned = await db.user_accessories.find(
+        {'user_id': current_user['id']},
+        {'_id': 0}
+    ).to_list(100)
+    
+    # Get active pet's equipped accessories
+    user_pet = await db.user_pets.find_one(
+        {'user_id': current_user['id'], 'is_active': True},
+        {'_id': 0, 'equipped_accessories': 1, 'pet_type': 1}
+    )
+    equipped = user_pet.get('equipped_accessories', {}) if user_pet else {}
+    pet_type = user_pet.get('pet_type') if user_pet else None
+    equipped_ids = set(equipped.values())
+    
+    inventory = []
+    for item in owned:
+        acc_id = item['accessory_id']
+        if acc_id in PET_ACCESSORIES:
+            acc_info = PET_ACCESSORIES[acc_id]
+            theme_match = get_theme_match_bonus(acc_id, pet_type) if pet_type else False
+            
+            inventory.append({
+                'id': acc_id,
+                'name': acc_info['name'],
+                'description': acc_info['description'],
+                'icon': acc_info['icon'],
+                'rarity': acc_info['rarity'],
+                'category': acc_info['category'],
+                'slot': ACCESSORY_CATEGORIES[acc_info['category']]['slot'],
+                'is_equipped': acc_id in equipped_ids,
+                'theme_match': theme_match,
+                'acquired_at': item['acquired_at'],
+                'acquired_via': item.get('acquired_via', 'unknown')
+            })
+    
+    # Group by category
+    by_category = {}
+    for item in inventory:
+        cat = item['category']
+        if cat not in by_category:
+            by_category[cat] = []
+        by_category[cat].append(item)
+    
+    return {
+        'inventory': inventory,
+        'by_category': by_category,
+        'total_owned': len(inventory),
+        'equipped_slots': equipped
+    }
+
+
+@router.get("/accessories/shop")
+async def get_accessory_shop(current_user: dict = Depends(get_current_user)):
+    """Get accessories available for purchase in the shop"""
+    user_id = current_user['id']
+    
+    # Get user's owned accessories
+    owned = await db.user_accessories.find(
+        {'user_id': user_id},
+        {'_id': 0, 'accessory_id': 1}
+    ).to_list(100)
+    owned_ids = {a['accessory_id'] for a in owned}
+    
+    # Get user coins
+    user = await db.users.find_one({'id': user_id}, {'_id': 0, 'coins': 1})
+    user_coins = user.get('coins', 0)
+    
+    # Get active pet for theme matching
+    user_pet = await db.user_pets.find_one(
+        {'user_id': user_id, 'is_active': True},
+        {'_id': 0, 'pet_type': 1}
+    )
+    pet_type = user_pet.get('pet_type') if user_pet else None
+    
+    shop_items = []
+    for acc_id, acc_info in PET_ACCESSORIES.items():
+        if acc_info['unlock_type'] == 'shop':
+            theme_match = get_theme_match_bonus(acc_id, pet_type) if pet_type else False
+            shop_items.append({
+                'id': acc_id,
+                'name': acc_info['name'],
+                'description': acc_info['description'],
+                'icon': acc_info['icon'],
+                'rarity': acc_info['rarity'],
+                'category': acc_info['category'],
+                'slot': ACCESSORY_CATEGORIES[acc_info['category']]['slot'],
+                'price': acc_info['price'],
+                'owned': acc_id in owned_ids,
+                'can_afford': user_coins >= acc_info['price'],
+                'theme_match': theme_match,
+                'theme_bonus': acc_info.get('theme_bonus', [])
+            })
+    
+    # Sort by price
+    shop_items.sort(key=lambda x: x['price'])
+    
+    return {
+        'items': shop_items,
+        'user_coins': user_coins,
+        'total_available': len([i for i in shop_items if not i['owned']])
+    }
+
+
+@router.get("/accessories/unlockable")
+async def get_unlockable_accessories(current_user: dict = Depends(get_current_user)):
+    """Get accessories that can be unlocked through achievements/progress"""
+    user_id = current_user['id']
+    
+    # Get owned accessories
+    owned = await db.user_accessories.find(
+        {'user_id': user_id},
+        {'_id': 0, 'accessory_id': 1}
+    ).to_list(100)
+    owned_ids = {a['accessory_id'] for a in owned}
+    
+    unlockable = []
+    for acc_id, acc_info in PET_ACCESSORIES.items():
+        if acc_info['unlock_type'] != 'shop':
+            unlock_status = await check_accessory_unlock(user_id, acc_id)
+            
+            unlockable.append({
+                'id': acc_id,
+                'name': acc_info['name'],
+                'description': acc_info['description'],
+                'icon': acc_info['icon'],
+                'rarity': acc_info['rarity'],
+                'category': acc_info['category'],
+                'unlock_type': acc_info['unlock_type'],
+                'unlock_value': acc_info['unlock_value'],
+                'owned': acc_id in owned_ids,
+                'unlocked': unlock_status.get('unlocked', False),
+                'claimable': unlock_status.get('unlocked', False) and acc_id not in owned_ids,
+                'unlock_reason': unlock_status.get('reason', ''),
+                'progress': unlock_status.get('progress')
+            })
+    
+    # Sort: claimable first, then by unlock type
+    unlockable.sort(key=lambda x: (not x['claimable'], x['unlock_type'], x['name']))
+    
+    return {
+        'unlockable': unlockable,
+        'claimable_count': len([u for u in unlockable if u['claimable']])
     }
