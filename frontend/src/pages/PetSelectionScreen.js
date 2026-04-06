@@ -10,10 +10,9 @@ import {
   Sparkles,
   Star,
   ShoppingBag,
-  ChevronRight,
   Coins,
   Lock,
-  Crown
+  RefreshCw
 } from 'lucide-react';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -36,38 +35,54 @@ const categoryIcons = {
 
 const PetSelectionScreen = () => {
   const navigate = useNavigate();
-  const [availablePets, setAvailablePets] = useState({ starters: [], shop_pets: [] });
+  const [starters, setStarters] = useState([]);
+  const [shopPets, setShopPets] = useState([]);
   const [selectedPet, setSelectedPet] = useState(null);
   const [customName, setCustomName] = useState('');
   const [userCoins, setUserCoins] = useState(0);
   const [hasStarterPet, setHasStarterPet] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selecting, setSelecting] = useState(false);
-  const [activeTab, setActiveTab] = useState('starters'); // 'starters' or 'shop'
+  const [activeTab, setActiveTab] = useState('starters');
 
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
+    setLoading(true);
+    setError(null);
+    
     try {
-      const [petsRes, myPetRes, statusRes] = await Promise.all([
-        axios.get(`${API}/pets/available`),
-        axios.get(`${API}/pets/my-pet`),
-        axios.get(`${API}/engagement/status`)
-      ]);
-
-      setAvailablePets(petsRes.data);
-      setHasStarterPet(myPetRes.data.has_pet);
-      setUserCoins(statusRes.data.coins || 0);
-
-      // If user already has a pet, switch to shop tab
-      if (myPetRes.data.has_pet) {
+      // Fetch available pets
+      const petsRes = await axios.get(`${API}/pets/available`);
+      console.log('Pets response:', petsRes.data);
+      
+      setStarters(petsRes.data?.starters || []);
+      setShopPets(petsRes.data?.shop_pets || []);
+      
+      // Fetch user's pet status
+      const myPetRes = await axios.get(`${API}/pets/my-pet`);
+      console.log('My pet response:', myPetRes.data);
+      
+      const hasPet = myPetRes.data?.has_pet || false;
+      setHasStarterPet(hasPet);
+      
+      if (hasPet) {
         setActiveTab('shop');
       }
-    } catch (error) {
-      console.error('Failed to fetch pet data:', error);
-      toast.error('Failed to load pets');
+      
+      // Fetch coins
+      const statusRes = await axios.get(`${API}/engagement/status`);
+      console.log('Status response:', statusRes.data);
+      
+      setUserCoins(statusRes.data?.coins || 0);
+      
+    } catch (err) {
+      console.error('Fetch error:', err);
+      setError(err.message || 'Failed to load pets');
+      toast.error('Failed to load pets. Tap to retry.');
     } finally {
       setLoading(false);
     }
@@ -85,99 +100,111 @@ const PetSelectionScreen = () => {
 
       toast.success(response.data.message);
       navigate('/dashboard');
-    } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to select pet');
+    } catch (err) {
+      console.error('Select error:', err);
+      toast.error(err.response?.data?.detail || 'Failed to select pet');
     } finally {
       setSelecting(false);
     }
   };
 
+  const handlePetTap = (pet) => {
+    const canAfford = userCoins >= pet.price;
+    const isLocked = !pet.is_starter && !canAfford && !pet.owned;
+    
+    if (!pet.owned && !isLocked) {
+      setSelectedPet(pet);
+      setCustomName('');
+    }
+  };
+
+  // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-black p-4 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-zinc-400">Loading pets...</p>
+        </div>
       </div>
     );
   }
 
-  const displayPets = activeTab === 'starters' ? availablePets.starters : availablePets.shop_pets;
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="text-6xl mb-4">😿</div>
+          <h2 className="text-white text-xl font-bold mb-2">Couldn't Load Pets</h2>
+          <p className="text-zinc-400 mb-4">{error}</p>
+          <Button onClick={fetchData} className="bg-primary text-black">
+            <RefreshCw className="w-4 h-4 mr-2" /> Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const displayPets = activeTab === 'starters' ? starters : shopPets;
 
   return (
-    <div className="min-h-screen bg-black pb-24" data-testid="pet-selection-screen">
+    <div className="min-h-screen bg-black pb-32" data-testid="pet-selection-screen">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-black/95 backdrop-blur-sm border-b border-zinc-800 p-4">
         <div className="flex items-center gap-3 mb-4">
           <button
+            type="button"
             onClick={() => navigate(-1)}
-            className="p-2 -ml-2 text-zinc-400 hover:text-white transition-colors"
+            className="p-2 -ml-2 text-zinc-400 hover:text-white"
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
-          <div>
+          <div className="flex-1">
             <h1 className="text-xl font-bold text-white flex items-center gap-2">
-              <span>🐾</span> Choose Your Companion
+              <Sparkles className="w-5 h-5 text-primary" />
+              Choose Your Pet
             </h1>
-            <p className="text-zinc-400 text-sm">Your pet grows with your progress!</p>
-          </div>
-        </div>
-
-        {/* Coins display */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex gap-2">
-            <Button
-              onClick={() => setActiveTab('starters')}
-              variant={activeTab === 'starters' ? 'default' : 'outline'}
-              size="sm"
-              disabled={hasStarterPet}
-              className={activeTab === 'starters' ? 'bg-primary text-black' : ''}
-            >
-              <Sparkles className="w-4 h-4 mr-1" />
-              Free Starters
-              {hasStarterPet && <Check className="w-3 h-3 ml-1" />}
-            </Button>
-            <Button
-              onClick={() => setActiveTab('shop')}
-              variant={activeTab === 'shop' ? 'default' : 'outline'}
-              size="sm"
-              className={activeTab === 'shop' ? 'bg-primary text-black' : ''}
-            >
-              <ShoppingBag className="w-4 h-4 mr-1" /> Pet Shop
-            </Button>
+            <p className="text-zinc-400 text-sm">Your companion on your journey</p>
           </div>
           <div className="flex items-center gap-1 bg-yellow-500/20 text-yellow-400 px-3 py-1.5 rounded-full text-sm">
             <Coins className="w-4 h-4" />
             <span className="font-bold">{userCoins}</span>
           </div>
         </div>
+
+        {/* Tabs */}
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            onClick={() => setActiveTab('starters')}
+            disabled={hasStarterPet}
+            variant={activeTab === 'starters' ? 'default' : 'outline'}
+            className={`flex-1 ${activeTab === 'starters' ? 'bg-primary text-black' : ''} ${hasStarterPet ? 'opacity-50' : ''}`}
+          >
+            <Star className="w-4 h-4 mr-2" />
+            Free Starters
+            {hasStarterPet && <Lock className="w-3 h-3 ml-1" />}
+          </Button>
+          <Button
+            type="button"
+            onClick={() => setActiveTab('shop')}
+            variant={activeTab === 'shop' ? 'default' : 'outline'}
+            className={`flex-1 ${activeTab === 'shop' ? 'bg-primary text-black' : ''}`}
+          >
+            <ShoppingBag className="w-4 h-4 mr-2" />
+            Pet Shop
+          </Button>
+        </div>
       </div>
 
       {/* Content */}
       <div className="p-4">
-        {/* Starter selection info */}
-        {activeTab === 'starters' && !hasStarterPet && (
-          <div className="bg-gradient-to-r from-purple-900/30 to-pink-900/30 border border-purple-500/30 rounded-xl p-4 mb-6">
-            <div className="flex items-center gap-2 mb-2">
-              <Star className="w-5 h-5 text-purple-400" />
-              <span className="text-white font-bold">Choose Your First Pet!</span>
-            </div>
-            <p className="text-zinc-400 text-sm">
-              Pick a free starter companion. Your pet will evolve as you maintain your streak!
-            </p>
-          </div>
-        )}
-
         {hasStarterPet && activeTab === 'starters' && (
-          <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-4 mb-6 text-center">
-            <Check className="w-8 h-8 text-green-500 mx-auto mb-2" />
-            <p className="text-white font-bold">You already have a starter pet!</p>
-            <p className="text-zinc-400 text-sm mt-1">Check out the Pet Shop for more companions.</p>
-            <Button
-              onClick={() => setActiveTab('shop')}
-              className="mt-3 bg-primary text-black"
-              size="sm"
-            >
-              <ShoppingBag className="w-4 h-4 mr-1" /> Browse Shop
-            </Button>
+          <div className="bg-zinc-800/50 rounded-xl p-4 mb-4 text-center">
+            <p className="text-zinc-400 text-sm">
+              You already have a starter pet! Browse the shop for more companions.
+            </p>
           </div>
         )}
 
@@ -189,69 +216,60 @@ const PetSelectionScreen = () => {
             const canAfford = userCoins >= pet.price;
             const isLocked = !pet.is_starter && !canAfford && !pet.owned;
 
-            const handlePetClick = (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              if (!pet.owned && !isLocked) {
-                setSelectedPet(pet);
-              }
-            };
-
             return (
               <button
                 type="button"
                 key={pet.type}
-                onClick={handlePetClick}
-                onTouchEnd={handlePetClick}
+                onClick={() => handlePetTap(pet)}
                 disabled={pet.owned || isLocked}
-                className={`relative rounded-xl p-4 border-2 transition-all text-left ${style.bg} ${
+                className={`relative rounded-xl p-4 border-2 transition-all text-left w-full ${style.bg} ${
                   isSelected 
                     ? 'border-primary ring-2 ring-primary/30' 
                     : pet.owned 
                       ? 'border-green-500/50 opacity-75'
                       : isLocked
-                        ? 'border-zinc-700 opacity-50 cursor-not-allowed'
-                        : `${style.border} cursor-pointer active:scale-95`
-                } ${!pet.owned && !isLocked ? 'hover:scale-[1.02]' : ''}`}
+                        ? 'border-zinc-700 opacity-50'
+                        : `${style.border} active:scale-95`
+                }`}
                 data-testid={`pet-option-${pet.type}`}
               >
-                {/* Rarity badge */}
-                <div className={`absolute top-2 right-2 text-xs px-2 py-0.5 rounded-full bg-black/50 ${style.text}`}>
-                  {pet.rarity}
+                {/* Category icon */}
+                <div className="absolute top-2 right-2 text-lg opacity-50">
+                  {categoryIcons[pet.category] || '🐾'}
                 </div>
 
-                {/* Category icon */}
-                <div className="absolute top-2 left-2 text-lg">
-                  {categoryIcons[pet.category]}
-                </div>
+                {/* Owned badge */}
+                {pet.owned && (
+                  <div className="absolute top-2 left-2 bg-green-500/20 text-green-400 text-[10px] px-2 py-0.5 rounded-full">
+                    Owned
+                  </div>
+                )}
+
+                {/* Locked badge */}
+                {isLocked && (
+                  <div className="absolute top-2 left-2 bg-zinc-700 text-zinc-400 text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <Lock className="w-3 h-3" /> {pet.price}
+                  </div>
+                )}
 
                 {/* Pet preview */}
-                <div className="text-center py-4">
-                  <div className="text-5xl mb-2">{pet.preview_icon}</div>
-                  <div className="text-zinc-500 text-xs">→</div>
-                  <div className="text-3xl opacity-50">{pet.max_icon}</div>
+                <div className="text-center py-2">
+                  <div className="text-4xl mb-1">{pet.preview_icon}</div>
+                  <div className="text-lg opacity-50">→ {pet.max_icon}</div>
                 </div>
 
-                {/* Pet info */}
-                <h3 className="text-white font-bold text-sm text-center">{pet.name}</h3>
-                <p className="text-zinc-400 text-xs text-center mt-1 line-clamp-2">{pet.description}</p>
+                {/* Info */}
+                <h3 className="text-white font-bold text-sm">{pet.name}</h3>
+                <p className={`text-xs capitalize ${style.text}`}>{pet.rarity}</p>
+                <p className="text-zinc-500 text-xs mt-1 line-clamp-2">{pet.description}</p>
 
-                {/* Price/Status */}
-                <div className="mt-3 text-center">
-                  {pet.owned ? (
-                    <span className="text-green-400 text-sm flex items-center justify-center gap-1">
-                      <Check className="w-4 h-4" /> Owned
-                    </span>
-                  ) : pet.is_starter ? (
-                    <span className="text-purple-400 text-sm font-bold">FREE</span>
-                  ) : (
-                    <div className={`flex items-center justify-center gap-1 ${canAfford ? 'text-yellow-400' : 'text-zinc-500'}`}>
-                      {!canAfford && <Lock className="w-3 h-3" />}
-                      <Coins className="w-4 h-4" />
-                      <span className="font-bold">{pet.price}</span>
-                    </div>
-                  )}
-                </div>
+                {/* Price for shop pets */}
+                {!pet.is_starter && !pet.owned && (
+                  <div className={`mt-2 flex items-center gap-1 text-xs ${canAfford ? 'text-yellow-400' : 'text-zinc-500'}`}>
+                    <Coins className="w-3 h-3" />
+                    <span>{pet.price} coins</span>
+                  </div>
+                )}
 
                 {/* Selected indicator */}
                 {isSelected && (
@@ -263,43 +281,45 @@ const PetSelectionScreen = () => {
             );
           })}
         </div>
-
-        {/* Selection panel */}
-        {selectedPet && (
-          <div className="fixed bottom-0 left-0 right-0 bg-zinc-900 border-t border-zinc-700 p-4 pb-8 z-50" style={{ paddingBottom: 'max(2rem, env(safe-area-inset-bottom))' }}>
-            <div className="flex items-center gap-4 mb-3">
-              <div className="text-4xl">{selectedPet.preview_icon}</div>
-              <div className="flex-1">
-                <h3 className="text-white font-bold">{selectedPet.name}</h3>
-                <p className="text-zinc-400 text-xs">{selectedPet.description}</p>
-              </div>
-            </div>
-
-            {/* Custom name input */}
-            <div className="mb-3">
-              <Input
-                placeholder={`Name your pet (default: ${selectedPet.name})`}
-                value={customName}
-                onChange={(e) => setCustomName(e.target.value)}
-                className="bg-zinc-800 border-zinc-700"
-                maxLength={20}
-                data-testid="pet-name-input"
-              />
-            </div>
-
-            <Button
-              type="button"
-              onClick={handleSelectPet}
-              onTouchEnd={(e) => { e.preventDefault(); handleSelectPet(); }}
-              disabled={selecting}
-              className="w-full bg-primary text-black hover:bg-primary/90 font-bold py-4 text-lg active:scale-95"
-              data-testid="confirm-pet-btn"
-            >
-              {selecting ? 'Selecting...' : selectedPet.is_starter ? 'Choose This Pet!' : `Buy for ${selectedPet.price} Coins`}
-            </Button>
-          </div>
-        )}
       </div>
+
+      {/* Selection panel - Fixed at bottom */}
+      {selectedPet && (
+        <div 
+          className="fixed bottom-0 left-0 right-0 bg-zinc-900 border-t border-zinc-700 p-4 z-50"
+          style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
+        >
+          <div className="flex items-center gap-4 mb-3">
+            <div className="text-4xl">{selectedPet.preview_icon}</div>
+            <div className="flex-1">
+              <h3 className="text-white font-bold">{selectedPet.name}</h3>
+              <p className="text-zinc-400 text-xs line-clamp-1">{selectedPet.description}</p>
+            </div>
+          </div>
+
+          {/* Custom name input */}
+          <div className="mb-3">
+            <Input
+              placeholder={`Name your pet (default: ${selectedPet.name})`}
+              value={customName}
+              onChange={(e) => setCustomName(e.target.value)}
+              className="bg-zinc-800 border-zinc-700"
+              maxLength={20}
+              data-testid="pet-name-input"
+            />
+          </div>
+
+          <Button
+            type="button"
+            onClick={handleSelectPet}
+            disabled={selecting}
+            className="w-full bg-primary text-black hover:bg-primary/90 font-bold py-6 text-lg"
+            data-testid="confirm-pet-btn"
+          >
+            {selecting ? 'Selecting...' : selectedPet.is_starter ? 'Choose This Pet!' : `Buy for ${selectedPet.price} Coins`}
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
