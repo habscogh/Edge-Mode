@@ -862,6 +862,399 @@ PET_ACCESSORIES = {
     },
 }
 
+# ============ SEASONAL / LIMITED EDITION ACCESSORIES ============
+# These have time-based availability windows
+SEASONAL_ACCESSORIES = {
+    # ============ HALLOWEEN (October 15 - November 5) ============
+    "halloween_witch_hat": {
+        "name": "Witch Hat",
+        "category": "hats",
+        "description": "A spooky witch hat for Halloween!",
+        "icon": "🧙‍♀️",
+        "rarity": "rare",
+        "unlock_type": "seasonal",
+        "price": 200,
+        "theme_bonus": ["fantasy"],
+        "season": "halloween",
+        "available_month_start": 10,
+        "available_day_start": 15,
+        "available_month_end": 11,
+        "available_day_end": 5,
+    },
+    "halloween_pumpkin_head": {
+        "name": "Pumpkin Head",
+        "category": "hats",
+        "description": "A glowing jack-o-lantern headpiece!",
+        "icon": "🎃",
+        "rarity": "epic",
+        "unlock_type": "seasonal",
+        "price": 350,
+        "theme_bonus": ["fire"],
+        "season": "halloween",
+        "available_month_start": 10,
+        "available_day_start": 15,
+        "available_month_end": 11,
+        "available_day_end": 5,
+    },
+    "halloween_ghost_aura": {
+        "name": "Ghost Aura",
+        "category": "effects",
+        "description": "Spooky ghosts float around your pet!",
+        "icon": "👻",
+        "rarity": "rare",
+        "unlock_type": "seasonal",
+        "price": 250,
+        "theme_bonus": [],
+        "season": "halloween",
+        "available_month_start": 10,
+        "available_day_start": 15,
+        "available_month_end": 11,
+        "available_day_end": 5,
+    },
+    "halloween_bat_wings": {
+        "name": "Bat Wings",
+        "category": "back",
+        "description": "Dark bat wings for the spooky season!",
+        "icon": "🦇",
+        "rarity": "epic",
+        "unlock_type": "seasonal",
+        "price": 400,
+        "theme_bonus": ["shadow"],
+        "season": "halloween",
+        "available_month_start": 10,
+        "available_day_start": 15,
+        "available_month_end": 11,
+        "available_day_end": 5,
+    },
+    
+    # ============ WINTER / CHRISTMAS (December 1 - January 10) ============
+    "winter_santa_hat": {
+        "name": "Santa Hat",
+        "category": "hats",
+        "description": "Ho ho ho! A festive Santa hat!",
+        "icon": "🎅",
+        "rarity": "rare",
+        "unlock_type": "seasonal",
+        "price": 200,
+        "theme_bonus": [],
+        "season": "winter",
+        "available_month_start": 12,
+        "available_day_start": 1,
+        "available_month_end": 1,
+        "available_day_end": 10,
+    },
+    "winter_snowflake_halo": {
+        "name": "Snowflake Halo",
+        "category": "effects",
+        "description": "Magical snowflakes orbit your pet!",
+        "icon": "❄️",
+        "rarity": "epic",
+        "unlock_type": "seasonal",
+        "price": 350,
+        "theme_bonus": ["ice"],
+        "season": "winter",
+        "available_month_start": 12,
+        "available_day_start": 1,
+        "available_month_end": 1,
+        "available_day_end": 10,
+    },
+    "winter_reindeer_antlers": {
+        "name": "Reindeer Antlers",
+        "category": "hats",
+        "description": "Festive antlers with jingle bells!",
+        "icon": "🦌",
+        "rarity": "rare",
+        "unlock_type": "seasonal",
+        "price": 225,
+        "theme_bonus": [],
+        "season": "winter",
+        "available_month_start": 12,
+        "available_day_start": 1,
+        "available_month_end": 1,
+        "available_day_end": 10,
+    },
+    "winter_candy_cane_collar": {
+        "name": "Candy Cane Collar",
+        "category": "necklaces",
+        "description": "A sweet candy cane necklace!",
+        "icon": "🍬",
+        "rarity": "uncommon",
+        "unlock_type": "seasonal",
+        "price": 150,
+        "theme_bonus": [],
+        "season": "winter",
+        "available_month_start": 12,
+        "available_day_start": 1,
+        "available_month_end": 1,
+        "available_day_end": 10,
+    },
+    "winter_present_backpack": {
+        "name": "Gift Box Backpack",
+        "category": "back",
+        "description": "A wrapped present on your back!",
+        "icon": "🎁",
+        "rarity": "rare",
+        "unlock_type": "seasonal",
+        "price": 275,
+        "theme_bonus": [],
+        "season": "winter",
+        "available_month_start": 12,
+        "available_day_start": 1,
+        "available_month_end": 1,
+        "available_day_end": 10,
+    },
+    
+    # ============ VALENTINE'S DAY (February 1 - February 20) ============
+    "valentines_heart_crown": {
+        "name": "Heart Crown",
+        "category": "hats",
+        "description": "A crown made of hearts!",
+        "icon": "💖",
+        "rarity": "rare",
+        "unlock_type": "seasonal",
+        "price": 200,
+        "theme_bonus": [],
+        "season": "valentines",
+        "available_month_start": 2,
+        "available_day_start": 1,
+        "available_month_end": 2,
+        "available_day_end": 20,
+    },
+    "valentines_cupid_wings": {
+        "name": "Cupid Wings",
+        "category": "back",
+        "description": "Tiny pink wings from Cupid himself!",
+        "icon": "💘",
+        "rarity": "epic",
+        "unlock_type": "seasonal",
+        "price": 400,
+        "theme_bonus": ["light"],
+        "season": "valentines",
+        "available_month_start": 2,
+        "available_day_start": 1,
+        "available_month_end": 2,
+        "available_day_end": 20,
+    },
+    "valentines_love_aura": {
+        "name": "Love Aura",
+        "category": "effects",
+        "description": "Floating hearts surround your pet!",
+        "icon": "💕",
+        "rarity": "rare",
+        "unlock_type": "seasonal",
+        "price": 250,
+        "theme_bonus": [],
+        "season": "valentines",
+        "available_month_start": 2,
+        "available_day_start": 1,
+        "available_month_end": 2,
+        "available_day_end": 20,
+    },
+    
+    # ============ SPRING / EASTER (March 15 - April 25) ============
+    "spring_bunny_ears": {
+        "name": "Bunny Ears",
+        "category": "hats",
+        "description": "Cute floppy bunny ears!",
+        "icon": "🐰",
+        "rarity": "rare",
+        "unlock_type": "seasonal",
+        "price": 200,
+        "theme_bonus": [],
+        "season": "spring",
+        "available_month_start": 3,
+        "available_day_start": 15,
+        "available_month_end": 4,
+        "available_day_end": 25,
+    },
+    "spring_flower_crown": {
+        "name": "Flower Crown",
+        "category": "hats",
+        "description": "A beautiful crown of spring flowers!",
+        "icon": "🌸",
+        "rarity": "rare",
+        "unlock_type": "seasonal",
+        "price": 225,
+        "theme_bonus": [],
+        "season": "spring",
+        "available_month_start": 3,
+        "available_day_start": 15,
+        "available_month_end": 4,
+        "available_day_end": 25,
+    },
+    "spring_butterfly_swarm": {
+        "name": "Butterfly Swarm",
+        "category": "effects",
+        "description": "Colorful butterflies dance around!",
+        "icon": "🦋",
+        "rarity": "epic",
+        "unlock_type": "seasonal",
+        "price": 300,
+        "theme_bonus": [],
+        "season": "spring",
+        "available_month_start": 3,
+        "available_day_start": 15,
+        "available_month_end": 4,
+        "available_day_end": 25,
+    },
+    
+    # ============ SUMMER (June 1 - August 31) ============
+    "summer_sunglasses": {
+        "name": "Beach Shades",
+        "category": "glasses",
+        "description": "Cool summer sunglasses!",
+        "icon": "🕶️",
+        "rarity": "uncommon",
+        "unlock_type": "seasonal",
+        "price": 125,
+        "theme_bonus": [],
+        "season": "summer",
+        "available_month_start": 6,
+        "available_day_start": 1,
+        "available_month_end": 8,
+        "available_day_end": 31,
+    },
+    "summer_beach_hat": {
+        "name": "Beach Hat",
+        "category": "hats",
+        "description": "A stylish sun hat for the beach!",
+        "icon": "👒",
+        "rarity": "rare",
+        "unlock_type": "seasonal",
+        "price": 175,
+        "theme_bonus": [],
+        "season": "summer",
+        "available_month_start": 6,
+        "available_day_start": 1,
+        "available_month_end": 8,
+        "available_day_end": 31,
+    },
+    "summer_surfboard": {
+        "name": "Mini Surfboard",
+        "category": "back",
+        "description": "A tiny surfboard for riding waves!",
+        "icon": "🏄",
+        "rarity": "rare",
+        "unlock_type": "seasonal",
+        "price": 250,
+        "theme_bonus": ["water"],
+        "season": "summer",
+        "available_month_start": 6,
+        "available_day_start": 1,
+        "available_month_end": 8,
+        "available_day_end": 31,
+    },
+    "summer_sunshine_aura": {
+        "name": "Sunshine Aura",
+        "category": "effects",
+        "description": "Warm golden rays surround your pet!",
+        "icon": "☀️",
+        "rarity": "epic",
+        "unlock_type": "seasonal",
+        "price": 300,
+        "theme_bonus": ["light", "fire"],
+        "season": "summer",
+        "available_month_start": 6,
+        "available_day_start": 1,
+        "available_month_end": 8,
+        "available_day_end": 31,
+    },
+    
+    # ============ BACK TO SCHOOL (August 15 - September 30) ============
+    "school_graduation_cap": {
+        "name": "Graduation Cap",
+        "category": "hats",
+        "description": "Celebrate academic achievement!",
+        "icon": "🎓",
+        "rarity": "epic",
+        "unlock_type": "seasonal",
+        "price": 300,
+        "theme_bonus": ["wisdom"],
+        "season": "school",
+        "available_month_start": 8,
+        "available_day_start": 15,
+        "available_month_end": 9,
+        "available_day_end": 30,
+    },
+    "school_book_bag": {
+        "name": "Scholar's Backpack",
+        "category": "back",
+        "description": "A backpack full of knowledge!",
+        "icon": "📚",
+        "rarity": "rare",
+        "unlock_type": "seasonal",
+        "price": 225,
+        "theme_bonus": ["wisdom"],
+        "season": "school",
+        "available_month_start": 8,
+        "available_day_start": 15,
+        "available_month_end": 9,
+        "available_day_end": 30,
+    },
+    "school_pencil_glasses": {
+        "name": "Nerdy Glasses",
+        "category": "glasses",
+        "description": "Smart-looking study glasses!",
+        "icon": "🤓",
+        "rarity": "uncommon",
+        "unlock_type": "seasonal",
+        "price": 150,
+        "theme_bonus": ["wisdom"],
+        "season": "school",
+        "available_month_start": 8,
+        "available_day_start": 15,
+        "available_month_end": 9,
+        "available_day_end": 30,
+    },
+    
+    # ============ NEW YEAR (December 28 - January 15) ============
+    "newyear_party_hat": {
+        "name": "New Year Party Hat",
+        "category": "hats",
+        "description": "Ring in the new year!",
+        "icon": "🥳",
+        "rarity": "rare",
+        "unlock_type": "seasonal",
+        "price": 200,
+        "theme_bonus": [],
+        "season": "newyear",
+        "available_month_start": 12,
+        "available_day_start": 28,
+        "available_month_end": 1,
+        "available_day_end": 15,
+    },
+    "newyear_fireworks_aura": {
+        "name": "Fireworks Aura",
+        "category": "effects",
+        "description": "Celebration fireworks everywhere!",
+        "icon": "🎆",
+        "rarity": "epic",
+        "unlock_type": "seasonal",
+        "price": 350,
+        "theme_bonus": ["fire"],
+        "season": "newyear",
+        "available_month_start": 12,
+        "available_day_start": 28,
+        "available_month_end": 1,
+        "available_day_end": 15,
+    },
+    "newyear_champagne_collar": {
+        "name": "Celebration Chain",
+        "category": "necklaces",
+        "description": "Sparkly celebration necklace!",
+        "icon": "🍾",
+        "rarity": "rare",
+        "unlock_type": "seasonal",
+        "price": 225,
+        "theme_bonus": [],
+        "season": "newyear",
+        "available_month_start": 12,
+        "available_day_start": 28,
+        "available_month_end": 1,
+        "available_day_end": 15,
+    },
+}
+
 # ============ Pydantic Models ============
 
 class SelectPetRequest(BaseModel):
@@ -887,6 +1280,65 @@ def get_evolution_stage(streak_days: int) -> int:
         if streak_days >= info["streak_required"]:
             stage = s
     return stage
+
+
+def is_seasonal_available(accessory: dict) -> dict:
+    """Check if a seasonal accessory is currently available"""
+    now = datetime.now(timezone.utc)
+    current_month = now.month
+    current_day = now.day
+    
+    start_month = accessory.get('available_month_start', 1)
+    start_day = accessory.get('available_day_start', 1)
+    end_month = accessory.get('available_month_end', 12)
+    end_day = accessory.get('available_day_end', 31)
+    
+    # Handle year-wrap (e.g., December to January)
+    if start_month > end_month:
+        # Available if we're in the end-of-year portion OR start-of-year portion
+        in_end_year = (current_month > start_month) or (current_month == start_month and current_day >= start_day)
+        in_start_year = (current_month < end_month) or (current_month == end_month and current_day <= end_day)
+        is_available = in_end_year or in_start_year
+    else:
+        # Normal date range within same year
+        after_start = (current_month > start_month) or (current_month == start_month and current_day >= start_day)
+        before_end = (current_month < end_month) or (current_month == end_month and current_day <= end_day)
+        is_available = after_start and before_end
+    
+    # Calculate days remaining if available
+    days_remaining = None
+    if is_available:
+        # Calculate end date for current or next occurrence
+        year = now.year
+        if end_month < current_month:
+            year += 1
+        try:
+            end_date = datetime(year, end_month, end_day, tzinfo=timezone.utc)
+            days_remaining = (end_date - now).days + 1
+        except:
+            days_remaining = 30  # Fallback
+    
+    return {
+        'available': is_available,
+        'days_remaining': days_remaining,
+        'season': accessory.get('season', 'unknown'),
+        'start': f"{start_month}/{start_day}",
+        'end': f"{end_month}/{end_day}"
+    }
+
+
+def get_season_info(season_key: str) -> dict:
+    """Get display info for a season"""
+    season_info = {
+        'halloween': {'name': 'Halloween', 'icon': '🎃', 'color': 'orange'},
+        'winter': {'name': 'Winter Holidays', 'icon': '🎄', 'color': 'green'},
+        'valentines': {'name': "Valentine's Day", 'icon': '💖', 'color': 'pink'},
+        'spring': {'name': 'Spring', 'icon': '🌸', 'color': 'pink'},
+        'summer': {'name': 'Summer', 'icon': '☀️', 'color': 'yellow'},
+        'school': {'name': 'Back to School', 'icon': '📚', 'color': 'blue'},
+        'newyear': {'name': 'New Year', 'icon': '🎆', 'color': 'gold'},
+    }
+    return season_info.get(season_key, {'name': season_key.title(), 'icon': '🎉', 'color': 'purple'})
 
 
 def get_pet_appearance(pet_type: str, stage: int) -> dict:
@@ -1874,4 +2326,203 @@ async def get_unlockable_accessories(current_user: dict = Depends(get_current_us
     return {
         'unlockable': unlockable,
         'claimable_count': len([u for u in unlockable if u['claimable']])
+    }
+
+
+
+@router.get("/accessories/seasonal")
+async def get_seasonal_accessories(current_user: dict = Depends(get_current_user)):
+    """Get currently available seasonal/limited edition accessories"""
+    user_id = current_user['id']
+    
+    # Get user's owned accessories
+    owned = await db.user_accessories.find(
+        {'user_id': user_id},
+        {'_id': 0, 'accessory_id': 1}
+    ).to_list(200)
+    owned_ids = {a['accessory_id'] for a in owned}
+    
+    # Get user coins
+    user = await db.users.find_one({'id': user_id}, {'_id': 0, 'coins': 1})
+    user_coins = user.get('coins', 0)
+    
+    # Get active pet for theme matching
+    user_pet = await db.user_pets.find_one(
+        {'user_id': user_id, 'is_active': True},
+        {'_id': 0, 'pet_type': 1}
+    )
+    pet_type = user_pet.get('pet_type') if user_pet else None
+    
+    available_seasonal = []
+    upcoming_seasonal = []
+    
+    for acc_id, acc_info in SEASONAL_ACCESSORIES.items():
+        availability = is_seasonal_available(acc_info)
+        season_info = get_season_info(acc_info.get('season', ''))
+        theme_match = get_theme_match_bonus(acc_id, pet_type) if pet_type else False
+        
+        item_data = {
+            'id': acc_id,
+            'name': acc_info['name'],
+            'description': acc_info['description'],
+            'icon': acc_info['icon'],
+            'rarity': acc_info['rarity'],
+            'category': acc_info['category'],
+            'slot': ACCESSORY_CATEGORIES[acc_info['category']]['slot'],
+            'price': acc_info['price'],
+            'owned': acc_id in owned_ids,
+            'can_afford': user_coins >= acc_info['price'],
+            'theme_match': theme_match,
+            'season': season_info['name'],
+            'season_icon': season_info['icon'],
+            'season_color': season_info['color'],
+            'is_limited': True,
+            'available': availability['available'],
+            'days_remaining': availability['days_remaining'],
+            'available_dates': f"{availability['start']} - {availability['end']}"
+        }
+        
+        if availability['available']:
+            available_seasonal.append(item_data)
+        else:
+            upcoming_seasonal.append(item_data)
+    
+    # Sort available by days remaining (urgency), upcoming by season
+    available_seasonal.sort(key=lambda x: (x['owned'], x['days_remaining'] or 999))
+    
+    # Group by season for display
+    by_season = {}
+    for item in available_seasonal:
+        season = item['season']
+        if season not in by_season:
+            by_season[season] = {
+                'name': season,
+                'icon': item['season_icon'],
+                'items': []
+            }
+        by_season[season]['items'].append(item)
+    
+    return {
+        'available': available_seasonal,
+        'by_season': by_season,
+        'upcoming_count': len(upcoming_seasonal),
+        'user_coins': user_coins,
+        'total_available': len([i for i in available_seasonal if not i['owned']]),
+        'seasons': list(by_season.keys())
+    }
+
+
+@router.post("/accessories/purchase-seasonal/{accessory_id}")
+async def purchase_seasonal_accessory(accessory_id: str, current_user: dict = Depends(get_current_user)):
+    """Purchase a seasonal accessory (only available during its season)"""
+    if accessory_id not in SEASONAL_ACCESSORIES:
+        raise HTTPException(status_code=404, detail="Seasonal accessory not found")
+    
+    accessory = SEASONAL_ACCESSORIES[accessory_id]
+    
+    # Check if currently available
+    availability = is_seasonal_available(accessory)
+    if not availability['available']:
+        season_info = get_season_info(accessory.get('season', ''))
+        raise HTTPException(
+            status_code=400, 
+            detail=f"This item is only available during {season_info['name']} ({availability['start']} - {availability['end']})"
+        )
+    
+    # Check if already owned
+    existing = await db.user_accessories.find_one({
+        'user_id': current_user['id'],
+        'accessory_id': accessory_id
+    })
+    if existing:
+        raise HTTPException(status_code=400, detail="You already own this seasonal item")
+    
+    # Check coins
+    user = await db.users.find_one({'id': current_user['id']}, {'_id': 0, 'coins': 1})
+    user_coins = user.get('coins', 0)
+    
+    if user_coins < accessory['price']:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Not enough coins. You have {user_coins}, need {accessory['price']}"
+        )
+    
+    # Deduct coins
+    await db.users.update_one(
+        {'id': current_user['id']},
+        {'$inc': {'coins': -accessory['price']}}
+    )
+    
+    # Add to user's accessories with seasonal flag
+    user_accessory = {
+        'id': str(uuid.uuid4()),
+        'user_id': current_user['id'],
+        'accessory_id': accessory_id,
+        'acquired_at': datetime.now(timezone.utc).isoformat(),
+        'acquired_via': 'seasonal_purchase',
+        'season': accessory.get('season', 'unknown'),
+        'is_limited_edition': True
+    }
+    await db.user_accessories.insert_one(user_accessory)
+    
+    season_info = get_season_info(accessory.get('season', ''))
+    
+    return {
+        'message': f"You purchased the limited edition {accessory['name']}!",
+        'accessory': {
+            'id': accessory_id,
+            'name': accessory['name'],
+            'icon': accessory['icon'],
+            'rarity': accessory['rarity'],
+            'season': season_info['name'],
+            'is_limited': True
+        },
+        'coins_spent': accessory['price'],
+        'coins_remaining': user_coins - accessory['price']
+    }
+
+
+@router.get("/accessories/all-seasons")
+async def get_all_seasons_info(current_user: dict = Depends(get_current_user)):
+    """Get info about all seasonal events and their accessories"""
+    seasons_data = {}
+    
+    for acc_id, acc_info in SEASONAL_ACCESSORIES.items():
+        season_key = acc_info.get('season', 'unknown')
+        
+        if season_key not in seasons_data:
+            season_info = get_season_info(season_key)
+            availability = is_seasonal_available(acc_info)
+            
+            seasons_data[season_key] = {
+                'key': season_key,
+                'name': season_info['name'],
+                'icon': season_info['icon'],
+                'color': season_info['color'],
+                'available_dates': f"{acc_info['available_month_start']}/{acc_info['available_day_start']} - {acc_info['available_month_end']}/{acc_info['available_day_end']}",
+                'is_active': availability['available'],
+                'days_remaining': availability['days_remaining'],
+                'items_count': 0,
+                'items': []
+            }
+        
+        seasons_data[season_key]['items_count'] += 1
+        seasons_data[season_key]['items'].append({
+            'id': acc_id,
+            'name': acc_info['name'],
+            'icon': acc_info['icon'],
+            'price': acc_info['price'],
+            'rarity': acc_info['rarity']
+        })
+    
+    # Sort seasons: active first, then by upcoming date
+    seasons_list = sorted(
+        seasons_data.values(),
+        key=lambda x: (not x['is_active'], x['name'])
+    )
+    
+    return {
+        'seasons': seasons_list,
+        'active_seasons': [s for s in seasons_list if s['is_active']],
+        'total_seasonal_items': len(SEASONAL_ACCESSORIES)
     }

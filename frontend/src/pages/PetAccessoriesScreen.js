@@ -14,7 +14,9 @@ import {
   Package,
   Star,
   Gift,
-  Zap
+  Zap,
+  Clock,
+  Calendar
 } from 'lucide-react';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -34,13 +36,16 @@ const unlockTypeIcons = {
   level: <Star className="w-3 h-3" />,
   streak: <Zap className="w-3 h-3" />,
   achievement: <Crown className="w-3 h-3" />,
-  referral: <Gift className="w-3 h-3" />
+  referral: <Gift className="w-3 h-3" />,
+  seasonal: <Calendar className="w-3 h-3" />
 };
 
 const PetAccessoriesScreen = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('shop'); // 'shop', 'inventory', 'unlockable'
+  const [activeTab, setActiveTab] = useState('shop'); // 'shop', 'seasonal', 'inventory', 'unlockable'
   const [shopItems, setShopItems] = useState([]);
+  const [seasonalItems, setSeasonalItems] = useState([]);
+  const [activeSeasons, setActiveSeasons] = useState([]);
   const [inventory, setInventory] = useState([]);
   const [unlockable, setUnlockable] = useState([]);
   const [equipped, setEquipped] = useState({});
@@ -55,8 +60,9 @@ const PetAccessoriesScreen = () => {
 
   const fetchData = async () => {
     try {
-      const [shopRes, invRes, unlockRes, equippedRes] = await Promise.all([
+      const [shopRes, seasonalRes, invRes, unlockRes, equippedRes] = await Promise.all([
         axios.get(`${API}/pets/accessories/shop`),
+        axios.get(`${API}/pets/accessories/seasonal`),
         axios.get(`${API}/pets/accessories/inventory`),
         axios.get(`${API}/pets/accessories/unlockable`),
         axios.get(`${API}/pets/accessories/equipped`)
@@ -64,6 +70,8 @@ const PetAccessoriesScreen = () => {
       
       setShopItems(shopRes.data.items || []);
       setUserCoins(shopRes.data.user_coins || 0);
+      setSeasonalItems(seasonalRes.data.available || []);
+      setActiveSeasons(seasonalRes.data.seasons || []);
       setInventory(invRes.data.inventory || []);
       setUnlockable(unlockRes.data.unlockable || []);
       setEquipped(equippedRes.data.equipped || {});
@@ -75,13 +83,16 @@ const PetAccessoriesScreen = () => {
     }
   };
 
-  const handlePurchase = async (accessoryId) => {
+  const handlePurchase = async (accessoryId, isSeasonal = false) => {
     if (purchasing) return;
     setPurchasing(true);
     
     try {
-      const response = await axios.post(`${API}/pets/accessories/purchase/${accessoryId}`);
-      toast.success(response.data.message);
+      const endpoint = isSeasonal 
+        ? `${API}/pets/accessories/purchase-seasonal/${accessoryId}`
+        : `${API}/pets/accessories/purchase/${accessoryId}`;
+      const response = await axios.post(endpoint);
+      toast.success(response.data.message, { icon: isSeasonal ? '🎉' : '✨' });
       setUserCoins(response.data.coins_remaining);
       fetchData(); // Refresh
     } catch (error) {
@@ -141,6 +152,8 @@ const PetAccessoriesScreen = () => {
     
     if (activeTab === 'shop') {
       items = shopItems.filter(i => !i.owned);
+    } else if (activeTab === 'seasonal') {
+      items = seasonalItems.filter(i => !i.owned);
     } else if (activeTab === 'inventory') {
       items = inventory;
     } else if (activeTab === 'unlockable') {
@@ -156,6 +169,7 @@ const PetAccessoriesScreen = () => {
 
   const displayItems = getDisplayItems();
   const claimableCount = unlockable.filter(u => u.claimable).length;
+  const seasonalCount = seasonalItems.filter(i => !i.owned).length;
 
   return (
     <div className="min-h-screen bg-black pb-24" data-testid="pet-accessories-screen">
@@ -182,7 +196,7 @@ const PetAccessoriesScreen = () => {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-4">
+        <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
           <Button
             onClick={() => setActiveTab('shop')}
             variant={activeTab === 'shop' ? 'default' : 'outline'}
@@ -192,12 +206,25 @@ const PetAccessoriesScreen = () => {
             <ShoppingBag className="w-4 h-4 mr-1" /> Shop
           </Button>
           <Button
+            onClick={() => setActiveTab('seasonal')}
+            variant={activeTab === 'seasonal' ? 'default' : 'outline'}
+            size="sm"
+            className={`${activeTab === 'seasonal' ? 'bg-gradient-to-r from-orange-500 to-pink-500 text-white border-0' : 'border-orange-500/50 text-orange-400'} relative`}
+          >
+            <Calendar className="w-4 h-4 mr-1" /> Limited
+            {seasonalCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full text-xs flex items-center justify-center text-white font-bold animate-pulse">
+                {seasonalCount}
+              </span>
+            )}
+          </Button>
+          <Button
             onClick={() => setActiveTab('inventory')}
             variant={activeTab === 'inventory' ? 'default' : 'outline'}
             size="sm"
             className={activeTab === 'inventory' ? 'bg-primary text-black' : ''}
           >
-            <Package className="w-4 h-4 mr-1" /> Inventory ({inventory.length})
+            <Package className="w-4 h-4 mr-1" /> ({inventory.length})
           </Button>
           <Button
             onClick={() => setActiveTab('unlockable')}
@@ -213,6 +240,19 @@ const PetAccessoriesScreen = () => {
             )}
           </Button>
         </div>
+
+        {/* Season Banner for Seasonal Tab */}
+        {activeTab === 'seasonal' && activeSeasons.length > 0 && (
+          <div className="mb-3 p-3 rounded-xl bg-gradient-to-r from-orange-500/20 to-pink-500/20 border border-orange-500/30">
+            <div className="flex items-center gap-2 text-orange-300 text-sm">
+              <Clock className="w-4 h-4" />
+              <span className="font-bold">Limited Time!</span>
+              <span className="text-orange-200/70">
+                {activeSeasons.map(s => s).join(', ')} items available now
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* Category filter */}
         <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4">
@@ -266,10 +306,11 @@ const PetAccessoriesScreen = () => {
         {displayItems.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-4xl mb-4">
-              {activeTab === 'shop' ? '🛍️' : activeTab === 'inventory' ? '📦' : '🎁'}
+              {activeTab === 'shop' ? '🛍️' : activeTab === 'seasonal' ? '🎃' : activeTab === 'inventory' ? '📦' : '🎁'}
             </div>
             <p className="text-zinc-400">
               {activeTab === 'shop' && 'All shop items purchased!'}
+              {activeTab === 'seasonal' && 'No seasonal items available right now!'}
               {activeTab === 'inventory' && 'No accessories yet. Visit the shop!'}
               {activeTab === 'unlockable' && 'All unlockable accessories claimed!'}
             </p>
@@ -280,24 +321,42 @@ const PetAccessoriesScreen = () => {
               const style = rarityStyles[item.rarity] || rarityStyles.common;
               const isEquipped = Object.values(equipped).some(e => e?.id === item.id);
               const equippedInSlot = equipped[item.slot];
+              const isSeasonal = item.is_limited || activeTab === 'seasonal';
               
               return (
                 <div
                   key={item.id}
                   className={`relative rounded-xl p-3 border-2 transition-all ${style.bg} ${style.border} ${
                     isEquipped ? 'ring-2 ring-primary/50' : ''
-                  } ${item.theme_match ? `shadow-lg ${style.glow}` : ''}`}
+                  } ${item.theme_match ? `shadow-lg ${style.glow}` : ''} ${
+                    isSeasonal ? 'ring-1 ring-orange-500/30' : ''
+                  }`}
                   data-testid={`accessory-${item.id}`}
                 >
+                  {/* Limited Edition / Seasonal badge */}
+                  {isSeasonal && (
+                    <div className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] px-2 py-0.5 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 text-white font-bold whitespace-nowrap">
+                      {item.season_icon} LIMITED
+                    </div>
+                  )}
+
                   {/* Rarity badge */}
                   <div className={`absolute top-2 right-2 text-[10px] px-1.5 py-0.5 rounded-full bg-black/50 ${style.text} capitalize`}>
                     {item.rarity}
                   </div>
 
                   {/* Theme match badge */}
-                  {item.theme_match && (
+                  {item.theme_match && !isSeasonal && (
                     <div className="absolute top-2 left-2 text-[10px] px-1.5 py-0.5 rounded-full bg-yellow-500/20 text-yellow-400">
                       ✨ Match
+                    </div>
+                  )}
+
+                  {/* Days remaining for seasonal */}
+                  {isSeasonal && item.days_remaining && (
+                    <div className="absolute top-2 left-2 text-[9px] px-1.5 py-0.5 rounded-full bg-red-500/20 text-red-400 flex items-center gap-1">
+                      <Clock className="w-2.5 h-2.5" />
+                      {item.days_remaining}d
                     </div>
                   )}
 
@@ -309,16 +368,43 @@ const PetAccessoriesScreen = () => {
                   {/* Info */}
                   <h4 className="text-white font-bold text-xs text-center truncate">{item.name}</h4>
                   <p className="text-zinc-500 text-[10px] text-center mt-0.5 line-clamp-2">{item.description}</p>
+                  
+                  {/* Season tag */}
+                  {isSeasonal && item.season && (
+                    <p className="text-[9px] text-center mt-1 text-orange-400/70">{item.season}</p>
+                  )}
 
                   {/* Action button / Status */}
                   <div className="mt-3">
                     {/* Shop items */}
                     {activeTab === 'shop' && (
                       <Button
-                        onClick={() => handlePurchase(item.id)}
+                        onClick={() => handlePurchase(item.id, false)}
                         disabled={!item.can_afford || purchasing}
                         size="sm"
                         className="w-full bg-yellow-500 hover:bg-yellow-600 text-black text-xs"
+                      >
+                        {item.can_afford ? (
+                          <>
+                            <Coins className="w-3 h-3 mr-1" />
+                            {item.price}
+                          </>
+                        ) : (
+                          <>
+                            <Lock className="w-3 h-3 mr-1" />
+                            {item.price}
+                          </>
+                        )}
+                      </Button>
+                    )}
+
+                    {/* Seasonal items */}
+                    {activeTab === 'seasonal' && (
+                      <Button
+                        onClick={() => handlePurchase(item.id, true)}
+                        disabled={!item.can_afford || purchasing}
+                        size="sm"
+                        className="w-full bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white text-xs"
                       >
                         {item.can_afford ? (
                           <>
