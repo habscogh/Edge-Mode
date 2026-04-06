@@ -1437,6 +1437,18 @@ async def get_my_pet(current_user: dict = Depends(get_current_user)):
     
     pet_type = user_pet['pet_type']
     pet_info = PET_TYPES.get(pet_type)
+    
+    # Handle case where pet type no longer exists (legacy pets)
+    if not pet_info:
+        # Default to flame_dragon as fallback
+        pet_type = 'flame_dragon'
+        pet_info = PET_TYPES['flame_dragon']
+        # Update the user's pet to use the new type
+        await db.user_pets.update_one(
+            {'id': user_pet['id']},
+            {'$set': {'pet_type': pet_type}}
+        )
+    
     stage = user_pet.get('evolution_stage', 1)
     appearance = get_pet_appearance(pet_type, stage)
     stage_info = EVOLUTION_STAGES.get(stage, EVOLUTION_STAGES[1])
