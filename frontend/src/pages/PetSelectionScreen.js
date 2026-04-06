@@ -189,18 +189,29 @@ const PetSelectionScreen = () => {
             const canAfford = userCoins >= pet.price;
             const isLocked = !pet.is_starter && !canAfford && !pet.owned;
 
+            const handlePetClick = (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (!pet.owned && !isLocked) {
+                setSelectedPet(pet);
+              }
+            };
+
             return (
-              <div
+              <button
+                type="button"
                 key={pet.type}
-                onClick={() => !pet.owned && !isLocked && setSelectedPet(pet)}
-                className={`relative rounded-xl p-4 border-2 transition-all cursor-pointer ${style.bg} ${
+                onClick={handlePetClick}
+                onTouchEnd={handlePetClick}
+                disabled={pet.owned || isLocked}
+                className={`relative rounded-xl p-4 border-2 transition-all text-left ${style.bg} ${
                   isSelected 
                     ? 'border-primary ring-2 ring-primary/30' 
                     : pet.owned 
                       ? 'border-green-500/50 opacity-75'
                       : isLocked
-                        ? 'border-zinc-700 opacity-50'
-                        : style.border
+                        ? 'border-zinc-700 opacity-50 cursor-not-allowed'
+                        : `${style.border} cursor-pointer active:scale-95`
                 } ${!pet.owned && !isLocked ? 'hover:scale-[1.02]' : ''}`}
                 data-testid={`pet-option-${pet.type}`}
               >
@@ -248,14 +259,14 @@ const PetSelectionScreen = () => {
                     <Check className="w-4 h-4 text-black" />
                   </div>
                 )}
-              </div>
+              </button>
             );
           })}
         </div>
 
         {/* Selection panel */}
         {selectedPet && (
-          <div className="fixed bottom-0 left-0 right-0 bg-zinc-900 border-t border-zinc-700 p-4 safe-area-inset-bottom">
+          <div className="fixed bottom-0 left-0 right-0 bg-zinc-900 border-t border-zinc-700 p-4 pb-8 z-50" style={{ paddingBottom: 'max(2rem, env(safe-area-inset-bottom))' }}>
             <div className="flex items-center gap-4 mb-3">
               <div className="text-4xl">{selectedPet.preview_icon}</div>
               <div className="flex-1">
@@ -277,9 +288,11 @@ const PetSelectionScreen = () => {
             </div>
 
             <Button
+              type="button"
               onClick={handleSelectPet}
+              onTouchEnd={(e) => { e.preventDefault(); handleSelectPet(); }}
               disabled={selecting}
-              className="w-full bg-primary text-black hover:bg-primary/90 font-bold"
+              className="w-full bg-primary text-black hover:bg-primary/90 font-bold py-4 text-lg active:scale-95"
               data-testid="confirm-pet-btn"
             >
               {selecting ? 'Selecting...' : selectedPet.is_starter ? 'Choose This Pet!' : `Buy for ${selectedPet.price} Coins`}
