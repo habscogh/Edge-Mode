@@ -248,6 +248,12 @@ async def send_streak_reminders_job():
             })
             
             if not session_today:
+                # Mark this user BEFORE sending to prevent duplicates in race conditions
+                await db.users.update_one(
+                    {'id': user['id']},
+                    {'$set': {'last_streak_reminder': reminder_key}}
+                )
+                
                 html = get_streak_reminder_html(
                     user.get('username', 'User'),
                     user.get('current_streak', 0)
@@ -262,12 +268,6 @@ async def send_streak_reminders_job():
                         "html": html
                     })
                     sent_count += 1
-                    
-                    # Mark this user as having received today's reminder
-                    await db.users.update_one(
-                        {'id': user['id']},
-                        {'$set': {'last_streak_reminder': reminder_key}}
-                    )
                 except Exception as e:
                     logger.error(f"Failed to send streak reminder to {user['email']}: {e}")
                 
@@ -420,6 +420,12 @@ async def send_inactive_reminders_job():
             # Include community stats for 7+ days inactive
             include_stats = days_inactive >= 7
             
+            # Mark this user BEFORE sending to prevent duplicates in race conditions
+            await db.users.update_one(
+                {'id': user['id']},
+                {'$set': {'last_inactive_reminder': reminder_key}}
+            )
+            
             html = get_inactive_reminder_html(
                 user.get('username', 'User'),
                 days_inactive,
@@ -435,12 +441,6 @@ async def send_inactive_reminders_job():
                     "html": html
                 })
                 sent_count += 1
-                
-                # Mark this user as having received today's inactive reminder
-                await db.users.update_one(
-                    {'id': user['id']},
-                    {'$set': {'last_inactive_reminder': reminder_key}}
-                )
             except Exception as e:
                 logger.error(f"Failed to send inactive reminder to {user['email']}: {e}")
             
@@ -862,6 +862,12 @@ async def send_morning_reminders_job():
             # Pick a random motivational quote
             quote = random.choice(MORNING_QUOTES)
             
+            # Mark this user BEFORE sending to prevent duplicates in race conditions
+            await db.users.update_one(
+                {'id': user['id']},
+                {'$set': {'last_morning_reminder': reminder_key}}
+            )
+            
             html = get_morning_reminder_html(
                 user.get('username', 'Champion'),
                 user.get('current_streak', 0),
@@ -877,12 +883,6 @@ async def send_morning_reminders_job():
                     "html": html
                 })
                 sent_count += 1
-                
-                # Mark this user as having received today's morning reminder
-                await db.users.update_one(
-                    {'id': user['id']},
-                    {'$set': {'last_morning_reminder': reminder_key}}
-                )
             except Exception as e:
                 logger.error(f"Failed to send morning reminder to {user['email']}: {e}")
             
