@@ -93,6 +93,14 @@ async def get_badge_progress(current_user: dict = Depends(get_current_user)):
             'percent': min(100, (max_streak / 14) * 100)
         })
     
+    if 'streak_21' not in earned_ids:
+        progress.append({
+            'badge_id': 'streak_21',
+            'current': max_streak,
+            'target': 21,
+            'percent': min(100, (max_streak / 21) * 100)
+        })
+    
     if 'streak_30' not in earned_ids:
         progress.append({
             'badge_id': 'streak_30',

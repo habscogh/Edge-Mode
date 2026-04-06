@@ -77,9 +77,12 @@ async def check_and_award_badges(user_id: str) -> List[dict]:
     streak_milestones = [
         (7, 'streak_7'),
         (14, 'streak_14'),
+        (21, 'streak_21'),
         (30, 'streak_30'),
+        (45, 'streak_45'),
         (60, 'streak_60'),
         (90, 'streak_90'),
+        (120, 'streak_120'),
         (180, 'streak_180'),
         (365, 'streak_365'),
     ]
@@ -169,6 +172,19 @@ async def check_and_award_badges(user_id: str) -> List[dict]:
     
     if challenge_wins >= 10:
         badge = await award_badge(user_id, 'challenge_streak_10')
+        if badge:
+            newly_earned.append(badge)
+    
+    # Check Referral badges
+    referral_count = user.get('referral_count', 0)
+    
+    if referral_count >= 5:
+        badge = await award_badge(user_id, 'referral_5')
+        if badge:
+            newly_earned.append(badge)
+    
+    if referral_count >= 10:
+        badge = await award_badge(user_id, 'referral_10')
         if badge:
             newly_earned.append(badge)
     

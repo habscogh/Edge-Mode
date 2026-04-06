@@ -108,6 +108,27 @@ BADGES = {
         "icon": "🔥",
         "category": "streak"
     },
+    "streak_21": {
+        "id": "streak_21",
+        "name": "Three Week Titan",
+        "description": "Maintain a 21-day streak",
+        "icon": "🔥",
+        "category": "streak"
+    },
+    "streak_45": {
+        "id": "streak_45",
+        "name": "Six Week Superstar",
+        "description": "Maintain a 45-day streak",
+        "icon": "🔥",
+        "category": "streak"
+    },
+    "streak_120": {
+        "id": "streak_120",
+        "name": "Four Month Legend",
+        "description": "Maintain a 120-day streak",
+        "icon": "👑",
+        "category": "streak"
+    },
     "sessions_100": {
         "id": "sessions_100",
         "name": "Century Club",
@@ -287,6 +308,21 @@ BADGES = {
         "description": "Win 10 challenges",
         "icon": "👑",
         "category": "challenge"
+    },
+    # Referral Badges
+    "referral_5": {
+        "id": "referral_5",
+        "name": "Friend Magnet",
+        "description": "Refer 5 friends to Edge Mode",
+        "icon": "🤝",
+        "category": "social"
+    },
+    "referral_10": {
+        "id": "referral_10",
+        "name": "Community Builder",
+        "description": "Refer 10 friends to Edge Mode",
+        "icon": "👥",
+        "category": "social"
     },
     # Special Long-term
     "og_member": {
