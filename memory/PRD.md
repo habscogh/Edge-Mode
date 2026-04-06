@@ -271,6 +271,26 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
     - **CSS Animations:** 40+ unique keyframe animations for all interactions
     - All tests passing (96% backend, 100% frontend)
 
+14. **Pet Accessories & Themed Gear** ✅ (April 6, 2026)
+    - **30+ Accessories** across 5 categories:
+      - **Hats & Headwear:** Champion Cap, DJ Headphones, Pirate Hat, Space Helmet, Wizard Hat, Party Hat, Crowns
+      - **Glasses & Eyewear:** Cool Shades, Cyber Visor, Scholar Glasses, Star Glasses
+      - **Collars & Necklaces:** LED Glow Collar, Musical Chain, Crystal Pendant, Champion Medal, Friendship Collar
+      - **Wings & Back Items:** Butterfly Wings, Flame Wings, Jetpack, Explorer Backpack, Champion Cape, Angel Wings
+      - **Auras & Effects:** Sparkle Aura, Fire/Ice/Lightning Aura, Rainbow Trail, Galaxy Swirl, Heart Bubbles, Neon Glow, Music Waves
+    - **4 Unlock Types:**
+      - Shop (coins) - 19 purchasable items (75-450 coins)
+      - Level-based - Sparkle Aura (L5), Golden Crown (L10), Diamond Crown (L20), Galaxy Swirl (L21)
+      - Streak-based - Party Hat (30d), Rainbow Trail (50d), Star Glasses (60d), Angel Wings (100d)
+      - Achievement-based - Wizard Hat, Scholar Glasses, Champion Medal, Explorer Backpack
+      - Referral-based - Friendship Collar (3 referrals)
+    - **Theme Matching Bonus** - Accessories that match pet theme get visual highlight
+    - **5 Equipment Slots:** Head, Face, Neck, Back, Aura
+    - **Accessories Screen** at `/pets/accessories` with Shop/Inventory/Unlock tabs
+    - **Dashboard Integration** - "Accessories & Gear" button in pet widget
+    - **Pet Display** - Shows equipped accessories overlaid on pet icon
+    - All tests passing (100% backend, 100% frontend)
+
 ## Previous Session (March 29, 2026)
 
 1. **Coach Tools (Team Analytics & Bulk Messaging)** ✅
