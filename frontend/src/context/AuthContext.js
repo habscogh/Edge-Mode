@@ -32,7 +32,13 @@ export const AuthProvider = ({ children }) => {
     const interceptor = axios.interceptors.response.use(
       (response) => response,
       (error) => {
-        if (error.response?.status === 401) {
+        // Only auto-logout on 401 for specific auth-sensitive endpoints
+        // Don't auto-logout during initial data loading to prevent iOS Safari race conditions
+        const authEndpoints = ['/api/users/me', '/api/auth/'];
+        const isAuthEndpoint = authEndpoints.some(ep => error.config?.url?.includes(ep));
+        
+        if (error.response?.status === 401 && isAuthEndpoint) {
+          console.log('Auth interceptor: 401 on auth endpoint, logging out');
           logout();
         }
         return Promise.reject(error);

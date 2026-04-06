@@ -55,36 +55,80 @@ const PetSelectionScreen = () => {
     setError(null);
     
     try {
-      // Fetch available pets
-      const petsRes = await axios.get(`${API}/pets/available`);
+      // Check if we have a token before making requests
+      const token = localStorage.getItem('forge_token');
+      if (!token) {
+        console.log('No auth token found, redirecting to login');
+        navigate('/auth');
+        return;
+      }
+
+      // Create headers config to ensure token is sent
+      const config = {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      };
+
+      // Fetch all data with explicit auth headers (iOS Safari fix)
+      console.log('Fetching pets data...');
+      const petsRes = await axios.get(`${API}/pets/available`, config);
       console.log('Pets response:', petsRes.data);
       
-      setStarters(petsRes.data?.starters || []);
-      setShopPets(petsRes.data?.shop_pets || []);
+      // Validate response structure
+      if (!petsRes.data || typeof petsRes.data !== 'object') {
+        throw new Error('Invalid pets response');
+      }
       
-      // Fetch user's pet status
-      const myPetRes = await axios.get(`${API}/pets/my-pet`);
+      const startersData = petsRes.data?.starters || [];
+      const shopPetsData = petsRes.data?.shop_pets || [];
+      
+      console.log('Fetching my pet status...');
+      const myPetRes = await axios.get(`${API}/pets/my-pet`, config);
       console.log('My pet response:', myPetRes.data);
       
       const hasPet = myPetRes.data?.has_pet || false;
+      
+      console.log('Fetching engagement status...');
+      const statusRes = await axios.get(`${API}/engagement/status`, config);
+      console.log('Status response:', statusRes.data);
+      
+      const coins = statusRes.data?.coins || 0;
+      
+      // Batch state updates to prevent race conditions on iOS Safari
+      setStarters(startersData);
+      setShopPets(shopPetsData);
       setHasStarterPet(hasPet);
+      setUserCoins(coins);
       
       if (hasPet) {
         setActiveTab('shop');
       }
       
-      // Fetch coins
-      const statusRes = await axios.get(`${API}/engagement/status`);
-      console.log('Status response:', statusRes.data);
-      
-      setUserCoins(statusRes.data?.coins || 0);
+      // Only set loading false after all state updates are queued
+      setLoading(false);
       
     } catch (err) {
-      console.error('Fetch error:', err);
-      setError(err.message || 'Failed to load pets');
-      toast.error('Failed to load pets. Tap to retry.');
-    } finally {
+      console.error('Fetch error details:', {
+        message: err.message,
+        status: err.response?.status,
+        data: err.response?.data,
+        url: err.config?.url
+      });
+      
+      // Handle auth errors specifically
+      if (err.response?.status === 401) {
+        console.log('Auth error - clearing token and redirecting');
+        localStorage.removeItem('forge_token');
+        navigate('/auth');
+        return;
+      }
+      
+      const errorMsg = err.response?.data?.detail || err.message || 'Failed to load pets';
+      setError(errorMsg);
       setLoading(false);
+      toast.error('Failed to load pets. Tap to retry.');
     }
   };
 

@@ -18,3 +18,11 @@
 - Role: Player (joined Test Warriors team)
 - Onboarding: Completed with pillars: Fitness/Training, Study/Academics, Reading/Learning
 - XP: 195 (Level 2)
+
+## User Account (Primary Test User)
+- Email: `Hab@aol.com`
+- Password: `0317`
+- Role: Standard User
+- Onboarding: Completed with pillars: Fitness/Training, Study/Academics, Reading/Learning
+- Created: 2025-02-06
+- Note: This is the primary iOS testing account
