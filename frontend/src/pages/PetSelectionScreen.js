@@ -28,9 +28,10 @@ const rarityStyles = {
 };
 
 const categoryIcons = {
-  animals: '🐾',
   fantasy: '🐉',
-  abstract: '✨'
+  scifi: '👾',
+  activity: '⚡',
+  gaming: '🎮'
 };
 
 const PetSelectionScreen = () => {

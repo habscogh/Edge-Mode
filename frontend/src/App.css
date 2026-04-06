@@ -108,6 +108,368 @@ input[type='number'] {
 }
 
 /* Pet Interaction Animations */
+/* ============================================ */
+/* PETTING ANIMATIONS - Purring/Vibrating/Nuzzling */
+/* ============================================ */
+@keyframes petPurrVibrate {
+  0%, 100% { transform: translateX(0) scale(1); }
+  10% { transform: translateX(-3px) scale(1.05); }
+  20% { transform: translateX(3px) scale(1.08); }
+  30% { transform: translateX(-3px) scale(1.1); }
+  40% { transform: translateX(3px) scale(1.12); }
+  50% { transform: translateX(-2px) scale(1.15); }
+  60% { transform: translateX(2px) scale(1.12); }
+  70% { transform: translateX(-2px) scale(1.1); }
+  80% { transform: translateX(2px) scale(1.08); }
+  90% { transform: translateX(-1px) scale(1.05); }
+}
+
+@keyframes petHeartsRise {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  25% { transform: scale(1.2); filter: brightness(1.3) drop-shadow(0 0 20px #f472b6); }
+  50% { transform: scale(1.35); filter: brightness(1.5) drop-shadow(0 0 30px #ec4899); }
+  75% { transform: scale(1.25); filter: brightness(1.4) drop-shadow(0 0 25px #f472b6); }
+}
+
+@keyframes petNuzzle {
+  0%, 100% { transform: rotate(0deg) translateX(0); }
+  20% { transform: rotate(-15deg) translateX(-10px) scale(1.1); }
+  40% { transform: rotate(15deg) translateX(10px) scale(1.15); }
+  60% { transform: rotate(-10deg) translateX(-8px) scale(1.12); }
+  80% { transform: rotate(10deg) translateX(8px) scale(1.08); }
+}
+
+@keyframes petWiggleHappy {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  10% { transform: rotate(-20deg) scale(1.15); }
+  20% { transform: rotate(20deg) scale(1.2); }
+  30% { transform: rotate(-18deg) scale(1.22); }
+  40% { transform: rotate(18deg) scale(1.25); }
+  50% { transform: rotate(-15deg) scale(1.22); }
+  60% { transform: rotate(15deg) scale(1.2); }
+  70% { transform: rotate(-10deg) scale(1.15); }
+  80% { transform: rotate(10deg) scale(1.1); }
+  90% { transform: rotate(-5deg) scale(1.05); }
+}
+
+/* ============================================ */
+/* FEEDING ANIMATIONS - Munching/Belly Glow */
+/* ============================================ */
+@keyframes petMunch {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  8% { transform: scale(1.25) rotate(-8deg); }
+  16% { transform: scale(1.15) rotate(8deg); }
+  24% { transform: scale(1.35) rotate(-6deg); }
+  32% { transform: scale(1.2) rotate(6deg); }
+  40% { transform: scale(1.45) rotate(-4deg); }
+  48% { transform: scale(1.3) rotate(4deg); }
+  56% { transform: scale(1.5) rotate(0deg); }
+  64% { transform: scale(1.4) rotate(-3deg); }
+  72% { transform: scale(1.35) rotate(3deg); }
+  80% { transform: scale(1.25) rotate(0deg); }
+  90% { transform: scale(1.15); }
+}
+
+@keyframes petBellyGlow {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  30% { transform: scale(1.3); filter: brightness(1.4) drop-shadow(0 0 25px #fbbf24); }
+  50% { transform: scale(1.45); filter: brightness(1.6) drop-shadow(0 0 40px #f59e0b); }
+  70% { transform: scale(1.35); filter: brightness(1.5) drop-shadow(0 0 30px #fbbf24); }
+}
+
+@keyframes petHappyDance {
+  0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+  10% { transform: translateY(-20px) rotate(-15deg) scale(1.15); }
+  20% { transform: translateY(-10px) rotate(15deg) scale(1.2); }
+  30% { transform: translateY(-25px) rotate(-12deg) scale(1.25); }
+  40% { transform: translateY(-15px) rotate(12deg) scale(1.22); }
+  50% { transform: translateY(-30px) rotate(0deg) scale(1.3); }
+  60% { transform: translateY(-18px) rotate(-10deg) scale(1.25); }
+  70% { transform: translateY(-22px) rotate(10deg) scale(1.2); }
+  80% { transform: translateY(-12px) rotate(-8deg) scale(1.15); }
+  90% { transform: translateY(-5px) rotate(5deg) scale(1.08); }
+}
+
+@keyframes petSatisfied {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  30% { transform: scale(1.25); opacity: 0.95; }
+  50% { transform: scale(1.35) rotate(-5deg); opacity: 0.9; }
+  70% { transform: scale(1.3) rotate(5deg); opacity: 0.95; }
+}
+
+/* ============================================ */
+/* PLAY ANIMATIONS - Ball Chase/Pounce */
+/* ============================================ */
+@keyframes petChaseBall {
+  0%, 100% { transform: translateX(0) scaleX(1); }
+  15% { transform: translateX(40px) scaleX(1.3); }
+  30% { transform: translateX(10px) scaleX(1); }
+  45% { transform: translateX(-40px) scaleX(1.3); }
+  60% { transform: translateX(-10px) scaleX(1); }
+  75% { transform: translateX(50px) scaleX(1.35); }
+  90% { transform: translateX(0) scaleX(1.1); }
+}
+
+@keyframes petPounce {
+  0% { transform: scale(1) translateY(0); }
+  15% { transform: scale(0.8, 1.2) translateY(5px); }
+  30% { transform: scale(1.4) translateY(-60px); }
+  50% { transform: scale(1.5) translateY(-70px) rotate(10deg); }
+  70% { transform: scale(1.3) translateY(-40px) rotate(-5deg); }
+  85% { transform: scale(1.1) translateY(-10px); }
+  100% { transform: scale(1) translateY(0); }
+}
+
+@keyframes petProudReturn {
+  0%, 100% { transform: translateX(0) scale(1); }
+  20% { transform: translateX(-50px) scale(0.9); }
+  50% { transform: translateX(0) scale(1.25) rotate(-10deg); }
+  70% { transform: translateX(0) scale(1.35) rotate(10deg); }
+  85% { transform: translateX(0) scale(1.2); }
+}
+
+@keyframes petWag {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  15% { transform: rotate(-25deg) scale(1.1); }
+  30% { transform: rotate(25deg) scale(1.15); }
+  45% { transform: rotate(-20deg) scale(1.18); }
+  60% { transform: rotate(20deg) scale(1.15); }
+  75% { transform: rotate(-15deg) scale(1.1); }
+  90% { transform: rotate(10deg) scale(1.05); }
+}
+
+/* ============================================ */
+/* TRAINING ANIMATIONS - Power/Energy */
+/* ============================================ */
+@keyframes petStretch {
+  0%, 100% { transform: scaleY(1) scaleX(1); }
+  20% { transform: scaleY(1.4) scaleX(0.9); }
+  40% { transform: scaleY(0.85) scaleX(1.15); }
+  60% { transform: scaleY(1.3) scaleX(0.92); }
+  80% { transform: scaleY(1.1) scaleX(1.05); }
+}
+
+@keyframes petEnergyBurst {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  15% { transform: scale(1.15); filter: brightness(1.3) drop-shadow(0 0 15px #60a5fa); }
+  30% { transform: scale(1.3); filter: brightness(1.5) drop-shadow(0 0 25px #3b82f6); }
+  45% { transform: scale(1.5); filter: brightness(1.8) drop-shadow(0 0 40px #2563eb); }
+  60% { transform: scale(1.6); filter: brightness(2) drop-shadow(0 0 50px #1d4ed8); }
+  75% { transform: scale(1.45); filter: brightness(1.6) drop-shadow(0 0 35px #3b82f6); }
+  90% { transform: scale(1.2); filter: brightness(1.3) drop-shadow(0 0 20px #60a5fa); }
+}
+
+@keyframes petPowerPose {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  20% { transform: scale(1.2) rotate(-5deg); }
+  40% { transform: scale(1.4) rotate(5deg); }
+  50% { transform: scale(1.5) rotate(0deg); filter: drop-shadow(0 0 30px #fbbf24); }
+  60% { transform: scale(1.45) rotate(-3deg); }
+  80% { transform: scale(1.25) rotate(3deg); }
+}
+
+@keyframes petLevelUp {
+  0% { transform: scale(1); filter: brightness(1); }
+  25% { transform: scale(1.3) translateY(-20px); filter: brightness(1.5) drop-shadow(0 0 30px #a855f7); }
+  50% { transform: scale(1.5) translateY(-40px); filter: brightness(2) drop-shadow(0 0 50px #9333ea); }
+  75% { transform: scale(1.4) translateY(-25px); filter: brightness(1.7) drop-shadow(0 0 35px #a855f7); }
+  100% { transform: scale(1) translateY(0); filter: brightness(1); }
+}
+
+/* ============================================ */
+/* SLEEP ANIMATIONS */
+/* ============================================ */
+@keyframes petCurl {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(-10deg) scale(0.92); }
+}
+
+@keyframes petSnore {
+  0%, 100% { transform: scale(1) translateY(0); opacity: 1; }
+  25% { transform: scale(1.05) translateY(-3px); opacity: 0.9; }
+  50% { transform: scale(0.95) translateY(3px); opacity: 0.8; }
+  75% { transform: scale(1.03) translateY(-2px); opacity: 0.9; }
+}
+
+@keyframes petDream {
+  0%, 100% { transform: scale(1) rotate(0deg); filter: brightness(1); }
+  25% { transform: scale(1.05) rotate(-5deg); filter: brightness(1.1) hue-rotate(10deg); }
+  50% { transform: scale(0.98) rotate(5deg); filter: brightness(1.15) hue-rotate(20deg); }
+  75% { transform: scale(1.03) rotate(-3deg); filter: brightness(1.1) hue-rotate(10deg); }
+}
+
+@keyframes petRest {
+  0%, 100% { transform: scale(1) translateY(0); opacity: 1; }
+  50% { transform: scale(0.95) translateY(5px); opacity: 0.85; }
+}
+
+/* ============================================ */
+/* DANCE ANIMATIONS - 360 Spin/Disco */
+/* ============================================ */
+@keyframes petSpin360 {
+  0% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(180deg) scale(1.3) translateY(-25px); }
+  50% { transform: rotate(360deg) scale(1.5) translateY(-40px); }
+  75% { transform: rotate(540deg) scale(1.35) translateY(-20px); }
+  100% { transform: rotate(720deg) scale(1); }
+}
+
+@keyframes petAirGuitar {
+  0%, 100% { transform: rotate(0deg) translateX(0) scale(1); }
+  10% { transform: rotate(-20deg) translateX(-10px) scale(1.15); }
+  20% { transform: rotate(15deg) translateX(8px) scale(1.2); }
+  30% { transform: rotate(-25deg) translateX(-12px) scale(1.25); }
+  40% { transform: rotate(20deg) translateX(10px) scale(1.28); }
+  50% { transform: rotate(-15deg) translateX(-8px) scale(1.3); }
+  60% { transform: rotate(25deg) translateX(12px) scale(1.25); }
+  70% { transform: rotate(-20deg) translateX(-10px) scale(1.2); }
+  80% { transform: rotate(15deg) translateX(8px) scale(1.15); }
+  90% { transform: rotate(-10deg) translateX(-5px) scale(1.08); }
+}
+
+@keyframes petDisco {
+  0%, 100% { transform: scale(1) rotate(0deg); filter: brightness(1); }
+  12% { transform: scale(1.2) rotate(15deg); filter: brightness(1.3) hue-rotate(30deg); }
+  25% { transform: scale(1.25) rotate(-15deg); filter: brightness(1.5) hue-rotate(60deg); }
+  37% { transform: scale(1.3) rotate(20deg); filter: brightness(1.4) hue-rotate(90deg); }
+  50% { transform: scale(1.35) rotate(-20deg); filter: brightness(1.6) hue-rotate(120deg); }
+  62% { transform: scale(1.3) rotate(15deg); filter: brightness(1.5) hue-rotate(150deg); }
+  75% { transform: scale(1.25) rotate(-15deg); filter: brightness(1.4) hue-rotate(180deg); }
+  87% { transform: scale(1.15) rotate(10deg); filter: brightness(1.2) hue-rotate(90deg); }
+}
+
+@keyframes petVictory {
+  0%, 100% { transform: translateY(0) scale(1); }
+  15% { transform: translateY(-35px) scale(1.2) rotate(-10deg); }
+  30% { transform: translateY(-50px) scale(1.35) rotate(10deg); }
+  45% { transform: translateY(-40px) scale(1.4) rotate(-8deg); }
+  60% { transform: translateY(-55px) scale(1.45) rotate(8deg); }
+  75% { transform: translateY(-35px) scale(1.3) rotate(-5deg); }
+  90% { transform: translateY(-15px) scale(1.15); }
+}
+
+/* ============================================ */
+/* HIGH-FIVE ANIMATIONS - Bump/Stars */
+/* ============================================ */
+@keyframes petReach {
+  0%, 100% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-15px) scale(1.15) rotate(-5deg); }
+  50% { transform: translateY(-25px) scale(1.3) rotate(0deg); }
+  70% { transform: translateY(-20px) scale(1.25) rotate(5deg); }
+}
+
+@keyframes petBumpFlash {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  20% { transform: scale(1.3); filter: brightness(1.5); }
+  40% { transform: scale(1.5); filter: brightness(2) drop-shadow(0 0 40px white); }
+  50% { transform: scale(1.6); filter: brightness(2.5) drop-shadow(0 0 60px white); }
+  70% { transform: scale(1.4); filter: brightness(1.8) drop-shadow(0 0 30px white); }
+  90% { transform: scale(1.15); filter: brightness(1.3); }
+}
+
+@keyframes petStarBurst {
+  0% { transform: scale(1) rotate(0deg); filter: brightness(1); }
+  25% { transform: scale(1.4) rotate(90deg); filter: brightness(1.5) drop-shadow(0 0 25px #fbbf24); }
+  50% { transform: scale(1.6) rotate(180deg); filter: brightness(2) drop-shadow(0 0 45px #f59e0b); }
+  75% { transform: scale(1.45) rotate(270deg); filter: brightness(1.7) drop-shadow(0 0 35px #fbbf24); }
+  100% { transform: scale(1) rotate(360deg); filter: brightness(1); }
+}
+
+@keyframes petConfetti {
+  0%, 100% { transform: scale(1); }
+  20% { transform: scale(1.25) translateY(-15px); }
+  40% { transform: scale(1.4) translateY(-30px); }
+  60% { transform: scale(1.5) translateY(-25px) rotate(10deg); }
+  80% { transform: scale(1.3) translateY(-10px) rotate(-5deg); }
+}
+
+/* ============================================ */
+/* CHEER ANIMATIONS */
+/* ============================================ */
+@keyframes petHoldSign {
+  0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+  20% { transform: translateY(-10px) rotate(-5deg) scale(1.1); }
+  50% { transform: translateY(-20px) rotate(0deg) scale(1.2); }
+  80% { transform: translateY(-10px) rotate(5deg) scale(1.1); }
+}
+
+@keyframes petFistPump {
+  0%, 100% { transform: translateY(0) scale(1); }
+  20% { transform: translateY(5px) scale(1.1); }
+  40% { transform: translateY(-35px) scale(1.25); }
+  60% { transform: translateY(-40px) scale(1.35); }
+  80% { transform: translateY(-20px) scale(1.2); }
+}
+
+@keyframes petSparkleGlow {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  25% { transform: scale(1.15); filter: brightness(1.4) drop-shadow(0 0 20px #fde047); }
+  50% { transform: scale(1.3); filter: brightness(1.7) drop-shadow(0 0 35px #facc15); }
+  75% { transform: scale(1.2); filter: brightness(1.5) drop-shadow(0 0 25px #fde047); }
+}
+
+@keyframes petMotivate {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(-15deg) scale(1.15); }
+  50% { transform: rotate(15deg) scale(1.25); }
+  75% { transform: rotate(-10deg) scale(1.18); }
+}
+
+/* ============================================ */
+/* ADVENTURE ANIMATIONS */
+/* ============================================ */
+@keyframes petGearUp {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  30% { transform: scale(1.2) rotate(-10deg); }
+  60% { transform: scale(1.3) rotate(10deg); filter: brightness(1.2); }
+  80% { transform: scale(1.25) rotate(-5deg); }
+}
+
+@keyframes petWalkOff {
+  0% { transform: translateX(0) scale(1); opacity: 1; }
+  50% { transform: translateX(100px) scale(0.8); opacity: 0.5; }
+  51% { transform: translateX(-100px) scale(0.8); opacity: 0; }
+  75% { transform: translateX(-50px) scale(0.9); opacity: 0.7; }
+  100% { transform: translateX(0) scale(1); opacity: 1; }
+}
+
+@keyframes petReturnTrophy {
+  0% { transform: translateX(-50px) scale(0.8); opacity: 0; }
+  30% { transform: translateX(0) scale(1.2); opacity: 1; }
+  50% { transform: translateX(0) scale(1.4) rotate(-10deg); filter: brightness(1.3) drop-shadow(0 0 20px #fbbf24); }
+  70% { transform: translateX(0) scale(1.35) rotate(10deg); filter: brightness(1.4) drop-shadow(0 0 25px #fbbf24); }
+  100% { transform: translateX(0) scale(1) rotate(0deg); filter: brightness(1); }
+}
+
+@keyframes petExcitedSpin {
+  0% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(180deg) scale(1.25) translateY(-20px); }
+  50% { transform: rotate(360deg) scale(1.4) translateY(-30px); }
+  75% { transform: rotate(540deg) scale(1.3) translateY(-15px); }
+  100% { transform: rotate(720deg) scale(1) translateY(0); }
+}
+
+/* ============================================ */
+/* PARTICLE FLOATING ANIMATION */
+/* ============================================ */
+@keyframes particleFloatUp {
+  0% { 
+    transform: translateY(0) scale(1) rotate(0deg); 
+    opacity: 1; 
+  }
+  50% { 
+    transform: translateY(-80px) scale(1.5) rotate(180deg); 
+    opacity: 0.8; 
+  }
+  100% { 
+    transform: translateY(-160px) scale(2) rotate(360deg); 
+    opacity: 0; 
+  }
+}
+
+/* ============================================ */
+/* LEGACY ANIMATIONS (keeping for compatibility) */
+/* ============================================ */
 @keyframes petBounce {
   0%, 100% { transform: translateY(0) scale(1); }
   15% { transform: translateY(-40px) scale(1.3); }
@@ -118,112 +480,91 @@ input[type='number'] {
   90% { transform: translateY(-5px) scale(1.05); }
 }
 
-@keyframes petWiggle {
-  0%, 100% { transform: rotate(0deg) scale(1); }
-  10% { transform: rotate(-25deg) scale(1.2); }
-  20% { transform: rotate(25deg) scale(1.25); }
-  30% { transform: rotate(-20deg) scale(1.2); }
-  40% { transform: rotate(20deg) scale(1.25); }
-  50% { transform: rotate(-15deg) scale(1.2); }
-  60% { transform: rotate(15deg) scale(1.2); }
-  70% { transform: rotate(-10deg) scale(1.15); }
-  80% { transform: rotate(10deg) scale(1.1); }
-  90% { transform: rotate(-5deg) scale(1.05); }
-}
-
-@keyframes petSpin {
-  0% { transform: rotate(0deg) scale(1); }
-  25% { transform: rotate(180deg) scale(1.4); }
-  50% { transform: rotate(360deg) scale(1.5); }
-  75% { transform: rotate(540deg) scale(1.4); }
-  100% { transform: rotate(720deg) scale(1); }
-}
-
-@keyframes petJump {
-  0%, 100% { transform: translateY(0) scaleY(1) scaleX(1); }
-  5% { transform: translateY(0) scaleY(0.6) scaleX(1.2); }
-  20% { transform: translateY(-60px) scaleY(1.3) scaleX(0.9); }
-  35% { transform: translateY(-70px) scaleY(1.2) scaleX(1); }
-  50% { transform: translateY(-65px) scaleY(1.1) scaleX(1); }
-  65% { transform: translateY(-40px) scaleY(1.2) scaleX(0.95); }
-  80% { transform: translateY(-10px) scaleY(1.1) scaleX(1); }
-  95% { transform: translateY(0) scaleY(0.8) scaleX(1.1); }
-}
-
-@keyframes petEat {
-  0%, 100% { transform: scale(1) rotate(0deg); }
-  10% { transform: scale(1.3) rotate(-10deg); }
-  20% { transform: scale(1.2) rotate(10deg); }
-  30% { transform: scale(1.4) rotate(-8deg); }
-  40% { transform: scale(1.25) rotate(8deg); }
-  50% { transform: scale(1.5) rotate(0deg); }
-  60% { transform: scale(1.4) rotate(-5deg); }
-  70% { transform: scale(1.3) rotate(5deg); }
-  80% { transform: scale(1.2) rotate(0deg); }
-  90% { transform: scale(1.1); }
-}
-
-@keyframes petSleep {
-  0%, 100% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
-  25% { transform: translateY(5px) rotate(-8deg) scale(0.95); opacity: 0.8; }
-  50% { transform: translateY(0) rotate(0deg) scale(0.9); opacity: 0.7; }
-  75% { transform: translateY(5px) rotate(8deg) scale(0.95); opacity: 0.8; }
-}
-
-@keyframes petDance {
-  0%, 100% { transform: translateX(0) rotate(0deg) scale(1); }
-  10% { transform: translateX(-15px) rotate(-15deg) scale(1.1); }
-  20% { transform: translateX(15px) rotate(15deg) scale(1.15); }
-  30% { transform: translateX(-20px) rotate(-20deg) scale(1.2); }
-  40% { transform: translateX(20px) rotate(20deg) scale(1.25); }
-  50% { transform: translateX(-15px) rotate(-15deg) scale(1.3); }
-  60% { transform: translateX(15px) rotate(15deg) scale(1.25); }
-  70% { transform: translateX(-10px) rotate(-10deg) scale(1.2); }
-  80% { transform: translateX(10px) rotate(10deg) scale(1.15); }
-  90% { transform: translateX(-5px) rotate(-5deg) scale(1.1); }
-}
-
-@keyframes petHearts {
-  0%, 100% { transform: scale(1); filter: brightness(1); }
-  20% { transform: scale(1.3); filter: brightness(1.3) drop-shadow(0 0 15px #f472b6); }
-  40% { transform: scale(1.4); filter: brightness(1.4) drop-shadow(0 0 25px #f472b6); }
-  60% { transform: scale(1.5); filter: brightness(1.5) drop-shadow(0 0 30px #ec4899); }
-  80% { transform: scale(1.35); filter: brightness(1.3) drop-shadow(0 0 20px #f472b6); }
-}
-
-@keyframes petSparkle {
-  0%, 100% { transform: scale(1) rotate(0deg); filter: brightness(1); }
-  20% { transform: scale(1.2) rotate(5deg); filter: brightness(1.4) drop-shadow(0 0 15px #fbbf24); }
-  40% { transform: scale(1.4) rotate(-5deg); filter: brightness(1.6) drop-shadow(0 0 25px #fbbf24); }
-  60% { transform: scale(1.5) rotate(5deg); filter: brightness(1.8) drop-shadow(0 0 35px #f59e0b); }
-  80% { transform: scale(1.3) rotate(-3deg); filter: brightness(1.4) drop-shadow(0 0 20px #fbbf24); }
-}
-
-@keyframes petRun {
-  0%, 100% { transform: translateX(0) scaleX(1); }
-  12% { transform: translateX(20px) scaleX(1.2); }
-  25% { transform: translateX(0) scaleX(1); }
-  37% { transform: translateX(-20px) scaleX(1.2); }
-  50% { transform: translateX(0) scaleX(1); }
-  62% { transform: translateX(25px) scaleX(1.25); }
-  75% { transform: translateX(0) scaleX(1); }
-  87% { transform: translateX(-25px) scaleX(1.25); }
-}
-
 @keyframes floatUp {
   0% { transform: translateY(0) scale(1); opacity: 1; }
   50% { transform: translateY(-50px) scale(2); opacity: 0.8; }
   100% { transform: translateY(-100px) scale(2.5); opacity: 0; }
 }
 
+/* ============================================ */
+/* ANIMATION CLASS MAPPINGS */
+/* ============================================ */
+/* Petting */
+.pet-purr-vibrate { animation: petPurrVibrate 2.5s ease-in-out; }
+.pet-hearts-rise { animation: petHeartsRise 2.5s ease-in-out; }
+.pet-nuzzle { animation: petNuzzle 2.5s ease-in-out; }
+.pet-wiggle-happy { animation: petWiggleHappy 2.5s ease-in-out; }
+
+/* Feeding */
+.pet-munch { animation: petMunch 3s ease-in-out; }
+.pet-belly-glow { animation: petBellyGlow 3s ease-in-out; }
+.pet-happy-dance { animation: petHappyDance 3s ease-in-out; }
+.pet-satisfied { animation: petSatisfied 2.5s ease-in-out; }
+
+/* Playing */
+.pet-chase-ball { animation: petChaseBall 2.5s ease-in-out; }
+.pet-pounce { animation: petPounce 2.5s ease-in-out; }
+.pet-proud-return { animation: petProudReturn 2.5s ease-in-out; }
+.pet-wag { animation: petWag 2.5s ease-in-out; }
+
+/* Training */
+.pet-stretch { animation: petStretch 2.5s ease-in-out; }
+.pet-energy-burst { animation: petEnergyBurst 3s ease-in-out; }
+.pet-power-pose { animation: petPowerPose 2.5s ease-in-out; }
+.pet-level-up { animation: petLevelUp 3s ease-in-out; }
+
+/* Sleep */
+.pet-curl { animation: petCurl 3s ease-in-out infinite; }
+.pet-snore { animation: petSnore 3s ease-in-out infinite; }
+.pet-dream { animation: petDream 3s ease-in-out infinite; }
+.pet-rest { animation: petRest 3s ease-in-out infinite; }
+
+/* Dance */
+.pet-spin-360 { animation: petSpin360 2.5s ease-in-out; }
+.pet-air-guitar { animation: petAirGuitar 3s ease-in-out; }
+.pet-disco { animation: petDisco 3s ease-in-out; }
+.pet-victory { animation: petVictory 2.5s ease-in-out; }
+
+/* High-five */
+.pet-reach { animation: petReach 2.5s ease-in-out; }
+.pet-bump-flash { animation: petBumpFlash 2.5s ease-in-out; }
+.pet-star-burst { animation: petStarBurst 2.5s ease-in-out; }
+.pet-confetti { animation: petConfetti 2.5s ease-in-out; }
+
+/* Cheer */
+.pet-hold-sign { animation: petHoldSign 3s ease-in-out; }
+.pet-fist-pump { animation: petFistPump 2.5s ease-in-out; }
+.pet-sparkle-glow { animation: petSparkleGlow 3s ease-in-out; }
+.pet-motivate { animation: petMotivate 2.5s ease-in-out; }
+
+/* Adventure */
+.pet-gear-up { animation: petGearUp 2.5s ease-in-out; }
+.pet-walk-off { animation: petWalkOff 4s ease-in-out; }
+.pet-return-trophy { animation: petReturnTrophy 3s ease-in-out; }
+.pet-excited-spin { animation: petExcitedSpin 2.5s ease-in-out; }
+
+/* Particles */
+.particle-float-up { animation: particleFloatUp 2.5s ease-out forwards; }
+
+/* Legacy mappings */
 .pet-bounce { animation: petBounce 2s ease-in-out; }
-.pet-wiggle { animation: petWiggle 1.8s ease-in-out; }
-.pet-spin { animation: petSpin 2s ease-in-out; }
-.pet-jump { animation: petJump 2.2s ease-in-out; }
-.pet-eat { animation: petEat 2.5s ease-in-out; }
-.pet-sleep { animation: petSleep 3s ease-in-out infinite; }
-.pet-dance { animation: petDance 2.5s ease-in-out; }
-.pet-hearts { animation: petHearts 2s ease-in-out; }
-.pet-sparkle { animation: petSparkle 2.2s ease-in-out; }
-.pet-run { animation: petRun 2s ease-in-out; }
+.pet-wiggle { animation: petWiggleHappy 1.8s ease-in-out; }
+.pet-spin { animation: petSpin360 2s ease-in-out; }
+.pet-jump { animation: petPounce 2.2s ease-in-out; }
+.pet-eat { animation: petMunch 2.5s ease-in-out; }
+.pet-sleep { animation: petRest 3s ease-in-out infinite; }
+.pet-dance { animation: petDisco 2.5s ease-in-out; }
+.pet-hearts { animation: petHeartsRise 2s ease-in-out; }
+.pet-sparkle { animation: petSparkleGlow 2.2s ease-in-out; }
+.pet-run { animation: petChaseBall 2s ease-in-out; }
 .pet-float-up { animation: floatUp 2s ease-out forwards; }
+
+/* Gradient animation utility */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.bg-size-200 { background-size: 200% 200%; }
+.animate-gradient-x { animation: gradientShift 3s ease infinite; }

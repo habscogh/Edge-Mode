@@ -27,236 +27,322 @@ EVOLUTION_STAGES = {
 }
 
 # Pet types with their appearances at each stage
+# New Fantasy/Sci-Fi themed pets with enhanced animations
+
 PET_TYPES = {
-    # Classic Animals (Free starters)
-    "puppy": {
-        "name": "Spark",
-        "category": "animals",
-        "description": "A loyal pup that grows stronger with your dedication",
-        "rarity": "common",
-        "price": 0,  # Free starter
-        "is_starter": True,
-        "stages": {
-            1: {"icon": "🐕", "name": "Puppy"},
-            2: {"icon": "🐕", "name": "Young Dog"},
-            3: {"icon": "🐕", "name": "Energetic Dog"},
-            4: {"icon": "🦮", "name": "Loyal Companion"},
-            5: {"icon": "🐺", "name": "Alpha Dog"},
-            6: {"icon": "🐺", "name": "Legendary Wolf"}
-        }
-    },
-    "kitten": {
-        "name": "Whisker",
-        "category": "animals",
-        "description": "A curious kitten that becomes wiser as you grow",
-        "rarity": "common",
-        "price": 0,
-        "is_starter": True,
-        "stages": {
-            1: {"icon": "🐱", "name": "Kitten"},
-            2: {"icon": "🐱", "name": "Young Cat"},
-            3: {"icon": "🐈", "name": "Clever Cat"},
-            4: {"icon": "🐈‍⬛", "name": "Shadow Cat"},
-            5: {"icon": "🦁", "name": "Proud Lion"},
-            6: {"icon": "🦁", "name": "Legendary Lion"}
-        }
-    },
-    "bunny": {
-        "name": "Bounce",
-        "category": "animals",
-        "description": "A quick bunny that hops higher with each milestone",
-        "rarity": "common",
-        "price": 0,
-        "is_starter": True,
-        "stages": {
-            1: {"icon": "🐰", "name": "Baby Bunny"},
-            2: {"icon": "🐰", "name": "Young Rabbit"},
-            3: {"icon": "🐇", "name": "Swift Rabbit"},
-            4: {"icon": "🐇", "name": "Forest Hare"},
-            5: {"icon": "🐇", "name": "Moon Rabbit"},
-            6: {"icon": "🐇", "name": "Legendary Hare"}
-        }
-    },
-    
-    # Activity-Based Starters (Free)
-    "sports": {
-        "name": "Champ",
-        "category": "activity",
-        "description": "A swift cheetah that races alongside your progress",
-        "rarity": "common",
-        "price": 0,
-        "is_starter": True,
-        "stages": {
-            1: {"icon": "🐆", "name": "Cheetah Cub"},
-            2: {"icon": "🐆", "name": "Young Cheetah"},
-            3: {"icon": "🐆", "name": "Swift Runner"},
-            4: {"icon": "🐆", "name": "Sprint Champion"},
-            5: {"icon": "🐆", "name": "Lightning Cheetah"},
-            6: {"icon": "🐆", "name": "Legendary Speedster"}
-        }
-    },
-    "music": {
-        "name": "Melody",
-        "category": "activity",
-        "description": "A songbird that sings sweeter as you grow",
-        "rarity": "common",
-        "price": 0,
-        "is_starter": True,
-        "stages": {
-            1: {"icon": "🐦", "name": "Little Songbird"},
-            2: {"icon": "🐦", "name": "Young Warbler"},
-            3: {"icon": "🦜", "name": "Colorful Singer"},
-            4: {"icon": "🦜", "name": "Melodic Parrot"},
-            5: {"icon": "🦚", "name": "Majestic Peacock"},
-            6: {"icon": "🦅", "name": "Legendary Phoenix Bird"}
-        }
-    },
-    "study": {
-        "name": "Scholar",
-        "category": "activity",
-        "description": "A wise owl that grows smarter with your dedication",
-        "rarity": "common",
-        "price": 0,
-        "is_starter": True,
-        "stages": {
-            1: {"icon": "🦉", "name": "Owlet"},
-            2: {"icon": "🦉", "name": "Young Owl"},
-            3: {"icon": "🦉", "name": "Wise Owl"},
-            4: {"icon": "🦉", "name": "Scholar Owl"},
-            5: {"icon": "🦉", "name": "Sage Owl"},
-            6: {"icon": "🦉", "name": "Grand Owl Master"}
-        }
-    },
-    "fox": {
-        "name": "Blitz",
-        "category": "fantasy",
-        "description": "A mystical fox that becomes more magical over time",
-        "rarity": "common",
-        "price": 0,
-        "is_starter": True,
-        "stages": {
-            1: {"icon": "🦊", "name": "Fox Kit"},
-            2: {"icon": "🦊", "name": "Young Fox"},
-            3: {"icon": "🦊", "name": "Swift Fox"},
-            4: {"icon": "🦊", "name": "Fire Fox"},
-            5: {"icon": "🦊", "name": "Spirit Fox"},
-            6: {"icon": "🦊", "name": "Nine-Tail Legend"}
-        }
-    },
-    
-    # Fantasy Creatures (Shop items)
-    "dragon": {
+    # ============ FREE STARTERS ============
+    # Fantasy Mythical Creatures
+    "flame_dragon": {
         "name": "Blaze",
         "category": "fantasy",
-        "description": "A baby dragon that grows into a mighty beast",
-        "rarity": "rare",
-        "price": 300,
-        "is_starter": False,
+        "description": "A tiny dragon hatchling that grows wings and breathes sparkles as you progress",
+        "rarity": "common",
+        "price": 0,
+        "is_starter": True,
+        "theme": "fire",
+        "habit_tie": "exercise",
         "stages": {
-            1: {"icon": "🐣", "name": "Dragon Egg"},
-            2: {"icon": "🦎", "name": "Baby Dragon"},
-            3: {"icon": "🐉", "name": "Young Drake"},
-            4: {"icon": "🐉", "name": "Fire Drake"},
-            5: {"icon": "🐲", "name": "Ancient Dragon"},
-            6: {"icon": "🐲", "name": "Legendary Dragon"}
+            1: {"icon": "🥚", "name": "Dragon Egg", "aura": "warm_glow"},
+            2: {"icon": "🦎", "name": "Tiny Hatchling", "aura": "small_flames"},
+            3: {"icon": "🐉", "name": "Young Drake", "aura": "fire_breath"},
+            4: {"icon": "🐉", "name": "Fire Drake", "aura": "flame_wings"},
+            5: {"icon": "🐲", "name": "Inferno Dragon", "aura": "blazing_aura"},
+            6: {"icon": "🐲", "name": "Cosmic Dragon", "aura": "galaxy_flames"}
         }
     },
     "phoenix": {
         "name": "Ember",
         "category": "fantasy",
-        "description": "A firebird that rises stronger each day",
-        "rarity": "epic",
-        "price": 450,
-        "is_starter": False,
+        "description": "A mystical firebird that glows brighter and can 'rebirth' with dramatic animations on streak milestones",
+        "rarity": "common",
+        "price": 0,
+        "is_starter": True,
+        "theme": "fire",
+        "habit_tie": "general",
         "stages": {
-            1: {"icon": "🪺", "name": "Phoenix Egg"},
-            2: {"icon": "🐦", "name": "Flame Chick"},
-            3: {"icon": "🐦‍🔥", "name": "Fire Bird"},
-            4: {"icon": "🐦‍🔥", "name": "Blazing Phoenix"},
-            5: {"icon": "🔥", "name": "Inferno Phoenix"},
-            6: {"icon": "🔥", "name": "Legendary Phoenix"}
+            1: {"icon": "🪺", "name": "Phoenix Egg", "aura": "warm_pulse"},
+            2: {"icon": "🐦", "name": "Flame Chick", "aura": "feather_glow"},
+            3: {"icon": "🐦‍🔥", "name": "Fire Fledgling", "aura": "wing_flames"},
+            4: {"icon": "🐦‍🔥", "name": "Blazing Phoenix", "aura": "rebirth_ready"},
+            5: {"icon": "🔥", "name": "Inferno Phoenix", "aura": "eternal_flame"},
+            6: {"icon": "🔥", "name": "Neon Phoenix", "aura": "particle_trails"}
         }
     },
-    "unicorn": {
-        "name": "Shimmer",
+    "spirit_wolf": {
+        "name": "Fenrir",
         "category": "fantasy",
-        "description": "A magical unicorn that sparkles brighter with progress",
-        "rarity": "epic",
-        "price": 400,
-        "is_starter": False,
+        "description": "An elemental wolf that evolves with stronger armor and storm effects based on your habits",
+        "rarity": "common",
+        "price": 0,
+        "is_starter": True,
+        "theme": "lightning",
+        "habit_tie": "sports",
         "stages": {
-            1: {"icon": "🐴", "name": "Foal"},
-            2: {"icon": "🐴", "name": "Young Horse"},
-            3: {"icon": "🦄", "name": "Unicorn"},
-            4: {"icon": "🦄", "name": "Shining Unicorn"},
-            5: {"icon": "🦄", "name": "Celestial Unicorn"},
-            6: {"icon": "🦄", "name": "Legendary Unicorn"}
+            1: {"icon": "🐺", "name": "Wolf Pup", "aura": "soft_glow"},
+            2: {"icon": "🐺", "name": "Storm Cub", "aura": "spark_fur"},
+            3: {"icon": "🐺", "name": "Thunder Wolf", "aura": "lightning_coat"},
+            4: {"icon": "🐺", "name": "Storm Guardian", "aura": "electric_armor"},
+            5: {"icon": "🐺", "name": "Tempest Alpha", "aura": "storm_aura"},
+            6: {"icon": "🐺", "name": "Legendary Fenrir", "aura": "cosmic_storm"}
         }
     },
     
-    # Abstract/Cute Mascots
-    "slime": {
-        "name": "Goo",
-        "category": "abstract",
-        "description": "A friendly slime that grows and changes color",
-        "rarity": "uncommon",
-        "price": 150,
-        "is_starter": False,
+    # Sci-Fi & Alien Creatures
+    "neon_blob": {
+        "name": "Gloo",
+        "category": "scifi",
+        "description": "An adorable alien blob with glowing neon skin and eyes that change color based on your habits",
+        "rarity": "common",
+        "price": 0,
+        "is_starter": True,
+        "theme": "neon",
+        "habit_tie": "study",
         "stages": {
-            1: {"icon": "🫧", "name": "Tiny Slime"},
-            2: {"icon": "🟢", "name": "Green Slime"},
-            3: {"icon": "🔵", "name": "Blue Slime"},
-            4: {"icon": "🟣", "name": "Purple Slime"},
-            5: {"icon": "🟡", "name": "Golden Slime"},
-            6: {"icon": "⭐", "name": "Star Slime"}
+            1: {"icon": "🫧", "name": "Tiny Blob", "aura": "soft_pulse"},
+            2: {"icon": "👾", "name": "Glowing Blob", "aura": "neon_skin"},
+            3: {"icon": "👾", "name": "Smart Blob", "aura": "brain_glow"},
+            4: {"icon": "👽", "name": "Genius Blob", "aura": "wisdom_aura"},
+            5: {"icon": "👽", "name": "Elder Blob", "aura": "multi_eye_glow"},
+            6: {"icon": "👽", "name": "Cosmic Blob", "aura": "galaxy_core"}
         }
     },
-    "spirit": {
-        "name": "Wisp",
-        "category": "abstract",
-        "description": "A gentle spirit that guides your journey",
-        "rarity": "rare",
-        "price": 250,
-        "is_starter": False,
+    "cyber_fox": {
+        "name": "Volt",
+        "category": "scifi",
+        "description": "A robotic cyber-fox with LED lights, gears, and upgrade animations like jetpack bursts",
+        "rarity": "common",
+        "price": 0,
+        "is_starter": True,
+        "theme": "tech",
+        "habit_tie": "general",
         "stages": {
-            1: {"icon": "✨", "name": "Tiny Spark"},
-            2: {"icon": "💫", "name": "Young Wisp"},
-            3: {"icon": "🌟", "name": "Bright Spirit"},
-            4: {"icon": "⭐", "name": "Guiding Light"},
-            5: {"icon": "🌙", "name": "Moon Spirit"},
-            6: {"icon": "☀️", "name": "Sun Spirit"}
+            1: {"icon": "🦊", "name": "Proto Fox", "aura": "led_eyes"},
+            2: {"icon": "🦊", "name": "Cyber Kit", "aura": "gear_spin"},
+            3: {"icon": "🦊", "name": "Mech Fox", "aura": "holo_shield"},
+            4: {"icon": "🦊", "name": "Cyber Guardian", "aura": "jetpack_ready"},
+            5: {"icon": "🦊", "name": "Neon Kitsune", "aura": "multi_tail_led"},
+            6: {"icon": "🦊", "name": "Shadow Kitsune", "aura": "nine_tail_holo"}
         }
     },
-    "crystal": {
-        "name": "Gem",
-        "category": "abstract",
-        "description": "A living crystal that becomes more brilliant",
+    "space_jelly": {
+        "name": "Nova",
+        "category": "scifi",
+        "description": "A floating jellyfish from another planet with customizable helmet and bioluminescent trails",
+        "rarity": "common",
+        "price": 0,
+        "is_starter": True,
+        "theme": "cosmic",
+        "habit_tie": "music",
+        "stages": {
+            1: {"icon": "🪼", "name": "Space Polyp", "aura": "bio_glow"},
+            2: {"icon": "🪼", "name": "Star Jelly", "aura": "tentacle_lights"},
+            3: {"icon": "🪼", "name": "Nebula Jelly", "aura": "cosmic_pulse"},
+            4: {"icon": "🪼", "name": "Galaxy Drifter", "aura": "star_trail"},
+            5: {"icon": "🪼", "name": "Void Walker", "aura": "dimension_shift"},
+            6: {"icon": "🪼", "name": "Cosmic Ancient", "aura": "universe_glow"}
+        }
+    },
+    
+    # Activity-Themed Starters
+    "sports_tiger": {
+        "name": "Striker",
+        "category": "activity",
+        "description": "An athletic tiger that kicks balls leaving sparkly trails and celebrates with victory dances",
+        "rarity": "common",
+        "price": 0,
+        "is_starter": True,
+        "theme": "sports",
+        "habit_tie": "sports",
+        "stages": {
+            1: {"icon": "🐯", "name": "Tiger Cub", "aura": "energy_spark"},
+            2: {"icon": "🐯", "name": "Young Striker", "aura": "ball_chase"},
+            3: {"icon": "🐯", "name": "Swift Tiger", "aura": "speed_trail"},
+            4: {"icon": "🐯", "name": "Champion Tiger", "aura": "medal_glow"},
+            5: {"icon": "🐯", "name": "MVP Tiger", "aura": "trophy_shine"},
+            6: {"icon": "🐯", "name": "Legend Striker", "aura": "hall_of_fame"}
+        }
+    },
+    "music_siren": {
+        "name": "Melody",
+        "category": "activity",
+        "description": "A melodic siren that plays air guitar, sways to beats, and has bouncing headphones",
+        "rarity": "common",
+        "price": 0,
+        "is_starter": True,
+        "theme": "music",
+        "habit_tie": "music",
+        "stages": {
+            1: {"icon": "🧜", "name": "Little Siren", "aura": "note_bubble"},
+            2: {"icon": "🧜", "name": "Singing Siren", "aura": "floating_notes"},
+            3: {"icon": "🧜‍♀️", "name": "Melodic Siren", "aura": "music_waves"},
+            4: {"icon": "🧜‍♀️", "name": "Star Singer", "aura": "concert_lights"},
+            5: {"icon": "🧜‍♀️", "name": "Diva Siren", "aura": "headphone_glow"},
+            6: {"icon": "🧜‍♀️", "name": "Legendary Siren", "aura": "symphony_aura"}
+        }
+    },
+    "study_owl": {
+        "name": "Scholar",
+        "category": "activity",
+        "description": "A wise owl with glasses that reads glowing books and shows lightbulbs overhead when you study",
+        "rarity": "common",
+        "price": 0,
+        "is_starter": True,
+        "theme": "wisdom",
+        "habit_tie": "study",
+        "stages": {
+            1: {"icon": "🦉", "name": "Owlet", "aura": "curious_eyes"},
+            2: {"icon": "🦉", "name": "Young Owl", "aura": "reading_glow"},
+            3: {"icon": "🦉", "name": "Scholar Owl", "aura": "book_flip"},
+            4: {"icon": "🦉", "name": "Professor Owl", "aura": "lightbulb_pop"},
+            5: {"icon": "🦉", "name": "Sage Owl", "aura": "wisdom_aura"},
+            6: {"icon": "🦉", "name": "Grand Master", "aura": "knowledge_burst"}
+        }
+    },
+    
+    # ============ SHOP PREMIUM PETS ============
+    # Rare Variants
+    "galaxy_dragon": {
+        "name": "Cosmos",
+        "category": "fantasy",
+        "description": "A rare Galaxy Dragon with starry patterns - unlocked after 30-day streaks with vibrant cosmic effects",
         "rarity": "legendary",
-        "price": 600,
+        "price": 500,
         "is_starter": False,
+        "theme": "cosmic",
+        "habit_tie": "general",
         "stages": {
-            1: {"icon": "�ite", "name": "Raw Crystal"},
-            2: {"icon": "💎", "name": "Cut Gem"},
-            3: {"icon": "💎", "name": "Polished Gem"},
-            4: {"icon": "💎", "name": "Brilliant Gem"},
-            5: {"icon": "💎", "name": "Radiant Crystal"},
-            6: {"icon": "💎", "name": "Legendary Crystal"}
+            1: {"icon": "🌌", "name": "Cosmic Egg", "aura": "star_dust"},
+            2: {"icon": "🐉", "name": "Star Hatchling", "aura": "nebula_glow"},
+            3: {"icon": "🐉", "name": "Nebula Drake", "aura": "galaxy_breath"},
+            4: {"icon": "🐲", "name": "Void Dragon", "aura": "black_hole"},
+            5: {"icon": "🐲", "name": "Universe Dragon", "aura": "supernova"},
+            6: {"icon": "🐲", "name": "Dimension Lord", "aura": "multiverse"}
         }
     },
-    "robot": {
-        "name": "Bolt",
-        "category": "abstract",
-        "description": "A little robot companion that upgrades over time",
+    "ice_phoenix": {
+        "name": "Frost",
+        "category": "fantasy",
+        "description": "An elegant ice phoenix with shimmering frost feathers and crystalline rebirth animations",
+        "rarity": "epic",
+        "price": 400,
+        "is_starter": False,
+        "theme": "ice",
+        "habit_tie": "general",
+        "stages": {
+            1: {"icon": "❄️", "name": "Frost Egg", "aura": "ice_crystal"},
+            2: {"icon": "🐦", "name": "Snow Chick", "aura": "snowflake_trail"},
+            3: {"icon": "🐦", "name": "Ice Fledgling", "aura": "frost_wing"},
+            4: {"icon": "🕊️", "name": "Crystal Phoenix", "aura": "frozen_rebirth"},
+            5: {"icon": "🕊️", "name": "Blizzard Phoenix", "aura": "ice_storm"},
+            6: {"icon": "🕊️", "name": "Aurora Phoenix", "aura": "northern_lights"}
+        }
+    },
+    "shadow_kitsune": {
+        "name": "Umbra",
+        "category": "fantasy",
+        "description": "A mysterious shadow kitsune with multiple tails that grow as you progress - ultimate fox evolution",
+        "rarity": "epic",
+        "price": 450,
+        "is_starter": False,
+        "theme": "shadow",
+        "habit_tie": "general",
+        "stages": {
+            1: {"icon": "🦊", "name": "Shadow Kit", "aura": "dark_mist"},
+            2: {"icon": "🦊", "name": "Twilight Fox", "aura": "shadow_tail"},
+            3: {"icon": "🦊", "name": "Void Fox", "aura": "three_tails"},
+            4: {"icon": "🦊", "name": "Phantom Kitsune", "aura": "five_tails"},
+            5: {"icon": "🦊", "name": "Eclipse Kitsune", "aura": "seven_tails"},
+            6: {"icon": "🦊", "name": "Legendary Kitsune", "aura": "nine_tails_shadow"}
+        }
+    },
+    "crystal_golem": {
+        "name": "Prism",
+        "category": "fantasy",
+        "description": "A living crystal golem that gains stronger armor as you practice - refracts light into rainbows",
+        "rarity": "rare",
+        "price": 300,
+        "is_starter": False,
+        "theme": "crystal",
+        "habit_tie": "exercise",
+        "stages": {
+            1: {"icon": "💎", "name": "Raw Crystal", "aura": "facet_shine"},
+            2: {"icon": "💎", "name": "Cut Gem", "aura": "light_refract"},
+            3: {"icon": "💎", "name": "Crystal Form", "aura": "rainbow_prism"},
+            4: {"icon": "💎", "name": "Gem Guardian", "aura": "diamond_armor"},
+            5: {"icon": "💎", "name": "Radiant Golem", "aura": "light_explosion"},
+            6: {"icon": "💎", "name": "Legendary Prism", "aura": "infinite_refraction"}
+        }
+    },
+    "aqua_serpent": {
+        "name": "Tide",
+        "category": "fantasy",
+        "description": "An axolotl-inspired glowing sea serpent with bioluminescent features - great for swim logs",
         "rarity": "rare",
         "price": 350,
         "is_starter": False,
+        "theme": "water",
+        "habit_tie": "sports",
         "stages": {
-            1: {"icon": "🔩", "name": "Scrap Bot"},
-            2: {"icon": "🤖", "name": "Mini Bot"},
-            3: {"icon": "🤖", "name": "Helper Bot"},
-            4: {"icon": "🤖", "name": "Smart Bot"},
-            5: {"icon": "🤖", "name": "Super Bot"},
-            6: {"icon": "🤖", "name": "Legendary Mech"}
+            1: {"icon": "🦑", "name": "Sea Spawn", "aura": "bubble_trail"},
+            2: {"icon": "🐙", "name": "Young Serpent", "aura": "bio_glow"},
+            3: {"icon": "🐙", "name": "Ocean Dweller", "aura": "wave_dance"},
+            4: {"icon": "🐲", "name": "Sea Dragon", "aura": "tidal_surge"},
+            5: {"icon": "🐲", "name": "Leviathan", "aura": "whirlpool"},
+            6: {"icon": "🐲", "name": "Abyss Lord", "aura": "deep_sea_glow"}
+        }
+    },
+    "mecha_dragon": {
+        "name": "Titan",
+        "category": "scifi",
+        "description": "A mechanical dragon with LED lights, gears, and holographic shields - jetpack bursts on victories",
+        "rarity": "legendary",
+        "price": 600,
+        "is_starter": False,
+        "theme": "tech",
+        "habit_tie": "general",
+        "stages": {
+            1: {"icon": "🔩", "name": "Scrap Core", "aura": "power_up"},
+            2: {"icon": "🤖", "name": "Proto Mech", "aura": "gear_whir"},
+            3: {"icon": "🤖", "name": "Battle Mech", "aura": "holo_display"},
+            4: {"icon": "🤖", "name": "War Machine", "aura": "jetpack_flame"},
+            5: {"icon": "🤖", "name": "Titan Class", "aura": "energy_shield"},
+            6: {"icon": "🤖", "name": "Omega Titan", "aura": "nuclear_core"}
+        }
+    },
+    "pixel_sprite": {
+        "name": "8-Bit",
+        "category": "gaming",
+        "description": "A pixelated retro creature that 'levels up' into 3D versions - perfect for gamers",
+        "rarity": "uncommon",
+        "price": 200,
+        "is_starter": False,
+        "theme": "retro",
+        "habit_tie": "general",
+        "stages": {
+            1: {"icon": "👾", "name": "8-Bit Blob", "aura": "pixel_glitch"},
+            2: {"icon": "👾", "name": "16-Bit Sprite", "aura": "retro_shine"},
+            3: {"icon": "👾", "name": "32-Bit Form", "aura": "polygon_glow"},
+            4: {"icon": "👾", "name": "HD Sprite", "aura": "render_up"},
+            5: {"icon": "👾", "name": "4K Entity", "aura": "ray_trace"},
+            6: {"icon": "👾", "name": "Hologram", "aura": "vr_projection"}
+        }
+    },
+    "unicorn_celestial": {
+        "name": "Starlight",
+        "category": "fantasy",
+        "description": "An elegant unicorn with glowing horn and feathers that shimmer - brighter animations on milestones",
+        "rarity": "epic",
+        "price": 400,
+        "is_starter": False,
+        "theme": "light",
+        "habit_tie": "general",
+        "stages": {
+            1: {"icon": "🐴", "name": "Foal", "aura": "spark_mane"},
+            2: {"icon": "🐴", "name": "Young Steed", "aura": "glow_horn"},
+            3: {"icon": "🦄", "name": "Unicorn", "aura": "rainbow_trail"},
+            4: {"icon": "🦄", "name": "Celestial Steed", "aura": "star_wings"},
+            5: {"icon": "🦄", "name": "Divine Unicorn", "aura": "holy_aura"},
+            6: {"icon": "🦄", "name": "Eternal Light", "aura": "supernova_mane"}
         }
     }
 }
@@ -288,79 +374,134 @@ PET_MESSAGES = {
     ]
 }
 
-# Interaction types with animations and responses
+# Enhanced Interaction types with themed animations and rich responses
+# Based on user recommendations for engaging, reward-feeling interactions
 INTERACTION_TYPES = {
+    # Quick tap - Petting Response
     "pet": {
-        "animations": ["bounce", "hearts", "wiggle", "spin"],
+        "animations": ["petting_purr", "heart_particles", "lean_nuzzle", "happy_wiggle"],
         "messages": [
-            "{pet_name} loves the pets! 💕",
-            "{pet_name} purrs happily!",
-            "{pet_name} nuzzles your hand!",
-            "{pet_name} wags with joy!",
-            "{pet_name} does a happy wiggle!",
+            "{pet_name} purrs and vibrates happily! 💕",
+            "{pet_name} leans into your hand for more!",
+            "Little hearts float from {pet_name}'s head!",
+            "{pet_name} closes eyes in pure bliss!",
+            "{pet_name} nuzzles warmly against you!",
         ],
         "happiness_boost": 5,
-        "cooldown_seconds": 0
+        "cooldown_seconds": 0,
+        "effect": "hearts_rising"
     },
+    # Treat Munch with Happy Dance
     "feed": {
-        "animations": ["eat", "hearts", "satisfied"],
+        "animations": ["treat_munch", "belly_glow", "happy_dance", "satisfied_wiggle"],
         "messages": [
-            "{pet_name} gobbles up the treat! Yummy!",
-            "{pet_name} munches happily!",
-            "{pet_name} thanks you for the snack!",
-            "That was delicious! {pet_name} is satisfied!",
-            "{pet_name} licks their lips!",
+            "{pet_name} grabs the glowing treat and munches! 🍖",
+            "Munch munch! {pet_name}'s belly glows brighter!",
+            "{pet_name} does a little wiggle dance of joy!",
+            "Eyes close in bliss as {pet_name} savors the treat!",
+            "{pet_name} licks lips and does a happy spin!",
         ],
         "happiness_boost": 10,
-        "cooldown_seconds": 3600  # 1 hour
+        "cooldown_seconds": 3600,
+        "effect": "treat_particles"
     },
+    # Ball Toss Playtime
     "play": {
-        "animations": ["jump", "run", "spin", "bounce"],
+        "animations": ["ball_chase", "pounce_catch", "proud_return", "wagging_tail"],
         "messages": [
-            "{pet_name} chases their tail excitedly!",
-            "Wheee! {pet_name} loves playtime!",
-            "{pet_name} does zoomies around you!",
-            "{pet_name} brings back the toy proudly!",
-            "{pet_name} jumps around playfully!",
+            "{pet_name} chases the bouncing ball across the screen! ⚡",
+            "POUNCE! {pet_name} catches it perfectly!",
+            "{pet_name} brings it back with a wagging tail and proud grin!",
+            "Wheee! {pet_name} does zoomies chasing the ball!",
+            "{pet_name} leaps high and catches it mid-air!",
         ],
         "happiness_boost": 8,
-        "cooldown_seconds": 1800  # 30 min
+        "cooldown_seconds": 1800,
+        "effect": "ball_bounce"
     },
+    # Energy Burst Training
     "train": {
-        "animations": ["focus", "levelup", "sparkle"],
+        "animations": ["power_stretch", "energy_burst", "power_pose", "level_glow"],
         "messages": [
-            "{pet_name} learned something new!",
-            "Good job! {pet_name} is getting smarter!",
-            "{pet_name} shows off a new trick!",
-            "{pet_name} is ready for any challenge!",
-            "Training complete! {pet_name} feels stronger!",
+            "{pet_name}'s body lights up with pulsing energy! 💪",
+            "Stretching like waking up refreshed! {pet_name} feels powerful!",
+            "{pet_name} strikes a power pose with flexed muscles!",
+            "A lightbulb appears! {pet_name} learned something new!",
+            "Training complete! {pet_name} radiates strength!",
         ],
         "happiness_boost": 7,
-        "cooldown_seconds": 7200  # 2 hours
+        "cooldown_seconds": 7200,
+        "effect": "aura_pulse"
     },
+    # Cozy Sleep
     "sleep": {
-        "animations": ["sleep", "zzz", "dream"],
+        "animations": ["curl_up", "soft_snore", "dream_bubbles", "peaceful_rest"],
         "messages": [
-            "{pet_name} curls up for a cozy nap... 💤",
-            "Shhh... {pet_name} is dreaming!",
-            "{pet_name} snores softly...",
-            "{pet_name} is resting peacefully!",
-            "Sweet dreams, {pet_name}!",
+            "{pet_name} curls up into a cozy ball... 💤",
+            "Shhh... little Z's float above {pet_name}...",
+            "{pet_name} dreams of adventures with you!",
+            "Soft snores... {pet_name} is at peace!",
+            "Sweet dreams surround {pet_name}!",
         ],
         "happiness_boost": 3,
-        "cooldown_seconds": 0
+        "cooldown_seconds": 0,
+        "effect": "zzz_floating"
     },
+    # Happy Jump & Spin Dance
     "dance": {
-        "animations": ["dance", "spin", "bounce", "wiggle"],
+        "animations": ["jump_spin_360", "air_guitar", "disco_lights", "victory_dance"],
         "messages": [
-            "{pet_name} breaks into a dance! 💃",
-            "Look at {pet_name} go!",
-            "{pet_name} has got the moves!",
-            "Dance party with {pet_name}!",
-            "{pet_name} grooves to the beat!",
+            "{pet_name} leaps and does a 360° spin! 🎵",
+            "Air guitar time! {pet_name} rocks out!",
+            "Disco lights surround {pet_name}! Party mode!",
+            "{pet_name} does a victory dance with floating notes!",
+            "Look at those moves! {pet_name} is a star!",
         ],
         "happiness_boost": 6,
-        "cooldown_seconds": 300  # 5 min
+        "cooldown_seconds": 300,
+        "effect": "music_notes"
+    },
+    # High-Five / Paw Bump
+    "highfive": {
+        "animations": ["reach_out", "bump_flash", "star_impact", "confetti_burst"],
+        "messages": [
+            "{pet_name} reaches out for a paw bump! ✋",
+            "BUMP! Stars flash across the screen!",
+            "High five! {pet_name} celebrates with confetti!",
+            "{pet_name} jumps up for the perfect high-five!",
+            "Connection! You and {pet_name} are unstoppable!",
+        ],
+        "happiness_boost": 8,
+        "cooldown_seconds": 600,
+        "effect": "star_burst"
+    },
+    # Encouraging Cheer
+    "cheer": {
+        "animations": ["hold_sign", "fist_pump", "sparkle_glow", "motivate_pose"],
+        "messages": [
+            "{pet_name} holds up a tiny sign: 'You got this!' 📣",
+            "{pet_name} pumps fists with soft glowing sparkles!",
+            "Go go go! {pet_name} cheers you on!",
+            "{pet_name} does a motivational pose just for you!",
+            "Your biggest fan {pet_name} believes in you!",
+        ],
+        "happiness_boost": 5,
+        "cooldown_seconds": 0,
+        "effect": "sparkle_aura"
+    },
+    # Mini-Adventure
+    "adventure": {
+        "animations": ["explorer_gear", "walk_offscreen", "return_trophy", "excited_spin"],
+        "messages": [
+            "{pet_name} puts on explorer gear and waves goodbye! 🗺️",
+            "Off on an adventure! {pet_name} disappears with a map...",
+            "{pet_name} returns with a tiny trophy! What a journey!",
+            "Back from adventure! {pet_name} spins excitedly with treasures!",
+            "Explorer {pet_name} found something special for you!",
+        ],
+        "happiness_boost": 12,
+        "cooldown_seconds": 14400,  # 4 hours
+        "effect": "trophy_sparkle"
     }
 }
 
@@ -690,10 +831,16 @@ async def interact_with_pet(request: InteractRequest, current_user: dict = Depen
     message_template = random.choice(interaction['messages'])
     message = message_template.format(pet_name=pet_name)
     animation = random.choice(interaction['animations'])
+    effect = interaction.get('effect', 'sparkle_aura')
+    
+    # Get pet theme for themed effects
+    pet_theme = pet_info.get('theme', 'general')
     
     return {
         'message': message,
         'animation': animation,
+        'effect': effect,
+        'theme': pet_theme,
         'happiness': new_happiness,
         'happiness_boost': happiness_boost,
         'pet_name': pet_name,
