@@ -265,14 +265,14 @@ const PetSelectionScreen = () => {
                 type="button"
                 key={pet.type}
                 onClick={() => handlePetTap(pet)}
-                disabled={pet.owned || isLocked}
+                disabled={pet.owned}
                 className={`relative rounded-xl p-4 border-2 transition-all text-left w-full ${style.bg} ${
                   isSelected 
                     ? 'border-primary ring-2 ring-primary/30' 
                     : pet.owned 
                       ? 'border-green-500/50 opacity-75'
                       : isLocked
-                        ? 'border-zinc-700 opacity-50'
+                        ? `${style.border} border-dashed`
                         : `${style.border} active:scale-95`
                 }`}
                 data-testid={`pet-option-${pet.type}`}
@@ -289,10 +289,10 @@ const PetSelectionScreen = () => {
                   </div>
                 )}
 
-                {/* Locked badge */}
+                {/* Needs more coins badge */}
                 {isLocked && (
-                  <div className="absolute top-2 left-2 bg-zinc-700 text-zinc-400 text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1">
-                    <Lock className="w-3 h-3" /> {pet.price}
+                  <div className="absolute top-2 left-2 bg-yellow-500/20 text-yellow-400 text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <Coins className="w-3 h-3" /> Need {pet.price - userCoins} more
                   </div>
                 )}
 
@@ -305,11 +305,11 @@ const PetSelectionScreen = () => {
                 {/* Info */}
                 <h3 className="text-white font-bold text-sm">{pet.name}</h3>
                 <p className={`text-xs capitalize ${style.text}`}>{pet.rarity}</p>
-                <p className="text-zinc-500 text-xs mt-1 line-clamp-2">{pet.description}</p>
+                <p className="text-zinc-400 text-xs mt-1 line-clamp-2">{pet.description}</p>
 
                 {/* Price for shop pets */}
                 {!pet.is_starter && !pet.owned && (
-                  <div className={`mt-2 flex items-center gap-1 text-xs ${canAfford ? 'text-yellow-400' : 'text-zinc-500'}`}>
+                  <div className={`mt-2 flex items-center gap-1 text-xs font-medium ${canAfford ? 'text-yellow-400' : 'text-yellow-500/70'}`}>
                     <Coins className="w-3 h-3" />
                     <span>{pet.price} coins</span>
                   </div>
