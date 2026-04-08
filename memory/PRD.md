@@ -141,7 +141,60 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
 
 ---
 
-## Completed This Session (April 2, 2026)
+## Completed This Session (April 8, 2026)
+
+15. **Pet Moods, Voice Lines & Companions UI** ✅
+    - **Pet Mood Display** on PetDisplay.jsx:
+      - Shows mood icon with animated bounce (ecstatic/happy/content/bored/sad/lonely)
+      - Displays contextual voice line based on time of day and streak milestones
+      - Color-coded mood badge with happiness percentage
+    - **Active Companion Display**:
+      - Shows equipped companion with rarity badge
+      - Displays bonus info (XP multiplier, coin bonus)
+      - One-click navigation to Companions screen
+    - **Quick Navigation Links**:
+      - Codex, Companions, Souvenirs buttons in 3-column grid
+    - All tests passing (100% backend, 100% frontend)
+
+16. **Pet Codex Screen** ✅ (`/pet-codex`)
+    - Overall completion percentage with progress bar
+    - Tabs for Pets (17 total) and Companions (13 total)
+    - Grid view of all pets/companions with owned/locked status
+    - Rarity-colored borders and badges
+    - Evolution preview (start → max icon)
+
+17. **Companions Screen** ✅ (`/companions`)
+    - Collection stats with progress percentage
+    - List of all companions with unlock progress bars
+    - Rarity badges (Legendary/Epic/Rare/Uncommon/Common)
+    - Bonus display (XP multiplier, coin bonus)
+    - Activate/Deactivate buttons for owned companions
+    - Auto-unlock when milestones are reached
+
+18. **Pet Expeditions** ✅
+    - **Trigger**: After logging 20+ minute sessions
+    - **Expedition Modal** with animated particles:
+      - Shows expedition name based on session pillar (Library Quest, Mountain Trail, Story Forest)
+      - Story narrative featuring pet's name
+      - Rewards: Coins + XP based on session duration
+      - Rare souvenir items with random chance (30-80%)
+    - **Rarity Tiers**:
+      - Common (20-24 min): 5-15 coins, 10-25 XP, 30% item chance
+      - Uncommon (25-39 min): 15-30 coins, 25-50 XP, 45% item chance
+      - Rare (40-59 min): 30-60 coins, 50-100 XP, 60% item chance
+      - Legendary (60+ min): 75-150 coins, 100-200 XP, 80% item chance
+    - **Souvenirs Collection**: Pebbles, Feathers, Crystals, Dragon Scales, Phoenix Feathers, etc.
+
+19. **Souvenirs Screen** ✅ (`/souvenirs`)
+    - Total collected with rarity breakdown
+    - Filter buttons: All, Legendary, Rare, Uncommon, Common
+    - Grid display with rarity-colored cards
+    - Empty state with helpful message about expeditions
+    - Shows expedition pillar source for each souvenir
+
+---
+
+## Completed Previous Session (April 2, 2026)
 
 5. **Teen Engagement Features (XP/Leveling, Daily Rewards, Friend Streaks)** ✅
    - Backend: `/app/backend/routes/engagement.py` with 6 endpoints
@@ -383,13 +436,14 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
 - Backend Shop: `/app/backend/routes/shop.py` (Coin Shop, Items, Inventory, Purchases)
 - Backend Quests: `/app/backend/routes/quests.py` (Daily & Weekly Quests)
 - Backend Referrals: `/app/backend/routes/referrals.py` (Referral milestones, exclusive items)
-- Backend Pets: `/app/backend/routes/pets.py` (Virtual Pets - ownership, evolution, interactions)
+- Backend Pets: `/app/backend/routes/pets.py` (Virtual Pets - ownership, evolution, interactions, mood, companions, codex, expeditions)
 - Frontend: `/app/frontend/src/pages/Dashboard.js`, `/app/frontend/src/pages/ChallengesScreen.js`
 - Frontend Engagement: `/app/frontend/src/components/EngagementStatus.jsx`, `/app/frontend/src/components/FriendStreaks.jsx`
 - Frontend Shop: `/app/frontend/src/pages/ShopScreen.js` (includes Referral Exclusives section)
 - Frontend Quests: `/app/frontend/src/components/Quests.jsx`
 - Frontend Invite: `/app/frontend/src/pages/InviteFriendsScreen.js` (Referral milestones, invite link)
 - Frontend Pets: `/app/frontend/src/components/PetDisplay.jsx`, `/app/frontend/src/pages/PetSelectionScreen.js`
+- Frontend Pet Features: `/app/frontend/src/pages/PetCodexScreen.js`, `/app/frontend/src/pages/CompanionsScreen.js`, `/app/frontend/src/pages/SouvenirsScreen.js`, `/app/frontend/src/components/ExpeditionModal.jsx`
 - Coach: `/app/frontend/src/pages/CoachDashboard.js`
 - Admin: `/app/frontend/src/pages/AdminDashboard.js`
 
