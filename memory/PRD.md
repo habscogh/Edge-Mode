@@ -1,16 +1,22 @@
 # Edge Mode - Product Requirements Document
 
-## Latest Update: 2025-02-06
+## Latest Update: 2025-02-08
 
-### iOS Safari Bug Fix - COMPLETED ✅
-- Fixed "Failed to load pets" error on iPhone/iPad Safari
-- Root cause: iOS Safari handling of axios headers and auth tokens
-- Solution: Explicit auth headers, token validation, interceptor race condition fix
+### Profile Customization System - COMPLETED ✅
+- **Profile Themes**: 5 themes (Midnight Purple, Ocean Blue, Sunset Fire, Neon Glow, Golden Legend)
+- **Avatar Frames**: 4 frames (Glow, Lightning, Flame, Diamond) with animations
+- **Special Effects**: 19 total effects including particles, auras, seasonal, and achievement effects
+- **Display Badge**: Users can set a purchased badge to show on profile and leaderboards
 
-### Duplicate Email Fix - COMPLETED ✅
-- Fixed duplicate streak reminder emails being sent to users
-- Root cause: Race condition - marking user after email sent instead of before
-- Solution: Mark user BEFORE sending email in all scheduler jobs (streak, inactive, morning)
+### Virtual Pet Email Integration - COMPLETED ✅
+- Streak reminders now feature user's pet ("Don't Break Our Streak!")
+- Inactive reminders feature pet saying "I need your help to continue my growth!"
+- Personalized with pet name, icon, and evolution stage
+
+### Bug Fixes - COMPLETED ✅
+- iOS Safari "Failed to load pets" error fixed
+- Duplicate email prevention (atomic MongoDB operations)
+- Pet Shop visibility (brightened all purchasable pets)
 
 ## Original Problem Statement
 Build a mobile-first, full-stack application named "Edge Mode" to help teens (12-19) systematically improve themselves. Core philosophy: "1% Better Every Day" - turning self-improvement into a data-driven, game-like experience.
