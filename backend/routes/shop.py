@@ -48,7 +48,7 @@ SHOP_CATEGORIES = {
 # Pricing: Common ~100 coins (2 weeks), Mid-tier ~200 (1 month), Legendary ~600 (3 months)
 
 DEFAULT_SHOP_ITEMS = [
-    # Themes
+    # Themes - each has gradient colors for profile customization
     {
         "id": "theme-midnight",
         "name": "Midnight Purple",
@@ -57,7 +57,13 @@ DEFAULT_SHOP_ITEMS = [
         "price": 100,
         "rarity": "common",
         "preview_color": "#7c3aed",
-        "icon": "🌙"
+        "icon": "🌙",
+        "theme_data": {
+            "gradient": "linear-gradient(135deg, #1e1b4b 0%, #4c1d95 50%, #7c3aed 100%)",
+            "border_color": "#7c3aed",
+            "accent_color": "#a78bfa",
+            "glow_color": "rgba(124, 58, 237, 0.3)"
+        }
     },
     {
         "id": "theme-ocean",
@@ -67,7 +73,13 @@ DEFAULT_SHOP_ITEMS = [
         "price": 100,
         "rarity": "common",
         "preview_color": "#0ea5e9",
-        "icon": "🌊"
+        "icon": "🌊",
+        "theme_data": {
+            "gradient": "linear-gradient(135deg, #0c4a6e 0%, #0369a1 50%, #0ea5e9 100%)",
+            "border_color": "#0ea5e9",
+            "accent_color": "#38bdf8",
+            "glow_color": "rgba(14, 165, 233, 0.3)"
+        }
     },
     {
         "id": "theme-sunset",
@@ -77,7 +89,13 @@ DEFAULT_SHOP_ITEMS = [
         "price": 150,
         "rarity": "uncommon",
         "preview_color": "#f97316",
-        "icon": "🌅"
+        "icon": "🌅",
+        "theme_data": {
+            "gradient": "linear-gradient(135deg, #7c2d12 0%, #c2410c 50%, #f97316 100%)",
+            "border_color": "#f97316",
+            "accent_color": "#fb923c",
+            "glow_color": "rgba(249, 115, 22, 0.3)"
+        }
     },
     {
         "id": "theme-neon",
@@ -87,7 +105,13 @@ DEFAULT_SHOP_ITEMS = [
         "price": 250,
         "rarity": "rare",
         "preview_color": "#ec4899",
-        "icon": "💜"
+        "icon": "💜",
+        "theme_data": {
+            "gradient": "linear-gradient(135deg, #500724 0%, #9d174d 50%, #ec4899 100%)",
+            "border_color": "#ec4899",
+            "accent_color": "#f472b6",
+            "glow_color": "rgba(236, 72, 153, 0.4)"
+        }
     },
     {
         "id": "theme-gold",
@@ -97,7 +121,13 @@ DEFAULT_SHOP_ITEMS = [
         "price": 600,
         "rarity": "legendary",
         "preview_color": "#fbbf24",
-        "icon": "👑"
+        "icon": "👑",
+        "theme_data": {
+            "gradient": "linear-gradient(135deg, #78350f 0%, #b45309 50%, #fbbf24 100%)",
+            "border_color": "#fbbf24",
+            "accent_color": "#fcd34d",
+            "glow_color": "rgba(251, 191, 36, 0.4)"
+        }
     },
     
     # Custom Badges
@@ -170,7 +200,7 @@ DEFAULT_SHOP_ITEMS = [
         "icon": "🛡️"
     },
     
-    # Avatar Frames
+    # Avatar Frames - each has frame styling data
     {
         "id": "frame-basic",
         "name": "Glow Frame",
@@ -178,7 +208,14 @@ DEFAULT_SHOP_ITEMS = [
         "category": "avatars",
         "price": 100,
         "rarity": "common",
-        "icon": "⭕"
+        "icon": "⭕",
+        "frame_data": {
+            "border_width": "3px",
+            "border_style": "solid",
+            "border_color": "#10b981",
+            "box_shadow": "0 0 15px rgba(16, 185, 129, 0.5), inset 0 0 10px rgba(16, 185, 129, 0.2)",
+            "animation": "none"
+        }
     },
     {
         "id": "frame-lightning",
@@ -187,7 +224,14 @@ DEFAULT_SHOP_ITEMS = [
         "category": "avatars",
         "price": 175,
         "rarity": "uncommon",
-        "icon": "⚡"
+        "icon": "⚡",
+        "frame_data": {
+            "border_width": "3px",
+            "border_style": "solid",
+            "border_color": "#facc15",
+            "box_shadow": "0 0 20px rgba(250, 204, 21, 0.6), 0 0 40px rgba(250, 204, 21, 0.3)",
+            "animation": "pulse-lightning"
+        }
     },
     {
         "id": "frame-flame",
@@ -196,10 +240,33 @@ DEFAULT_SHOP_ITEMS = [
         "category": "avatars",
         "price": 250,
         "rarity": "rare",
-        "icon": "🔥"
+        "icon": "🔥",
+        "frame_data": {
+            "border_width": "4px",
+            "border_style": "solid",
+            "border_color": "#f97316",
+            "box_shadow": "0 0 25px rgba(249, 115, 22, 0.7), 0 0 50px rgba(239, 68, 68, 0.4)",
+            "animation": "pulse-flame"
+        }
+    },
+    {
+        "id": "frame-diamond",
+        "name": "Diamond Frame",
+        "description": "Prestigious diamond border",
+        "category": "avatars",
+        "price": 500,
+        "rarity": "legendary",
+        "icon": "💎",
+        "frame_data": {
+            "border_width": "4px",
+            "border_style": "double",
+            "border_color": "#60a5fa",
+            "box_shadow": "0 0 30px rgba(96, 165, 250, 0.6), 0 0 60px rgba(147, 197, 253, 0.3), inset 0 0 20px rgba(96, 165, 250, 0.2)",
+            "animation": "shimmer"
+        }
     },
     
-    # Special Effects
+    # Special Effects - particles and animations
     {
         "id": "effect-sparkle",
         "name": "Sparkle Trail",
@@ -207,7 +274,12 @@ DEFAULT_SHOP_ITEMS = [
         "category": "effects",
         "price": 125,
         "rarity": "common",
-        "icon": "✨"
+        "icon": "✨",
+        "effect_data": {
+            "type": "sparkle",
+            "particle_color": "#fbbf24",
+            "animation_class": "effect-sparkle"
+        }
     },
     {
         "id": "effect-confetti",
@@ -216,7 +288,12 @@ DEFAULT_SHOP_ITEMS = [
         "category": "effects",
         "price": 200,
         "rarity": "uncommon",
-        "icon": "🎉"
+        "icon": "🎉",
+        "effect_data": {
+            "type": "confetti",
+            "particle_colors": ["#f87171", "#fbbf24", "#34d399", "#60a5fa", "#a78bfa"],
+            "animation_class": "effect-confetti"
+        }
     },
     {
         "id": "effect-rainbow",
@@ -225,7 +302,25 @@ DEFAULT_SHOP_ITEMS = [
         "category": "effects",
         "price": 450,
         "rarity": "epic",
-        "icon": "🌈"
+        "icon": "🌈",
+        "effect_data": {
+            "type": "rainbow",
+            "animation_class": "effect-rainbow"
+        }
+    },
+    {
+        "id": "effect-stars",
+        "name": "Starfall",
+        "description": "Shooting stars animation",
+        "category": "effects",
+        "price": 350,
+        "rarity": "rare",
+        "icon": "⭐",
+        "effect_data": {
+            "type": "stars",
+            "particle_color": "#fbbf24",
+            "animation_class": "effect-stars"
+        }
     }
 ]
 
@@ -655,6 +750,240 @@ async def set_display_badge(request: SetDisplayBadgeRequest, current_user: dict 
         )
         
         return {'message': 'Display badge cleared', 'badge': None}
+
+
+# ============ Profile Customization (Themes, Frames, Effects) ============
+
+class SetProfileCustomizationRequest(BaseModel):
+    inventory_id: Optional[str] = None  # None to clear
+
+
+@router.get("/profile-customization")
+async def get_profile_customization(current_user: dict = Depends(get_current_user)):
+    """Get user's active profile customizations (theme, frame, effect)"""
+    user = await db.users.find_one(
+        {'id': current_user['id']}, 
+        {'_id': 0, 'active_theme': 1, 'active_frame': 1, 'active_effect': 1}
+    )
+    
+    result = {
+        'theme': None,
+        'frame': None,
+        'effect': None
+    }
+    
+    # Get active theme
+    if user and user.get('active_theme'):
+        inv_item = await db.user_inventory.find_one({
+            'user_id': current_user['id'],
+            'id': user['active_theme']
+        }, {'_id': 0, 'item_id': 1})
+        if inv_item:
+            item = await db.shop_items.find_one({'id': inv_item['item_id']}, {'_id': 0})
+            if item:
+                result['theme'] = {
+                    'inventory_id': user['active_theme'],
+                    'item_id': item['id'],
+                    'name': item['name'],
+                    'icon': item['icon'],
+                    'theme_data': item.get('theme_data', {})
+                }
+    
+    # Get active frame
+    if user and user.get('active_frame'):
+        inv_item = await db.user_inventory.find_one({
+            'user_id': current_user['id'],
+            'id': user['active_frame']
+        }, {'_id': 0, 'item_id': 1})
+        if inv_item:
+            item = await db.shop_items.find_one({'id': inv_item['item_id']}, {'_id': 0})
+            if item:
+                result['frame'] = {
+                    'inventory_id': user['active_frame'],
+                    'item_id': item['id'],
+                    'name': item['name'],
+                    'icon': item['icon'],
+                    'frame_data': item.get('frame_data', {})
+                }
+    
+    # Get active effect
+    if user and user.get('active_effect'):
+        inv_item = await db.user_inventory.find_one({
+            'user_id': current_user['id'],
+            'id': user['active_effect']
+        }, {'_id': 0, 'item_id': 1})
+        if inv_item:
+            item = await db.shop_items.find_one({'id': inv_item['item_id']}, {'_id': 0})
+            if item:
+                result['effect'] = {
+                    'inventory_id': user['active_effect'],
+                    'item_id': item['id'],
+                    'name': item['name'],
+                    'icon': item['icon'],
+                    'effect_data': item.get('effect_data', {})
+                }
+    
+    return result
+
+
+@router.get("/available-customizations/{category}")
+async def get_available_customizations(category: str, current_user: dict = Depends(get_current_user)):
+    """Get all items user owns in a category (themes, avatars, effects)"""
+    valid_categories = {'themes': 'active_theme', 'avatars': 'active_frame', 'effects': 'active_effect'}
+    
+    if category not in valid_categories:
+        raise HTTPException(status_code=400, detail=f"Invalid category. Choose from: {list(valid_categories.keys())}")
+    
+    # Get user's inventory items in this category
+    inventory_items = await db.user_inventory.find({
+        'user_id': current_user['id'],
+        'category': category
+    }, {'_id': 0}).to_list(100)
+    
+    items = []
+    for inv_item in inventory_items:
+        item = await db.shop_items.find_one({'id': inv_item['item_id']}, {'_id': 0})
+        if item:
+            item_data = {
+                'inventory_id': inv_item['id'],
+                'item_id': item['id'],
+                'name': item['name'],
+                'icon': item['icon'],
+                'description': item.get('description', ''),
+                'rarity': item.get('rarity', 'common')
+            }
+            # Add category-specific data
+            if category == 'themes' and item.get('theme_data'):
+                item_data['theme_data'] = item['theme_data']
+            elif category == 'avatars' and item.get('frame_data'):
+                item_data['frame_data'] = item['frame_data']
+            elif category == 'effects' and item.get('effect_data'):
+                item_data['effect_data'] = item['effect_data']
+            
+            items.append(item_data)
+    
+    # Get current active item
+    user = await db.users.find_one({'id': current_user['id']}, {'_id': 0, valid_categories[category]: 1})
+    current_active = user.get(valid_categories[category]) if user else None
+    
+    return {
+        'items': items,
+        'current_active': current_active
+    }
+
+
+@router.post("/set-theme")
+async def set_active_theme(request: SetProfileCustomizationRequest, current_user: dict = Depends(get_current_user)):
+    """Set or clear the user's active profile theme"""
+    if request.inventory_id:
+        # Verify user owns this theme
+        inventory_item = await db.user_inventory.find_one({
+            'user_id': current_user['id'],
+            'id': request.inventory_id,
+            'category': 'themes'
+        })
+        
+        if not inventory_item:
+            raise HTTPException(status_code=400, detail="You don't own this theme")
+        
+        await db.users.update_one(
+            {'id': current_user['id']},
+            {'$set': {'active_theme': request.inventory_id}}
+        )
+        
+        item = await db.shop_items.find_one({'id': inventory_item['item_id']}, {'_id': 0})
+        
+        return {
+            'message': f"Theme set to {item['name']}!",
+            'theme': {
+                'inventory_id': inventory_item['id'],
+                'name': item['name'],
+                'icon': item['icon'],
+                'theme_data': item.get('theme_data', {})
+            }
+        }
+    else:
+        await db.users.update_one(
+            {'id': current_user['id']},
+            {'$unset': {'active_theme': ''}}
+        )
+        return {'message': 'Theme cleared', 'theme': None}
+
+
+@router.post("/set-frame")
+async def set_active_frame(request: SetProfileCustomizationRequest, current_user: dict = Depends(get_current_user)):
+    """Set or clear the user's active avatar frame"""
+    if request.inventory_id:
+        # Verify user owns this frame
+        inventory_item = await db.user_inventory.find_one({
+            'user_id': current_user['id'],
+            'id': request.inventory_id,
+            'category': 'avatars'
+        })
+        
+        if not inventory_item:
+            raise HTTPException(status_code=400, detail="You don't own this frame")
+        
+        await db.users.update_one(
+            {'id': current_user['id']},
+            {'$set': {'active_frame': request.inventory_id}}
+        )
+        
+        item = await db.shop_items.find_one({'id': inventory_item['item_id']}, {'_id': 0})
+        
+        return {
+            'message': f"Frame set to {item['name']}!",
+            'frame': {
+                'inventory_id': inventory_item['id'],
+                'name': item['name'],
+                'icon': item['icon'],
+                'frame_data': item.get('frame_data', {})
+            }
+        }
+    else:
+        await db.users.update_one(
+            {'id': current_user['id']},
+            {'$unset': {'active_frame': ''}}
+        )
+        return {'message': 'Frame cleared', 'frame': None}
+
+
+@router.post("/set-effect")
+async def set_active_effect(request: SetProfileCustomizationRequest, current_user: dict = Depends(get_current_user)):
+    """Set or clear the user's active special effect"""
+    if request.inventory_id:
+        # Verify user owns this effect
+        inventory_item = await db.user_inventory.find_one({
+            'user_id': current_user['id'],
+            'id': request.inventory_id,
+            'category': 'effects'
+        })
+        
+        if not inventory_item:
+            raise HTTPException(status_code=400, detail="You don't own this effect")
+        
+        await db.users.update_one(
+            {'id': current_user['id']},
+            {'$set': {'active_effect': request.inventory_id}}
+        )
+        
+        item = await db.shop_items.find_one({'id': inventory_item['item_id']}, {'_id': 0})
+        
+        return {
+            'message': f"Effect set to {item['name']}!",
+            'effect': {
+                'inventory_id': inventory_item['id'],
+                'name': item['name'],
+                'icon': item['icon'],
+                'effect_data': item.get('effect_data', {})
+            }
+        }
+    else:
+        await db.users.update_one(
+            {'id': current_user['id']},
+            {'$unset': {'active_effect': ''}}
+        )
+        return {'message': 'Effect cleared', 'effect': None}
 
 
 @router.post("/use-shield")

@@ -43,6 +43,18 @@ export const ProfileScreen = () => {
   const [displayBadge, setDisplayBadge] = useState(null);
   const [availableBadges, setAvailableBadges] = useState([]);
   const [showBadgeSelector, setShowBadgeSelector] = useState(false);
+  
+  // Profile customization state
+  const [profileCustomization, setProfileCustomization] = useState({
+    theme: null,
+    frame: null,
+    effect: null
+  });
+  const [availableThemes, setAvailableThemes] = useState([]);
+  const [availableFrames, setAvailableFrames] = useState([]);
+  const [availableEffects, setAvailableEffects] = useState([]);
+  const [showCustomizationPanel, setShowCustomizationPanel] = useState(false);
+  const [customizationTab, setCustomizationTab] = useState('themes');
 
   const isAdmin = user && ADMIN_EMAILS.includes(user.email);
   const isParent = user?.is_parent || linkedStudents.length > 0;
@@ -52,7 +64,55 @@ export const ProfileScreen = () => {
     fetchLinkedStudents();
     fetchMyPet();
     fetchDisplayBadge();
+    fetchProfileCustomization();
   }, []);
+
+  const fetchProfileCustomization = async () => {
+    try {
+      const [customRes, themesRes, framesRes, effectsRes] = await Promise.all([
+        axios.get(`${API}/shop/profile-customization`),
+        axios.get(`${API}/shop/available-customizations/themes`),
+        axios.get(`${API}/shop/available-customizations/avatars`),
+        axios.get(`${API}/shop/available-customizations/effects`)
+      ]);
+      setProfileCustomization(customRes.data);
+      setAvailableThemes(themesRes.data.items || []);
+      setAvailableFrames(framesRes.data.items || []);
+      setAvailableEffects(effectsRes.data.items || []);
+    } catch (error) {
+      // No customizations or error - that's fine
+    }
+  };
+
+  const handleSetTheme = async (inventoryId) => {
+    try {
+      const response = await axios.post(`${API}/shop/set-theme`, { inventory_id: inventoryId });
+      setProfileCustomization(prev => ({ ...prev, theme: response.data.theme }));
+      toast.success(response.data.message);
+    } catch (error) {
+      toast.error('Failed to set theme');
+    }
+  };
+
+  const handleSetFrame = async (inventoryId) => {
+    try {
+      const response = await axios.post(`${API}/shop/set-frame`, { inventory_id: inventoryId });
+      setProfileCustomization(prev => ({ ...prev, frame: response.data.frame }));
+      toast.success(response.data.message);
+    } catch (error) {
+      toast.error('Failed to set frame');
+    }
+  };
+
+  const handleSetEffect = async (inventoryId) => {
+    try {
+      const response = await axios.post(`${API}/shop/set-effect`, { inventory_id: inventoryId });
+      setProfileCustomization(prev => ({ ...prev, effect: response.data.effect }));
+      toast.success(response.data.message);
+    } catch (error) {
+      toast.error('Failed to set effect');
+    }
+  };
 
   const fetchDisplayBadge = async () => {
     try {
@@ -230,25 +290,231 @@ export const ProfileScreen = () => {
           </div>
         )}
 
-        <div className="bg-zinc-950 border border-zinc-800 rounded-md p-6 mb-4">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
-              <User className="w-8 h-8 text-primary" />
+        {/* Profile Card with Theme */}
+        <div 
+          className="rounded-md p-6 mb-4 relative overflow-hidden"
+          style={{
+            background: profileCustomization.theme?.theme_data?.gradient || '#09090b',
+            borderWidth: '1px',
+            borderStyle: 'solid',
+            borderColor: profileCustomization.theme?.theme_data?.border_color || '#27272a',
+            boxShadow: profileCustomization.theme ? `0 0 30px ${profileCustomization.theme.theme_data?.glow_color || 'transparent'}` : 'none'
+          }}
+        >
+          {/* Effect overlay */}
+          {profileCustomization.effect && (
+            <div className={`absolute inset-0 pointer-events-none ${profileCustomization.effect.effect_data?.animation_class || ''}`} />
+          )}
+          
+          <div className="flex items-center gap-4 mb-6 relative z-10">
+            {/* Avatar with Frame */}
+            <div 
+              className={`w-16 h-16 rounded-full flex items-center justify-center relative ${
+                profileCustomization.effect?.effect_data?.animation_class || ''
+              }`}
+              style={{
+                background: profileCustomization.theme?.theme_data?.accent_color 
+                  ? `${profileCustomization.theme.theme_data.accent_color}33` 
+                  : 'rgba(16, 185, 129, 0.2)',
+                borderWidth: profileCustomization.frame?.frame_data?.border_width || '0',
+                borderStyle: profileCustomization.frame?.frame_data?.border_style || 'none',
+                borderColor: profileCustomization.frame?.frame_data?.border_color || 'transparent',
+                boxShadow: profileCustomization.frame?.frame_data?.box_shadow || 'none',
+                animation: profileCustomization.frame?.frame_data?.animation !== 'none' 
+                  ? `${profileCustomization.frame?.frame_data?.animation} 1.5s ease-in-out infinite` 
+                  : 'none'
+              }}
+            >
+              <User className="w-8 h-8" style={{ 
+                color: profileCustomization.theme?.theme_data?.accent_color || '#10b981' 
+              }} />
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-2xl font-heading font-bold uppercase text-white">{user.username}</h2>
+                <h2 className="text-2xl font-heading font-bold uppercase text-white drop-shadow-lg">{user.username}</h2>
                 {displayBadge && (
                   <span className="text-xl" title={displayBadge.name}>{displayBadge.icon}</span>
                 )}
                 {user.is_ambassador && <AmbassadorBadge size="small" />}
               </div>
-              <p className="text-zinc-400 font-body text-sm">{user.email}</p>
+              <p className="text-zinc-300/80 font-body text-sm">{user.email}</p>
             </div>
           </div>
 
+          {/* Customize Profile Button */}
+          <button
+            onClick={() => setShowCustomizationPanel(!showCustomizationPanel)}
+            className="w-full py-2 px-4 rounded-lg text-sm font-body transition-all mb-4"
+            style={{
+              background: profileCustomization.theme?.theme_data?.accent_color 
+                ? `${profileCustomization.theme.theme_data.accent_color}22` 
+                : 'rgba(39, 39, 42, 1)',
+              borderWidth: '1px',
+              borderStyle: 'solid',
+              borderColor: profileCustomization.theme?.theme_data?.border_color || '#3f3f46',
+              color: profileCustomization.theme?.theme_data?.accent_color || '#a1a1aa'
+            }}
+            data-testid="customize-profile-btn"
+          >
+            {showCustomizationPanel ? '✕ Close Customization' : '✨ Customize Profile'}
+          </button>
+
+          {/* Profile Customization Panel */}
+          {showCustomizationPanel && (
+            <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 mb-4 border border-white/10">
+              <h3 className="text-white font-heading font-bold mb-3">Profile Customization</h3>
+              
+              {/* Tabs */}
+              <div className="flex gap-2 mb-4">
+                {['themes', 'frames', 'effects'].map(tab => (
+                  <button
+                    key={tab}
+                    onClick={() => setCustomizationTab(tab)}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-body capitalize transition-all ${
+                      customizationTab === tab 
+                        ? 'bg-white/20 text-white' 
+                        : 'bg-white/5 text-zinc-400 hover:bg-white/10'
+                    }`}
+                  >
+                    {tab === 'themes' ? '🎨' : tab === 'frames' ? '👤' : '✨'} {tab}
+                  </button>
+                ))}
+              </div>
+
+              {/* Theme Options */}
+              {customizationTab === 'themes' && (
+                <div className="space-y-2">
+                  {availableThemes.length > 0 ? (
+                    <>
+                      <button
+                        onClick={() => handleSetTheme(null)}
+                        className={`w-full p-3 rounded-lg text-left transition-all ${
+                          !profileCustomization.theme 
+                            ? 'bg-white/20 border border-white/30' 
+                            : 'bg-white/5 hover:bg-white/10 border border-transparent'
+                        }`}
+                      >
+                        <span className="text-white font-body">Default Theme</span>
+                      </button>
+                      {availableThemes.map(theme => (
+                        <button
+                          key={theme.inventory_id}
+                          onClick={() => handleSetTheme(theme.inventory_id)}
+                          className={`w-full p-3 rounded-lg text-left transition-all flex items-center gap-3 ${
+                            profileCustomization.theme?.inventory_id === theme.inventory_id
+                              ? 'border border-white/30' 
+                              : 'border border-transparent hover:bg-white/10'
+                          }`}
+                          style={{
+                            background: theme.theme_data?.gradient || 'rgba(255,255,255,0.05)'
+                          }}
+                        >
+                          <span className="text-xl">{theme.icon}</span>
+                          <span className="text-white font-body">{theme.name}</span>
+                        </button>
+                      ))}
+                    </>
+                  ) : (
+                    <p className="text-zinc-500 text-sm font-body">Purchase themes from the shop</p>
+                  )}
+                </div>
+              )}
+
+              {/* Frame Options */}
+              {customizationTab === 'frames' && (
+                <div className="space-y-2">
+                  {availableFrames.length > 0 ? (
+                    <>
+                      <button
+                        onClick={() => handleSetFrame(null)}
+                        className={`w-full p-3 rounded-lg text-left transition-all flex items-center gap-3 ${
+                          !profileCustomization.frame 
+                            ? 'bg-white/20 border border-white/30' 
+                            : 'bg-white/5 hover:bg-white/10 border border-transparent'
+                        }`}
+                      >
+                        <div className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center">
+                          <User className="w-4 h-4 text-zinc-400" />
+                        </div>
+                        <span className="text-white font-body">No Frame</span>
+                      </button>
+                      {availableFrames.map(frame => (
+                        <button
+                          key={frame.inventory_id}
+                          onClick={() => handleSetFrame(frame.inventory_id)}
+                          className={`w-full p-3 rounded-lg text-left transition-all flex items-center gap-3 ${
+                            profileCustomization.frame?.inventory_id === frame.inventory_id
+                              ? 'bg-white/20 border border-white/30' 
+                              : 'bg-white/5 hover:bg-white/10 border border-transparent'
+                          }`}
+                        >
+                          <div 
+                            className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center"
+                            style={{
+                              borderWidth: frame.frame_data?.border_width,
+                              borderStyle: frame.frame_data?.border_style,
+                              borderColor: frame.frame_data?.border_color,
+                              boxShadow: frame.frame_data?.box_shadow
+                            }}
+                          >
+                            <User className="w-4 h-4 text-zinc-400" />
+                          </div>
+                          <div>
+                            <span className="text-white font-body">{frame.name}</span>
+                            <span className="text-xl ml-2">{frame.icon}</span>
+                          </div>
+                        </button>
+                      ))}
+                    </>
+                  ) : (
+                    <p className="text-zinc-500 text-sm font-body">Purchase avatar frames from the shop</p>
+                  )}
+                </div>
+              )}
+
+              {/* Effect Options */}
+              {customizationTab === 'effects' && (
+                <div className="space-y-2">
+                  {availableEffects.length > 0 ? (
+                    <>
+                      <button
+                        onClick={() => handleSetEffect(null)}
+                        className={`w-full p-3 rounded-lg text-left transition-all ${
+                          !profileCustomization.effect 
+                            ? 'bg-white/20 border border-white/30' 
+                            : 'bg-white/5 hover:bg-white/10 border border-transparent'
+                        }`}
+                      >
+                        <span className="text-white font-body">No Effect</span>
+                      </button>
+                      {availableEffects.map(effect => (
+                        <button
+                          key={effect.inventory_id}
+                          onClick={() => handleSetEffect(effect.inventory_id)}
+                          className={`w-full p-3 rounded-lg text-left transition-all flex items-center gap-3 ${
+                            profileCustomization.effect?.inventory_id === effect.inventory_id
+                              ? 'bg-white/20 border border-white/30' 
+                              : 'bg-white/5 hover:bg-white/10 border border-transparent'
+                          }`}
+                        >
+                          <span className="text-2xl">{effect.icon}</span>
+                          <div>
+                            <span className="text-white font-body">{effect.name}</span>
+                            <p className="text-zinc-500 text-xs">{effect.description}</p>
+                          </div>
+                        </button>
+                      ))}
+                    </>
+                  ) : (
+                    <p className="text-zinc-500 text-sm font-body">Purchase special effects from the shop</p>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Display Badge Selector */}
-          <div className="bg-zinc-900 border border-zinc-800 rounded-md p-4 mb-4">
+          <div className="bg-black/20 backdrop-blur-sm border border-white/10 rounded-md p-4 mb-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Medal className="w-4 h-4 text-yellow-400" />
@@ -256,7 +522,8 @@ export const ProfileScreen = () => {
               </div>
               <button
                 onClick={() => setShowBadgeSelector(!showBadgeSelector)}
-                className="text-primary text-sm hover:text-primary/80 transition-colors"
+                className="text-sm hover:opacity-80 transition-colors"
+                style={{ color: profileCustomization.theme?.theme_data?.accent_color || '#10b981' }}
                 data-testid="change-display-badge-btn"
               >
                 {displayBadge ? 'Change' : 'Set Badge'}
@@ -268,7 +535,7 @@ export const ProfileScreen = () => {
                 <span className="text-zinc-300 font-body">{displayBadge.name}</span>
               </div>
             ) : (
-              <p className="text-zinc-500 text-sm mt-2 font-body">
+              <p className="text-zinc-400 text-sm mt-2 font-body">
                 {availableBadges.length > 0 
                   ? 'Select a badge to display next to your name!'
                   : 'Purchase badges from the shop to display here'
@@ -319,11 +586,27 @@ export const ProfileScreen = () => {
           </div>
 
           <div className="grid grid-cols-2 gap-4 mb-4">
-            <div className="bg-zinc-900 border border-zinc-800 rounded-md p-4">
+            <div 
+              className="rounded-md p-4"
+              style={{
+                background: profileCustomization.theme ? 'rgba(0,0,0,0.3)' : '#18181b',
+                borderWidth: '1px',
+                borderStyle: 'solid',
+                borderColor: profileCustomization.theme?.theme_data?.border_color ? `${profileCustomization.theme.theme_data.border_color}40` : '#27272a'
+              }}
+            >
               <div className="text-zinc-400 text-xs font-body uppercase tracking-wide mb-1">Age</div>
               <div className="text-xl font-mono font-bold text-white">{user.age}</div>
             </div>
-            <div className="bg-zinc-900 border border-zinc-800 rounded-md p-4">
+            <div 
+              className="rounded-md p-4"
+              style={{
+                background: profileCustomization.theme ? 'rgba(0,0,0,0.3)' : '#18181b',
+                borderWidth: '1px',
+                borderStyle: 'solid',
+                borderColor: profileCustomization.theme?.theme_data?.border_color ? `${profileCustomization.theme.theme_data.border_color}40` : '#27272a'
+              }}
+            >
               <div className="text-zinc-400 text-xs font-body uppercase tracking-wide mb-1">Joined</div>
               <div className="text-xl font-mono font-bold text-white">
                 {format(new Date(user.join_date), 'MMM yyyy')}
@@ -331,16 +614,24 @@ export const ProfileScreen = () => {
             </div>
           </div>
 
-          <div className="bg-zinc-900 border border-zinc-800 rounded-md p-4">
+          <div 
+            className="rounded-md p-4"
+            style={{
+              background: profileCustomization.theme ? 'rgba(0,0,0,0.3)' : '#18181b',
+              borderWidth: '1px',
+              borderStyle: 'solid',
+              borderColor: profileCustomization.theme?.theme_data?.border_color ? `${profileCustomization.theme.theme_data.border_color}40` : '#27272a'
+            }}
+          >
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <Trophy className="w-4 h-4 text-primary" />
+                <Trophy className="w-4 h-4" style={{ color: profileCustomization.theme?.theme_data?.accent_color || '#10b981' }} />
                 <span className="text-white font-body">Streaks</span>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2 text-center">
               <div>
-                <div className="text-2xl font-mono font-bold text-primary">{user.current_streak}</div>
+                <div className="text-2xl font-mono font-bold" style={{ color: profileCustomization.theme?.theme_data?.accent_color || '#10b981' }}>{user.current_streak}</div>
                 <div className="text-zinc-500 text-xs font-body">Current Streak</div>
               </div>
               <div>

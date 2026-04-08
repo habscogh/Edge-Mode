@@ -568,3 +568,155 @@ input[type='number'] {
 
 .bg-size-200 { background-size: 200% 200%; }
 .animate-gradient-x { animation: gradientShift 3s ease infinite; }
+
+
+/* ============ Avatar Frame Animations ============ */
+
+/* Lightning pulse for electric frame */
+@keyframes pulse-lightning {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(250, 204, 21, 0.6), 0 0 40px rgba(250, 204, 21, 0.3);
+  }
+  50% { 
+    box-shadow: 0 0 30px rgba(250, 204, 21, 0.9), 0 0 60px rgba(250, 204, 21, 0.5);
+  }
+}
+
+.frame-lightning {
+  animation: pulse-lightning 1.5s ease-in-out infinite;
+}
+
+/* Flame flicker for fire frame */
+@keyframes pulse-flame {
+  0%, 100% { 
+    box-shadow: 0 0 25px rgba(249, 115, 22, 0.7), 0 0 50px rgba(239, 68, 68, 0.4);
+  }
+  25% { 
+    box-shadow: 0 0 35px rgba(249, 115, 22, 0.9), 0 0 60px rgba(239, 68, 68, 0.6);
+  }
+  75% { 
+    box-shadow: 0 0 20px rgba(249, 115, 22, 0.5), 0 0 40px rgba(239, 68, 68, 0.3);
+  }
+}
+
+.frame-flame {
+  animation: pulse-flame 0.8s ease-in-out infinite;
+}
+
+/* Diamond shimmer */
+@keyframes shimmer {
+  0% { 
+    box-shadow: 0 0 30px rgba(96, 165, 250, 0.6), 0 0 60px rgba(147, 197, 253, 0.3);
+  }
+  50% { 
+    box-shadow: 0 0 40px rgba(147, 197, 253, 0.8), 0 0 80px rgba(96, 165, 250, 0.5);
+  }
+  100% { 
+    box-shadow: 0 0 30px rgba(96, 165, 250, 0.6), 0 0 60px rgba(147, 197, 253, 0.3);
+  }
+}
+
+.frame-diamond {
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+/* ============ Special Effect Animations ============ */
+
+/* Sparkle effect */
+@keyframes sparkle-float {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-30px) scale(0); opacity: 0; }
+}
+
+.effect-sparkle {
+  position: relative;
+}
+
+.effect-sparkle::before,
+.effect-sparkle::after {
+  content: '✨';
+  position: absolute;
+  font-size: 12px;
+  animation: sparkle-float 2s ease-out infinite;
+  pointer-events: none;
+}
+
+.effect-sparkle::before {
+  top: -5px;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.effect-sparkle::after {
+  top: -5px;
+  right: 10%;
+  animation-delay: 1s;
+}
+
+/* Confetti burst */
+@keyframes confetti-fall {
+  0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(30px) rotate(360deg); opacity: 0; }
+}
+
+.effect-confetti {
+  position: relative;
+  overflow: visible;
+}
+
+.effect-confetti::before {
+  content: '🎉';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 16px;
+  animation: confetti-fall 3s ease-out infinite;
+  pointer-events: none;
+}
+
+/* Rainbow aura */
+@keyframes rainbow-glow {
+  0% { filter: drop-shadow(0 0 8px #f87171); }
+  16% { filter: drop-shadow(0 0 8px #fbbf24); }
+  33% { filter: drop-shadow(0 0 8px #34d399); }
+  50% { filter: drop-shadow(0 0 8px #60a5fa); }
+  66% { filter: drop-shadow(0 0 8px #a78bfa); }
+  83% { filter: drop-shadow(0 0 8px #f472b6); }
+  100% { filter: drop-shadow(0 0 8px #f87171); }
+}
+
+.effect-rainbow {
+  animation: rainbow-glow 4s linear infinite;
+}
+
+/* Stars falling */
+@keyframes star-fall {
+  0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(40px) translateX(-20px) rotate(180deg); opacity: 0; }
+}
+
+.effect-stars {
+  position: relative;
+}
+
+.effect-stars::before,
+.effect-stars::after {
+  content: '⭐';
+  position: absolute;
+  font-size: 10px;
+  animation: star-fall 2.5s ease-out infinite;
+  pointer-events: none;
+}
+
+.effect-stars::before {
+  top: -15px;
+  left: 20%;
+  animation-delay: 0s;
+}
+
+.effect-stars::after {
+  top: -15px;
+  right: 20%;
+  animation-delay: 1.2s;
+}
