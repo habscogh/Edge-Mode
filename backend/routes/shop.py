@@ -321,6 +321,220 @@ DEFAULT_SHOP_ITEMS = [
             "particle_color": "#fbbf24",
             "animation_class": "effect-stars"
         }
+    },
+    
+    # ============ NEW PARTICLE EFFECTS ============
+    {
+        "id": "effect-ember",
+        "name": "Ember Rise",
+        "description": "Floating fire embers rising up",
+        "category": "effects",
+        "price": 350,
+        "rarity": "rare",
+        "icon": "🔥",
+        "effect_data": {
+            "type": "ember",
+            "particle_color": "#f97316",
+            "animation_class": "effect-ember"
+        }
+    },
+    {
+        "id": "effect-snow",
+        "name": "Snowfall",
+        "description": "Gentle snow particles falling",
+        "category": "effects",
+        "price": 175,
+        "rarity": "uncommon",
+        "icon": "❄️",
+        "effect_data": {
+            "type": "snow",
+            "particle_color": "#e0f2fe",
+            "animation_class": "effect-snow"
+        }
+    },
+    {
+        "id": "effect-bubbles",
+        "name": "Bubbles",
+        "description": "Floating bubbles animation",
+        "category": "effects",
+        "price": 125,
+        "rarity": "common",
+        "icon": "🫧",
+        "effect_data": {
+            "type": "bubbles",
+            "particle_color": "#67e8f9",
+            "animation_class": "effect-bubbles"
+        }
+    },
+    {
+        "id": "effect-hearts",
+        "name": "Floating Hearts",
+        "description": "Hearts floating upward",
+        "category": "effects",
+        "price": 175,
+        "rarity": "uncommon",
+        "icon": "💕",
+        "effect_data": {
+            "type": "hearts",
+            "particle_color": "#f472b6",
+            "animation_class": "effect-hearts"
+        }
+    },
+    {
+        "id": "effect-lightning-sparks",
+        "name": "Lightning Sparks",
+        "description": "Electric sparks around profile",
+        "category": "effects",
+        "price": 450,
+        "rarity": "epic",
+        "icon": "⚡",
+        "effect_data": {
+            "type": "lightning",
+            "particle_color": "#facc15",
+            "animation_class": "effect-lightning-sparks"
+        }
+    },
+    
+    # ============ NEW AURA EFFECTS ============
+    {
+        "id": "effect-pulse",
+        "name": "Pulsing Glow",
+        "description": "Breathing pulsing aura effect",
+        "category": "effects",
+        "price": 200,
+        "rarity": "uncommon",
+        "icon": "💫",
+        "effect_data": {
+            "type": "pulse",
+            "animation_class": "effect-pulse"
+        }
+    },
+    {
+        "id": "effect-holographic",
+        "name": "Holographic",
+        "description": "Shifting holographic shimmer",
+        "category": "effects",
+        "price": 500,
+        "rarity": "epic",
+        "icon": "🌈",
+        "effect_data": {
+            "type": "holographic",
+            "animation_class": "effect-holographic"
+        }
+    },
+    {
+        "id": "effect-neon",
+        "name": "Neon Flicker",
+        "description": "Cyberpunk neon flicker effect",
+        "category": "effects",
+        "price": 350,
+        "rarity": "rare",
+        "icon": "💜",
+        "effect_data": {
+            "type": "neon",
+            "particle_color": "#c084fc",
+            "animation_class": "effect-neon"
+        }
+    },
+    {
+        "id": "effect-golden-aura",
+        "name": "Golden Aura",
+        "description": "Prestigious golden glow",
+        "category": "effects",
+        "price": 700,
+        "rarity": "legendary",
+        "icon": "👑",
+        "effect_data": {
+            "type": "golden",
+            "particle_color": "#fbbf24",
+            "animation_class": "effect-golden-aura"
+        }
+    },
+    
+    # ============ NEW SEASONAL/THEMED EFFECTS ============
+    {
+        "id": "effect-sakura",
+        "name": "Cherry Blossoms",
+        "description": "Falling sakura petals",
+        "category": "effects",
+        "price": 375,
+        "rarity": "rare",
+        "icon": "🌸",
+        "effect_data": {
+            "type": "sakura",
+            "particle_color": "#fda4af",
+            "animation_class": "effect-sakura"
+        }
+    },
+    {
+        "id": "effect-fireflies",
+        "name": "Fireflies",
+        "description": "Glowing fireflies floating",
+        "category": "effects",
+        "price": 450,
+        "rarity": "epic",
+        "icon": "✨",
+        "effect_data": {
+            "type": "fireflies",
+            "particle_color": "#bef264",
+            "animation_class": "effect-fireflies"
+        }
+    },
+    {
+        "id": "effect-aurora",
+        "name": "Northern Lights",
+        "description": "Aurora borealis shimmer",
+        "category": "effects",
+        "price": 750,
+        "rarity": "legendary",
+        "icon": "🌌",
+        "effect_data": {
+            "type": "aurora",
+            "animation_class": "effect-aurora"
+        }
+    },
+    {
+        "id": "effect-autumn",
+        "name": "Autumn Leaves",
+        "description": "Falling autumn leaves",
+        "category": "effects",
+        "price": 200,
+        "rarity": "uncommon",
+        "icon": "🍂",
+        "effect_data": {
+            "type": "autumn",
+            "particle_colors": ["#f97316", "#dc2626", "#fbbf24", "#92400e"],
+            "animation_class": "effect-autumn"
+        }
+    },
+    
+    # ============ NEW ACHIEVEMENT EFFECTS ============
+    {
+        "id": "effect-champion",
+        "name": "Champion Flames",
+        "description": "Victory flames for top performers",
+        "category": "effects",
+        "price": 800,
+        "rarity": "legendary",
+        "icon": "🏆",
+        "effect_data": {
+            "type": "champion",
+            "animation_class": "effect-champion"
+        }
+    },
+    {
+        "id": "effect-levelup",
+        "name": "Level Up Glow",
+        "description": "Ascending energy effect",
+        "category": "effects",
+        "price": 325,
+        "rarity": "rare",
+        "icon": "⬆️",
+        "effect_data": {
+            "type": "levelup",
+            "particle_color": "#34d399",
+            "animation_class": "effect-levelup"
+        }
     }
 ]
 

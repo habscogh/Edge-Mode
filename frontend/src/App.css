@@ -720,3 +720,456 @@ input[type='number'] {
   right: 20%;
   animation-delay: 1.2s;
 }
+
+
+/* ============ NEW PARTICLE EFFECTS ============ */
+
+/* Ember Rise - floating fire particles */
+@keyframes ember-rise {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  50% { opacity: 0.8; }
+  100% { transform: translateY(-40px) scale(0.3); opacity: 0; }
+}
+
+.effect-ember {
+  position: relative;
+}
+
+.effect-ember::before,
+.effect-ember::after {
+  content: '🔥';
+  position: absolute;
+  font-size: 10px;
+  animation: ember-rise 2s ease-out infinite;
+  pointer-events: none;
+}
+
+.effect-ember::before {
+  bottom: 0;
+  left: 15%;
+  animation-delay: 0s;
+}
+
+.effect-ember::after {
+  bottom: 0;
+  right: 15%;
+  animation-delay: 0.8s;
+}
+
+/* Snowfall - gentle falling snow */
+@keyframes snow-fall {
+  0% { transform: translateY(-20px) translateX(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(50px) translateX(10px) rotate(360deg); opacity: 0; }
+}
+
+.effect-snow {
+  position: relative;
+}
+
+.effect-snow::before,
+.effect-snow::after {
+  content: '❄️';
+  position: absolute;
+  font-size: 10px;
+  animation: snow-fall 3s ease-in infinite;
+  pointer-events: none;
+}
+
+.effect-snow::before {
+  top: -10px;
+  left: 20%;
+  animation-delay: 0s;
+}
+
+.effect-snow::after {
+  top: -10px;
+  right: 25%;
+  animation-delay: 1.5s;
+}
+
+/* Bubbles - floating up */
+@keyframes bubble-float {
+  0% { transform: translateY(0) scale(0.5); opacity: 0.8; }
+  50% { transform: translateY(-20px) scale(1); opacity: 1; }
+  100% { transform: translateY(-40px) scale(0.8); opacity: 0; }
+}
+
+.effect-bubbles {
+  position: relative;
+}
+
+.effect-bubbles::before,
+.effect-bubbles::after {
+  content: '🫧';
+  position: absolute;
+  font-size: 12px;
+  animation: bubble-float 2.5s ease-out infinite;
+  pointer-events: none;
+}
+
+.effect-bubbles::before {
+  bottom: 5px;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.effect-bubbles::after {
+  bottom: 5px;
+  right: 10%;
+  animation-delay: 1s;
+}
+
+/* Hearts - floating upward */
+@keyframes heart-float {
+  0% { transform: translateY(0) scale(0.8); opacity: 1; }
+  50% { transform: translateY(-15px) scale(1.1); opacity: 0.9; }
+  100% { transform: translateY(-35px) scale(0.6); opacity: 0; }
+}
+
+.effect-hearts {
+  position: relative;
+}
+
+.effect-hearts::before,
+.effect-hearts::after {
+  content: '💕';
+  position: absolute;
+  font-size: 10px;
+  animation: heart-float 2.2s ease-out infinite;
+  pointer-events: none;
+}
+
+.effect-hearts::before {
+  bottom: 0;
+  left: 20%;
+  animation-delay: 0s;
+}
+
+.effect-hearts::after {
+  bottom: 0;
+  right: 20%;
+  animation-delay: 1.1s;
+}
+
+/* Lightning Sparks - electric effect */
+@keyframes lightning-spark {
+  0%, 100% { opacity: 0; transform: scale(0.5); }
+  10%, 30% { opacity: 1; transform: scale(1.2); }
+  20% { opacity: 0.5; transform: scale(0.8); }
+  40% { opacity: 0; transform: scale(0.5); }
+}
+
+.effect-lightning-sparks {
+  position: relative;
+  filter: drop-shadow(0 0 5px rgba(250, 204, 21, 0.5));
+}
+
+.effect-lightning-sparks::before,
+.effect-lightning-sparks::after {
+  content: '⚡';
+  position: absolute;
+  font-size: 12px;
+  animation: lightning-spark 1.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.effect-lightning-sparks::before {
+  top: -5px;
+  left: 5%;
+  animation-delay: 0s;
+}
+
+.effect-lightning-sparks::after {
+  top: -5px;
+  right: 5%;
+  animation-delay: 0.5s;
+}
+
+/* ============ NEW AURA EFFECTS ============ */
+
+/* Pulsing Glow - breathing effect */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.4); }
+  50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.8), 0 0 60px rgba(99, 102, 241, 0.4); }
+}
+
+.effect-pulse {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Holographic - shifting colors */
+@keyframes holographic-shift {
+  0% { 
+    filter: drop-shadow(0 0 10px #f87171) hue-rotate(0deg);
+  }
+  25% {
+    filter: drop-shadow(0 0 10px #34d399) hue-rotate(90deg);
+  }
+  50% { 
+    filter: drop-shadow(0 0 10px #60a5fa) hue-rotate(180deg);
+  }
+  75% {
+    filter: drop-shadow(0 0 10px #c084fc) hue-rotate(270deg);
+  }
+  100% { 
+    filter: drop-shadow(0 0 10px #f87171) hue-rotate(360deg);
+  }
+}
+
+.effect-holographic {
+  animation: holographic-shift 4s linear infinite;
+}
+
+/* Neon Flicker - cyberpunk effect */
+@keyframes neon-flicker {
+  0%, 100% { 
+    filter: drop-shadow(0 0 5px #c084fc) drop-shadow(0 0 10px #c084fc);
+    opacity: 1;
+  }
+  5%, 15%, 25% { 
+    filter: drop-shadow(0 0 2px #c084fc);
+    opacity: 0.8;
+  }
+  10%, 20% { 
+    filter: drop-shadow(0 0 15px #c084fc) drop-shadow(0 0 25px #c084fc);
+    opacity: 1;
+  }
+  30% {
+    filter: drop-shadow(0 0 5px #c084fc) drop-shadow(0 0 10px #c084fc);
+  }
+}
+
+.effect-neon {
+  animation: neon-flicker 3s ease-in-out infinite;
+}
+
+/* Golden Aura - prestigious glow */
+@keyframes golden-glow {
+  0%, 100% { 
+    filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.6)) drop-shadow(0 0 30px rgba(251, 191, 36, 0.3));
+  }
+  50% { 
+    filter: drop-shadow(0 0 25px rgba(251, 191, 36, 0.9)) drop-shadow(0 0 50px rgba(251, 191, 36, 0.5));
+  }
+}
+
+.effect-golden-aura {
+  animation: golden-glow 2s ease-in-out infinite;
+}
+
+/* ============ NEW SEASONAL/THEMED EFFECTS ============ */
+
+/* Cherry Blossoms - falling sakura */
+@keyframes sakura-fall {
+  0% { transform: translateY(-10px) translateX(0) rotate(0deg); opacity: 1; }
+  50% { transform: translateY(20px) translateX(15px) rotate(180deg); opacity: 0.8; }
+  100% { transform: translateY(50px) translateX(-10px) rotate(360deg); opacity: 0; }
+}
+
+.effect-sakura {
+  position: relative;
+}
+
+.effect-sakura::before,
+.effect-sakura::after {
+  content: '🌸';
+  position: absolute;
+  font-size: 12px;
+  animation: sakura-fall 3.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.effect-sakura::before {
+  top: -15px;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.effect-sakura::after {
+  top: -15px;
+  right: 15%;
+  animation-delay: 1.5s;
+}
+
+/* Fireflies - glowing floating */
+@keyframes firefly-float {
+  0%, 100% { 
+    transform: translateY(0) translateX(0);
+    opacity: 0.3;
+    filter: drop-shadow(0 0 3px #bef264);
+  }
+  25% { 
+    transform: translateY(-10px) translateX(5px);
+    opacity: 1;
+    filter: drop-shadow(0 0 8px #bef264);
+  }
+  50% { 
+    transform: translateY(-5px) translateX(-5px);
+    opacity: 0.6;
+    filter: drop-shadow(0 0 5px #bef264);
+  }
+  75% { 
+    transform: translateY(-15px) translateX(3px);
+    opacity: 1;
+    filter: drop-shadow(0 0 10px #bef264);
+  }
+}
+
+.effect-fireflies {
+  position: relative;
+}
+
+.effect-fireflies::before,
+.effect-fireflies::after {
+  content: '•';
+  position: absolute;
+  font-size: 8px;
+  color: #bef264;
+  animation: firefly-float 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.effect-fireflies::before {
+  top: 10%;
+  left: 5%;
+  animation-delay: 0s;
+}
+
+.effect-fireflies::after {
+  top: 20%;
+  right: 8%;
+  animation-delay: 2s;
+}
+
+/* Northern Lights - aurora effect */
+@keyframes aurora-wave {
+  0% { 
+    background-position: 0% 50%;
+    filter: drop-shadow(0 0 10px rgba(52, 211, 153, 0.3));
+  }
+  50% { 
+    background-position: 100% 50%;
+    filter: drop-shadow(0 0 20px rgba(96, 165, 250, 0.5));
+  }
+  100% { 
+    background-position: 0% 50%;
+    filter: drop-shadow(0 0 10px rgba(192, 132, 252, 0.3));
+  }
+}
+
+.effect-aurora {
+  animation: aurora-wave 5s ease-in-out infinite;
+  background: linear-gradient(90deg, 
+    rgba(52, 211, 153, 0.1), 
+    rgba(96, 165, 250, 0.1), 
+    rgba(192, 132, 252, 0.1),
+    rgba(52, 211, 153, 0.1)
+  );
+  background-size: 300% 100%;
+}
+
+/* Autumn Leaves - falling leaves */
+@keyframes leaf-fall {
+  0% { transform: translateY(-10px) translateX(0) rotate(0deg); opacity: 1; }
+  25% { transform: translateY(10px) translateX(10px) rotate(45deg); }
+  50% { transform: translateY(25px) translateX(-5px) rotate(90deg); opacity: 0.8; }
+  75% { transform: translateY(40px) translateX(8px) rotate(135deg); }
+  100% { transform: translateY(55px) translateX(0) rotate(180deg); opacity: 0; }
+}
+
+.effect-autumn {
+  position: relative;
+}
+
+.effect-autumn::before,
+.effect-autumn::after {
+  content: '🍂';
+  position: absolute;
+  font-size: 12px;
+  animation: leaf-fall 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.effect-autumn::before {
+  top: -15px;
+  left: 15%;
+  animation-delay: 0s;
+}
+
+.effect-autumn::after {
+  top: -15px;
+  right: 20%;
+  animation-delay: 2s;
+}
+
+/* ============ NEW ACHIEVEMENT EFFECTS ============ */
+
+/* Champion Flames - victory fire */
+@keyframes champion-flame {
+  0%, 100% { 
+    filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.7)) drop-shadow(0 0 20px rgba(249, 115, 22, 0.5));
+    transform: scale(1);
+  }
+  50% { 
+    filter: drop-shadow(0 0 20px rgba(251, 191, 36, 1)) drop-shadow(0 0 40px rgba(249, 115, 22, 0.8));
+    transform: scale(1.02);
+  }
+}
+
+.effect-champion {
+  position: relative;
+  animation: champion-flame 1.5s ease-in-out infinite;
+}
+
+.effect-champion::before,
+.effect-champion::after {
+  content: '🏆';
+  position: absolute;
+  font-size: 14px;
+  animation: ember-rise 2s ease-out infinite;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.effect-champion::before {
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Level Up Glow - ascending energy */
+@keyframes levelup-energy {
+  0% { 
+    box-shadow: 0 5px 15px rgba(52, 211, 153, 0.4);
+    transform: translateY(0);
+  }
+  50% { 
+    box-shadow: 0 -5px 25px rgba(52, 211, 153, 0.8), 0 0 40px rgba(52, 211, 153, 0.4);
+    transform: translateY(-2px);
+  }
+  100% { 
+    box-shadow: 0 5px 15px rgba(52, 211, 153, 0.4);
+    transform: translateY(0);
+  }
+}
+
+@keyframes arrow-rise {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  50% { transform: translateY(-8px); opacity: 1; }
+}
+
+.effect-levelup {
+  animation: levelup-energy 2s ease-in-out infinite;
+  position: relative;
+}
+
+.effect-levelup::before {
+  content: '⬆️';
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  animation: arrow-rise 1.5s ease-in-out infinite;
+  pointer-events: none;
+}
