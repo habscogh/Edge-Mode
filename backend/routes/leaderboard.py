@@ -47,6 +47,22 @@ async def get_global_leaderboard(age_group: Optional[str] = None):
     
     all_pillars = await db.user_pillars.find({'user_id': {'$in': user_ids}}, {'_id': 0}).to_list(5000)
     
+    # Fetch display badges for all users
+    display_badges = {}
+    for user in users:
+        if user.get('display_badge'):
+            inv_item = await db.user_inventory.find_one({
+                'user_id': user['id'],
+                'id': user['display_badge']
+            }, {'_id': 0, 'item_id': 1})
+            if inv_item:
+                shop_item = await db.shop_items.find_one({'id': inv_item['item_id']}, {'_id': 0, 'icon': 1, 'name': 1})
+                if shop_item:
+                    display_badges[user['id']] = {
+                        'icon': shop_item['icon'],
+                        'name': shop_item['name']
+                    }
+    
     current_sessions_by_user = {}
     for session in all_current_sessions:
         current_sessions_by_user.setdefault(session['user_id'], []).append(session)
@@ -89,13 +105,17 @@ async def get_global_leaderboard(age_group: Optional[str] = None):
         else:
             user_age_group = '18-19'
         
+        # Get display badge for this user
+        user_display_badge = display_badges.get(user['id'])
+        
         leaderboard.append({
             'username': user.get('username'),
             'consistency_pct': round(consistency_pct, 1),
             'performance_index': round(performance_index, 1),
             'age_group': user_age_group,
             'improvement_pct': round(improvement_pct, 1),
-            'is_ambassador': user.get('is_ambassador', False)
+            'is_ambassador': user.get('is_ambassador', False),
+            'display_badge': user_display_badge
         })
     
     leaderboard.sort(key=lambda x: x['improvement_pct'], reverse=True)

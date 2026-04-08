@@ -422,7 +422,12 @@ export const GroupsScreen = () => {
                           {idx + 1}
                         </div>
                         <div>
-                          <div className="text-white font-body">{entry.username}</div>
+                          <div className="text-white font-body flex items-center gap-1.5">
+                            {entry.username}
+                            {entry.display_badge && (
+                              <span className="text-lg" title={entry.display_badge.name}>{entry.display_badge.icon}</span>
+                            )}
+                          </div>
                           <div className="text-zinc-500 text-xs font-body">{entry.current_streak} day streak</div>
                         </div>
                       </div>

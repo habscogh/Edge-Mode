@@ -547,6 +547,116 @@ async def unequip_item(inventory_id: str, current_user: dict = Depends(get_curre
     return {'message': 'Item unequipped'}
 
 
+# ============ Display Badge Feature ============
+
+class SetDisplayBadgeRequest(BaseModel):
+    badge_id: Optional[str] = None  # None to clear display badge
+
+
+@router.get("/display-badge")
+async def get_display_badge(current_user: dict = Depends(get_current_user)):
+    """Get user's currently set display badge"""
+    user = await db.users.find_one({'id': current_user['id']}, {'_id': 0, 'display_badge': 1})
+    display_badge = user.get('display_badge') if user else None
+    
+    if display_badge:
+        # Get the badge details from inventory
+        inventory_item = await db.user_inventory.find_one({
+            'user_id': current_user['id'],
+            'id': display_badge
+        }, {'_id': 0})
+        
+        if inventory_item:
+            # Get item details
+            item = await db.shop_items.find_one({'id': inventory_item['item_id']}, {'_id': 0})
+            if item:
+                return {
+                    'has_display_badge': True,
+                    'badge': {
+                        'inventory_id': inventory_item['id'],
+                        'item_id': item['id'],
+                        'name': item['name'],
+                        'icon': item['icon'],
+                        'rarity': item.get('rarity', 'common')
+                    }
+                }
+    
+    return {'has_display_badge': False, 'badge': None}
+
+
+@router.get("/available-display-badges")
+async def get_available_display_badges(current_user: dict = Depends(get_current_user)):
+    """Get all badges user can set as display badge (owned badges from shop)"""
+    # Get user's badge inventory items
+    inventory_items = await db.user_inventory.find({
+        'user_id': current_user['id'],
+        'category': 'badges'
+    }, {'_id': 0}).to_list(100)
+    
+    badges = []
+    for inv_item in inventory_items:
+        item = await db.shop_items.find_one({'id': inv_item['item_id']}, {'_id': 0})
+        if item:
+            badges.append({
+                'inventory_id': inv_item['id'],
+                'item_id': item['id'],
+                'name': item['name'],
+                'icon': item['icon'],
+                'description': item.get('description', ''),
+                'rarity': item.get('rarity', 'common')
+            })
+    
+    # Get current display badge
+    user = await db.users.find_one({'id': current_user['id']}, {'_id': 0, 'display_badge': 1})
+    current_display = user.get('display_badge') if user else None
+    
+    return {
+        'badges': badges,
+        'current_display_badge': current_display
+    }
+
+
+@router.post("/set-display-badge")
+async def set_display_badge(request: SetDisplayBadgeRequest, current_user: dict = Depends(get_current_user)):
+    """Set or clear the user's display badge"""
+    if request.badge_id:
+        # Verify user owns this badge
+        inventory_item = await db.user_inventory.find_one({
+            'user_id': current_user['id'],
+            'id': request.badge_id,
+            'category': 'badges'
+        })
+        
+        if not inventory_item:
+            raise HTTPException(status_code=400, detail="You don't own this badge")
+        
+        # Set the display badge
+        await db.users.update_one(
+            {'id': current_user['id']},
+            {'$set': {'display_badge': request.badge_id}}
+        )
+        
+        # Get badge details for response
+        item = await db.shop_items.find_one({'id': inventory_item['item_id']}, {'_id': 0})
+        
+        return {
+            'message': f"Display badge set to {item['name']}!",
+            'badge': {
+                'inventory_id': inventory_item['id'],
+                'name': item['name'],
+                'icon': item['icon']
+            }
+        }
+    else:
+        # Clear display badge
+        await db.users.update_one(
+            {'id': current_user['id']},
+            {'$unset': {'display_badge': ''}}
+        )
+        
+        return {'message': 'Display badge cleared', 'badge': None}
+
+
 @router.post("/use-shield")
 async def use_streak_shield(current_user: dict = Depends(get_current_user)):
     """Use a streak shield to protect streak"""

@@ -4,7 +4,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { User, LogOut, CreditCard, Trophy, Settings, Mail, Lock, Trash2, Bell, Shield, UserPlus, ChevronRight, HelpCircle, Target, Swords, Users, Sun, Moon, School, PawPrint } from 'lucide-react';
+import { User, LogOut, CreditCard, Trophy, Settings, Mail, Lock, Trash2, Bell, Shield, UserPlus, ChevronRight, HelpCircle, Target, Swords, Users, Sun, Moon, School, PawPrint, Medal } from 'lucide-react';
 import { format } from 'date-fns';
 import axios from 'axios';
 import { toast } from 'sonner';
@@ -40,6 +40,9 @@ export const ProfileScreen = () => {
     morning_reminders: false
   });
   const [myPet, setMyPet] = useState(null);
+  const [displayBadge, setDisplayBadge] = useState(null);
+  const [availableBadges, setAvailableBadges] = useState([]);
+  const [showBadgeSelector, setShowBadgeSelector] = useState(false);
 
   const isAdmin = user && ADMIN_EMAILS.includes(user.email);
   const isParent = user?.is_parent || linkedStudents.length > 0;
@@ -48,7 +51,34 @@ export const ProfileScreen = () => {
     fetchNotificationSettings();
     fetchLinkedStudents();
     fetchMyPet();
+    fetchDisplayBadge();
   }, []);
+
+  const fetchDisplayBadge = async () => {
+    try {
+      const [badgeRes, availableRes] = await Promise.all([
+        axios.get(`${API}/shop/display-badge`),
+        axios.get(`${API}/shop/available-display-badges`)
+      ]);
+      setDisplayBadge(badgeRes.data.badge);
+      setAvailableBadges(availableRes.data.badges || []);
+    } catch (error) {
+      // No display badge or error - that's fine
+    }
+  };
+
+  const handleSetDisplayBadge = async (badgeId) => {
+    try {
+      const response = await axios.post(`${API}/shop/set-display-badge`, {
+        badge_id: badgeId
+      });
+      setDisplayBadge(response.data.badge);
+      setShowBadgeSelector(false);
+      toast.success(response.data.message);
+    } catch (error) {
+      toast.error('Failed to set display badge');
+    }
+  };
 
   const fetchMyPet = async () => {
     try {
@@ -208,10 +238,84 @@ export const ProfileScreen = () => {
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-2xl font-heading font-bold uppercase text-white">{user.username}</h2>
+                {displayBadge && (
+                  <span className="text-xl" title={displayBadge.name}>{displayBadge.icon}</span>
+                )}
                 {user.is_ambassador && <AmbassadorBadge size="small" />}
               </div>
               <p className="text-zinc-400 font-body text-sm">{user.email}</p>
             </div>
+          </div>
+
+          {/* Display Badge Selector */}
+          <div className="bg-zinc-900 border border-zinc-800 rounded-md p-4 mb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Medal className="w-4 h-4 text-yellow-400" />
+                <span className="text-white font-body">Display Badge</span>
+              </div>
+              <button
+                onClick={() => setShowBadgeSelector(!showBadgeSelector)}
+                className="text-primary text-sm hover:text-primary/80 transition-colors"
+                data-testid="change-display-badge-btn"
+              >
+                {displayBadge ? 'Change' : 'Set Badge'}
+              </button>
+            </div>
+            {displayBadge ? (
+              <div className="flex items-center gap-2 mt-2">
+                <span className="text-2xl">{displayBadge.icon}</span>
+                <span className="text-zinc-300 font-body">{displayBadge.name}</span>
+              </div>
+            ) : (
+              <p className="text-zinc-500 text-sm mt-2 font-body">
+                {availableBadges.length > 0 
+                  ? 'Select a badge to display next to your name!'
+                  : 'Purchase badges from the shop to display here'
+                }
+              </p>
+            )}
+            
+            {/* Badge Selector Dropdown */}
+            {showBadgeSelector && availableBadges.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-zinc-700">
+                <p className="text-zinc-400 text-xs mb-2 font-body">Choose a badge:</p>
+                <div className="flex flex-wrap gap-2">
+                  {displayBadge && (
+                    <button
+                      onClick={() => handleSetDisplayBadge(null)}
+                      className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-sm text-zinc-300 transition-colors"
+                      data-testid="clear-display-badge"
+                    >
+                      None
+                    </button>
+                  )}
+                  {availableBadges.map((badge) => (
+                    <button
+                      key={badge.inventory_id}
+                      onClick={() => handleSetDisplayBadge(badge.inventory_id)}
+                      className={`px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${
+                        displayBadge?.inventory_id === badge.inventory_id
+                          ? 'bg-primary/20 border border-primary text-white'
+                          : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300'
+                      }`}
+                      data-testid={`select-badge-${badge.item_id}`}
+                    >
+                      <span className="text-lg">{badge.icon}</span>
+                      <span>{badge.name}</span>
+                    </button>
+                  ))}
+                </div>
+                {availableBadges.length === 0 && (
+                  <button
+                    onClick={() => navigate('/shop')}
+                    className="text-primary text-sm hover:underline"
+                  >
+                    Browse badges in shop →
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4 mb-4">

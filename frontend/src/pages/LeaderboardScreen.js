@@ -176,6 +176,9 @@ export const LeaderboardScreen = () => {
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="text-white font-body">{entry.username}</span>
+                          {entry.display_badge && (
+                            <span className="text-lg" title={entry.display_badge.name}>{entry.display_badge.icon}</span>
+                          )}
                           {entry.is_ambassador && <AmbassadorBadge size="small" showLabel={false} />}
                         </div>
                         <div className="text-zinc-500 text-xs font-body">{entry.age_group}</div>

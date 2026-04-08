@@ -134,6 +134,22 @@ async def get_group_leaderboard(group_id: str, current_user: dict = Depends(get_
     for pillar in all_pillars:
         pillars_by_user.setdefault(pillar['user_id'], []).append(pillar)
     
+    # Fetch display badges for all members
+    display_badges = {}
+    for user in users:
+        if user.get('display_badge'):
+            inv_item = await db.user_inventory.find_one({
+                'user_id': user['id'],
+                'id': user['display_badge']
+            }, {'_id': 0, 'item_id': 1})
+            if inv_item:
+                shop_item = await db.shop_items.find_one({'id': inv_item['item_id']}, {'_id': 0, 'icon': 1, 'name': 1})
+                if shop_item:
+                    display_badges[user['id']] = {
+                        'icon': shop_item['icon'],
+                        'name': shop_item['name']
+                    }
+    
     leaderboard = []
     for member_id in member_ids:
         user = users_by_id.get(member_id)
@@ -153,13 +169,17 @@ async def get_group_leaderboard(group_id: str, current_user: dict = Depends(get_
         
         performance_index = min((consistency_pct * 0.7) + (target_completion_pct * 0.3), 100)
         
+        # Get display badge for this user
+        user_display_badge = display_badges.get(user['id'])
+        
         leaderboard.append({
             'user_id': user['id'],
             'username': user.get('username') or user.get('name'),
             'consistency_pct': round(consistency_pct, 1),
             'performance_index': round(performance_index, 1),
             'current_streak': user.get('current_streak', 0),
-            'total_sessions': total_sessions
+            'total_sessions': total_sessions,
+            'display_badge': user_display_badge
         })
     
     leaderboard.sort(key=lambda x: x['performance_index'], reverse=True)
