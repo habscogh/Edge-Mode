@@ -10,6 +10,7 @@ import { MilestoneCelebration, checkMilestoneHit } from '../components/Milestone
 import { OfflineIndicator } from '../components/OfflineIndicator';
 import { PushNotificationPrompt } from '../components/PushNotificationPrompt';
 import { ReflectionModal } from '../components/ReflectionModal';
+import ExpeditionModal from '../components/ExpeditionModal';
 import { useOfflineSync } from '../hooks/useOfflineSync';
 import { usePushNotifications } from '../hooks/usePushNotifications';
 import { getLocalDateString } from '../utils/dateUtils';
@@ -37,6 +38,8 @@ export const LogScreen = () => {
   const [showPushPrompt, setShowPushPrompt] = useState(false);
   const [showReflectionModal, setShowReflectionModal] = useState(false);
   const [lastSessionId, setLastSessionId] = useState(null);
+  const [expeditionData, setExpeditionData] = useState(null);
+  const [showExpeditionModal, setShowExpeditionModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -156,6 +159,21 @@ export const LogScreen = () => {
           setSuccess(false);
           setShowPushPrompt(true);
         } else {
+          // Check for pet expedition if session was 20+ minutes
+          const sessionMinutes = parseInt(minutes, 10);
+          if (sessionMinutes >= 20) {
+            try {
+              const expeditionRes = await axios.post(`${API}/pets/expedition-reward`);
+              if (expeditionRes.data.has_reward) {
+                setExpeditionData(expeditionRes.data);
+                setShowExpeditionModal(true);
+                setSuccess(false);
+                return; // Don't show reflection modal yet
+              }
+            } catch (expError) {
+              console.log('No expedition reward:', expError);
+            }
+          }
           // Show reflection modal after successful session log
           setSuccess(false);
           setShowReflectionModal(true);
@@ -577,6 +595,18 @@ export const LogScreen = () => {
             }}
           />
         )}
+        
+        {/* Pet Expedition Modal */}
+        <ExpeditionModal
+          isOpen={showExpeditionModal}
+          onClose={() => {
+            setShowExpeditionModal(false);
+            setExpeditionData(null);
+            // Show reflection modal after expedition
+            setShowReflectionModal(true);
+          }}
+          expeditionData={expeditionData}
+        />
         
         {/* Daily Reflection Modal */}
         <ReflectionModal

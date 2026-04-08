@@ -16,7 +16,10 @@ import {
   Music,
   Hand,
   Megaphone,
-  Compass
+  Compass,
+  BookOpen,
+  Users,
+  Trophy
 } from 'lucide-react';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -126,6 +129,8 @@ const PetDisplay = ({ onSelectPet, compact = false }) => {
   const [petData, setPetData] = useState(null);
   const [interactions, setInteractions] = useState([]);
   const [equippedAccessories, setEquippedAccessories] = useState({});
+  const [moodData, setMoodData] = useState(null);
+  const [activeCompanion, setActiveCompanion] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentAnimation, setCurrentAnimation] = useState(null);
   const [currentEffect, setCurrentEffect] = useState(null);
@@ -138,14 +143,23 @@ const PetDisplay = ({ onSelectPet, compact = false }) => {
 
   const fetchPetData = async () => {
     try {
-      const [petRes, intRes, accRes] = await Promise.all([
+      const [petRes, intRes, accRes, moodRes, compRes] = await Promise.all([
         axios.get(`${API}/pets/my-pet`),
         axios.get(`${API}/pets/interactions`).catch(() => ({ data: { interactions: [] } })),
-        axios.get(`${API}/pets/accessories/equipped`).catch(() => ({ data: { equipped: {} } }))
+        axios.get(`${API}/pets/accessories/equipped`).catch(() => ({ data: { equipped: {} } })),
+        axios.get(`${API}/pets/mood`).catch(() => ({ data: { has_pet: false } })),
+        axios.get(`${API}/pets/companions`).catch(() => ({ data: { companions: [], active_companion: null } }))
       ]);
       setPetData(petRes.data);
       setInteractions(intRes.data.interactions || []);
       setEquippedAccessories(accRes.data.equipped || {});
+      setMoodData(moodRes.data);
+      
+      // Find active companion details
+      if (compRes.data.active_companion) {
+        const activeComp = compRes.data.companions?.find(c => c.id === compRes.data.active_companion);
+        setActiveCompanion(activeComp || null);
+      }
     } catch (error) {
       console.error('Failed to fetch pet:', error);
     } finally {
@@ -425,6 +439,87 @@ const PetDisplay = ({ onSelectPet, compact = false }) => {
         )}
       </div>
 
+      {/* Pet Mood & Voice Line */}
+      {moodData?.has_pet && moodData?.voice_line && (
+        <div className="mt-3 bg-zinc-800/50 rounded-xl p-3 border border-zinc-700/50" data-testid="pet-mood-section">
+          <div className="flex items-start gap-3">
+            {/* Mood Icon */}
+            <div 
+              className="w-10 h-10 rounded-full flex items-center justify-center text-2xl animate-bounce-slow"
+              style={{ backgroundColor: `${moodData.mood?.color}20` }}
+            >
+              {moodData.mood?.icon || '😊'}
+            </div>
+            
+            {/* Voice Line */}
+            <div className="flex-1">
+              <p className="text-sm text-white leading-relaxed">"{moodData.voice_line}"</p>
+              <div className="flex items-center gap-2 mt-1">
+                <span 
+                  className="text-xs px-2 py-0.5 rounded-full capitalize"
+                  style={{ 
+                    backgroundColor: `${moodData.mood?.color}20`,
+                    color: moodData.mood?.color 
+                  }}
+                >
+                  {moodData.mood?.level} • {moodData.mood?.happiness}% happy
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Active Companion */}
+      {activeCompanion && (
+        <div 
+          className="mt-3 bg-gradient-to-r from-purple-900/30 to-pink-900/30 rounded-xl p-3 border border-purple-500/30 cursor-pointer hover:border-purple-500/50 transition-all"
+          onClick={() => navigate('/companions')}
+          data-testid="active-companion-section"
+        >
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <div className="w-10 h-10 rounded-full bg-black/30 flex items-center justify-center text-2xl animate-pulse">
+                {activeCompanion.icon}
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-zinc-900 flex items-center justify-center">
+                <span className="text-[8px]">✓</span>
+              </div>
+            </div>
+            <div className="flex-1">
+              <p className="text-sm text-white font-medium flex items-center gap-2">
+                {activeCompanion.name}
+                <span className={`text-xs px-1.5 py-0.5 rounded-full capitalize ${
+                  activeCompanion.rarity === 'legendary' ? 'bg-yellow-500/20 text-yellow-400' :
+                  activeCompanion.rarity === 'epic' ? 'bg-purple-500/20 text-purple-400' :
+                  activeCompanion.rarity === 'rare' ? 'bg-blue-500/20 text-blue-400' :
+                  'bg-zinc-700 text-zinc-400'
+                }`}>
+                  {activeCompanion.rarity}
+                </span>
+              </p>
+              <p className="text-xs text-zinc-400">{activeCompanion.description}</p>
+              {/* Companion Bonuses */}
+              {activeCompanion.bonus && (
+                <div className="flex gap-2 mt-1">
+                  {activeCompanion.bonus.xp_multiplier && (
+                    <span className="text-xs bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded">
+                      +{Math.round((activeCompanion.bonus.xp_multiplier - 1) * 100)}% XP
+                    </span>
+                  )}
+                  {activeCompanion.bonus.coin_bonus && (
+                    <span className="text-xs bg-yellow-500/20 text-yellow-400 px-1.5 py-0.5 rounded">
+                      +{activeCompanion.bonus.coin_bonus} coins
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+            <ChevronRight className="w-5 h-5 text-purple-400" />
+          </div>
+        </div>
+      )}
+
       {/* Interaction Buttons - Enhanced grid layout */}
       {!compact && (
         <div className="mt-4 grid grid-cols-5 gap-2">
@@ -501,6 +596,36 @@ const PetDisplay = ({ onSelectPet, compact = false }) => {
           )}
           <ChevronRight className="w-4 h-4" />
         </button>
+      )}
+
+      {/* Codex & Companions Quick Links */}
+      {!compact && (
+        <div className="mt-2 grid grid-cols-3 gap-2">
+          <button
+            onClick={() => navigate('/pet-codex')}
+            className="flex items-center justify-center gap-1.5 bg-zinc-800/50 hover:bg-zinc-700/50 border border-zinc-700 rounded-xl py-2 text-xs text-zinc-300 transition-all"
+            data-testid="pet-codex-btn"
+          >
+            <BookOpen className="w-4 h-4 text-blue-400" />
+            <span>Codex</span>
+          </button>
+          <button
+            onClick={() => navigate('/companions')}
+            className="flex items-center justify-center gap-1.5 bg-zinc-800/50 hover:bg-zinc-700/50 border border-zinc-700 rounded-xl py-2 text-xs text-zinc-300 transition-all"
+            data-testid="pet-companions-btn"
+          >
+            <Users className="w-4 h-4 text-emerald-400" />
+            <span>Companions</span>
+          </button>
+          <button
+            onClick={() => navigate('/souvenirs')}
+            className="flex items-center justify-center gap-1.5 bg-zinc-800/50 hover:bg-zinc-700/50 border border-zinc-700 rounded-xl py-2 text-xs text-zinc-300 transition-all"
+            data-testid="pet-souvenirs-btn"
+          >
+            <Trophy className="w-4 h-4 text-amber-400" />
+            <span>Souvenirs</span>
+          </button>
+        </div>
       )}
 
       {/* Tap hint for compact mode */}

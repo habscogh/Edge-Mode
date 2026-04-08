@@ -1255,6 +1255,388 @@ SEASONAL_ACCESSORIES = {
     },
 }
 
+# ============ PET PERSONALITY TRAITS ============
+# Pets gain traits based on user's activities
+PERSONALITY_TRAITS = {
+    "scholar": {
+        "name": "Scholar",
+        "icon": "📚",
+        "description": "Loves learning and study sessions",
+        "trigger": "study_sessions",
+        "threshold": 20,  # 20 study sessions
+    },
+    "athlete": {
+        "name": "Athlete",
+        "icon": "💪",
+        "description": "Gets pumped from workout sessions",
+        "trigger": "fitness_sessions",
+        "threshold": 20,
+    },
+    "bookworm": {
+        "name": "Bookworm",
+        "icon": "🐛",
+        "description": "Can't stop reading",
+        "trigger": "reading_sessions",
+        "threshold": 15,
+    },
+    "explorer": {
+        "name": "Explorer",
+        "icon": "🧭",
+        "description": "Loves trying new activities",
+        "trigger": "unique_pillars",
+        "threshold": 5,
+    },
+    "consistent": {
+        "name": "Consistent",
+        "icon": "⭐",
+        "description": "Shows up every day",
+        "trigger": "streak_days",
+        "threshold": 30,
+    },
+    "dedicated": {
+        "name": "Dedicated",
+        "icon": "🔥",
+        "description": "Long streaks are their specialty",
+        "trigger": "streak_days",
+        "threshold": 60,
+    },
+    "legend": {
+        "name": "Legend",
+        "icon": "👑",
+        "description": "100+ day streak achieved!",
+        "trigger": "streak_days",
+        "threshold": 100,
+    },
+    "social": {
+        "name": "Social Butterfly",
+        "icon": "🦋",
+        "description": "Loves group activities",
+        "trigger": "group_sessions",
+        "threshold": 10,
+    },
+    "night_owl": {
+        "name": "Night Owl",
+        "icon": "🦉",
+        "description": "Often logs sessions late",
+        "trigger": "night_sessions",
+        "threshold": 10,
+    },
+    "early_bird": {
+        "name": "Early Bird",
+        "icon": "🌅",
+        "description": "Starts the day with a session",
+        "trigger": "morning_sessions",
+        "threshold": 10,
+    },
+}
+
+# ============ PET MOOD SYSTEM & VOICE LINES ============
+# Contextual messages based on pet's mood and user's activity
+PET_MOOD_LEVELS = {
+    "ecstatic": {"min_happiness": 90, "icon": "🤩", "color": "#fbbf24"},
+    "happy": {"min_happiness": 70, "icon": "😊", "color": "#34d399"},
+    "content": {"min_happiness": 50, "icon": "🙂", "color": "#60a5fa"},
+    "bored": {"min_happiness": 30, "icon": "😐", "color": "#9ca3af"},
+    "sad": {"min_happiness": 10, "icon": "😢", "color": "#f87171"},
+    "lonely": {"min_happiness": 0, "icon": "😔", "color": "#94a3b8"},
+}
+
+# Voice lines based on context
+PET_VOICE_LINES = {
+    "greeting_morning": [
+        "Good morning, {user}! Ready to crush it today? ☀️",
+        "Rise and shine! {pet_name} is ready for action!",
+        "Morning! Let's make today count!",
+        "Hey sleepyhead! {pet_name} has been waiting for you!",
+    ],
+    "greeting_afternoon": [
+        "Hey there! How's your day going?",
+        "{pet_name} was just thinking about you!",
+        "Ready for an afternoon power session?",
+        "Let's keep the momentum going!",
+    ],
+    "greeting_evening": [
+        "Evening! One more session before bed?",
+        "{pet_name} loves our evening hangouts!",
+        "Let's end the day strong!",
+        "Wind down with me tonight!",
+    ],
+    "streak_milestone_7": [
+        "ONE WEEK! We're unstoppable! 🔥",
+        "7 days together! {pet_name} is so proud!",
+        "A whole week! You're amazing!",
+    ],
+    "streak_milestone_14": [
+        "TWO WEEKS! We're on fire! 🔥🔥",
+        "14 days! {pet_name} can feel the power!",
+        "Half a month! Legend in the making!",
+    ],
+    "streak_milestone_30": [
+        "ONE MONTH! We're legendary! 👑",
+        "30 days! {pet_name} has never been happier!",
+        "A whole month together! Incredible!",
+    ],
+    "streak_milestone_60": [
+        "60 DAYS! We're unstoppable! 💎",
+        "{pet_name} can't believe how far we've come!",
+        "Two months! This is what champions do!",
+    ],
+    "streak_milestone_100": [
+        "100 DAYS! LEGENDARY STATUS ACHIEVED! 🏆👑🔥",
+        "{pet_name} bows to your greatness!",
+        "We did it! Triple digits! INCREDIBLE!",
+    ],
+    "after_session": [
+        "Great session! {pet_name} felt that energy!",
+        "We crushed it! Keep this up!",
+        "Another one done! You're building something amazing!",
+        "That was awesome! {pet_name} is proud!",
+        "Session logged! We're getting stronger!",
+    ],
+    "after_session_study": [
+        "Big brain energy! {pet_name} learned something too!",
+        "Study session complete! Knowledge gained! 📚",
+        "Your brain is getting so powerful!",
+    ],
+    "after_session_fitness": [
+        "GAINS! {pet_name} can feel the muscles growing! 💪",
+        "What a workout! We're getting stronger!",
+        "Fitness session crushed! Beast mode!",
+    ],
+    "after_session_reading": [
+        "So many pages! {pet_name} loves story time! 📖",
+        "Reading complete! Imagination boosted!",
+        "Another chapter of greatness!",
+    ],
+    "low_happiness": [
+        "{pet_name} misses you... come play?",
+        "It's been a while... {pet_name} is getting lonely 😢",
+        "Remember me? I miss our sessions...",
+    ],
+    "high_happiness": [
+        "{pet_name} is SO happy right now! 🎉",
+        "Best. Day. Ever! Thanks for being awesome!",
+        "Life is good with a friend like you!",
+    ],
+    "random_idle": [
+        "*{pet_name} does a little happy dance*",
+        "*bounces excitedly*",
+        "*wags tail* / *flaps wings* / *wiggles*",
+        "Just chillin'... waiting for adventure!",
+        "*looks at you with sparkly eyes*",
+    ],
+}
+
+# ============ COMPANION PETS (MICROPETS) ============
+# Small pets that orbit the main pet, unlocked via milestones
+COMPANION_PETS = {
+    # Habit-Specific Companions
+    "study_buddy": {
+        "name": "Quill",
+        "icon": "🪶",
+        "description": "A tiny knowledge sprite that loves study sessions",
+        "rarity": "uncommon",
+        "unlock_type": "habit_count",
+        "unlock_habit": "Study/Academics",
+        "unlock_value": 25,  # 25 study sessions
+        "bonus": {"xp_multiplier": 1.05, "for_habit": "Study/Academics"},
+    },
+    "fitness_buddy": {
+        "name": "Spark",
+        "icon": "⚡",
+        "description": "An energetic lightning sprite for workouts",
+        "rarity": "uncommon",
+        "unlock_type": "habit_count",
+        "unlock_habit": "Fitness/Training",
+        "unlock_value": 25,
+        "bonus": {"xp_multiplier": 1.05, "for_habit": "Fitness/Training"},
+    },
+    "reading_buddy": {
+        "name": "Pix",
+        "icon": "✨",
+        "description": "A glowing bookworm who loves reading",
+        "rarity": "uncommon",
+        "unlock_type": "habit_count",
+        "unlock_habit": "Reading/Learning",
+        "unlock_value": 20,
+        "bonus": {"xp_multiplier": 1.05, "for_habit": "Reading/Learning"},
+    },
+    "music_buddy": {
+        "name": "Melody",
+        "icon": "🎵",
+        "description": "A musical note that dances to your practice",
+        "rarity": "uncommon",
+        "unlock_type": "habit_count",
+        "unlock_habit": "Music/Practice",
+        "unlock_value": 20,
+        "bonus": {"xp_multiplier": 1.05, "for_habit": "Music/Practice"},
+    },
+    "creative_buddy": {
+        "name": "Artie",
+        "icon": "🎨",
+        "description": "A colorful paint sprite for creative sessions",
+        "rarity": "uncommon",
+        "unlock_type": "habit_count",
+        "unlock_habit": "Creative/Art",
+        "unlock_value": 20,
+        "bonus": {"xp_multiplier": 1.05, "for_habit": "Creative/Art"},
+    },
+    
+    # Streak Milestone Companions
+    "streak_7_companion": {
+        "name": "Lucky",
+        "icon": "🍀",
+        "description": "A lucky clover sprite for your first week",
+        "rarity": "common",
+        "unlock_type": "streak",
+        "unlock_value": 7,
+        "bonus": {"coin_bonus": 1},
+    },
+    "streak_14_companion": {
+        "name": "Blip",
+        "icon": "💫",
+        "description": "A twinkling star for two weeks of dedication",
+        "rarity": "uncommon",
+        "unlock_type": "streak",
+        "unlock_value": 14,
+        "bonus": {"xp_multiplier": 1.03},
+    },
+    "streak_30_companion": {
+        "name": "Nova",
+        "icon": "🌟",
+        "description": "A radiant star for a full month",
+        "rarity": "rare",
+        "unlock_type": "streak",
+        "unlock_value": 30,
+        "bonus": {"xp_multiplier": 1.05, "coin_bonus": 2},
+    },
+    "streak_60_companion": {
+        "name": "Cosmo",
+        "icon": "🌙",
+        "description": "A mystical moon for 60 days of growth",
+        "rarity": "epic",
+        "unlock_type": "streak",
+        "unlock_value": 60,
+        "bonus": {"xp_multiplier": 1.08, "coin_bonus": 3},
+    },
+    "streak_100_companion": {
+        "name": "Solaris",
+        "icon": "☀️",
+        "description": "A legendary sun sprite for 100+ days!",
+        "rarity": "legendary",
+        "unlock_type": "streak",
+        "unlock_value": 100,
+        "bonus": {"xp_multiplier": 1.12, "coin_bonus": 5},
+    },
+    
+    # Special Unlock Companions
+    "early_adopter": {
+        "name": "Pioneer",
+        "icon": "🚀",
+        "description": "For joining Edge Mode early!",
+        "rarity": "rare",
+        "unlock_type": "special",
+        "unlock_value": "early_adopter",
+        "bonus": {"coin_bonus": 2},
+    },
+    "referral_companion": {
+        "name": "Buddy",
+        "icon": "🤝",
+        "description": "Unlocked by referring 3 friends",
+        "rarity": "rare",
+        "unlock_type": "referrals",
+        "unlock_value": 3,
+        "bonus": {"xp_multiplier": 1.05},
+    },
+    "perfect_week": {
+        "name": "Perfecto",
+        "icon": "💯",
+        "description": "Complete all targets for a week",
+        "rarity": "epic",
+        "unlock_type": "perfect_weeks",
+        "unlock_value": 1,
+        "bonus": {"xp_multiplier": 1.1},
+    },
+}
+
+# ============ EXPEDITION REWARDS ============
+# Rewards from pet expeditions after sessions
+EXPEDITION_REWARDS = {
+    "common": {
+        "coins": (5, 15),  # Min, max range
+        "xp": (10, 25),
+        "items": [
+            {"type": "souvenir", "name": "Pebble", "icon": "🪨", "description": "A smooth pebble from the journey"},
+            {"type": "souvenir", "name": "Feather", "icon": "🪶", "description": "A colorful feather found along the way"},
+            {"type": "souvenir", "name": "Shell", "icon": "🐚", "description": "A pretty seashell"},
+            {"type": "souvenir", "name": "Leaf", "icon": "🍃", "description": "A special leaf from the forest"},
+        ]
+    },
+    "uncommon": {
+        "coins": (15, 30),
+        "xp": (25, 50),
+        "items": [
+            {"type": "souvenir", "name": "Crystal", "icon": "💎", "description": "A sparkling crystal found in a cave"},
+            {"type": "souvenir", "name": "Lucky Coin", "icon": "🪙", "description": "An ancient lucky coin"},
+            {"type": "souvenir", "name": "Star Fragment", "icon": "⭐", "description": "A piece of a fallen star"},
+        ]
+    },
+    "rare": {
+        "coins": (30, 60),
+        "xp": (50, 100),
+        "items": [
+            {"type": "souvenir", "name": "Ancient Relic", "icon": "🏺", "description": "A mysterious ancient artifact"},
+            {"type": "souvenir", "name": "Magic Orb", "icon": "🔮", "description": "A glowing magical orb"},
+            {"type": "souvenir", "name": "Dragon Scale", "icon": "🐉", "description": "A shimmering dragon scale"},
+        ]
+    },
+    "legendary": {
+        "coins": (75, 150),
+        "xp": (100, 200),
+        "items": [
+            {"type": "souvenir", "name": "Phoenix Feather", "icon": "🔥", "description": "A legendary phoenix feather"},
+            {"type": "souvenir", "name": "Cosmic Gem", "icon": "🌌", "description": "A gem containing stardust"},
+            {"type": "accessory", "name": "Adventure Trophy", "icon": "🏆", "description": "Proof of legendary adventures"},
+        ]
+    },
+}
+
+# Expedition themes based on session type
+EXPEDITION_THEMES = {
+    "Study/Academics": {
+        "name": "Library Quest",
+        "stories": [
+            "{pet_name} explored the Ancient Library and found hidden knowledge!",
+            "{pet_name} helped solve a puzzle in the Scholar's Tower!",
+            "{pet_name} discovered a secret book in the Wisdom Archives!",
+        ],
+    },
+    "Fitness/Training": {
+        "name": "Mountain Trail",
+        "stories": [
+            "{pet_name} climbed the Summit of Strength and feels powerful!",
+            "{pet_name} raced through the Athletic Arena!",
+            "{pet_name} conquered the Warrior's Path!",
+        ],
+    },
+    "Reading/Learning": {
+        "name": "Story Forest",
+        "stories": [
+            "{pet_name} wandered through the Enchanted Library!",
+            "{pet_name} met wise owls in the Book Grove!",
+            "{pet_name} found a cozy reading spot by the Story Stream!",
+        ],
+    },
+    "default": {
+        "name": "Adventure Trail",
+        "stories": [
+            "{pet_name} explored the Mysterious Meadow!",
+            "{pet_name} discovered a hidden waterfall!",
+            "{pet_name} made friends along the journey!",
+        ],
+    },
+}
+
 # ============ Pydantic Models ============
 
 class SelectPetRequest(BaseModel):
@@ -2537,4 +2919,564 @@ async def get_all_seasons_info(current_user: dict = Depends(get_current_user)):
         'seasons': seasons_list,
         'active_seasons': [s for s in seasons_list if s['is_active']],
         'total_seasonal_items': len(SEASONAL_ACCESSORIES)
+    }
+
+
+
+# ============ PET PERSONALITY, MOOD & VOICE LINES ============
+
+@router.get("/mood")
+async def get_pet_mood(current_user: dict = Depends(get_current_user)):
+    """Get the pet's current mood and a contextual voice line"""
+    # Get active pet
+    pet = await db.user_pets.find_one({
+        'user_id': current_user['id'],
+        'is_active': True
+    }, {'_id': 0})
+    
+    if not pet:
+        return {'has_pet': False}
+    
+    pet_name = pet.get('custom_name') or PET_TYPES.get(pet['pet_type'], {}).get('name', 'Pet')
+    happiness = pet.get('happiness', 50)
+    
+    # Determine mood level
+    mood = None
+    for mood_name, mood_data in PET_MOOD_LEVELS.items():
+        if happiness >= mood_data['min_happiness']:
+            mood = {
+                'level': mood_name,
+                'icon': mood_data['icon'],
+                'color': mood_data['color'],
+                'happiness': happiness
+            }
+            break
+    
+    if not mood:
+        mood = {'level': 'lonely', 'icon': '😔', 'color': '#94a3b8', 'happiness': happiness}
+    
+    # Get user data for context
+    user = await db.users.find_one({'id': current_user['id']}, {'_id': 0, 'current_streak': 1, 'username': 1})
+    streak = user.get('current_streak', 0)
+    username = user.get('username', 'Champion')
+    
+    # Determine which voice line category to use
+    from datetime import datetime
+    hour = datetime.now().hour
+    
+    if hour < 12:
+        voice_category = 'greeting_morning'
+    elif hour < 17:
+        voice_category = 'greeting_afternoon'
+    else:
+        voice_category = 'greeting_evening'
+    
+    # Check for streak milestones
+    if streak == 7:
+        voice_category = 'streak_milestone_7'
+    elif streak == 14:
+        voice_category = 'streak_milestone_14'
+    elif streak == 30:
+        voice_category = 'streak_milestone_30'
+    elif streak == 60:
+        voice_category = 'streak_milestone_60'
+    elif streak == 100:
+        voice_category = 'streak_milestone_100'
+    elif happiness < 30:
+        voice_category = 'low_happiness'
+    elif happiness > 85:
+        voice_category = 'high_happiness'
+    
+    # Get random voice line
+    lines = PET_VOICE_LINES.get(voice_category, PET_VOICE_LINES['random_idle'])
+    voice_line = random.choice(lines).format(pet_name=pet_name, user=username)
+    
+    return {
+        'has_pet': True,
+        'pet_name': pet_name,
+        'mood': mood,
+        'voice_line': voice_line,
+        'streak': streak
+    }
+
+
+@router.get("/voice-line/{context}")
+async def get_voice_line(context: str, current_user: dict = Depends(get_current_user)):
+    """Get a specific contextual voice line for the pet"""
+    pet = await db.user_pets.find_one({
+        'user_id': current_user['id'],
+        'is_active': True
+    }, {'_id': 0})
+    
+    if not pet:
+        return {'voice_line': None}
+    
+    pet_name = pet.get('custom_name') or PET_TYPES.get(pet['pet_type'], {}).get('name', 'Pet')
+    user = await db.users.find_one({'id': current_user['id']}, {'_id': 0, 'username': 1})
+    username = user.get('username', 'Champion')
+    
+    # Map context to voice line category
+    context_map = {
+        'after_session': 'after_session',
+        'after_study': 'after_session_study',
+        'after_fitness': 'after_session_fitness',
+        'after_reading': 'after_session_reading',
+        'idle': 'random_idle',
+        'low_mood': 'low_happiness',
+        'high_mood': 'high_happiness',
+    }
+    
+    category = context_map.get(context, 'random_idle')
+    lines = PET_VOICE_LINES.get(category, PET_VOICE_LINES['random_idle'])
+    voice_line = random.choice(lines).format(pet_name=pet_name, user=username)
+    
+    return {'voice_line': voice_line, 'pet_name': pet_name}
+
+
+# ============ PET PERSONALITY TRAITS ============
+
+@router.get("/traits")
+async def get_pet_traits(current_user: dict = Depends(get_current_user)):
+    """Get the pet's earned personality traits"""
+    pet = await db.user_pets.find_one({
+        'user_id': current_user['id'],
+        'is_active': True
+    }, {'_id': 0})
+    
+    if not pet:
+        return {'has_pet': False, 'traits': []}
+    
+    # Get stored traits or calculate them
+    stored_traits = pet.get('personality_traits', [])
+    
+    # Get user stats to check for new traits
+    user = await db.users.find_one({'id': current_user['id']}, {'_id': 0})
+    streak = user.get('current_streak', 0)
+    
+    # Count sessions by pillar type
+    sessions = await db.daily_sessions.find({'user_id': current_user['id']}, {'_id': 0, 'pillar': 1, 'logged_at': 1}).to_list(10000)
+    
+    pillar_counts = {}
+    morning_count = 0
+    night_count = 0
+    
+    for session in sessions:
+        pillar = session.get('pillar', 'general')
+        pillar_counts[pillar] = pillar_counts.get(pillar, 0) + 1
+        
+        # Check time of day
+        logged_at = session.get('logged_at', '')
+        if logged_at:
+            try:
+                dt = datetime.fromisoformat(logged_at.replace('Z', '+00:00'))
+                if dt.hour < 9:
+                    morning_count += 1
+                elif dt.hour >= 21:
+                    night_count += 1
+            except:
+                pass
+    
+    # Calculate earned traits
+    earned_traits = []
+    for trait_id, trait_info in PERSONALITY_TRAITS.items():
+        trigger = trait_info['trigger']
+        threshold = trait_info['threshold']
+        earned = False
+        progress = 0
+        
+        if trigger == 'streak_days':
+            progress = streak
+            earned = streak >= threshold
+        elif trigger == 'study_sessions':
+            count = pillar_counts.get('Study/Academics', 0)
+            progress = count
+            earned = count >= threshold
+        elif trigger == 'fitness_sessions':
+            count = pillar_counts.get('Fitness/Training', 0)
+            progress = count
+            earned = count >= threshold
+        elif trigger == 'reading_sessions':
+            count = pillar_counts.get('Reading/Learning', 0)
+            progress = count
+            earned = count >= threshold
+        elif trigger == 'unique_pillars':
+            progress = len(pillar_counts)
+            earned = len(pillar_counts) >= threshold
+        elif trigger == 'morning_sessions':
+            progress = morning_count
+            earned = morning_count >= threshold
+        elif trigger == 'night_sessions':
+            progress = night_count
+            earned = night_count >= threshold
+        
+        trait_data = {
+            'id': trait_id,
+            'name': trait_info['name'],
+            'icon': trait_info['icon'],
+            'description': trait_info['description'],
+            'earned': earned,
+            'progress': progress,
+            'threshold': threshold,
+            'progress_percent': min(100, int((progress / threshold) * 100))
+        }
+        
+        if earned:
+            earned_traits.append(trait_data)
+    
+    # Update pet with current traits
+    trait_ids = [t['id'] for t in earned_traits]
+    await db.user_pets.update_one(
+        {'user_id': current_user['id'], 'is_active': True},
+        {'$set': {'personality_traits': trait_ids}}
+    )
+    
+    pet_name = pet.get('custom_name') or PET_TYPES.get(pet['pet_type'], {}).get('name', 'Pet')
+    
+    return {
+        'has_pet': True,
+        'pet_name': pet_name,
+        'traits': earned_traits,
+        'total_traits': len(PERSONALITY_TRAITS),
+        'earned_count': len(earned_traits)
+    }
+
+
+# ============ COMPANION PETS (MICROPETS) ============
+
+@router.get("/companions")
+async def get_companions(current_user: dict = Depends(get_current_user)):
+    """Get all companions (micropets) - earned and available"""
+    user = await db.users.find_one({'id': current_user['id']}, {'_id': 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    streak = user.get('current_streak', 0)
+    referral_count = user.get('referral_count', 0)
+    
+    # Get session counts by pillar
+    sessions = await db.daily_sessions.find({'user_id': current_user['id']}, {'_id': 0, 'pillar': 1}).to_list(10000)
+    pillar_counts = {}
+    for session in sessions:
+        pillar = session.get('pillar', 'general')
+        pillar_counts[pillar] = pillar_counts.get(pillar, 0) + 1
+    
+    # Get perfect weeks count
+    perfect_weeks = user.get('perfect_weeks', 0)
+    
+    # Get user's unlocked companions
+    user_companions = await db.user_companions.find({'user_id': current_user['id']}, {'_id': 0}).to_list(100)
+    unlocked_ids = {c['companion_id'] for c in user_companions}
+    active_id = next((c['companion_id'] for c in user_companions if c.get('is_active')), None)
+    
+    companions = []
+    newly_unlocked = []
+    
+    for comp_id, comp_info in COMPANION_PETS.items():
+        unlock_type = comp_info['unlock_type']
+        unlock_value = comp_info.get('unlock_value', 0)
+        unlock_habit = comp_info.get('unlock_habit', '')
+        
+        # Check if unlocked
+        is_unlocked = comp_id in unlocked_ids
+        can_unlock = False
+        progress = 0
+        threshold = unlock_value if isinstance(unlock_value, int) else 0
+        
+        if unlock_type == 'streak':
+            progress = streak
+            can_unlock = streak >= unlock_value
+        elif unlock_type == 'habit_count':
+            progress = pillar_counts.get(unlock_habit, 0)
+            threshold = unlock_value
+            can_unlock = progress >= unlock_value
+        elif unlock_type == 'referrals':
+            progress = referral_count
+            can_unlock = referral_count >= unlock_value
+        elif unlock_type == 'perfect_weeks':
+            progress = perfect_weeks
+            can_unlock = perfect_weeks >= unlock_value
+        elif unlock_type == 'special':
+            # Special companions have specific unlock conditions
+            can_unlock = False  # Handle separately
+        
+        # Auto-unlock if conditions met
+        if can_unlock and not is_unlocked:
+            # Create unlock record
+            companion_record = {
+                'id': str(uuid.uuid4()),
+                'user_id': current_user['id'],
+                'companion_id': comp_id,
+                'unlocked_at': datetime.now(timezone.utc).isoformat(),
+                'is_active': False
+            }
+            await db.user_companions.insert_one(companion_record)
+            is_unlocked = True
+            newly_unlocked.append(comp_info['name'])
+        
+        companions.append({
+            'id': comp_id,
+            'name': comp_info['name'],
+            'icon': comp_info['icon'],
+            'description': comp_info['description'],
+            'rarity': comp_info['rarity'],
+            'unlock_type': unlock_type,
+            'unlock_habit': unlock_habit,
+            'is_unlocked': is_unlocked,
+            'is_active': comp_id == active_id,
+            'progress': progress,
+            'threshold': threshold,
+            'progress_percent': min(100, int((progress / threshold) * 100)) if threshold > 0 else 0,
+            'bonus': comp_info.get('bonus', {})
+        })
+    
+    # Sort: unlocked first, then by rarity
+    rarity_order = {'legendary': 0, 'epic': 1, 'rare': 2, 'uncommon': 3, 'common': 4}
+    companions.sort(key=lambda x: (not x['is_unlocked'], rarity_order.get(x['rarity'], 5)))
+    
+    return {
+        'companions': companions,
+        'unlocked_count': len([c for c in companions if c['is_unlocked']]),
+        'total_count': len(companions),
+        'active_companion': active_id,
+        'newly_unlocked': newly_unlocked
+    }
+
+
+@router.post("/companions/{companion_id}/activate")
+async def activate_companion(companion_id: str, current_user: dict = Depends(get_current_user)):
+    """Activate a companion to appear with your pet"""
+    # Check if user has unlocked this companion
+    companion_record = await db.user_companions.find_one({
+        'user_id': current_user['id'],
+        'companion_id': companion_id
+    })
+    
+    if not companion_record:
+        raise HTTPException(status_code=400, detail="You haven't unlocked this companion")
+    
+    # Deactivate all companions
+    await db.user_companions.update_many(
+        {'user_id': current_user['id']},
+        {'$set': {'is_active': False}}
+    )
+    
+    # Activate this one
+    await db.user_companions.update_one(
+        {'user_id': current_user['id'], 'companion_id': companion_id},
+        {'$set': {'is_active': True}}
+    )
+    
+    comp_info = COMPANION_PETS.get(companion_id, {})
+    
+    return {
+        'message': f"{comp_info.get('name', 'Companion')} is now following your pet!",
+        'companion': {
+            'id': companion_id,
+            'name': comp_info.get('name'),
+            'icon': comp_info.get('icon'),
+            'bonus': comp_info.get('bonus', {})
+        }
+    }
+
+
+@router.post("/companions/deactivate")
+async def deactivate_companion(current_user: dict = Depends(get_current_user)):
+    """Deactivate all companions"""
+    await db.user_companions.update_many(
+        {'user_id': current_user['id']},
+        {'$set': {'is_active': False}}
+    )
+    
+    return {'message': 'Companion deactivated'}
+
+
+# ============ PET CODEX (COLLECTION) ============
+
+@router.get("/codex")
+async def get_pet_codex(current_user: dict = Depends(get_current_user)):
+    """Get the complete collection codex - all pets, companions, and accessories"""
+    # Get user's owned items
+    owned_pets = await db.user_pets.find({'user_id': current_user['id']}, {'_id': 0, 'pet_type': 1}).to_list(100)
+    owned_pet_types = {p['pet_type'] for p in owned_pets}
+    
+    owned_companions = await db.user_companions.find({'user_id': current_user['id']}, {'_id': 0, 'companion_id': 1}).to_list(100)
+    owned_companion_ids = {c['companion_id'] for c in owned_companions}
+    
+    owned_accessories = await db.user_accessories.find({'user_id': current_user['id']}, {'_id': 0, 'accessory_id': 1}).to_list(500)
+    owned_accessory_ids = {a['accessory_id'] for a in owned_accessories}
+    
+    # Build codex
+    codex = {
+        'pets': {
+            'items': [],
+            'owned': len(owned_pet_types),
+            'total': len(PET_TYPES)
+        },
+        'companions': {
+            'items': [],
+            'owned': len(owned_companion_ids),
+            'total': len(COMPANION_PETS)
+        },
+        'accessories': {
+            'items': [],
+            'owned': len(owned_accessory_ids),
+            'total': len(PET_ACCESSORIES) + len(SEASONAL_ACCESSORIES)
+        }
+    }
+    
+    # Add pets to codex
+    for pet_id, pet_info in PET_TYPES.items():
+        codex['pets']['items'].append({
+            'id': pet_id,
+            'name': pet_info['name'],
+            'icon': pet_info['stages'][1]['icon'],
+            'max_icon': pet_info['stages'][6]['icon'],
+            'rarity': pet_info['rarity'],
+            'category': pet_info['category'],
+            'owned': pet_id in owned_pet_types,
+            'description': pet_info['description']
+        })
+    
+    # Add companions to codex
+    for comp_id, comp_info in COMPANION_PETS.items():
+        codex['companions']['items'].append({
+            'id': comp_id,
+            'name': comp_info['name'],
+            'icon': comp_info['icon'],
+            'rarity': comp_info['rarity'],
+            'owned': comp_id in owned_companion_ids,
+            'description': comp_info['description'],
+            'unlock_type': comp_info['unlock_type']
+        })
+    
+    # Calculate completion percentages
+    total_items = codex['pets']['total'] + codex['companions']['total'] + codex['accessories']['total']
+    owned_items = codex['pets']['owned'] + codex['companions']['owned'] + codex['accessories']['owned']
+    
+    codex['completion'] = {
+        'owned': owned_items,
+        'total': total_items,
+        'percent': int((owned_items / total_items) * 100) if total_items > 0 else 0
+    }
+    
+    return codex
+
+
+# ============ EXPEDITION REWARDS ============
+
+@router.post("/expedition-reward")
+async def claim_expedition_reward(current_user: dict = Depends(get_current_user)):
+    """Claim expedition rewards after completing a session (called automatically after session)"""
+    # Check if user has an active pet
+    pet = await db.user_pets.find_one({
+        'user_id': current_user['id'],
+        'is_active': True
+    }, {'_id': 0})
+    
+    if not pet:
+        return {'has_reward': False, 'reason': 'No active pet'}
+    
+    pet_name = pet.get('custom_name') or PET_TYPES.get(pet['pet_type'], {}).get('name', 'Pet')
+    
+    # Check for recent session (within last 5 minutes)
+    five_mins_ago = (datetime.now(timezone.utc) - timedelta(minutes=5)).isoformat()
+    recent_session = await db.daily_sessions.find_one({
+        'user_id': current_user['id'],
+        'timestamp': {'$gte': five_mins_ago}
+    }, {'_id': 0, 'pillar': 1, 'minutes_spent': 1})
+    
+    if not recent_session:
+        return {'has_reward': False, 'reason': 'No recent session'}
+    
+    pillar = recent_session.get('pillar', 'default')
+    duration = recent_session.get('minutes_spent', 15)
+    
+    # Determine reward rarity based on session duration
+    if duration >= 60:
+        rarity = 'legendary'
+    elif duration >= 40:
+        rarity = 'rare'
+    elif duration >= 25:
+        rarity = 'uncommon'
+    else:
+        rarity = 'common'
+    
+    # Get reward data
+    reward_data = EXPEDITION_REWARDS.get(rarity, EXPEDITION_REWARDS['common'])
+    
+    # Calculate rewards
+    coins = random.randint(*reward_data['coins'])
+    xp = random.randint(*reward_data['xp'])
+    
+    # Maybe get an item (30% chance for common, higher for better rarities)
+    item_chance = {'common': 0.3, 'uncommon': 0.45, 'rare': 0.6, 'legendary': 0.8}
+    got_item = random.random() < item_chance.get(rarity, 0.3)
+    found_item = None
+    
+    if got_item and reward_data['items']:
+        found_item = random.choice(reward_data['items'])
+        
+        # Save souvenir to user's collection
+        souvenir_record = {
+            'id': str(uuid.uuid4()),
+            'user_id': current_user['id'],
+            'name': found_item['name'],
+            'icon': found_item['icon'],
+            'description': found_item['description'],
+            'type': found_item['type'],
+            'rarity': rarity,
+            'found_at': datetime.now(timezone.utc).isoformat(),
+            'from_pillar': pillar
+        }
+        await db.user_souvenirs.insert_one(souvenir_record)
+    
+    # Award coins and XP
+    await db.users.update_one(
+        {'id': current_user['id']},
+        {'$inc': {'coins': coins}}
+    )
+    
+    await db.user_engagement.update_one(
+        {'user_id': current_user['id']},
+        {'$inc': {'xp': xp}},
+        upsert=True
+    )
+    
+    # Get expedition story
+    theme = EXPEDITION_THEMES.get(pillar, EXPEDITION_THEMES['default'])
+    story = random.choice(theme['stories']).format(pet_name=pet_name)
+    
+    return {
+        'has_reward': True,
+        'expedition_name': theme['name'],
+        'story': story,
+        'rewards': {
+            'coins': coins,
+            'xp': xp,
+            'item': found_item
+        },
+        'rarity': rarity,
+        'pet_name': pet_name
+    }
+
+
+@router.get("/souvenirs")
+async def get_souvenirs(current_user: dict = Depends(get_current_user)):
+    """Get all souvenirs collected from expeditions"""
+    souvenirs = await db.user_souvenirs.find(
+        {'user_id': current_user['id']},
+        {'_id': 0}
+    ).sort('found_at', -1).to_list(500)
+    
+    # Group by rarity
+    by_rarity = {'legendary': [], 'rare': [], 'uncommon': [], 'common': []}
+    for s in souvenirs:
+        rarity = s.get('rarity', 'common')
+        if rarity in by_rarity:
+            by_rarity[rarity].append(s)
+    
+    return {
+        'souvenirs': souvenirs,
+        'by_rarity': by_rarity,
+        'total_count': len(souvenirs)
     }
