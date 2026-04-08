@@ -43,6 +43,67 @@ def get_streak_reminder_html(username: str, streak: int) -> str:
     """
 
 
+def get_pet_streak_reminder_html(username: str, streak: int, pet_name: str, pet_icon: str, evolution_stage: int = 1) -> str:
+    """Email template for streak reminder with virtual pet - pet encourages user to keep the streak"""
+    
+    # Different messages based on streak length
+    if streak >= 30:
+        pet_message = f"We've come so far together - {streak} days! Don't let our progress slip away!"
+        encouragement = "You're my hero! Let's keep this legendary streak going!"
+        streak_color = "#fbbf24"  # Gold for long streaks
+    elif streak >= 14:
+        pet_message = f"Wow, {streak} days of training together! I can feel myself getting stronger!"
+        encouragement = "We make an amazing team! One more session today?"
+        streak_color = "#a78bfa"  # Purple
+    elif streak >= 7:
+        pet_message = f"A whole week together! Our {streak}-day streak is something special!"
+        encouragement = "I'm so proud of us! Let's not stop now!"
+        streak_color = "#10b981"  # Green
+    else:
+        pet_message = f"We're building something great - {streak} days and counting!"
+        encouragement = "I believe in you! Let's train together today!"
+        streak_color = "#f97316"  # Orange
+    
+    return f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #09090b 0%, #1a0a0a 100%); color: white;">
+        <div style="text-align: center; padding: 20px 0;">
+            <h1 style="color: #f97316; margin: 0; font-size: 26px;">🔥 Don't Break Our Streak!</h1>
+        </div>
+        
+        <div style="text-align: center; padding: 20px 0;">
+            <div style="font-size: 70px; margin-bottom: 5px; filter: drop-shadow(0 0 15px rgba(249, 115, 22, 0.5));">{pet_icon}</div>
+            <p style="color: #fbbf24; font-size: 18px; margin: 5px 0; font-weight: bold;">{pet_name}</p>
+        </div>
+        
+        <div style="padding: 25px; background: linear-gradient(135deg, #18181b 0%, #1f1410 100%); border-radius: 16px; margin: 20px 0; border: 1px solid #f9731640;">
+            <p style="margin: 0; font-size: 18px; color: #e5e5e5;">Hey <strong style="color: #fbbf24;">{username}</strong>,</p>
+            
+            <div style="text-align: center; margin: 20px 0;">
+                <div style="display: inline-block; background: linear-gradient(135deg, #f9731620 0%, #fbbf2420 100%); border: 2px solid {streak_color}; border-radius: 16px; padding: 15px 30px;">
+                    <div style="font-size: 42px; font-weight: bold; color: {streak_color};">{streak}</div>
+                    <div style="color: #a1a1aa; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Day Streak</div>
+                </div>
+            </div>
+            
+            <div style="margin: 20px 0; padding: 20px; background: #27272a; border-radius: 12px; border-left: 4px solid #f97316;">
+                <p style="margin: 0; font-size: 16px; font-style: italic; color: #d4d4d4;">"{pet_message}</p>
+                <p style="margin: 10px 0 0 0; font-size: 16px; font-style: italic; color: #fbbf24;">{encouragement}"</p>
+                <p style="margin: 15px 0 0 0; font-size: 14px; color: #a1a1aa; text-align: right;">— {pet_name} {pet_icon}</p>
+            </div>
+        </div>
+        
+        <div style="text-align: center; padding: 20px;">
+            <a href="https://edgemodeapp.com/dashboard" style="display: inline-block; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 12px; font-weight: bold; font-size: 18px; box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);">Keep Our Streak Alive! 🔥</a>
+        </div>
+        
+        <div style="text-align: center; padding: 15px;">
+            <p style="color: #71717a; font-size: 12px; margin: 0;">Edge Mode - 1% Better Every Day</p>
+            <p style="color: #525252; font-size: 11px; margin: 5px 0 0 0;">{pet_name} is counting on you!</p>
+        </div>
+    </div>
+    """
+
+
 def get_weekly_summary_html(username: str, stats: dict) -> str:
     consistency_pct = stats.get('consistency_pct', 0)
     
@@ -276,7 +337,9 @@ def get_trial_ending_html(username: str, days_left: int, streak: int, consistenc
 # ============ Scheduled Job Functions ============
 
 async def send_streak_reminders_job():
-    """Send streak reminder emails to users who haven't logged today"""
+    """Send streak reminder emails to users who haven't logged today
+    If user has a pet, send personalized pet message instead
+    """
     if not RESEND_API_KEY:
         logger.warning("RESEND_API_KEY not set, skipping streak reminders")
         return
@@ -289,6 +352,9 @@ async def send_streak_reminders_job():
     
     # Create a unique key for today to prevent duplicate emails
     reminder_key = f"streak_{today}"
+    
+    # Import pet types for icons
+    from routes.pets import PET_TYPES
     
     try:
         users = await db.users.find({
@@ -323,32 +389,71 @@ async def send_streak_reminders_job():
                     logger.debug(f"Skipping {user['email']} - already claimed by another instance")
                     continue
                 
-                html = get_streak_reminder_html(
-                    user.get('username', 'User'),
-                    user.get('current_streak', 0)
-                )
+                streak = user.get('current_streak', 0)
+                
+                # Check if user has a pet
+                user_pet = await db.user_pets.find_one({
+                    'user_id': user['id'],
+                    'is_active': True
+                }, {'_id': 0})
+                
+                if user_pet and user_pet.get('pet_type') in PET_TYPES:
+                    # User has a pet - send personalized pet streak reminder!
+                    pet_type = user_pet['pet_type']
+                    pet_info = PET_TYPES[pet_type]
+                    pet_name = user_pet.get('custom_name') or pet_info['name']
+                    evolution_stage = user_pet.get('evolution_stage', 1)
+                    
+                    # Get pet icon based on evolution stage
+                    pet_icon = pet_info['stages'].get(evolution_stage, pet_info['stages'][1])['icon']
+                    
+                    html = get_pet_streak_reminder_html(
+                        user.get('username', 'User'),
+                        streak,
+                        pet_name,
+                        pet_icon,
+                        evolution_stage
+                    )
+                    subject = f"🔥 {pet_name} Says: Don't Break Our Streak! - Edge Mode"
+                else:
+                    # No pet - send regular streak reminder
+                    html = get_streak_reminder_html(
+                        user.get('username', 'User'),
+                        streak
+                    )
+                    subject = "🔥 Don't Break Your Streak! - Edge Mode"
                 
                 # Send email
                 try:
                     await asyncio.to_thread(resend.Emails.send, {
                         "from": SENDER_EMAIL,
                         "to": [user['email']],
-                        "subject": "🔥 Don't Break Your Streak! - Edge Mode",
+                        "subject": subject,
                         "html": html
                     })
                     sent_count += 1
                 except Exception as e:
                     logger.error(f"Failed to send streak reminder to {user['email']}: {e}")
                 
-                # Send push notification
+                # Send push notification (personalized if user has pet)
                 if user.get('push_enabled'):
-                    await send_push(
-                        user['id'],
-                        "🔥 Don't Break Your Streak!",
-                        f"You're on a {user.get('current_streak', 0)}-day streak! Log a session today.",
-                        "/dashboard",
-                        "streak-reminder"
-                    )
+                    if user_pet and user_pet.get('pet_type') in PET_TYPES:
+                        pet_name = user_pet.get('custom_name') or PET_TYPES[user_pet['pet_type']]['name']
+                        await send_push(
+                            user['id'],
+                            f"🔥 {pet_name}: Don't Break Our Streak!",
+                            f"We're on a {streak}-day streak together! Let's keep it going!",
+                            "/dashboard",
+                            "pet-streak-reminder"
+                        )
+                    else:
+                        await send_push(
+                            user['id'],
+                            "🔥 Don't Break Your Streak!",
+                            f"You're on a {streak}-day streak! Log a session today.",
+                            "/dashboard",
+                            "streak-reminder"
+                        )
         
         logger.info(f"Streak reminder job complete. Sent {sent_count} emails.")
     except Exception as e:
