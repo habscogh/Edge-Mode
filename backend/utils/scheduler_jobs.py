@@ -169,6 +169,65 @@ def get_inactive_reminder_html(username: str, days_inactive: int, total_platform
     """
 
 
+def get_pet_missing_you_html(username: str, pet_name: str, pet_icon: str, days_inactive: int, happiness: int = 50) -> str:
+    """Email template for inactive users with a pet - message comes FROM the pet"""
+    
+    # Pet's mood based on happiness level
+    if happiness >= 70:
+        mood_text = "I'm starting to miss our adventures together!"
+        mood_color = "#f59e0b"  # Amber
+    elif happiness >= 40:
+        mood_text = "I've been waiting for you... I'm getting lonely."
+        mood_color = "#f97316"  # Orange
+    else:
+        mood_text = "I really need you! My energy is fading..."
+        mood_color = "#ef4444"  # Red
+    
+    # Different messages based on days inactive
+    if days_inactive <= 3:
+        urgency = "I haven't seen you in a while!"
+        cta_text = "Come Play With Me!"
+    elif days_inactive <= 7:
+        urgency = f"It's been {days_inactive} days since we trained together..."
+        cta_text = "Help Me Grow!"
+    else:
+        urgency = f"It's been {days_inactive} whole days! I miss you so much!"
+        cta_text = "Come Back to Me!"
+    
+    return f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #09090b 0%, #1a1a2e 100%); color: white;">
+        <div style="text-align: center; padding: 30px 0;">
+            <div style="font-size: 80px; margin-bottom: 10px; filter: drop-shadow(0 0 20px rgba(251, 191, 36, 0.5));">{pet_icon}</div>
+            <h1 style="color: #fbbf24; margin: 0; font-size: 28px; text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);">A Message from {pet_name}</h1>
+        </div>
+        
+        <div style="padding: 25px; background: linear-gradient(135deg, #18181b 0%, #1f1f2e 100%); border-radius: 16px; margin: 20px 0; border: 1px solid #fbbf2440;">
+            <p style="margin: 0; font-size: 18px; color: #e5e5e5;">Hey <strong style="color: #fbbf24;">{username}</strong>,</p>
+            
+            <div style="margin: 20px 0; padding: 20px; background: #27272a; border-radius: 12px; border-left: 4px solid {mood_color};">
+                <p style="margin: 0; font-size: 16px; font-style: italic; color: #d4d4d4;">"{urgency}</p>
+                <p style="margin: 10px 0 0 0; font-size: 16px; font-style: italic; color: {mood_color};">{mood_text}"</p>
+                <p style="margin: 15px 0 0 0; font-size: 14px; color: #a1a1aa; text-align: right;">— {pet_name} {pet_icon}</p>
+            </div>
+            
+            <div style="text-align: center; margin: 25px 0 15px 0;">
+                <p style="color: #fbbf24; font-size: 20px; font-weight: bold; margin: 0;">I need your help to continue my growth!</p>
+                <p style="color: #a1a1aa; font-size: 14px; margin: 10px 0 0 0;">Log a session and watch me evolve 🌟</p>
+            </div>
+        </div>
+        
+        <div style="text-align: center; padding: 20px;">
+            <a href="https://edgemodeapp.com/dashboard" style="display: inline-block; background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #000; padding: 16px 32px; text-decoration: none; border-radius: 12px; font-weight: bold; font-size: 18px; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);">{cta_text}</a>
+        </div>
+        
+        <div style="text-align: center; padding: 15px;">
+            <p style="color: #71717a; font-size: 12px; margin: 0;">Edge Mode - 1% Better Every Day</p>
+            <p style="color: #525252; font-size: 11px; margin: 5px 0 0 0;">{pet_name} is waiting for you...</p>
+        </div>
+    </div>
+    """
+
+
 def get_trial_ending_html(username: str, days_left: int, streak: int, consistency_pct: float) -> str:
     days_text = "tomorrow" if days_left == 1 else f"in {days_left} days"
     
@@ -382,6 +441,7 @@ async def send_inactive_reminders_job():
     """Send reminder emails to inactive users:
     - Days 2, 4, 6: Every other day reminders
     - Days 7, 10, 14, 21, 30: Extended reminders with community stats
+    - If user has a pet, send personalized pet message instead
     """
     if not RESEND_API_KEY:
         logger.warning("RESEND_API_KEY not set, skipping inactive reminders")
@@ -397,6 +457,9 @@ async def send_inactive_reminders_job():
     
     # Define which days to send reminders
     REMINDER_DAYS = [2, 4, 6, 7, 10, 14, 21, 30]
+    
+    # Import pet types for icons
+    from routes.pets import PET_TYPES
     
     try:
         # Get total platform sessions for community stats (used for 7+ day reminders)
@@ -427,9 +490,6 @@ async def send_inactive_reminders_job():
             if days_inactive not in REMINDER_DAYS:
                 continue
             
-            # Include community stats for 7+ days inactive
-            include_stats = days_inactive >= 7
-            
             # Use atomic findOneAndUpdate to prevent duplicates across multiple instances
             result = await db.users.find_one_and_update(
                 {
@@ -445,33 +505,72 @@ async def send_inactive_reminders_job():
                 logger.debug(f"Skipping inactive reminder for {user['email']} - already claimed")
                 continue
             
-            html = get_inactive_reminder_html(
-                user.get('username', 'User'),
-                days_inactive,
-                total_platform_sessions if include_stats else None
-            )
+            # Check if user has a pet
+            user_pet = await db.user_pets.find_one({
+                'user_id': user['id'],
+                'is_active': True
+            }, {'_id': 0})
+            
+            if user_pet and user_pet.get('pet_type') in PET_TYPES:
+                # User has a pet - send personalized pet message!
+                pet_type = user_pet['pet_type']
+                pet_info = PET_TYPES[pet_type]
+                pet_name = user_pet.get('custom_name') or pet_info['name']
+                evolution_stage = user_pet.get('evolution_stage', 1)
+                happiness = user_pet.get('happiness', 50)
+                
+                # Get pet icon based on evolution stage
+                pet_icon = pet_info['stages'].get(evolution_stage, pet_info['stages'][1])['icon']
+                
+                html = get_pet_missing_you_html(
+                    user.get('username', 'User'),
+                    pet_name,
+                    pet_icon,
+                    days_inactive,
+                    happiness
+                )
+                subject = f"🐾 {pet_name} Misses You! - Edge Mode"
+            else:
+                # No pet - send regular inactive reminder
+                include_stats = days_inactive >= 7
+                html = get_inactive_reminder_html(
+                    user.get('username', 'User'),
+                    days_inactive,
+                    total_platform_sessions if include_stats else None
+                )
+                subject = "👋 We Miss You! - Edge Mode"
             
             # Send email
             try:
                 await asyncio.to_thread(resend.Emails.send, {
                     "from": SENDER_EMAIL,
                     "to": [user['email']],
-                    "subject": "👋 We Miss You! - Edge Mode",
+                    "subject": subject,
                     "html": html
                 })
                 sent_count += 1
             except Exception as e:
                 logger.error(f"Failed to send inactive reminder to {user['email']}: {e}")
             
-            # Send push notification
+            # Send push notification (personalized if user has pet)
             if user.get('push_enabled'):
-                await send_push(
-                    user['id'],
-                    "👋 We Miss You!",
-                    f"It's been {days_inactive} days. Small steps lead to big changes!",
-                    "/dashboard",
-                    "inactivity"
-                )
+                if user_pet and user_pet.get('pet_type') in PET_TYPES:
+                    pet_name = user_pet.get('custom_name') or PET_TYPES[user_pet['pet_type']]['name']
+                    await send_push(
+                        user['id'],
+                        f"🐾 {pet_name} Misses You!",
+                        f"{pet_name} needs your help to grow! Come back and train together.",
+                        "/dashboard",
+                        "pet-inactivity"
+                    )
+                else:
+                    await send_push(
+                        user['id'],
+                        "👋 We Miss You!",
+                        f"It's been {days_inactive} days. Small steps lead to big changes!",
+                        "/dashboard",
+                        "inactivity"
+                    )
         
         logger.info(f"Inactive reminder job complete. Sent {sent_count} emails.")
     except Exception as e:
