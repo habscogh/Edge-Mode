@@ -116,7 +116,7 @@ const SouvenirsScreen = () => {
             <div className="text-6xl mb-4">🗺️</div>
             <h3 className="text-xl font-bold text-white mb-2">No Souvenirs Yet</h3>
             <p className="text-zinc-400 text-sm">
-              Log sessions of 20+ minutes to send your pet on expeditions!
+              Log sessions of 59+ minutes to send your pet on expeditions!
             </p>
           </div>
         ) : (

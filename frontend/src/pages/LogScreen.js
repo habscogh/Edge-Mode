@@ -159,9 +159,9 @@ export const LogScreen = () => {
           setSuccess(false);
           setShowPushPrompt(true);
         } else {
-          // Check for pet expedition if session was 20+ minutes
+          // Check for pet expedition if session was 59+ minutes
           const sessionMinutes = parseInt(minutes, 10);
-          if (sessionMinutes >= 20) {
+          if (sessionMinutes >= 59) {
             try {
               const expeditionRes = await axios.post(`${API}/pets/expedition-reward`);
               if (expeditionRes.data.has_reward) {
