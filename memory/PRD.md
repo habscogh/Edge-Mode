@@ -172,14 +172,14 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
     - Auto-unlock when milestones are reached
 
 18. **Pet Expeditions** ✅
-    - **Trigger**: After logging 20+ minute sessions
+    - **Trigger**: After logging 59+ minute sessions
     - **Expedition Modal** with animated particles:
       - Shows expedition name based on session pillar (Library Quest, Mountain Trail, Story Forest)
       - Story narrative featuring pet's name
       - Rewards: Coins + XP based on session duration
       - Rare souvenir items with random chance (30-80%)
     - **Rarity Tiers**:
-      - Common (20-24 min): 5-15 coins, 10-25 XP, 30% item chance
+      - Common (59 min): 5-15 coins, 10-25 XP, 30% item chance
       - Uncommon (25-39 min): 15-30 coins, 25-50 XP, 45% item chance
       - Rare (40-59 min): 30-60 coins, 50-100 XP, 60% item chance
       - Legendary (60+ min): 75-150 coins, 100-200 XP, 80% item chance
@@ -191,6 +191,17 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
     - Grid display with rarity-colored cards
     - Empty state with helpful message about expeditions
     - Shows expedition pillar source for each souvenir
+
+20. **Expedition History / Adventure Log** ✅ (`/expedition-history`)
+    - Timeline view of all pet expeditions
+    - Stats overview: Total coins earned, XP earned, items found, total trips
+    - Rarity filter buttons with counts
+    - Each expedition card shows:
+      - Pet icon and expedition name
+      - Time ago, duration, and pillar
+      - Story narrative in styled quote block
+      - Rewards earned (coins, XP, souvenir item)
+    - Rarity-colored borders and badges
 
 ---
 

@@ -41,6 +41,7 @@ import PetAccessoriesScreen from './pages/PetAccessoriesScreen';
 import PetCodexScreen from './pages/PetCodexScreen';
 import CompanionsScreen from './pages/CompanionsScreen';
 import SouvenirsScreen from './pages/SouvenirsScreen';
+import ExpeditionHistoryScreen from './pages/ExpeditionHistoryScreen';
 import { BottomNav } from './components/BottomNav';
 import { Toaster } from './components/ui/sonner';
 import axios from 'axios';
@@ -396,6 +397,14 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <SouvenirsScreen />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/expedition-history"
+          element={
+            <ProtectedRoute>
+              <ExpeditionHistoryScreen />
             </ProtectedRoute>
           }
         />

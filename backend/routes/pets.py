@@ -3446,6 +3446,27 @@ async def claim_expedition_reward(current_user: dict = Depends(get_current_user)
     theme = EXPEDITION_THEMES.get(pillar, EXPEDITION_THEMES['default'])
     story = random.choice(theme['stories']).format(pet_name=pet_name)
     
+    # Save expedition to history
+    expedition_record = {
+        'id': str(uuid.uuid4()),
+        'user_id': current_user['id'],
+        'pet_name': pet_name,
+        'pet_type': pet.get('pet_type'),
+        'pet_icon': PET_TYPES.get(pet.get('pet_type'), {}).get('stages', {}).get(pet.get('evolution_stage', 1), {}).get('icon', '🐾'),
+        'expedition_name': theme['name'],
+        'story': story,
+        'pillar': pillar,
+        'duration_minutes': duration,
+        'rarity': rarity,
+        'rewards': {
+            'coins': coins,
+            'xp': xp,
+            'item': found_item
+        },
+        'completed_at': datetime.now(timezone.utc).isoformat()
+    }
+    await db.expedition_history.insert_one(expedition_record)
+    
     return {
         'has_reward': True,
         'expedition_name': theme['name'],
@@ -3479,4 +3500,44 @@ async def get_souvenirs(current_user: dict = Depends(get_current_user)):
         'souvenirs': souvenirs,
         'by_rarity': by_rarity,
         'total_count': len(souvenirs)
+    }
+
+
+
+@router.get("/expedition-history")
+async def get_expedition_history(current_user: dict = Depends(get_current_user)):
+    """Get expedition history - timeline of all pet adventures"""
+    expeditions = await db.expedition_history.find(
+        {'user_id': current_user['id']},
+        {'_id': 0}
+    ).sort('completed_at', -1).to_list(100)
+    
+    # Calculate stats
+    total_coins = sum(e.get('rewards', {}).get('coins', 0) for e in expeditions)
+    total_xp = sum(e.get('rewards', {}).get('xp', 0) for e in expeditions)
+    items_found = sum(1 for e in expeditions if e.get('rewards', {}).get('item'))
+    
+    # Count by rarity
+    by_rarity = {'legendary': 0, 'rare': 0, 'uncommon': 0, 'common': 0}
+    for e in expeditions:
+        rarity = e.get('rarity', 'common')
+        if rarity in by_rarity:
+            by_rarity[rarity] += 1
+    
+    # Count by expedition type
+    by_type = {}
+    for e in expeditions:
+        exp_name = e.get('expedition_name', 'Unknown')
+        by_type[exp_name] = by_type.get(exp_name, 0) + 1
+    
+    return {
+        'expeditions': expeditions,
+        'total_count': len(expeditions),
+        'stats': {
+            'total_coins_earned': total_coins,
+            'total_xp_earned': total_xp,
+            'items_found': items_found,
+            'by_rarity': by_rarity,
+            'by_type': by_type
+        }
     }
