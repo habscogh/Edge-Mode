@@ -46,23 +46,10 @@ def get_streak_reminder_html(username: str, streak: int) -> str:
 def get_pet_streak_reminder_html(username: str, streak: int, pet_name: str, pet_icon: str, evolution_stage: int = 1) -> str:
     """Email template for streak reminder with virtual pet - pet encourages user to keep the streak"""
     
-    # Different messages based on streak length
-    if streak >= 30:
-        pet_message = f"We've come so far together - {streak} days! Don't let our progress slip away!"
-        encouragement = "You're my hero! Let's keep this legendary streak going!"
-        streak_color = "#fbbf24"  # Gold for long streaks
-    elif streak >= 14:
-        pet_message = f"Wow, {streak} days of training together! I can feel myself getting stronger!"
-        encouragement = "We make an amazing team! One more session today?"
-        streak_color = "#a78bfa"  # Purple
-    elif streak >= 7:
-        pet_message = f"A whole week together! Our {streak}-day streak is something special!"
-        encouragement = "I'm so proud of us! Let's not stop now!"
-        streak_color = "#10b981"  # Green
-    else:
-        pet_message = f"We're building something great - {streak} days and counting!"
-        encouragement = "I believe in you! Let's train together today!"
-        streak_color = "#f97316"  # Orange
+    # Consistent encouraging message from the pet
+    pet_message = f"We're building something great - {streak} days and counting!"
+    encouragement = "I believe in you! Let's train together today!"
+    streak_color = "#f97316"  # Orange
     
     return f"""
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: linear-gradient(135deg, #09090b 0%, #1a0a0a 100%); color: white;">
