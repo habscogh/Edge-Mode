@@ -248,11 +248,21 @@ async def send_streak_reminders_job():
             })
             
             if not session_today:
-                # Mark this user BEFORE sending to prevent duplicates in race conditions
-                await db.users.update_one(
-                    {'id': user['id']},
-                    {'$set': {'last_streak_reminder': reminder_key}}
+                # Use atomic findOneAndUpdate to prevent duplicates across multiple instances
+                # Only proceeds if this instance "claims" the user first
+                result = await db.users.find_one_and_update(
+                    {
+                        'id': user['id'],
+                        'last_streak_reminder': {'$ne': reminder_key}  # Double-check not already sent
+                    },
+                    {'$set': {'last_streak_reminder': reminder_key}},
+                    return_document=False  # Returns original doc (before update)
                 )
+                
+                # If result is None, another instance already claimed this user
+                if result is None:
+                    logger.debug(f"Skipping {user['email']} - already claimed by another instance")
+                    continue
                 
                 html = get_streak_reminder_html(
                     user.get('username', 'User'),
@@ -420,11 +430,20 @@ async def send_inactive_reminders_job():
             # Include community stats for 7+ days inactive
             include_stats = days_inactive >= 7
             
-            # Mark this user BEFORE sending to prevent duplicates in race conditions
-            await db.users.update_one(
-                {'id': user['id']},
-                {'$set': {'last_inactive_reminder': reminder_key}}
+            # Use atomic findOneAndUpdate to prevent duplicates across multiple instances
+            result = await db.users.find_one_and_update(
+                {
+                    'id': user['id'],
+                    'last_inactive_reminder': {'$ne': reminder_key}
+                },
+                {'$set': {'last_inactive_reminder': reminder_key}},
+                return_document=False
             )
+            
+            # If result is None, another instance already claimed this user
+            if result is None:
+                logger.debug(f"Skipping inactive reminder for {user['email']} - already claimed")
+                continue
             
             html = get_inactive_reminder_html(
                 user.get('username', 'User'),
@@ -862,11 +881,20 @@ async def send_morning_reminders_job():
             # Pick a random motivational quote
             quote = random.choice(MORNING_QUOTES)
             
-            # Mark this user BEFORE sending to prevent duplicates in race conditions
-            await db.users.update_one(
-                {'id': user['id']},
-                {'$set': {'last_morning_reminder': reminder_key}}
+            # Use atomic findOneAndUpdate to prevent duplicates across multiple instances
+            result = await db.users.find_one_and_update(
+                {
+                    'id': user['id'],
+                    'last_morning_reminder': {'$ne': reminder_key}
+                },
+                {'$set': {'last_morning_reminder': reminder_key}},
+                return_document=False
             )
+            
+            # If result is None, another instance already claimed this user
+            if result is None:
+                logger.debug(f"Skipping morning reminder for {user['email']} - already claimed")
+                continue
             
             html = get_morning_reminder_html(
                 user.get('username', 'Champion'),
