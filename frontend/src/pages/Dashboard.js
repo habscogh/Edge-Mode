@@ -25,6 +25,7 @@ import { StreakRecoveryModal, useStreakRecovery } from '../components/StreakReco
 import EngagementStatus from '../components/EngagementStatus';
 import QuestsSection from '../components/Quests';
 import PetDisplay from '../components/PetDisplay';
+import ExpeditionModal from '../components/ExpeditionModal';
 
 // Rotating habit quotes
 const HABIT_QUOTES = [
@@ -51,6 +52,8 @@ export const Dashboard = () => {
   const [quickLogMinutes, setQuickLogMinutes] = useState('30');
   const [quickLogLoading, setQuickLogLoading] = useState(false);
   const [milestoneToShow, setMilestoneToShow] = useState(null);
+  const [expeditionData, setExpeditionData] = useState(null);
+  const [showExpeditionModal, setShowExpeditionModal] = useState(false);
   const [showRecoveryModal, setShowRecoveryModal] = useState(false);
   const { isEligible: recoveryEligible, eligibilityData, checkEligibility } = useStreakRecovery();
   const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
@@ -124,6 +127,20 @@ export const Dashboard = () => {
       
       const response = await axios.post(`${API}/sessions/complete`, sessionData);
       toast.success(`Logged ${quickLogMinutes} min of ${quickLogPillar}!`);
+      
+      // Check for pet expedition if session was 59+ minutes
+      const sessionMinutes = parseInt(quickLogMinutes) || 30;
+      if (sessionMinutes >= 59) {
+        try {
+          const expeditionRes = await axios.post(`${API}/pets/expedition-reward`);
+          if (expeditionRes.data.has_reward) {
+            setExpeditionData(expeditionRes.data);
+            setShowExpeditionModal(true);
+          }
+        } catch (expError) {
+          console.log('No expedition reward:', expError);
+        }
+      }
       
       // Check for newly earned badges and show toast notifications
       if (response.data.new_badges && response.data.new_badges.length > 0) {
@@ -570,6 +587,16 @@ export const Dashboard = () => {
           onClose={() => setMilestoneToShow(null)}
         />
       )}
+      
+      {/* Pet Expedition Modal */}
+      <ExpeditionModal
+        isOpen={showExpeditionModal}
+        onClose={() => {
+          setShowExpeditionModal(false);
+          setExpeditionData(null);
+        }}
+        expeditionData={expeditionData}
+      />
       
       {/* Share Streak Modal */}
       {showShareModal && (
