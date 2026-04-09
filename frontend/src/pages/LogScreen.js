@@ -154,16 +154,21 @@ export const LogScreen = () => {
         
         // Check for pet expedition if session was 59+ minutes (runs before other modals)
         const sessionMinutes = parseInt(minutes, 10);
+        console.log('[Expedition] Session minutes:', sessionMinutes);
         let expeditionResult = null;
         if (sessionMinutes >= 59) {
+          console.log('[Expedition] Calling expedition-reward endpoint...');
           try {
             const expeditionRes = await axios.post(`${API}/pets/expedition-reward`);
+            console.log('[Expedition] Response:', expeditionRes.data);
             if (expeditionRes.data.has_reward) {
               expeditionResult = expeditionRes.data;
             }
           } catch (expError) {
-            console.log('No expedition reward:', expError);
+            console.log('[Expedition] Error:', expError.response?.data || expError.message);
           }
+        } else {
+          console.log('[Expedition] Session too short, skipping expedition check');
         }
 
         // Show expedition modal first if earned, then other modals will show after
