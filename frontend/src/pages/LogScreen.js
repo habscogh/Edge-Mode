@@ -149,7 +149,35 @@ export const LogScreen = () => {
           !isSubscribed && 
           !localStorage.getItem('pushPromptDismissed');
         
+        // Check for milestone
         const milestone = checkMilestoneHit(previousStreak, newStreak);
+        
+        // Check for pet expedition if session was 59+ minutes (runs before other modals)
+        const sessionMinutes = parseInt(minutes, 10);
+        let expeditionResult = null;
+        if (sessionMinutes >= 59) {
+          try {
+            const expeditionRes = await axios.post(`${API}/pets/expedition-reward`);
+            if (expeditionRes.data.has_reward) {
+              expeditionResult = expeditionRes.data;
+            }
+          } catch (expError) {
+            console.log('No expedition reward:', expError);
+          }
+        }
+
+        // Show expedition modal first if earned, then other modals will show after
+        if (expeditionResult) {
+          setExpeditionData(expeditionResult);
+          setShowExpeditionModal(true);
+          setSuccess(false);
+          // Store milestone info to show after expedition closes
+          if (milestone) {
+            setMilestoneToShow({ milestone, streak: newStreak });
+          }
+          return;
+        }
+
         if (milestone) {
           // Show milestone celebration instead of navigating away immediately
           setSuccess(false);
@@ -159,21 +187,6 @@ export const LogScreen = () => {
           setSuccess(false);
           setShowPushPrompt(true);
         } else {
-          // Check for pet expedition if session was 59+ minutes
-          const sessionMinutes = parseInt(minutes, 10);
-          if (sessionMinutes >= 59) {
-            try {
-              const expeditionRes = await axios.post(`${API}/pets/expedition-reward`);
-              if (expeditionRes.data.has_reward) {
-                setExpeditionData(expeditionRes.data);
-                setShowExpeditionModal(true);
-                setSuccess(false);
-                return; // Don't show reflection modal yet
-              }
-            } catch (expError) {
-              console.log('No expedition reward:', expError);
-            }
-          }
           // Show reflection modal after successful session log
           setSuccess(false);
           setShowReflectionModal(true);
@@ -602,8 +615,12 @@ export const LogScreen = () => {
           onClose={() => {
             setShowExpeditionModal(false);
             setExpeditionData(null);
-            // Show reflection modal after expedition
-            setShowReflectionModal(true);
+            // Show milestone if pending, otherwise reflection modal
+            if (milestoneToShow) {
+              // Milestone will show automatically since state is already set
+            } else {
+              setShowReflectionModal(true);
+            }
           }}
           expeditionData={expeditionData}
         />
