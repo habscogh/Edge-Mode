@@ -3378,15 +3378,22 @@ async def claim_expedition_reward(current_user: dict = Depends(get_current_user)
     
     pet_name = pet.get('custom_name') or PET_TYPES.get(pet['pet_type'], {}).get('name', 'Pet')
     
-    # Check for recent session (within last 5 minutes)
-    five_mins_ago = (datetime.now(timezone.utc) - timedelta(minutes=5)).isoformat()
+    # Check for recent long session (within last 10 minutes, 59+ minutes duration)
+    ten_mins_ago = datetime.now(timezone.utc) - timedelta(minutes=10)
+    ten_mins_ago_iso = ten_mins_ago.isoformat()
+    
+    # Try to find qualifying session - check both datetime and ISO string formats
     recent_session = await db.daily_sessions.find_one({
         'user_id': current_user['id'],
-        'timestamp': {'$gte': five_mins_ago}
-    }, {'_id': 0, 'pillar': 1, 'minutes_spent': 1})
+        'minutes_spent': {'$gte': 59},
+        '$or': [
+            {'timestamp': {'$gte': ten_mins_ago}},
+            {'timestamp': {'$gte': ten_mins_ago_iso}}
+        ]
+    }, {'_id': 0, 'pillar': 1, 'minutes_spent': 1}, sort=[('timestamp', -1)])
     
     if not recent_session:
-        return {'has_reward': False, 'reason': 'No recent session'}
+        return {'has_reward': False, 'reason': 'No recent qualifying session (59+ min)'}
     
     pillar = recent_session.get('pillar', 'default')
     duration = recent_session.get('minutes_spent', 15)
