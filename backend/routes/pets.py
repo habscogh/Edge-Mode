@@ -1563,8 +1563,8 @@ COMPANION_PETS = {
 # Rewards from pet expeditions after sessions
 EXPEDITION_REWARDS = {
     "common": {
-        "coins": (5, 15),  # Min, max range
-        "xp": (10, 25),
+        "coins": (2, 5),  # Min, max range
+        "xp": (5, 15),
         "items": [
             {"type": "souvenir", "name": "Pebble", "icon": "🪨", "description": "A smooth pebble from the journey"},
             {"type": "souvenir", "name": "Feather", "icon": "🪶", "description": "A colorful feather found along the way"},
@@ -1573,8 +1573,8 @@ EXPEDITION_REWARDS = {
         ]
     },
     "uncommon": {
-        "coins": (15, 30),
-        "xp": (25, 50),
+        "coins": (5, 10),
+        "xp": (15, 30),
         "items": [
             {"type": "souvenir", "name": "Crystal", "icon": "💎", "description": "A sparkling crystal found in a cave"},
             {"type": "souvenir", "name": "Lucky Coin", "icon": "🪙", "description": "An ancient lucky coin"},
@@ -1582,8 +1582,8 @@ EXPEDITION_REWARDS = {
         ]
     },
     "rare": {
-        "coins": (30, 60),
-        "xp": (50, 100),
+        "coins": (10, 20),
+        "xp": (30, 50),
         "items": [
             {"type": "souvenir", "name": "Ancient Relic", "icon": "🏺", "description": "A mysterious ancient artifact"},
             {"type": "souvenir", "name": "Magic Orb", "icon": "🔮", "description": "A glowing magical orb"},
@@ -1591,8 +1591,8 @@ EXPEDITION_REWARDS = {
         ]
     },
     "legendary": {
-        "coins": (75, 150),
-        "xp": (100, 200),
+        "coins": (20, 40),
+        "xp": (50, 100),
         "items": [
             {"type": "souvenir", "name": "Phoenix Feather", "icon": "🔥", "description": "A legendary phoenix feather"},
             {"type": "souvenir", "name": "Cosmic Gem", "icon": "🌌", "description": "A gem containing stardust"},
