@@ -535,6 +535,408 @@ DEFAULT_SHOP_ITEMS = [
             "particle_color": "#34d399",
             "animation_class": "effect-levelup"
         }
+    },
+    
+    # ============ MORE THEMES ============
+    {
+        "id": "theme-forest",
+        "name": "Forest Green",
+        "description": "Calming forest vibes",
+        "category": "themes",
+        "price": 100,
+        "rarity": "common",
+        "preview_color": "#22c55e",
+        "icon": "🌲",
+        "theme_data": {
+            "gradient": "linear-gradient(135deg, #14532d 0%, #166534 50%, #22c55e 100%)",
+            "border_color": "#22c55e",
+            "accent_color": "#4ade80",
+            "glow_color": "rgba(34, 197, 94, 0.3)"
+        }
+    },
+    {
+        "id": "theme-cherry",
+        "name": "Cherry Blossom",
+        "description": "Soft pink Japanese aesthetic",
+        "category": "themes",
+        "price": 150,
+        "rarity": "uncommon",
+        "preview_color": "#f472b6",
+        "icon": "🌸",
+        "theme_data": {
+            "gradient": "linear-gradient(135deg, #831843 0%, #be185d 50%, #f472b6 100%)",
+            "border_color": "#f472b6",
+            "accent_color": "#f9a8d4",
+            "glow_color": "rgba(244, 114, 182, 0.3)"
+        }
+    },
+    {
+        "id": "theme-cyber",
+        "name": "Cyberpunk",
+        "description": "Futuristic neon city vibes",
+        "category": "themes",
+        "price": 300,
+        "rarity": "rare",
+        "preview_color": "#06b6d4",
+        "icon": "🌃",
+        "theme_data": {
+            "gradient": "linear-gradient(135deg, #0e7490 0%, #0891b2 50%, #06b6d4 100%)",
+            "border_color": "#06b6d4",
+            "accent_color": "#22d3ee",
+            "glow_color": "rgba(6, 182, 212, 0.4)"
+        }
+    },
+    {
+        "id": "theme-blood",
+        "name": "Blood Moon",
+        "description": "Dark crimson aesthetic",
+        "category": "themes",
+        "price": 200,
+        "rarity": "uncommon",
+        "preview_color": "#dc2626",
+        "icon": "🌑",
+        "theme_data": {
+            "gradient": "linear-gradient(135deg, #450a0a 0%, #991b1b 50%, #dc2626 100%)",
+            "border_color": "#dc2626",
+            "accent_color": "#f87171",
+            "glow_color": "rgba(220, 38, 38, 0.3)"
+        }
+    },
+    {
+        "id": "theme-arctic",
+        "name": "Arctic Ice",
+        "description": "Cool icy blue theme",
+        "category": "themes",
+        "price": 150,
+        "rarity": "uncommon",
+        "preview_color": "#38bdf8",
+        "icon": "❄️",
+        "theme_data": {
+            "gradient": "linear-gradient(135deg, #0c4a6e 0%, #0284c7 50%, #38bdf8 100%)",
+            "border_color": "#38bdf8",
+            "accent_color": "#7dd3fc",
+            "glow_color": "rgba(56, 189, 248, 0.3)"
+        }
+    },
+    {
+        "id": "theme-galaxy",
+        "name": "Galaxy",
+        "description": "Deep space cosmic theme",
+        "category": "themes",
+        "price": 500,
+        "rarity": "epic",
+        "preview_color": "#8b5cf6",
+        "icon": "🌌",
+        "theme_data": {
+            "gradient": "linear-gradient(135deg, #1e1b4b 0%, #5b21b6 50%, #8b5cf6 100%)",
+            "border_color": "#8b5cf6",
+            "accent_color": "#a78bfa",
+            "glow_color": "rgba(139, 92, 246, 0.4)"
+        }
+    },
+    {
+        "id": "theme-emerald",
+        "name": "Emerald Luxury",
+        "description": "Rich emerald green theme",
+        "category": "themes",
+        "price": 400,
+        "rarity": "epic",
+        "preview_color": "#10b981",
+        "icon": "💚",
+        "theme_data": {
+            "gradient": "linear-gradient(135deg, #064e3b 0%, #047857 50%, #10b981 100%)",
+            "border_color": "#10b981",
+            "accent_color": "#34d399",
+            "glow_color": "rgba(16, 185, 129, 0.4)"
+        }
+    },
+    
+    # ============ MORE BADGES ============
+    {
+        "id": "badge-lightning",
+        "name": "Lightning Fast",
+        "description": "Speed and efficiency badge",
+        "category": "badges",
+        "price": 125,
+        "rarity": "uncommon",
+        "icon": "⚡"
+    },
+    {
+        "id": "badge-star",
+        "name": "Rising Star",
+        "description": "You're a star in the making",
+        "category": "badges",
+        "price": 100,
+        "rarity": "common",
+        "icon": "⭐"
+    },
+    {
+        "id": "badge-brain",
+        "name": "Big Brain",
+        "description": "Intelligence is your superpower",
+        "category": "badges",
+        "price": 150,
+        "rarity": "uncommon",
+        "icon": "🧠"
+    },
+    {
+        "id": "badge-muscle",
+        "name": "Muscle Power",
+        "description": "Strength and determination",
+        "category": "badges",
+        "price": 125,
+        "rarity": "uncommon",
+        "icon": "💪"
+    },
+    {
+        "id": "badge-heart",
+        "name": "Pure Heart",
+        "description": "Kindness and compassion badge",
+        "category": "badges",
+        "price": 100,
+        "rarity": "common",
+        "icon": "❤️"
+    },
+    {
+        "id": "badge-ninja",
+        "name": "Shadow Ninja",
+        "description": "Stealthy and skilled",
+        "category": "badges",
+        "price": 200,
+        "rarity": "rare",
+        "icon": "🥷"
+    },
+    {
+        "id": "badge-wizard",
+        "name": "Wisdom Wizard",
+        "description": "Master of knowledge",
+        "category": "badges",
+        "price": 300,
+        "rarity": "rare",
+        "icon": "🧙"
+    },
+    {
+        "id": "badge-phoenix",
+        "name": "Phoenix Rising",
+        "description": "Rise from any setback",
+        "category": "badges",
+        "price": 500,
+        "rarity": "legendary",
+        "icon": "🔥"
+    },
+    {
+        "id": "badge-dragon",
+        "name": "Dragon Spirit",
+        "description": "Fierce and unstoppable",
+        "category": "badges",
+        "price": 450,
+        "rarity": "epic",
+        "icon": "🐉"
+    },
+    {
+        "id": "badge-unicorn",
+        "name": "Unicorn Magic",
+        "description": "Rare and magical",
+        "category": "badges",
+        "price": 350,
+        "rarity": "epic",
+        "icon": "🦄"
+    },
+    
+    # ============ MORE AVATAR FRAMES ============
+    {
+        "id": "frame-nature",
+        "name": "Nature Frame",
+        "description": "Leafy green border",
+        "category": "avatars",
+        "price": 125,
+        "rarity": "common",
+        "icon": "🌿",
+        "frame_data": {
+            "border_width": "3px",
+            "border_style": "solid",
+            "border_color": "#22c55e",
+            "box_shadow": "0 0 15px rgba(34, 197, 94, 0.5)",
+            "animation": "none"
+        }
+    },
+    {
+        "id": "frame-ice",
+        "name": "Ice Frame",
+        "description": "Frozen crystal border",
+        "category": "avatars",
+        "price": 200,
+        "rarity": "uncommon",
+        "icon": "❄️",
+        "frame_data": {
+            "border_width": "3px",
+            "border_style": "solid",
+            "border_color": "#38bdf8",
+            "box_shadow": "0 0 20px rgba(56, 189, 248, 0.6)",
+            "animation": "pulse-ice"
+        }
+    },
+    {
+        "id": "frame-rainbow",
+        "name": "Rainbow Frame",
+        "description": "Colorful animated rainbow border",
+        "category": "avatars",
+        "price": 400,
+        "rarity": "epic",
+        "icon": "🌈",
+        "frame_data": {
+            "border_width": "4px",
+            "border_style": "solid",
+            "border_color": "#f472b6",
+            "box_shadow": "0 0 25px rgba(244, 114, 182, 0.5)",
+            "animation": "rainbow-rotate"
+        }
+    },
+    {
+        "id": "frame-galaxy",
+        "name": "Galaxy Frame",
+        "description": "Cosmic starry border",
+        "category": "avatars",
+        "price": 450,
+        "rarity": "epic",
+        "icon": "🌌",
+        "frame_data": {
+            "border_width": "4px",
+            "border_style": "solid",
+            "border_color": "#8b5cf6",
+            "box_shadow": "0 0 30px rgba(139, 92, 246, 0.6)",
+            "animation": "galaxy-pulse"
+        }
+    },
+    {
+        "id": "frame-neon-pink",
+        "name": "Neon Pink Frame",
+        "description": "Hot pink neon glow",
+        "category": "avatars",
+        "price": 225,
+        "rarity": "rare",
+        "icon": "💗",
+        "frame_data": {
+            "border_width": "3px",
+            "border_style": "solid",
+            "border_color": "#ec4899",
+            "box_shadow": "0 0 20px rgba(236, 72, 153, 0.7)",
+            "animation": "neon-flicker"
+        }
+    },
+    
+    # ============ MORE PROFILE EFFECTS ============
+    {
+        "id": "effect-hearts",
+        "name": "Floating Hearts",
+        "description": "Hearts float up around your profile",
+        "category": "effects",
+        "price": 150,
+        "rarity": "uncommon",
+        "icon": "💕",
+        "effect_data": {
+            "type": "hearts",
+            "particle_color": "#f472b6",
+            "animation_class": "effect-hearts"
+        }
+    },
+    {
+        "id": "effect-lightning",
+        "name": "Electric Storm",
+        "description": "Lightning crackles around you",
+        "category": "effects",
+        "price": 350,
+        "rarity": "rare",
+        "icon": "⚡",
+        "effect_data": {
+            "type": "lightning",
+            "particle_color": "#fbbf24",
+            "animation_class": "effect-lightning"
+        }
+    },
+    {
+        "id": "effect-matrix",
+        "name": "Matrix Rain",
+        "description": "Digital code rains down",
+        "category": "effects",
+        "price": 300,
+        "rarity": "rare",
+        "icon": "💻",
+        "effect_data": {
+            "type": "matrix",
+            "particle_color": "#22c55e",
+            "animation_class": "effect-matrix"
+        }
+    },
+    {
+        "id": "effect-petals",
+        "name": "Cherry Petals",
+        "description": "Sakura petals drift by",
+        "category": "effects",
+        "price": 200,
+        "rarity": "uncommon",
+        "icon": "🌸",
+        "effect_data": {
+            "type": "petals",
+            "particle_color": "#f9a8d4",
+            "animation_class": "effect-petals"
+        }
+    },
+    {
+        "id": "effect-coins",
+        "name": "Coin Shower",
+        "description": "Gold coins rain around you",
+        "category": "effects",
+        "price": 275,
+        "rarity": "rare",
+        "icon": "🪙",
+        "effect_data": {
+            "type": "coins",
+            "particle_color": "#fbbf24",
+            "animation_class": "effect-coins"
+        }
+    },
+    {
+        "id": "effect-music",
+        "name": "Music Notes",
+        "description": "Musical notes float around",
+        "category": "effects",
+        "price": 175,
+        "rarity": "uncommon",
+        "icon": "🎵",
+        "effect_data": {
+            "type": "music",
+            "particle_colors": ["#f472b6", "#a78bfa", "#60a5fa"],
+            "animation_class": "effect-music"
+        }
+    },
+    {
+        "id": "effect-dragon-fire",
+        "name": "Dragon Fire",
+        "description": "Fierce dragon flames",
+        "category": "effects",
+        "price": 600,
+        "rarity": "legendary",
+        "icon": "🐉",
+        "effect_data": {
+            "type": "dragonfire",
+            "particle_colors": ["#f97316", "#ef4444", "#fbbf24"],
+            "animation_class": "effect-dragonfire"
+        }
+    },
+    {
+        "id": "effect-cosmic",
+        "name": "Cosmic Dust",
+        "description": "Stardust and galaxies swirl",
+        "category": "effects",
+        "price": 500,
+        "rarity": "epic",
+        "icon": "✨",
+        "effect_data": {
+            "type": "cosmic",
+            "particle_colors": ["#8b5cf6", "#ec4899", "#3b82f6"],
+            "animation_class": "effect-cosmic"
+        }
     }
 ]
 
