@@ -20,7 +20,8 @@ import {
   BookOpen,
   Users,
   Trophy,
-  Map
+  Map,
+  GitBranch
 } from 'lucide-react';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -366,6 +367,18 @@ const PetDisplay = ({ onSelectPet, compact = false }) => {
               {equippedAccessories.neck.icon}
             </div>
           )}
+          
+          {/* Orbiting Companion */}
+          {activeCompanion && (
+            <div 
+              className="absolute w-8 h-8 flex items-center justify-center text-xl animate-orbit"
+              style={{ 
+                transformOrigin: 'center center',
+              }}
+            >
+              <span className="drop-shadow-lg">{activeCompanion.icon}</span>
+            </div>
+          )}
         </div>
 
         {/* Pet Info */}
@@ -601,38 +614,46 @@ const PetDisplay = ({ onSelectPet, compact = false }) => {
 
       {/* Codex & Companions Quick Links */}
       {!compact && (
-        <div className="mt-2 grid grid-cols-4 gap-2">
+        <div className="mt-2 grid grid-cols-5 gap-1.5">
           <button
             onClick={() => navigate('/pet-codex')}
-            className="flex items-center justify-center gap-1 bg-zinc-800/50 hover:bg-zinc-700/50 border border-zinc-700 rounded-xl py-2 text-xs text-zinc-300 transition-all"
+            className="flex flex-col items-center justify-center gap-0.5 bg-zinc-800/50 hover:bg-zinc-700/50 border border-zinc-700 rounded-xl py-2 text-xs text-zinc-300 transition-all"
             data-testid="pet-codex-btn"
           >
-            <BookOpen className="w-3.5 h-3.5 text-blue-400" />
-            <span>Codex</span>
+            <BookOpen className="w-4 h-4 text-blue-400" />
+            <span className="text-[10px]">Codex</span>
           </button>
           <button
             onClick={() => navigate('/companions')}
-            className="flex items-center justify-center gap-1 bg-zinc-800/50 hover:bg-zinc-700/50 border border-zinc-700 rounded-xl py-2 text-xs text-zinc-300 transition-all"
+            className="flex flex-col items-center justify-center gap-0.5 bg-zinc-800/50 hover:bg-zinc-700/50 border border-zinc-700 rounded-xl py-2 text-xs text-zinc-300 transition-all"
             data-testid="pet-companions-btn"
           >
-            <Users className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Pals</span>
+            <Users className="w-4 h-4 text-emerald-400" />
+            <span className="text-[10px]">Pals</span>
+          </button>
+          <button
+            onClick={() => navigate('/evolution-tree')}
+            className="flex flex-col items-center justify-center gap-0.5 bg-zinc-800/50 hover:bg-zinc-700/50 border border-zinc-700 rounded-xl py-2 text-xs text-zinc-300 transition-all"
+            data-testid="pet-evolution-btn"
+          >
+            <GitBranch className="w-4 h-4 text-purple-400" />
+            <span className="text-[10px]">Evolve</span>
           </button>
           <button
             onClick={() => navigate('/expedition-history')}
-            className="flex items-center justify-center gap-1 bg-zinc-800/50 hover:bg-zinc-700/50 border border-zinc-700 rounded-xl py-2 text-xs text-zinc-300 transition-all"
+            className="flex flex-col items-center justify-center gap-0.5 bg-zinc-800/50 hover:bg-zinc-700/50 border border-zinc-700 rounded-xl py-2 text-xs text-zinc-300 transition-all"
             data-testid="pet-adventures-btn"
           >
-            <Map className="w-3.5 h-3.5 text-amber-400" />
-            <span>Log</span>
+            <Map className="w-4 h-4 text-amber-400" />
+            <span className="text-[10px]">Log</span>
           </button>
           <button
             onClick={() => navigate('/souvenirs')}
-            className="flex items-center justify-center gap-1 bg-zinc-800/50 hover:bg-zinc-700/50 border border-zinc-700 rounded-xl py-2 text-xs text-zinc-300 transition-all"
+            className="flex flex-col items-center justify-center gap-0.5 bg-zinc-800/50 hover:bg-zinc-700/50 border border-zinc-700 rounded-xl py-2 text-xs text-zinc-300 transition-all"
             data-testid="pet-souvenirs-btn"
           >
-            <Trophy className="w-3.5 h-3.5 text-purple-400" />
-            <span>Loot</span>
+            <Trophy className="w-4 h-4 text-pink-400" />
+            <span className="text-[10px]">Loot</span>
           </button>
         </div>
       )}

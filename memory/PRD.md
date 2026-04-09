@@ -203,6 +203,26 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
       - Rewards earned (coins, XP, souvenir item)
     - Rarity-colored borders and badges
 
+21. **Shareable Story Cards** ✅ (Medium Feature)
+    - Generate downloadable/shareable image cards from expedition adventures
+    - Share button on each expedition in Adventure Log
+    - Cards include: Pet icon, name, expedition story, rewards, branding
+    - Uses html2canvas for image generation
+    - Native share API support on mobile devices
+
+22. **Orbiting Companions Visual** ✅ (Medium Feature)
+    - Active companions now visually orbit around the main pet
+    - Smooth CSS animation (8-second orbit cycle)
+    - Companion icon orbits at 45px radius from pet center
+
+23. **Evolution Tree Visual** ✅ (Medium Feature - `/evolution-tree`)
+    - Shows 6 evolution stages with unlock requirements
+    - Current path banner (Scholar/Athlete/Artist/Balanced)
+    - Visual timeline with connected stages
+    - Locked stages show potential evolution paths at Stage 4+
+    - Habit breakdown chart showing session distribution
+    - Backend endpoint: `/api/pets/habit-breakdown`
+
 ---
 
 ## Completed Previous Session (April 2, 2026)

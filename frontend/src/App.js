@@ -42,6 +42,7 @@ import PetCodexScreen from './pages/PetCodexScreen';
 import CompanionsScreen from './pages/CompanionsScreen';
 import SouvenirsScreen from './pages/SouvenirsScreen';
 import ExpeditionHistoryScreen from './pages/ExpeditionHistoryScreen';
+import EvolutionTreeScreen from './pages/EvolutionTreeScreen';
 import { BottomNav } from './components/BottomNav';
 import { Toaster } from './components/ui/sonner';
 import axios from 'axios';
@@ -405,6 +406,14 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <ExpeditionHistoryScreen />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/evolution-tree"
+          element={
+            <ProtectedRoute>
+              <EvolutionTreeScreen />
             </ProtectedRoute>
           }
         />

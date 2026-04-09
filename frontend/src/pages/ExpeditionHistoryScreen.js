@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { ArrowLeft, Map, Coins, Zap, Trophy, Clock, Sparkles } from 'lucide-react';
+import { ArrowLeft, Map, Coins, Zap, Trophy, Clock, Sparkles, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
+import ShareableStoryCard from '../components/ShareableStoryCard';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -39,6 +40,7 @@ const ExpeditionHistoryScreen = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  const [selectedExpedition, setSelectedExpedition] = useState(null);
 
   useEffect(() => {
     fetchHistory();
@@ -223,6 +225,15 @@ const ExpeditionHistoryScreen = () => {
                         <span>{expedition.rewards.item.name}</span>
                       </div>
                     )}
+                    {/* Share button */}
+                    <button
+                      onClick={() => setSelectedExpedition(expedition)}
+                      className="ml-auto flex items-center gap-1.5 bg-pink-500/10 text-pink-400 px-2.5 py-1 rounded-full text-sm hover:bg-pink-500/20 transition-colors"
+                      data-testid={`share-expedition-${expedition.id}`}
+                    >
+                      <Share2 className="w-4 h-4" />
+                      <span>Share</span>
+                    </button>
                   </div>
                 </div>
               );
@@ -230,6 +241,14 @@ const ExpeditionHistoryScreen = () => {
           </div>
         )}
       </div>
+      
+      {/* Shareable Story Card Modal */}
+      {selectedExpedition && (
+        <ShareableStoryCard
+          expedition={selectedExpedition}
+          onClose={() => setSelectedExpedition(null)}
+        />
+      )}
     </div>
   );
 };

@@ -1206,3 +1206,14 @@ input[type='number'] {
   animation: fade-in 0.3s ease-out;
 }
 
+
+/* Orbiting Companion Animation */
+@keyframes orbit {
+  0% { transform: rotate(0deg) translateX(45px) rotate(0deg); }
+  100% { transform: rotate(360deg) translateX(45px) rotate(-360deg); }
+}
+
+.animate-orbit {
+  animation: orbit 8s linear infinite;
+}
+

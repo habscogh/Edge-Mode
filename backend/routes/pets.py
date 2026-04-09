@@ -3548,3 +3548,37 @@ async def get_expedition_history(current_user: dict = Depends(get_current_user))
             'by_type': by_type
         }
     }
+
+
+
+@router.get("/habit-breakdown")
+async def get_habit_breakdown(current_user: dict = Depends(get_current_user)):
+    """Get breakdown of sessions by habit/pillar for evolution path calculation"""
+    # Get all sessions for this user
+    sessions = await db.daily_sessions.find(
+        {'user_id': current_user['id']},
+        {'_id': 0, 'pillar': 1, 'minutes_spent': 1}
+    ).to_list(1000)
+    
+    # Count sessions by pillar
+    breakdown = {}
+    for session in sessions:
+        pillar = session.get('pillar', 'Other')
+        if pillar not in breakdown:
+            breakdown[pillar] = {'sessions': 0, 'minutes': 0}
+        breakdown[pillar]['sessions'] += 1
+        breakdown[pillar]['minutes'] += session.get('minutes_spent', 0)
+    
+    # Convert to list format
+    result = [
+        {'pillar': pillar, 'sessions': data['sessions'], 'minutes': data['minutes']}
+        for pillar, data in breakdown.items()
+    ]
+    
+    # Sort by sessions desc
+    result.sort(key=lambda x: x['sessions'], reverse=True)
+    
+    return {
+        'breakdown': result,
+        'total_sessions': len(sessions)
+    }
