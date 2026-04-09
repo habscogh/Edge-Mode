@@ -47,7 +47,8 @@ def get_pet_streak_reminder_html(username: str, streak: int, pet_name: str, pet_
     """Email template for streak reminder with virtual pet - pet encourages user to keep the streak"""
     
     # Consistent encouraging message from the pet
-    pet_message = f"We're building something great - {streak} days and counting!"
+    day_word = "day" if streak == 1 else "days"
+    pet_message = f"We're building something great - {streak} {day_word} and counting!"
     encouragement = "I believe in you! Let's train together today!"
     streak_color = "#f97316"  # Orange
     
@@ -394,8 +395,11 @@ async def send_streak_reminders_job():
                     # Get pet icon based on evolution stage
                     pet_icon = pet_info['stages'].get(evolution_stage, pet_info['stages'][1])['icon']
                     
+                    # Use first name or username for personalization
+                    display_name = user.get('first_name') or user.get('username', 'User').split('@')[0].capitalize()
+                    
                     html = get_pet_streak_reminder_html(
-                        user.get('username', 'User'),
+                        display_name,
                         streak,
                         pet_name,
                         pet_icon,
@@ -404,8 +408,9 @@ async def send_streak_reminders_job():
                     subject = f"🔥 {pet_name} Says: Don't Break Our Streak! - Edge Mode"
                 else:
                     # No pet - send regular streak reminder
+                    display_name = user.get('first_name') or user.get('username', 'User').split('@')[0].capitalize()
                     html = get_streak_reminder_html(
-                        user.get('username', 'User'),
+                        display_name,
                         streak
                     )
                     subject = "🔥 Don't Break Your Streak! - Edge Mode"
