@@ -73,6 +73,9 @@ export const LogScreen = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Prevent double-submission
+    if (loading) return;
+    
     // Store previous streak to check for milestones
     const previousStreak = user?.current_streak || 0;
     

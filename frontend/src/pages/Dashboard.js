@@ -92,7 +92,7 @@ export const Dashboard = () => {
   };
 
   const handleQuickLog = async () => {
-    if (!quickLogPillar) return;
+    if (!quickLogPillar || quickLogLoading) return;
     
     // Store previous streak to check for milestones
     const previousStreak = user?.current_streak || 0;

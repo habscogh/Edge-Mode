@@ -65,6 +65,25 @@ async def complete_session(session_data: SessionComplete, current_user: dict = D
     else:
         today = get_today_string()  # Eastern Time
     
+    # Prevent duplicate sessions (same pillar within 2 minutes)
+    two_mins_ago = (now - timedelta(minutes=2)).isoformat()
+    recent_duplicate = await db.daily_sessions.find_one({
+        'user_id': user_id,
+        'pillar': session_data.pillar,
+        'minutes_spent': session_data.minutes_spent or 30,
+        'timestamp': {'$gte': two_mins_ago}
+    })
+    
+    if recent_duplicate:
+        # Return success but don't create duplicate - idempotent behavior
+        return {
+            'success': True,
+            'message': 'Session already logged',
+            'session_id': recent_duplicate['id'],
+            'date': today,
+            'duplicate': True
+        }
+    
     user_pillars = await db.user_pillars.find({'user_id': user_id}, {'_id': 0}).to_list(100)
     pillar_names = [p['pillar_name'] for p in user_pillars]
     
