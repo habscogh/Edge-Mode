@@ -349,12 +349,23 @@ async def send_streak_reminders_job():
             'streak_reminders': {'$ne': False},
             'current_streak': {'$gt': 0},
             'is_admin': {'$ne': True},  # Don't send to admins
+            'role': {'$ne': 'admin'},  # Also check role field
             # Skip users who already received today's reminder
             'last_streak_reminder': {'$ne': reminder_key}
-        }, {'_id': 0, 'id': 1, 'email': 1, 'username': 1, 'current_streak': 1}).to_list(1000)
+        }, {'_id': 0, 'id': 1, 'email': 1, 'username': 1, 'first_name': 1, 'current_streak': 1}).to_list(1000)
         
         sent_count = 0
         for user in users:
+            # Double-check: skip if email already sent today (using email_log collection)
+            already_sent = await db.email_log.find_one({
+                'email': user['email'],
+                'type': 'streak_reminder',
+                'date': today
+            })
+            if already_sent:
+                logger.debug(f"Skipping {user['email']} - already in email_log")
+                continue
+            
             session_today = await db.daily_sessions.find_one({
                 'user_id': user['id'],
                 'date': today
@@ -376,6 +387,15 @@ async def send_streak_reminders_job():
                 if result is None:
                     logger.debug(f"Skipping {user['email']} - already claimed by another instance")
                     continue
+                
+                # Log email before sending to prevent race conditions
+                await db.email_log.insert_one({
+                    'email': user['email'],
+                    'user_id': user['id'],
+                    'type': 'streak_reminder',
+                    'date': today,
+                    'sent_at': datetime.now(timezone.utc).isoformat()
+                })
                 
                 streak = user.get('current_streak', 0)
                 
