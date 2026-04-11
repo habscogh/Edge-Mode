@@ -967,7 +967,7 @@ class UpdateShopItem(BaseModel):
 # ============ Helper Functions ============
 
 async def seed_shop_items():
-    """Seed default shop items if they don't exist, or update prices if they do"""
+    """Seed default shop items if they don't exist, or update if they do"""
     for item in DEFAULT_SHOP_ITEMS:
         existing = await db.shop_items.find_one({'id': item['id']})
         if not existing:
@@ -981,12 +981,29 @@ async def seed_shop_items():
             }
             await db.shop_items.insert_one(item_doc)
         else:
-            # Update price if it changed
-            if existing.get('price') != item['price']:
-                await db.shop_items.update_one(
-                    {'id': item['id']},
-                    {'$set': {'price': item['price']}}
-                )
+            # Update all fields from DEFAULT_SHOP_ITEMS to ensure consistency
+            # This ensures theme_data, frame_data, effect_data are always up to date
+            update_fields = {
+                'price': item.get('price'),
+                'name': item.get('name'),
+                'description': item.get('description'),
+                'icon': item.get('icon'),
+                'rarity': item.get('rarity'),
+            }
+            # Add optional data fields
+            if 'theme_data' in item:
+                update_fields['theme_data'] = item['theme_data']
+            if 'frame_data' in item:
+                update_fields['frame_data'] = item['frame_data']
+            if 'effect_data' in item:
+                update_fields['effect_data'] = item['effect_data']
+            if 'preview_color' in item:
+                update_fields['preview_color'] = item['preview_color']
+            
+            await db.shop_items.update_one(
+                {'id': item['id']},
+                {'$set': update_fields}
+            )
     
     # Also seed/update referral exclusive items from referrals module
     from routes.referrals import REFERRAL_EXCLUSIVE_ITEMS
