@@ -19,7 +19,8 @@ import {
   Star,
   Crown,
   UserPlus,
-  Gift
+  Gift,
+  Car
 } from 'lucide-react';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -30,7 +31,8 @@ const categoryIcons = {
   badges: Medal,
   streak_shields: Shield,
   avatars: User,
-  effects: Sparkles
+  effects: Sparkles,
+  vehicles: Car
 };
 
 // Rarity styles

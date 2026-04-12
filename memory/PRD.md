@@ -21,7 +21,7 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
 - Email Schedulers (streak reminders, weekly summaries, inactive reminders, morning motivation, trial ending, parent reports, XP event notifications)
 - Shareable Story Cards (html2canvas)
 - Evolution Tree Visual UI
-- Shop Items (7 themes, 10 badges, 5 frames, 8 effects) & Pet Accessories
+- Shop Items: 7 themes, 21 badges (including 6 athletic), 5 frames, 8 effects, 6 sport vehicles
 - Duplicate session prevention (frontend disable + backend 2-min check)
 - Email deduplication (atomic email_log collection)
 - Profile Customizations
@@ -36,24 +36,21 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
 └── frontend/
     └── src/
         ├── components/ (PetDisplay, ExpeditionModal, ShareableStoryCard, etc.)
-        ├── pages/ (Dashboard, LogScreen, ProfileScreen, EvolutionTreeScreen, AdminDashboard, etc.)
+        ├── pages/ (Dashboard, LogScreen, ProfileScreen, EvolutionTreeScreen, ShopScreen, AdminDashboard, etc.)
         └── App.js
 ```
 
 ## Key DB Collections
 - `users`, `daily_sessions`, `user_pillars`, `user_pets`, `shop_items`, `email_log`, `challenges`, `xp_events`, `parent_links`
 
-## Completed Work (Latest Session - Apr 12, 2026)
-- Fixed weekly summary email query: normalized date format from `.isoformat()` to `.strftime('%Y-%m-%d')` for consistent MongoDB string comparison
-- Fixed inactive reminders type bug: `today_eastern` was string but used in date arithmetic  
+## Completed Work (Apr 12, 2026)
+- Fixed weekly summary email query: normalized date format from `.isoformat()` to `.strftime('%Y-%m-%d')`
+- Fixed inactive reminders type bug: `today_eastern` was string but used in date arithmetic
 - Fixed parent weekly summary and inactivity alerts date formats
-- Standardized all scheduler date queries to use explicit `strftime('%Y-%m-%d')`
-
-## P0 Issues (Resolved)
-- Weekly summary emails reporting 0 sessions: FIXED (date format normalization)
-- Duplicate session logging: FIXED
-- Duplicate scheduler emails: FIXED
-- Profile customizations not saving: FIXED
+- Added 6 athletic badges: Baller, Goal Scorer, Champion, Fighter, Endurance King, MVP
+- Added new "Sport Vehicles" shop category with 6 items: Race Car, Dirt Bike, Jet Ski, Monster Truck, Sports Car, Quad Bike
+- Updated frontend ShopScreen with vehicles category icon (Car from lucide-react)
+- Bumped seed version to v3_athletic_vehicles
 
 ## Upcoming Tasks
 - P1: Export Data (CSV) - Allow users to download their session history

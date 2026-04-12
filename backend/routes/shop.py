@@ -40,6 +40,11 @@ SHOP_CATEGORIES = {
         "name": "Special Effects",
         "description": "Add flair to your achievements",
         "icon": "✨"
+    },
+    "vehicles": {
+        "name": "Sport Vehicles",
+        "description": "Collect high-speed rides",
+        "icon": "🏎️"
     }
 }
 
@@ -743,6 +748,118 @@ DEFAULT_SHOP_ITEMS = [
         "icon": "🦄"
     },
     
+    # ============ ATHLETIC BADGES ============
+    {
+        "id": "badge-baller",
+        "name": "Baller",
+        "description": "Hoops mentality",
+        "category": "badges",
+        "price": 150,
+        "rarity": "uncommon",
+        "icon": "🏀"
+    },
+    {
+        "id": "badge-goal-scorer",
+        "name": "Goal Scorer",
+        "description": "Always hitting targets",
+        "category": "badges",
+        "price": 150,
+        "rarity": "uncommon",
+        "icon": "⚽"
+    },
+    {
+        "id": "badge-champion",
+        "name": "Champion",
+        "description": "Born to compete",
+        "category": "badges",
+        "price": 400,
+        "rarity": "epic",
+        "icon": "🏆"
+    },
+    {
+        "id": "badge-fighter",
+        "name": "Fighter",
+        "description": "Never backs down",
+        "category": "badges",
+        "price": 250,
+        "rarity": "rare",
+        "icon": "🥊"
+    },
+    {
+        "id": "badge-endurance-king",
+        "name": "Endurance King",
+        "description": "Built for the long run",
+        "category": "badges",
+        "price": 200,
+        "rarity": "rare",
+        "icon": "🏃"
+    },
+    {
+        "id": "badge-mvp",
+        "name": "MVP",
+        "description": "Most Valuable Player",
+        "category": "badges",
+        "price": 500,
+        "rarity": "legendary",
+        "icon": "🏈"
+    },
+    
+    # ============ SPORT VEHICLES ============
+    {
+        "id": "vehicle-race-car",
+        "name": "Race Car",
+        "description": "Speed demon on four wheels",
+        "category": "vehicles",
+        "price": 300,
+        "rarity": "rare",
+        "icon": "🏎️"
+    },
+    {
+        "id": "vehicle-dirt-bike",
+        "name": "Dirt Bike",
+        "description": "Off-road and fearless",
+        "category": "vehicles",
+        "price": 250,
+        "rarity": "rare",
+        "icon": "🏍️"
+    },
+    {
+        "id": "vehicle-jet-ski",
+        "name": "Jet Ski",
+        "description": "Ride the waves like a pro",
+        "category": "vehicles",
+        "price": 275,
+        "rarity": "rare",
+        "icon": "🚤"
+    },
+    {
+        "id": "vehicle-monster-truck",
+        "name": "Monster Truck",
+        "description": "Crush everything in your path",
+        "category": "vehicles",
+        "price": 400,
+        "rarity": "epic",
+        "icon": "🛻"
+    },
+    {
+        "id": "vehicle-sports-car",
+        "name": "Sports Car",
+        "description": "Sleek, fast, and unstoppable",
+        "category": "vehicles",
+        "price": 500,
+        "rarity": "legendary",
+        "icon": "🚗"
+    },
+    {
+        "id": "vehicle-quad-bike",
+        "name": "Quad Bike",
+        "description": "Four wheels of pure adrenaline",
+        "category": "vehicles",
+        "price": 200,
+        "rarity": "uncommon",
+        "icon": "🏁"
+    },
+
     # ============ MORE AVATAR FRAMES ============
     {
         "id": "frame-nature",
@@ -968,8 +1085,8 @@ class UpdateShopItem(BaseModel):
 
 async def seed_shop_items():
     """Seed default shop items if they don't exist, or update if they do"""
-    # Version 2: Force update all items to ensure theme_data is set
-    SEED_VERSION = "v2_theme_data"
+    # Version 3: Added athletic badges and sport vehicles
+    SEED_VERSION = "v3_athletic_vehicles"
     
     for item in DEFAULT_SHOP_ITEMS:
         existing = await db.shop_items.find_one({'id': item['id']})
