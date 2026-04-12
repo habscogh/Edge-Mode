@@ -235,7 +235,7 @@ async def get_session_history(current_user: dict = Depends(get_current_user), da
     
     sessions = await db.daily_sessions.find({
         'user_id': current_user['id'],
-        'date': {'$gte': start_date.isoformat()}
+        'date': {'$gte': start_date.strftime('%Y-%m-%d')}
     }, {'_id': 0}).sort('date', -1).to_list(1000)
     
     return sessions

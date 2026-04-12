@@ -492,9 +492,11 @@ async def send_weekly_summaries_job():
     # Use Eastern Time for date calculations since sessions are logged with Eastern dates
     from utils.timezone import get_today_eastern
     today_eastern = get_today_eastern()
-    week_start_date = (today_eastern - timedelta(days=7)).isoformat()
+    # Sessions store date as 'YYYY-MM-DD' string, so use explicit strftime to match
+    week_start_date = (today_eastern - timedelta(days=7)).strftime('%Y-%m-%d')
+    today_str = today_eastern.strftime('%Y-%m-%d')
     
-    logger.info(f"Weekly summary: Looking for sessions from {week_start_date} to {today_eastern.isoformat()}")
+    logger.info(f"Weekly summary: Looking for sessions from {week_start_date} to {today_str} (format: YYYY-MM-DD)")
     
     # Create a unique key for this week to prevent duplicate emails
     week_key = today_eastern.strftime('%Y-W%W')
@@ -528,14 +530,25 @@ async def send_weekly_summaries_job():
                 continue
             
             # Query sessions for this user - use string date comparison
-            # Sessions are stored with date as 'YYYY-MM-DD' string
+            # Sessions store date as 'YYYY-MM-DD' string, week_start_date is also 'YYYY-MM-DD'
             sessions = await db.daily_sessions.find({
                 'user_id': user_id,
-                'date': {'$gte': week_start_date}
+                'date': {'$gte': week_start_date, '$lte': today_str}
             }, {'_id': 0}).to_list(100)
             
             # Debug logging
-            logger.info(f"User {user_email}: Found {len(sessions)} sessions since {week_start_date}")
+            if len(sessions) == 0:
+                # Check if user has ANY sessions at all
+                all_sessions = await db.daily_sessions.find({
+                    'user_id': user_id
+                }, {'_id': 0, 'date': 1}).to_list(10)
+                if all_sessions:
+                    sample_dates = [s.get('date') for s in all_sessions[:5]]
+                    logger.warning(f"User {user_email} (id: {user_id}): 0 sessions in [{week_start_date}..{today_str}], but has {len(all_sessions)} total. Sample dates: {sample_dates}")
+                else:
+                    logger.info(f"User {user_email} (id: {user_id}): No sessions at all")
+            else:
+                logger.info(f"User {user_email}: {len(sessions)} sessions in [{week_start_date}..{today_str}]")
             
             total_sessions = len(sessions)
             total_minutes = sum(s.get('minutes_spent', 0) for s in sessions)
@@ -584,12 +597,12 @@ async def send_inactive_reminders_job():
         return
     
     logger.info("Running inactive user reminder job...")
-    now = datetime.now(timezone.utc)
     
     # Create a unique key for today to prevent duplicate emails
     from utils.timezone import get_today_eastern
-    today_eastern = get_today_eastern().isoformat()
-    reminder_key = f"inactive_{today_eastern}"
+    today_eastern = get_today_eastern()  # date object for arithmetic
+    today_str = today_eastern.strftime('%Y-%m-%d')
+    reminder_key = f"inactive_{today_str}"
     
     # Define which days to send reminders
     REMINDER_DAYS = [2, 4, 6, 7, 10, 14, 21, 30]
@@ -810,7 +823,7 @@ async def send_parent_weekly_summaries_job():
         # Use Eastern Time for date calculations since sessions are logged with Eastern dates
         from utils.timezone import get_today_eastern
         today = get_today_eastern()
-        week_start = (today - timedelta(days=7)).isoformat()
+        week_start = (today - timedelta(days=7)).strftime('%Y-%m-%d')
         
         for parent_email, students in parents_students.items():
             students_html = ""
@@ -823,7 +836,7 @@ async def send_parent_weekly_summaries_job():
                 sessions = await db.daily_sessions.find({
                     'user_id': student_id,
                     'date': {'$gte': week_start}
-                }).to_list(100)
+                }, {'_id': 0}).to_list(100)
                 
                 unique_days = len(set(s['date'] for s in sessions))
                 total_minutes = sum(s.get('minutes_spent', 30) for s in sessions)
@@ -929,7 +942,7 @@ async def send_parent_inactivity_alerts_job():
         # Use Eastern Time since last_log_date is stored in Eastern Time
         from utils.timezone import get_today_eastern
         today_eastern = get_today_eastern()
-        three_days_ago = (today_eastern - timedelta(days=3)).isoformat()
+        three_days_ago = (today_eastern - timedelta(days=3)).strftime('%Y-%m-%d')
         
         parent_links = await db.parent_links.find({'status': 'active'}).to_list(1000)
         
