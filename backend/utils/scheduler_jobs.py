@@ -512,7 +512,7 @@ async def send_weekly_summaries_job():
                     'email': {'$exists': True, '$ne': None}
                 },
                 {'$set': {'last_weekly_summary': week_key}},
-                projection={'_id': 0, 'id': 1, 'email': 1, 'username': 1},
+                projection={'_id': 0, 'id': 1, 'email': 1, 'username': 1, 'first_name': 1},
                 return_document=False  # Return the document BEFORE update
             )
             
@@ -521,16 +521,21 @@ async def send_weekly_summaries_job():
             
             user_id = user.get('id')
             user_email = user.get('email')
-            username = user.get('username', 'User')
+            # Use first_name if available, otherwise clean up username
+            username = user.get('first_name') or user.get('username', 'User').split('@')[0].capitalize()
             
             if not user_email or not user_id:
                 continue
             
-            # Query sessions for this user
+            # Query sessions for this user - use string date comparison
+            # Sessions are stored with date as 'YYYY-MM-DD' string
             sessions = await db.daily_sessions.find({
                 'user_id': user_id,
                 'date': {'$gte': week_start_date}
             }, {'_id': 0}).to_list(100)
+            
+            # Debug logging
+            logger.info(f"User {user_email}: Found {len(sessions)} sessions since {week_start_date}")
             
             total_sessions = len(sessions)
             total_minutes = sum(s.get('minutes_spent', 0) for s in sessions)
@@ -542,6 +547,11 @@ async def send_weekly_summaries_job():
                 'total_minutes': total_minutes,
                 'consistency_pct': consistency_pct
             }
+            
+            # Skip sending if user has 0 sessions (empty report)
+            if total_sessions == 0:
+                logger.info(f"Skipping weekly summary for {user_email}: 0 sessions")
+                continue
             
             html = get_weekly_summary_html(username, stats)
             
