@@ -85,32 +85,54 @@ export const ProfileScreen = () => {
   };
 
   const handleSetTheme = async (inventoryId) => {
+    toast.loading('Applying theme...');
     try {
+      console.log('Setting theme:', inventoryId);
       const response = await axios.post(`${API}/shop/set-theme`, { inventory_id: inventoryId });
+      console.log('Theme response:', response.data);
       setProfileCustomization(prev => ({ ...prev, theme: response.data.theme }));
-      toast.success(response.data.message);
+      toast.dismiss();
+      toast.success(response.data.message || 'Theme updated!');
+      // Re-fetch to ensure state is correct
+      await fetchProfileCustomization();
     } catch (error) {
-      toast.error('Failed to set theme');
+      toast.dismiss();
+      console.error('Set theme error:', error.response?.data || error);
+      toast.error(error.response?.data?.detail || 'Failed to set theme');
     }
   };
 
   const handleSetFrame = async (inventoryId) => {
+    toast.loading('Applying frame...');
     try {
+      console.log('Setting frame:', inventoryId);
       const response = await axios.post(`${API}/shop/set-frame`, { inventory_id: inventoryId });
+      console.log('Frame response:', response.data);
       setProfileCustomization(prev => ({ ...prev, frame: response.data.frame }));
-      toast.success(response.data.message);
+      toast.dismiss();
+      toast.success(response.data.message || 'Frame updated!');
+      await fetchProfileCustomization();
     } catch (error) {
-      toast.error('Failed to set frame');
+      toast.dismiss();
+      console.error('Set frame error:', error.response?.data || error);
+      toast.error(error.response?.data?.detail || 'Failed to set frame');
     }
   };
 
   const handleSetEffect = async (inventoryId) => {
+    toast.loading('Applying effect...');
     try {
+      console.log('Setting effect:', inventoryId);
       const response = await axios.post(`${API}/shop/set-effect`, { inventory_id: inventoryId });
+      console.log('Effect response:', response.data);
       setProfileCustomization(prev => ({ ...prev, effect: response.data.effect }));
-      toast.success(response.data.message);
+      toast.dismiss();
+      toast.success(response.data.message || 'Effect updated!');
+      await fetchProfileCustomization();
     } catch (error) {
-      toast.error('Failed to set effect');
+      toast.dismiss();
+      console.error('Set effect error:', error.response?.data || error);
+      toast.error(error.response?.data?.detail || 'Failed to set effect');
     }
   };
 
