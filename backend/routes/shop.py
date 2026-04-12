@@ -968,6 +968,9 @@ class UpdateShopItem(BaseModel):
 
 async def seed_shop_items():
     """Seed default shop items if they don't exist, or update if they do"""
+    # Version 2: Force update all items to ensure theme_data is set
+    SEED_VERSION = "v2_theme_data"
+    
     for item in DEFAULT_SHOP_ITEMS:
         existing = await db.shop_items.find_one({'id': item['id']})
         if not existing:
@@ -977,18 +980,21 @@ async def seed_shop_items():
                 'is_limited': False,
                 'stock': None,
                 'total_sold': 0,
+                'seed_version': SEED_VERSION,
                 'created_at': datetime.now(timezone.utc).isoformat()
             }
             await db.shop_items.insert_one(item_doc)
         else:
-            # Update all fields from DEFAULT_SHOP_ITEMS to ensure consistency
-            # This ensures theme_data, frame_data, effect_data are always up to date
+            # Always update to ensure all fields are current
             update_fields = {
                 'price': item.get('price'),
                 'name': item.get('name'),
                 'description': item.get('description'),
                 'icon': item.get('icon'),
                 'rarity': item.get('rarity'),
+                'category': item.get('category'),
+                'is_active': True,  # Ensure item is visible
+                'seed_version': SEED_VERSION,
             }
             # Add optional data fields
             if 'theme_data' in item:
@@ -1057,11 +1063,11 @@ async def get_shop_items(category: Optional[str] = None):
     # Seed items on first access
     await seed_shop_items()
     
-    query = {'is_active': True}
+    query = {'is_active': {'$ne': False}}  # Include items without is_active field
     if category:
         query['category'] = category
     
-    items = await db.shop_items.find(query, {'_id': 0}).to_list(100)
+    items = await db.shop_items.find(query, {'_id': 0}).to_list(200)
     
     # Add rarity color to each item
     for item in items:
