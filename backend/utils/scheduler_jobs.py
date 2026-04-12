@@ -1,7 +1,7 @@
 """
 Scheduled jobs for Edge Mode
 """
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone, timedelta, date
 import asyncio
 import resend
 
@@ -21,6 +21,38 @@ async def send_push(user_id: str, title: str, body: str, url: str = "/dashboard"
         ))
     except Exception as e:
         logger.error(f"Failed to send push to {user_id}: {e}")
+
+
+async def can_send_email(email: str, email_type: str, date_key: str) -> bool:
+    """
+    Global deduplication check for emails.
+    Returns True if email can be sent, False if already sent today.
+    Uses atomic upsert to prevent race conditions across multiple instances/environments.
+    """
+    try:
+        # Try to insert a record - if it already exists, the email was already sent
+        result = await db.email_log.update_one(
+            {
+                'email': email,
+                'type': email_type,
+                'date': date_key
+            },
+            {
+                '$setOnInsert': {
+                    'email': email,
+                    'type': email_type,
+                    'date': date_key,
+                    'sent_at': datetime.now(timezone.utc).isoformat()
+                }
+            },
+            upsert=True
+        )
+        # If upserted_id exists, this is a new record (email not sent yet)
+        # If matched_count > 0 and upserted_id is None, record already existed
+        return result.upserted_id is not None
+    except Exception as e:
+        logger.error(f"Error checking email deduplication: {e}")
+        return False  # Fail closed - don't send if we can't check
 
 
 # ============ Email HTML Templates ============
@@ -356,46 +388,23 @@ async def send_streak_reminders_job():
         
         sent_count = 0
         for user in users:
-            # Double-check: skip if email already sent today (using email_log collection)
-            already_sent = await db.email_log.find_one({
-                'email': user['email'],
-                'type': 'streak_reminder',
-                'date': today
-            })
-            if already_sent:
-                logger.debug(f"Skipping {user['email']} - already in email_log")
-                continue
-            
             session_today = await db.daily_sessions.find_one({
                 'user_id': user['id'],
                 'date': today
             })
             
             if not session_today:
-                # Use atomic findOneAndUpdate to prevent duplicates across multiple instances
-                # Only proceeds if this instance "claims" the user first
-                result = await db.users.find_one_and_update(
-                    {
-                        'id': user['id'],
-                        'last_streak_reminder': {'$ne': reminder_key}  # Double-check not already sent
-                    },
-                    {'$set': {'last_streak_reminder': reminder_key}},
-                    return_document=False  # Returns original doc (before update)
-                )
-                
-                # If result is None, another instance already claimed this user
-                if result is None:
-                    logger.debug(f"Skipping {user['email']} - already claimed by another instance")
+                # Global atomic deduplication - prevents duplicates across ALL instances/environments
+                can_send = await can_send_email(user['email'], 'streak_reminder', today)
+                if not can_send:
+                    logger.debug(f"Skipping {user['email']} - already sent (global dedup)")
                     continue
                 
-                # Log email before sending to prevent race conditions
-                await db.email_log.insert_one({
-                    'email': user['email'],
-                    'user_id': user['id'],
-                    'type': 'streak_reminder',
-                    'date': today,
-                    'sent_at': datetime.now(timezone.utc).isoformat()
-                })
+                # Also update user record to track locally
+                await db.users.update_one(
+                    {'id': user['id']},
+                    {'$set': {'last_streak_reminder': reminder_key}}
+                )
                 
                 streak = user.get('current_streak', 0)
                 

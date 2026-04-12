@@ -207,6 +207,17 @@ async def startup_scheduler():
     )
     logger.info(f"Acquired scheduler lock for PID {os.getpid()}")
     
+    # Create unique index on email_log to prevent duplicate emails
+    try:
+        await db.email_log.create_index(
+            [('email', 1), ('type', 1), ('date', 1)],
+            unique=True,
+            name='email_type_date_unique'
+        )
+        logger.info("Created unique index on email_log collection")
+    except Exception as e:
+        logger.debug(f"Index may already exist: {e}")
+    
     # Seed initial challenges if none exist
     try:
         active_challenges = await db.challenges.count_documents({'status': 'active'})
