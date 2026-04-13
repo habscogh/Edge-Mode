@@ -344,6 +344,152 @@ PET_TYPES = {
             5: {"icon": "🦄", "name": "Divine Unicorn", "aura": "holy_aura"},
             6: {"icon": "🦄", "name": "Eternal Light", "aura": "supernova_mane"}
         }
+    },
+    
+    # ============ EXOTIC PREMIUM PETS ============
+    "kraken": {
+        "name": "Abyssal",
+        "category": "fantasy",
+        "description": "A terrifying deep-sea kraken with massive tentacles that grow and glow as you conquer your goals",
+        "rarity": "legendary",
+        "price": 550,
+        "is_starter": False,
+        "theme": "water",
+        "habit_tie": "general",
+        "stages": {
+            1: {"icon": "🥚", "name": "Abyss Egg", "aura": "deep_pulse"},
+            2: {"icon": "🦑", "name": "Baby Kraken", "aura": "ink_cloud"},
+            3: {"icon": "🦑", "name": "Young Terror", "aura": "tentacle_lash"},
+            4: {"icon": "🐙", "name": "Deep Horror", "aura": "whirlpool_pull"},
+            5: {"icon": "🐙", "name": "Titan Kraken", "aura": "abyss_roar"},
+            6: {"icon": "🐙", "name": "World Ender", "aura": "ocean_devour"}
+        }
+    },
+    "thunderbird": {
+        "name": "Zephyr",
+        "category": "fantasy",
+        "description": "A legendary thunderbird that commands storms and lightning - wings crackle with electricity",
+        "rarity": "epic",
+        "price": 425,
+        "is_starter": False,
+        "theme": "lightning",
+        "habit_tie": "sports",
+        "stages": {
+            1: {"icon": "🪺", "name": "Storm Egg", "aura": "static_charge"},
+            2: {"icon": "🐤", "name": "Spark Chick", "aura": "tiny_bolts"},
+            3: {"icon": "🦅", "name": "Storm Hawk", "aura": "thunder_wing"},
+            4: {"icon": "🦅", "name": "Lightning Eagle", "aura": "bolt_strike"},
+            5: {"icon": "🦅", "name": "Tempest Lord", "aura": "storm_call"},
+            6: {"icon": "🦅", "name": "Sky Sovereign", "aura": "hurricane_fury"}
+        }
+    },
+    "chimera": {
+        "name": "Havoc",
+        "category": "fantasy",
+        "description": "A fearsome chimera with three heads that each unlock new abilities as you level up",
+        "rarity": "legendary",
+        "price": 650,
+        "is_starter": False,
+        "theme": "fire",
+        "habit_tie": "general",
+        "stages": {
+            1: {"icon": "🥚", "name": "Beast Egg", "aura": "primal_hum"},
+            2: {"icon": "🦁", "name": "Lion Cub", "aura": "first_roar"},
+            3: {"icon": "🦁", "name": "Twin Beast", "aura": "dual_heads"},
+            4: {"icon": "🦁", "name": "Chimera", "aura": "triple_threat"},
+            5: {"icon": "🐉", "name": "Infernal Chimera", "aura": "hellfire_breath"},
+            6: {"icon": "🐉", "name": "Chaos Incarnate", "aura": "reality_warp"}
+        }
+    },
+    "sand_wyrm": {
+        "name": "Dune",
+        "category": "fantasy",
+        "description": "A massive desert wyrm that burrows through sand dunes - grows larger with tremor animations",
+        "rarity": "rare",
+        "price": 300,
+        "is_starter": False,
+        "theme": "earth",
+        "habit_tie": "exercise",
+        "stages": {
+            1: {"icon": "🪱", "name": "Sand Larva", "aura": "dust_trail"},
+            2: {"icon": "🐛", "name": "Dune Crawler", "aura": "sand_burst"},
+            3: {"icon": "🐍", "name": "Sand Serpent", "aura": "tremor_sense"},
+            4: {"icon": "🐍", "name": "Dune Wyrm", "aura": "sandstorm"},
+            5: {"icon": "🐉", "name": "Desert Titan", "aura": "earthquake"},
+            6: {"icon": "🐉", "name": "World Wyrm", "aura": "tectonic_shift"}
+        }
+    },
+    "neon_tiger": {
+        "name": "Cipher",
+        "category": "scifi",
+        "description": "A cyberpunk tiger with neon stripes and holographic claws - perfect for night owls grinding late",
+        "rarity": "epic",
+        "price": 450,
+        "is_starter": False,
+        "theme": "neon",
+        "habit_tie": "general",
+        "stages": {
+            1: {"icon": "🐱", "name": "Neon Kitten", "aura": "stripe_glow"},
+            2: {"icon": "🐈", "name": "Cyber Cat", "aura": "led_stripes"},
+            3: {"icon": "🐅", "name": "Neon Predator", "aura": "holo_claws"},
+            4: {"icon": "🐅", "name": "Circuit Tiger", "aura": "data_stream"},
+            5: {"icon": "🐅", "name": "Neon Apex", "aura": "laser_eyes"},
+            6: {"icon": "🐅", "name": "Digital Ghost", "aura": "matrix_phase"}
+        }
+    },
+    "astral_serpent": {
+        "name": "Zodiac",
+        "category": "fantasy",
+        "description": "A cosmic serpent made of starlight that coils through constellations as it evolves",
+        "rarity": "rare",
+        "price": 325,
+        "is_starter": False,
+        "theme": "cosmic",
+        "habit_tie": "study",
+        "stages": {
+            1: {"icon": "🌟", "name": "Star Seed", "aura": "twinkle"},
+            2: {"icon": "🐍", "name": "Comet Snake", "aura": "star_trail"},
+            3: {"icon": "🐍", "name": "Nebula Serpent", "aura": "constellation"},
+            4: {"icon": "🐉", "name": "Galaxy Wyrm", "aura": "zodiac_ring"},
+            5: {"icon": "🐉", "name": "Cosmic Ouroboros", "aura": "infinity_loop"},
+            6: {"icon": "🐉", "name": "Star Weaver", "aura": "cosmos_create"}
+        }
+    },
+    "shadow_panther": {
+        "name": "Phantom",
+        "category": "fantasy",
+        "description": "A sleek shadow panther that phases in and out of darkness - glowing purple eyes pierce the void",
+        "rarity": "epic",
+        "price": 400,
+        "is_starter": False,
+        "theme": "shadow",
+        "habit_tie": "general",
+        "stages": {
+            1: {"icon": "🐈‍⬛", "name": "Shadow Kitten", "aura": "dark_wisp"},
+            2: {"icon": "🐈‍⬛", "name": "Night Stalker", "aura": "shadow_step"},
+            3: {"icon": "🐈‍⬛", "name": "Void Panther", "aura": "phase_shift"},
+            4: {"icon": "🐈‍⬛", "name": "Eclipse Hunter", "aura": "dark_cloak"},
+            5: {"icon": "🐈‍⬛", "name": "Phantom Beast", "aura": "void_walk"},
+            6: {"icon": "🐈‍⬛", "name": "Abyssal Phantom", "aura": "dimension_rip"}
+        }
+    },
+    "lava_golem": {
+        "name": "Magmus",
+        "category": "fantasy",
+        "description": "A volcanic golem forged from molten rock - cracks glow brighter and erupts on major milestones",
+        "rarity": "legendary",
+        "price": 500,
+        "is_starter": False,
+        "theme": "fire",
+        "habit_tie": "exercise",
+        "stages": {
+            1: {"icon": "🪨", "name": "Molten Core", "aura": "heat_shimmer"},
+            2: {"icon": "🗿", "name": "Rock Form", "aura": "crack_glow"},
+            3: {"icon": "🗿", "name": "Lava Walker", "aura": "magma_veins"},
+            4: {"icon": "🌋", "name": "Eruption Golem", "aura": "lava_flow"},
+            5: {"icon": "🌋", "name": "Volcanic Titan", "aura": "eruption"},
+            6: {"icon": "🌋", "name": "Core of the Earth", "aura": "planetary_melt"}
+        }
     }
 }
 

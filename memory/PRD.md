@@ -14,49 +14,43 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
 - Core Metrics & Dashboards (streaks, performance)
 - Social Features (private groups, school/global leaderboards, friend challenges)
 - Gamification (badges, challenges, XP/Leveling, Shop, Quests, Referrals)
-- Virtual Pets System (evolutions, interactions, happiness, moods, companions, codex, expeditions)
+- Virtual Pets System (25 total: 9 starters + 16 premium/exotic)
 - Monetization ($4.99/mo or $49.99/yr, free trial via Stripe)
 - PWA & UX (installable, offline support)
-- Push Notifications (VAPID web push)
-- Email Schedulers (streak reminders, weekly summaries, inactive reminders, morning motivation, trial ending, parent reports, XP event notifications)
-- Shareable Story Cards (html2canvas)
-- Evolution Tree Visual UI
-- Shop Items: 7 themes, 21 badges (including 6 athletic), 5 frames, 8 effects, 6 sport vehicles
-- Duplicate session prevention (frontend disable + backend 2-min check)
-- Email deduplication (atomic email_log collection)
-- Profile Customizations
+- Push Notifications, Email Schedulers
+- Shareable Story Cards, Evolution Tree, Pet Codex, Expeditions
 
-## Architecture
-```
-/app/
-├── backend/
-│   ├── server.py
-│   ├── routes/ (pets, shop, sessions, challenges, engagement, quests, referrals, push, parent, auth)
-│   └── utils/ (scheduler_jobs, streaks, badges, timezone, auth)
-└── frontend/
-    └── src/
-        ├── components/ (PetDisplay, ExpeditionModal, ShareableStoryCard, etc.)
-        ├── pages/ (Dashboard, LogScreen, ProfileScreen, EvolutionTreeScreen, ShopScreen, AdminDashboard, etc.)
-        └── App.js
-```
+## Shop Items
+- 7 themes, 21 badges (incl. 6 athletic), 5 frames, 8 effects, 6 sport vehicles
+- 16 premium pets purchasable with coins
 
-## Key DB Collections
-- `users`, `daily_sessions`, `user_pillars`, `user_pets`, `shop_items`, `email_log`, `challenges`, `xp_events`, `parent_links`
+## Virtual Pets (25 total)
+### Free Starters (9)
+- Blaze (flame_dragon), Ember (phoenix), Fenrir (spirit_wolf)
+- Gloo (neon_blob), Volt (cyber_fox), Nova (space_jelly)
+- Striker (sports_tiger), Melody (music_siren), Scholar (study_owl)
+
+### Premium Pets (8 original)
+- Cosmos (galaxy_dragon) 500, Frost (ice_phoenix) 400, Umbra (shadow_kitsune) 450
+- Prism (crystal_golem) 300, Tide (aqua_serpent) 350, Titan (mecha_dragon) 600
+- 8-Bit (pixel_sprite) 200, Starlight (unicorn_celestial) 400
+
+### Exotic Premium Pets (8 new - Apr 12, 2026)
+- Abyssal (kraken) 550, Zephyr (thunderbird) 425, Havoc (chimera) 650
+- Dune (sand_wyrm) 300, Cipher (neon_tiger) 450, Zodiac (astral_serpent) 325
+- Phantom (shadow_panther) 400, Magmus (lava_golem) 500
 
 ## Completed Work (Apr 12, 2026)
-- Fixed weekly summary email query: normalized date format from `.isoformat()` to `.strftime('%Y-%m-%d')`
-- Fixed inactive reminders type bug: `today_eastern` was string but used in date arithmetic
-- Fixed parent weekly summary and inactivity alerts date formats
-- Added 6 athletic badges: Baller, Goal Scorer, Champion, Fighter, Endurance King, MVP
-- Added new "Sport Vehicles" shop category with 6 items: Race Car, Dirt Bike, Jet Ski, Monster Truck, Sports Car, Quad Bike
-- Updated frontend ShopScreen with vehicles category icon (Car from lucide-react)
-- Bumped seed version to v3_athletic_vehicles
+- Fixed weekly summary email date format bug
+- Fixed inactive reminders type bug
+- Added 6 athletic badges + 6 sport vehicles to shop
+- Added 8 exotic premium pets (kraken, thunderbird, chimera, sand_wyrm, neon_tiger, astral_serpent, shadow_panther, lava_golem)
 
 ## Upcoming Tasks
-- P1: Export Data (CSV) - Allow users to download their session history
-- P2: Streak Recovery - Allow users to recover a streak once per month
+- P1: Export Data (CSV) - download session history
+- P2: Streak Recovery - recover streak once/month
 
 ## Future/Backlog
 - P3: "Streak Shield" subscription tier ($0.99/mo)
-- P3: Refactor AdminDashboard.js (exceeds 1300 lines)
+- P3: Refactor AdminDashboard.js (1300+ lines)
 - Offline session sync delay (PWA queue logic)
