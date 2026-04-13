@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'sonner';
-import { Gift, Coins, Zap, Star, TrendingUp, Timer, Sparkles, ShoppingBag } from 'lucide-react';
+import { Gift, Coins, Zap, Star, TrendingUp, Timer, Sparkles, ShoppingBag, HelpCircle } from 'lucide-react';
 import { Button } from './ui/button';
+import CoinEarningSheet from './CoinEarningSheet';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -193,6 +194,7 @@ const EngagementStatus = () => {
   const [showReward, setShowReward] = useState(false);
   const [rewardData, setRewardData] = useState(null);
   const [claiming, setClaiming] = useState(false);
+  const [showCoinSheet, setShowCoinSheet] = useState(false);
 
   useEffect(() => {
     fetchStatus();
@@ -269,16 +271,16 @@ const EngagementStatus = () => {
         {/* Stats Row */}
         <div className="grid grid-cols-3 gap-3">
           <div 
-            onClick={() => navigate('/shop')}
+            onClick={() => setShowCoinSheet(true)}
             className="text-center p-2 bg-zinc-950 rounded-lg cursor-pointer hover:bg-zinc-900 transition-colors group"
-            data-testid="coins-shop-link"
+            data-testid="coins-earning-info"
           >
             <div className="flex items-center justify-center gap-1 text-yellow-400">
               <Coins className="w-4 h-4" />
               <span className="font-bold">{status?.coins || 0}</span>
             </div>
-            <p className="text-xs text-zinc-500 group-hover:text-primary transition-colors flex items-center justify-center gap-1">
-              <ShoppingBag className="w-3 h-3" /> Shop
+            <p className="text-xs text-zinc-500 group-hover:text-yellow-400/70 transition-colors flex items-center justify-center gap-1">
+              <HelpCircle className="w-3 h-3" /> Earn Coins
             </p>
           </div>
           <div className="text-center p-2 bg-zinc-950 rounded-lg">
@@ -305,6 +307,12 @@ const EngagementStatus = () => {
         isOpen={showReward} 
         onClose={() => setShowReward(false)} 
         rewardData={rewardData}
+      />
+
+      <CoinEarningSheet
+        isOpen={showCoinSheet}
+        onClose={() => setShowCoinSheet(false)}
+        currentCoins={status?.coins || 0}
       />
     </>
   );

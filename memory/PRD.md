@@ -19,6 +19,7 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
 - PWA & UX (installable, offline support)
 - Push Notifications, Email Schedulers
 - Shareable Story Cards, Evolution Tree, Pet Codex, Expeditions
+- Coin Earning Info Sheet (bottom sheet on dashboard coin tap)
 
 ## Shop Items
 - 7 themes, 21 badges (incl. 6 athletic), 5 frames, 8 effects, 6 sport vehicles
@@ -26,25 +27,25 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
 
 ## Virtual Pets (25 total)
 ### Free Starters (9)
-- Blaze (flame_dragon), Ember (phoenix), Fenrir (spirit_wolf)
-- Gloo (neon_blob), Volt (cyber_fox), Nova (space_jelly)
-- Striker (sports_tiger), Melody (music_siren), Scholar (study_owl)
+- Blaze, Ember, Fenrir, Gloo, Volt, Nova, Striker, Melody, Scholar
 
-### Premium Pets (8 original)
-- Cosmos (galaxy_dragon) 500, Frost (ice_phoenix) 400, Umbra (shadow_kitsune) 450
-- Prism (crystal_golem) 300, Tide (aqua_serpent) 350, Titan (mecha_dragon) 600
-- 8-Bit (pixel_sprite) 200, Starlight (unicorn_celestial) 400
+### Premium Pets (16)
+- Original 8: Cosmos, Frost, Umbra, Prism, Tide, Titan, 8-Bit, Starlight
+- Exotic 8: Abyssal, Zephyr, Havoc, Dune, Cipher, Zodiac, Phantom, Magmus
 
-### Exotic Premium Pets (8 new - Apr 12, 2026)
-- Abyssal (kraken) 550, Zephyr (thunderbird) 425, Havoc (chimera) 650
-- Dune (sand_wyrm) 300, Cipher (neon_tiger) 450, Zodiac (astral_serpent) 325
-- Phantom (shadow_panther) 400, Magmus (lava_golem) 500
+## Coin Earning Methods (displayed in bottom sheet)
+- Daily Login: 1-5 coins/day
+- Quests: 1-10 coins each
+- Pet Expeditions: 2-25 coins (59+ min sessions)
+- Pet Evolution Bonus: +1-3 coins/session
+- Referrals: 25-300 coins per milestone
+- Companions: +1-5 coins/session
 
-## Completed Work (Apr 12, 2026)
+## Completed Work (Apr 13, 2026)
 - Fixed weekly summary email date format bug
-- Fixed inactive reminders type bug
 - Added 6 athletic badges + 6 sport vehicles to shop
-- Added 8 exotic premium pets (kraken, thunderbird, chimera, sand_wyrm, neon_tiger, astral_serpent, shadow_panther, lava_golem)
+- Added 8 exotic premium pets
+- Added "Ways to Earn Coins" bottom sheet on dashboard coin tap
 
 ## Upcoming Tasks
 - P1: Export Data (CSV) - download session history
