@@ -10,42 +10,32 @@ Build a mobile-first, full-stack application named "Edge Mode" to help teens (12
 - 3rd Party: Stripe (Payments), Resend (Emails)
 
 ## Core Features (Implemented)
-- User Tracking & Onboarding (pillars, weekly targets)
-- Core Metrics & Dashboards (streaks, performance)
-- Social Features (private groups, school/global leaderboards, friend challenges)
+- User Tracking & Onboarding, Dashboards, Social Features
 - Gamification (badges, challenges, XP/Leveling, Shop, Quests, Referrals)
-- Virtual Pets System (25 total: 9 starters + 16 premium/exotic)
-- Monetization ($4.99/mo or $49.99/yr, free trial via Stripe)
-- PWA & UX (installable, offline support)
-- Push Notifications, Email Schedulers
-- Shareable Story Cards, Evolution Tree, Pet Codex, Expeditions
+- Virtual Pets System (25 total), Expeditions, Pet Codex
+- Monetization via Stripe, Email Schedulers via Resend
+- PWA, Push Notifications, Shareable Story Cards
 - Coin Earning Info Sheet (bottom sheet on dashboard coin tap)
 
 ## Shop Items
 - 7 themes, 21 badges (incl. 6 athletic), 5 frames, 8 effects, 6 sport vehicles
 - 16 premium pets purchasable with coins
 
-## Virtual Pets (25 total)
-### Free Starters (9)
-- Blaze, Ember, Fenrir, Gloo, Volt, Nova, Striker, Melody, Scholar
+## Email Deduplication System (Fixed Apr 15, 2026)
+All scheduler email jobs now use atomic `find_one_and_update` to claim one user at a time:
+- `send_streak_reminders_job`: Converted from batch-query-then-loop to atomic claim pattern
+- `send_weekly_summaries_job`: Already used atomic pattern
+- `send_inactive_reminders_job`: Already used atomic per-user claim
+- `send_morning_reminders_job`: Already used atomic per-user claim
+- Secondary dedup via `email_log` collection with unique compound index
+- Scheduler lock acquisition made atomic to prevent two instances starting
 
-### Premium Pets (16)
-- Original 8: Cosmos, Frost, Umbra, Prism, Tide, Titan, 8-Bit, Starlight
-- Exotic 8: Abyssal, Zephyr, Havoc, Dune, Cipher, Zodiac, Phantom, Magmus
-
-## Coin Earning Methods (displayed in bottom sheet)
-- Daily Login: 1-5 coins/day
-- Quests: 1-10 coins each
-- Pet Expeditions: 2-25 coins (59+ min sessions)
-- Pet Evolution Bonus: +1-3 coins/session
-- Referrals: 25-300 coins per milestone
-- Companions: +1-5 coins/session
-
-## Completed Work (Apr 13, 2026)
-- Fixed weekly summary email date format bug
-- Added 6 athletic badges + 6 sport vehicles to shop
-- Added 8 exotic premium pets
-- Added "Ways to Earn Coins" bottom sheet on dashboard coin tap
+## Completed Work (Apr 15, 2026)
+- Fixed double streak reminder emails: converted to atomic find_one_and_update per user
+- Fixed scheduler lock race condition: atomic lock acquisition
+- Fixed date format bugs in weekly summary and inactive reminders
+- Added 6 athletic badges, 6 sport vehicles, 8 exotic pets
+- Added "Ways to Earn Coins" bottom sheet
 
 ## Upcoming Tasks
 - P1: Export Data (CSV) - download session history

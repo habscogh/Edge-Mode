@@ -359,6 +359,7 @@ def get_trial_ending_html(username: str, days_left: int, streak: int, consistenc
 async def send_streak_reminders_job():
     """Send streak reminder emails to users who haven't logged today
     If user has a pet, send personalized pet message instead
+    Uses atomic find_one_and_update to prevent duplicate emails across instances.
     """
     if not RESEND_API_KEY:
         logger.warning("RESEND_API_KEY not set, skipping streak reminders")
@@ -368,7 +369,7 @@ async def send_streak_reminders_job():
     
     # Use Eastern Time for consistency with session dates
     from utils.timezone import get_today_eastern
-    today = get_today_eastern().isoformat()
+    today = get_today_eastern().strftime('%Y-%m-%d')
     
     # Create a unique key for today to prevent duplicate emails
     reminder_key = f"streak_{today}"
@@ -377,106 +378,105 @@ async def send_streak_reminders_job():
     from routes.pets import PET_TYPES
     
     try:
-        users = await db.users.find({
-            'streak_reminders': {'$ne': False},
-            'current_streak': {'$gt': 0},
-            'is_admin': {'$ne': True},  # Don't send to admins
-            'role': {'$ne': 'admin'},  # Also check role field
-            # Skip users who already received today's reminder
-            'last_streak_reminder': {'$ne': reminder_key}
-        }, {'_id': 0, 'id': 1, 'email': 1, 'username': 1, 'first_name': 1, 'current_streak': 1}).to_list(1000)
-        
         sent_count = 0
-        for user in users:
+        skipped_count = 0
+        
+        while True:
+            # Atomically claim ONE user at a time - prevents race conditions across instances
+            user = await db.users.find_one_and_update(
+                {
+                    'streak_reminders': {'$ne': False},
+                    'current_streak': {'$gt': 0},
+                    'is_admin': {'$ne': True},
+                    'role': {'$ne': 'admin'},
+                    'last_streak_reminder': {'$ne': reminder_key},
+                    'email': {'$exists': True, '$ne': None}
+                },
+                {'$set': {'last_streak_reminder': reminder_key}},
+                projection={'_id': 0, 'id': 1, 'email': 1, 'username': 1, 'first_name': 1, 'current_streak': 1, 'push_enabled': 1},
+                return_document=False  # Return document BEFORE update
+            )
+            
+            if not user:
+                break  # No more users to process
+            
+            user_id = user.get('id')
+            user_email = user.get('email')
+            if not user_id or not user_email:
+                continue
+            
+            # Check if user already logged a session today
             session_today = await db.daily_sessions.find_one({
-                'user_id': user['id'],
+                'user_id': user_id,
                 'date': today
             })
             
-            if not session_today:
-                # Global atomic deduplication - prevents duplicates across ALL instances/environments
-                can_send = await can_send_email(user['email'], 'streak_reminder', today)
-                if not can_send:
-                    logger.debug(f"Skipping {user['email']} - already sent (global dedup)")
-                    continue
+            if session_today:
+                skipped_count += 1
+                continue  # User already logged today, skip
+            
+            # Secondary dedup via email_log (cross-environment safety net)
+            can_send = await can_send_email(user_email, 'streak_reminder', today)
+            if not can_send:
+                logger.debug(f"Skipping {user_email} - already sent (global dedup)")
+                continue
+            
+            streak = user.get('current_streak', 0)
+            
+            # Check if user has a pet
+            user_pet = await db.user_pets.find_one({
+                'user_id': user_id,
+                'is_active': True
+            }, {'_id': 0})
+            
+            if user_pet and user_pet.get('pet_type') in PET_TYPES:
+                pet_type = user_pet['pet_type']
+                pet_info = PET_TYPES[pet_type]
+                pet_name = user_pet.get('custom_name') or pet_info['name']
+                evolution_stage = user_pet.get('evolution_stage', 1)
+                pet_icon = pet_info['stages'].get(evolution_stage, pet_info['stages'][1])['icon']
+                display_name = user.get('first_name') or user.get('username', 'User').split('@')[0].capitalize()
                 
-                # Also update user record to track locally
-                await db.users.update_one(
-                    {'id': user['id']},
-                    {'$set': {'last_streak_reminder': reminder_key}}
-                )
-                
-                streak = user.get('current_streak', 0)
-                
-                # Check if user has a pet
-                user_pet = await db.user_pets.find_one({
-                    'user_id': user['id'],
-                    'is_active': True
-                }, {'_id': 0})
-                
+                html = get_pet_streak_reminder_html(display_name, streak, pet_name, pet_icon, evolution_stage)
+                subject = f"🔥 {pet_name} Says: Don't Break Our Streak! - Edge Mode"
+            else:
+                display_name = user.get('first_name') or user.get('username', 'User').split('@')[0].capitalize()
+                html = get_streak_reminder_html(display_name, streak)
+                subject = "🔥 Don't Break Your Streak! - Edge Mode"
+            
+            # Send email
+            try:
+                await asyncio.to_thread(resend.Emails.send, {
+                    "from": SENDER_EMAIL,
+                    "to": [user_email],
+                    "subject": subject,
+                    "html": html
+                })
+                sent_count += 1
+            except Exception as e:
+                logger.error(f"Failed to send streak reminder to {user_email}: {e}")
+            
+            # Send push notification
+            if user.get('push_enabled'):
                 if user_pet and user_pet.get('pet_type') in PET_TYPES:
-                    # User has a pet - send personalized pet streak reminder!
-                    pet_type = user_pet['pet_type']
-                    pet_info = PET_TYPES[pet_type]
-                    pet_name = user_pet.get('custom_name') or pet_info['name']
-                    evolution_stage = user_pet.get('evolution_stage', 1)
-                    
-                    # Get pet icon based on evolution stage
-                    pet_icon = pet_info['stages'].get(evolution_stage, pet_info['stages'][1])['icon']
-                    
-                    # Use first name or username for personalization
-                    display_name = user.get('first_name') or user.get('username', 'User').split('@')[0].capitalize()
-                    
-                    html = get_pet_streak_reminder_html(
-                        display_name,
-                        streak,
-                        pet_name,
-                        pet_icon,
-                        evolution_stage
+                    pet_name = user_pet.get('custom_name') or PET_TYPES[user_pet['pet_type']]['name']
+                    await send_push(
+                        user_id,
+                        f"🔥 {pet_name}: Don't Break Our Streak!",
+                        f"We're on a {streak}-day streak together! Let's keep it going!",
+                        "/dashboard",
+                        "pet-streak-reminder"
                     )
-                    subject = f"🔥 {pet_name} Says: Don't Break Our Streak! - Edge Mode"
                 else:
-                    # No pet - send regular streak reminder
-                    display_name = user.get('first_name') or user.get('username', 'User').split('@')[0].capitalize()
-                    html = get_streak_reminder_html(
-                        display_name,
-                        streak
+                    await send_push(
+                        user_id,
+                        "🔥 Don't Break Your Streak!",
+                        f"You're on a {streak}-day streak! Log a session today.",
+                        "/dashboard",
+                        "streak-reminder"
                     )
-                    subject = "🔥 Don't Break Your Streak! - Edge Mode"
-                
-                # Send email
-                try:
-                    await asyncio.to_thread(resend.Emails.send, {
-                        "from": SENDER_EMAIL,
-                        "to": [user['email']],
-                        "subject": subject,
-                        "html": html
-                    })
-                    sent_count += 1
-                except Exception as e:
-                    logger.error(f"Failed to send streak reminder to {user['email']}: {e}")
-                
-                # Send push notification (personalized if user has pet)
-                if user.get('push_enabled'):
-                    if user_pet and user_pet.get('pet_type') in PET_TYPES:
-                        pet_name = user_pet.get('custom_name') or PET_TYPES[user_pet['pet_type']]['name']
-                        await send_push(
-                            user['id'],
-                            f"🔥 {pet_name}: Don't Break Our Streak!",
-                            f"We're on a {streak}-day streak together! Let's keep it going!",
-                            "/dashboard",
-                            "pet-streak-reminder"
-                        )
-                    else:
-                        await send_push(
-                            user['id'],
-                            "🔥 Don't Break Your Streak!",
-                            f"You're on a {streak}-day streak! Log a session today.",
-                            "/dashboard",
-                            "streak-reminder"
-                        )
         
-        logger.info(f"Streak reminder job complete. Sent {sent_count} emails.")
+        logger.info(f"Streak reminder job complete. Sent {sent_count} emails, skipped {skipped_count} (already logged).")
     except Exception as e:
         logger.error(f"Streak reminder job failed: {e}")
 

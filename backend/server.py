@@ -6,7 +6,7 @@ from fastapi import FastAPI, APIRouter
 from starlette.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import asyncio
 import os
 
@@ -189,22 +189,34 @@ async def startup_scheduler():
         return
     
     # Use a database lock to ensure only one scheduler runs across all instances
-    lock_doc = await db.scheduler_locks.find_one({'_id': 'streak_scheduler'})
+    # Atomic find_one_and_update to prevent race conditions
     now = datetime.now(timezone.utc)
+    five_mins_ago = (now - timedelta(minutes=5)).isoformat()
     
-    # If lock exists and was updated in the last 5 minutes, another instance is running
-    if lock_doc and lock_doc.get('updated_at'):
-        lock_time = datetime.fromisoformat(lock_doc['updated_at'].replace('Z', '+00:00'))
-        if (now - lock_time).total_seconds() < 300:  # 5 minutes
+    # Try to atomically claim the lock (only succeeds if lock is expired or doesn't exist)
+    lock_result = await db.scheduler_locks.find_one_and_update(
+        {
+            '_id': 'streak_scheduler',
+            'updated_at': {'$lt': five_mins_ago}
+        },
+        {'$set': {'updated_at': now.isoformat(), 'instance': os.getpid()}},
+        return_document=True
+    )
+    
+    if lock_result is None:
+        # Lock doesn't exist yet or is still held - try to create it (first time only)
+        try:
+            await db.scheduler_locks.insert_one({
+                '_id': 'streak_scheduler',
+                'updated_at': now.isoformat(),
+                'instance': os.getpid()
+            })
+            lock_result = True  # We created it
+        except Exception:
+            # Lock already exists and is recent - another instance holds it
             logger.info("Scheduler lock held by another instance, skipping")
             return
     
-    # Acquire the lock
-    await db.scheduler_locks.update_one(
-        {'_id': 'streak_scheduler'},
-        {'$set': {'updated_at': now.isoformat(), 'instance': os.getpid()}},
-        upsert=True
-    )
     logger.info(f"Acquired scheduler lock for PID {os.getpid()}")
     
     # Create unique index on email_log to prevent duplicate emails
