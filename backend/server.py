@@ -181,6 +181,15 @@ async def startup_scheduler():
     """Start the scheduler when app starts - only if we're the primary worker"""
     import os
     
+    # Ensure admin users have is_admin flag set (runs on ALL instances)
+    try:
+        await db.users.update_one(
+            {'email': 'admin@edgemodeapp.com'},
+            {'$set': {'is_admin': True, 'role': 'admin'}}
+        )
+    except Exception as e:
+        logger.debug(f"Admin flag update: {e}")
+    
     # Only start scheduler in the main process to prevent duplicate jobs
     # Check if we're running with multiple workers
     worker_id = os.environ.get('APP_WORKER_ID', '0')

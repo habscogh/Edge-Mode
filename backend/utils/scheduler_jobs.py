@@ -7,6 +7,18 @@ import resend
 
 from config import db, logger, RESEND_API_KEY, SENDER_EMAIL
 
+# Admin emails that should NEVER receive automated emails
+ADMIN_EMAILS = ['admin@edgemodeapp.com']
+
+
+def get_admin_exclusion_filter():
+    """Returns MongoDB filter conditions to exclude admin users from email jobs"""
+    return {
+        'is_admin': {'$ne': True},
+        'role': {'$ne': 'admin'},
+        'email': {'$nin': ADMIN_EMAILS}
+    }
+
 
 # Import push notification functions (lazy import to avoid circular imports)
 async def send_push(user_id: str, title: str, body: str, url: str = "/dashboard", tag: str = None):
@@ -387,8 +399,7 @@ async def send_streak_reminders_job():
                 {
                     'streak_reminders': {'$ne': False},
                     'current_streak': {'$gt': 0},
-                    'is_admin': {'$ne': True},
-                    'role': {'$ne': 'admin'},
+                    **get_admin_exclusion_filter(),
                     'last_streak_reminder': {'$ne': reminder_key},
                     'email': {'$exists': True, '$ne': None}
                 },
@@ -618,7 +629,7 @@ async def send_inactive_reminders_job():
         # Exclude admin users and users who already received today's reminder
         users = await db.users.find({
             'streak_reminders': {'$ne': False},
-            'is_admin': {'$ne': True},
+            **get_admin_exclusion_filter(),
             'last_inactive_reminder': {'$ne': reminder_key}
         }, {'_id': 0, 'id': 1, 'email': 1, 'username': 1, 'last_log_date': 1}).to_list(1000)
         
@@ -742,17 +753,13 @@ async def send_trial_ending_reminders_job():
             'is_trial': True,
             'trial_ends_at': {'$exists': True},
             'streak_reminders': {'$ne': False},
-            'is_admin': {'$ne': True}  # Exclude admins
+            **get_admin_exclusion_filter()
         }, {'_id': 0}).to_list(1000)
         
         sent_count = 0
         for user in users:
             # Double-check: skip if user has paid (is_trial should be False for paid users)
             if user.get('is_trial') == False:
-                continue
-            
-            # Skip admin emails
-            if user.get('email', '').lower() == 'admin@edgemodeapp.com':
                 continue
                 
             trial_end = datetime.fromisoformat(user['trial_ends_at'].replace('Z', '+00:00'))
@@ -1116,7 +1123,7 @@ async def send_morning_reminders_job():
         # Find users who have opted into morning reminders and haven't received today's
         users = await db.users.find({
             'morning_reminders': True,
-            'is_admin': {'$ne': True},
+            **get_admin_exclusion_filter(),
             'last_morning_reminder': {'$ne': reminder_key}
         }, {'_id': 0, 'id': 1, 'email': 1, 'username': 1, 'current_streak': 1}).to_list(1000)
         
