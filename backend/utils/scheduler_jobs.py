@@ -522,7 +522,8 @@ async def send_weekly_summaries_job():
                 {
                     'weekly_summary': {'$ne': False},
                     'last_weekly_summary': {'$ne': week_key},
-                    'email': {'$exists': True, '$ne': None}
+                    'email': {'$exists': True, '$ne': None},
+                    **get_admin_exclusion_filter()
                 },
                 {'$set': {'last_weekly_summary': week_key}},
                 projection={'_id': 0, 'id': 1, 'email': 1, 'username': 1, 'first_name': 1},
