@@ -1280,3 +1280,109 @@ async def get_announcement_history(admin_user: dict = Depends(require_admin)):
     
     return {'announcements': announcements}
 
+
+
+# ============ Email Debug & Reset Endpoints ============
+
+@router.get("/debug-weekly-summary")
+async def debug_weekly_summary(current_user: dict = Depends(require_admin)):
+    """Debug endpoint: shows what the weekly summary would see for each user.
+    Helps diagnose why sessions show 0 or why emails are sent incorrectly."""
+    from utils.timezone import get_today_eastern
+    
+    today_eastern = get_today_eastern()
+    week_start_date = (today_eastern - timedelta(days=7)).strftime('%Y-%m-%d')
+    today_str = today_eastern.strftime('%Y-%m-%d')
+    week_key = today_eastern.strftime('%Y-W%W')
+    
+    # Get a sample of users and their session counts
+    users = await db.users.find(
+        {'email': {'$exists': True, '$ne': None}},
+        {'_id': 0, 'id': 1, 'email': 1, 'first_name': 1, 'username': 1, 'is_admin': 1, 'role': 1, 'last_weekly_summary': 1}
+    ).to_list(50)
+    
+    results = []
+    for user in users:
+        user_id = user.get('id')
+        if not user_id:
+            continue
+        
+        # Query sessions with EXACT same logic as weekly summary
+        sessions = await db.daily_sessions.find({
+            'user_id': user_id,
+            'date': {'$gte': week_start_date, '$lte': today_str}
+        }, {'_id': 0, 'date': 1, 'minutes_spent': 1, 'pillar': 1}).to_list(100)
+        
+        # Also get ALL sessions to compare
+        all_sessions = await db.daily_sessions.find(
+            {'user_id': user_id},
+            {'_id': 0, 'date': 1}
+        ).sort('date', -1).to_list(5)
+        
+        results.append({
+            'email': user.get('email'),
+            'name': user.get('first_name') or user.get('username'),
+            'is_admin': user.get('is_admin'),
+            'role': user.get('role'),
+            'last_weekly_summary': user.get('last_weekly_summary'),
+            'would_skip_already_sent': user.get('last_weekly_summary') == week_key,
+            'sessions_this_week': len(sessions),
+            'session_dates': [s['date'] for s in sessions],
+            'would_skip_zero': len(sessions) == 0,
+            'total_minutes': sum(s.get('minutes_spent', 0) for s in sessions),
+            'recent_session_dates': [s['date'] for s in all_sessions],
+        })
+    
+    # Check a sample session to verify date format
+    sample_session = await db.daily_sessions.find_one({}, {'_id': 0, 'date': 1, 'user_id': 1})
+    
+    return {
+        'debug_info': {
+            'today_eastern': today_str,
+            'week_start': week_start_date,
+            'week_key': week_key,
+            'date_format': 'YYYY-MM-DD (strftime)',
+            'sample_session': sample_session,
+        },
+        'users': results
+    }
+
+
+@router.post("/reset-weekly-summary-flags")
+async def reset_weekly_summary_flags(current_user: dict = Depends(require_admin)):
+    """Reset last_weekly_summary flags so the next scheduled run will re-send correctly.
+    Use this after deploying a fix to re-trigger weekly summaries with corrected logic."""
+    result = await db.users.update_many(
+        {},
+        {'$unset': {'last_weekly_summary': ''}}
+    )
+    
+    # Also clear email_log for weekly summaries this week
+    from utils.timezone import get_today_eastern
+    today_eastern = get_today_eastern()
+    week_key = today_eastern.strftime('%Y-W%W')
+    
+    email_log_result = await db.email_log.delete_many({
+        'type': 'weekly_summary',
+        'date': week_key
+    })
+    
+    return {
+        'message': f'Reset weekly summary flags for {result.modified_count} users. Cleared {email_log_result.deleted_count} email log entries.',
+        'users_reset': result.modified_count,
+        'email_logs_cleared': email_log_result.deleted_count
+    }
+
+
+@router.post("/trigger-weekly-summary")
+async def trigger_weekly_summary(current_user: dict = Depends(require_admin)):
+    """Manually trigger the weekly summary job (admin only).
+    Use after resetting flags to immediately resend correct summaries."""
+    from utils.scheduler_jobs import send_weekly_summaries_job
+    
+    try:
+        await send_weekly_summaries_job()
+        return {'message': 'Weekly summary job completed successfully'}
+    except Exception as e:
+        logger.error(f"Manual weekly summary trigger failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
