@@ -235,6 +235,18 @@ async def get_engagement_status(current_user: dict = Depends(get_current_user)):
     # Check for active XP event
     active_event = await get_active_xp_event()
     
+    # Get active vehicle for dashboard display
+    active_vehicle = None
+    if user.get('active_vehicle'):
+        inv_item = await db.user_inventory.find_one({
+            'user_id': current_user['id'],
+            'id': user['active_vehicle']
+        }, {'_id': 0, 'item_id': 1})
+        if inv_item:
+            item = await db.shop_items.find_one({'id': inv_item['item_id']}, {'_id': 0, 'name': 1, 'icon': 1, 'rarity': 1})
+            if item:
+                active_vehicle = {'name': item['name'], 'icon': item['icon'], 'rarity': item.get('rarity')}
+    
     return {
         'xp': user.get('xp', 0),
         'level_info': calculate_level(user.get('xp', 0)),
@@ -243,6 +255,7 @@ async def get_engagement_status(current_user: dict = Depends(get_current_user)):
         'session_streak': user.get('current_streak', 0),
         'can_claim_daily': can_claim_daily,
         'last_login_claim': user.get('last_login_claim'),
+        'active_vehicle': active_vehicle,
         'active_event': {
             'id': active_event.get('id'),
             'name': active_event.get('name'),

@@ -48,11 +48,13 @@ export const ProfileScreen = () => {
   const [profileCustomization, setProfileCustomization] = useState({
     theme: null,
     frame: null,
-    effect: null
+    effect: null,
+    vehicle: null
   });
   const [availableThemes, setAvailableThemes] = useState([]);
   const [availableFrames, setAvailableFrames] = useState([]);
   const [availableEffects, setAvailableEffects] = useState([]);
+  const [availableVehicles, setAvailableVehicles] = useState([]);
   const [showCustomizationPanel, setShowCustomizationPanel] = useState(false);
   const [customizationTab, setCustomizationTab] = useState('themes');
 
@@ -69,16 +71,18 @@ export const ProfileScreen = () => {
 
   const fetchProfileCustomization = async () => {
     try {
-      const [customRes, themesRes, framesRes, effectsRes] = await Promise.all([
+      const [customRes, themesRes, framesRes, effectsRes, vehiclesRes] = await Promise.all([
         axios.get(`${API}/shop/profile-customization`),
         axios.get(`${API}/shop/available-customizations/themes`),
         axios.get(`${API}/shop/available-customizations/avatars`),
-        axios.get(`${API}/shop/available-customizations/effects`)
+        axios.get(`${API}/shop/available-customizations/effects`),
+        axios.get(`${API}/shop/available-vehicles`)
       ]);
       setProfileCustomization(customRes.data);
       setAvailableThemes(themesRes.data.items || []);
       setAvailableFrames(framesRes.data.items || []);
       setAvailableEffects(effectsRes.data.items || []);
+      setAvailableVehicles(vehiclesRes.data.vehicles || []);
     } catch (error) {
       // No customizations or error - that's fine
     }
@@ -135,6 +139,21 @@ export const ProfileScreen = () => {
       toast.error(error.response?.data?.detail || 'Failed to set effect');
     }
   };
+
+  const handleSetVehicle = async (inventoryId) => {
+    toast.loading('Setting vehicle...');
+    try {
+      const response = await axios.post(`${API}/shop/set-vehicle`, { inventory_id: inventoryId });
+      setProfileCustomization(prev => ({ ...prev, vehicle: response.data.vehicle }));
+      toast.dismiss();
+      toast.success(response.data.message || 'Vehicle updated!');
+      await fetchProfileCustomization();
+    } catch (error) {
+      toast.dismiss();
+      toast.error(error.response?.data?.detail || 'Failed to set vehicle');
+    }
+  };
+
 
   const fetchDisplayBadge = async () => {
     try {
@@ -360,6 +379,12 @@ export const ProfileScreen = () => {
                 {user.is_ambassador && <AmbassadorBadge size="small" />}
               </div>
               <p className="text-zinc-300/80 font-body text-sm">{user.email}</p>
+              {profileCustomization.vehicle && (
+                <div className="flex items-center gap-1.5 mt-1">
+                  <span className="text-lg">{profileCustomization.vehicle.icon}</span>
+                  <span className="text-xs text-zinc-400 font-body">{profileCustomization.vehicle.name}</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -387,18 +412,18 @@ export const ProfileScreen = () => {
               <h3 className="text-white font-heading font-bold mb-3">Profile Customization</h3>
               
               {/* Tabs */}
-              <div className="flex gap-2 mb-4">
-                {['themes', 'frames', 'effects'].map(tab => (
+              <div className="flex gap-2 mb-4 overflow-x-auto">
+                {['themes', 'frames', 'effects', 'garage'].map(tab => (
                   <button
                     key={tab}
                     onClick={() => setCustomizationTab(tab)}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-body capitalize transition-all ${
+                    className={`px-3 py-1.5 rounded-lg text-sm font-body capitalize transition-all shrink-0 ${
                       customizationTab === tab 
                         ? 'bg-white/20 text-white' 
                         : 'bg-white/5 text-zinc-400 hover:bg-white/10'
                     }`}
                   >
-                    {tab === 'themes' ? '🎨' : tab === 'frames' ? '👤' : '✨'} {tab}
+                    {tab === 'themes' ? '🎨' : tab === 'frames' ? '👤' : tab === 'effects' ? '✨' : '🏎️'} {tab}
                   </button>
                 ))}
               </div>
@@ -529,6 +554,47 @@ export const ProfileScreen = () => {
                     </>
                   ) : (
                     <p className="text-zinc-500 text-sm font-body">Purchase special effects from the shop</p>
+                  )}
+                </div>
+              )}
+
+              {/* Garage - Vehicle Selection */}
+              {customizationTab === 'garage' && (
+                <div className="space-y-2">
+                  {availableVehicles.length > 0 ? (
+                    <>
+                      <button
+                        onClick={() => handleSetVehicle(null)}
+                        className={`w-full p-3 rounded-lg text-left transition-all ${
+                          !profileCustomization.vehicle 
+                            ? 'bg-white/20 border border-white/30' 
+                            : 'bg-white/5 hover:bg-white/10 border border-transparent'
+                        }`}
+                        data-testid="vehicle-none"
+                      >
+                        <span className="text-white font-body">No Vehicle</span>
+                      </button>
+                      {availableVehicles.map(vehicle => (
+                        <button
+                          key={vehicle.inventory_id}
+                          onClick={() => handleSetVehicle(vehicle.inventory_id)}
+                          className={`w-full p-3 rounded-lg text-left transition-all flex items-center gap-3 ${
+                            profileCustomization.vehicle?.inventory_id === vehicle.inventory_id
+                              ? 'bg-white/20 border border-white/30' 
+                              : 'bg-white/5 hover:bg-white/10 border border-transparent'
+                          }`}
+                          data-testid={`vehicle-${vehicle.item_id}`}
+                        >
+                          <span className="text-2xl">{vehicle.icon}</span>
+                          <div>
+                            <span className="text-white font-body">{vehicle.name}</span>
+                            <p className="text-zinc-500 text-xs capitalize">{vehicle.rarity} - {vehicle.description}</p>
+                          </div>
+                        </button>
+                      ))}
+                    </>
+                  ) : (
+                    <p className="text-zinc-500 text-sm font-body">Purchase sport vehicles from the shop to display here</p>
                   )}
                 </div>
               )}

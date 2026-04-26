@@ -1516,16 +1516,17 @@ class SetProfileCustomizationRequest(BaseModel):
 
 @router.get("/profile-customization")
 async def get_profile_customization(current_user: dict = Depends(get_current_user)):
-    """Get user's active profile customizations (theme, frame, effect)"""
+    """Get user's active profile customizations (theme, frame, effect, vehicle)"""
     user = await db.users.find_one(
         {'id': current_user['id']}, 
-        {'_id': 0, 'active_theme': 1, 'active_frame': 1, 'active_effect': 1}
+        {'_id': 0, 'active_theme': 1, 'active_frame': 1, 'active_effect': 1, 'active_vehicle': 1}
     )
     
     result = {
         'theme': None,
         'frame': None,
-        'effect': None
+        'effect': None,
+        'vehicle': None
     }
     
     # Get active theme
@@ -1577,6 +1578,23 @@ async def get_profile_customization(current_user: dict = Depends(get_current_use
                     'name': item['name'],
                     'icon': item['icon'],
                     'effect_data': item.get('effect_data', {})
+                }
+    
+    # Get active vehicle
+    if user and user.get('active_vehicle'):
+        inv_item = await db.user_inventory.find_one({
+            'user_id': current_user['id'],
+            'id': user['active_vehicle']
+        }, {'_id': 0, 'item_id': 1})
+        if inv_item:
+            item = await db.shop_items.find_one({'id': inv_item['item_id']}, {'_id': 0})
+            if item:
+                result['vehicle'] = {
+                    'inventory_id': user['active_vehicle'],
+                    'item_id': item['id'],
+                    'name': item['name'],
+                    'icon': item['icon'],
+                    'rarity': item.get('rarity', 'common')
                 }
     
     return result
@@ -1740,6 +1758,73 @@ async def set_active_effect(request: SetProfileCustomizationRequest, current_use
             {'$unset': {'active_effect': ''}}
         )
         return {'message': 'Effect cleared', 'effect': None}
+
+
+@router.post("/set-vehicle")
+async def set_active_vehicle(request: SetProfileCustomizationRequest, current_user: dict = Depends(get_current_user)):
+    """Set or clear the user's active display vehicle"""
+    if request.inventory_id:
+        inventory_item = await db.user_inventory.find_one({
+            'user_id': current_user['id'],
+            'id': request.inventory_id,
+            'category': 'vehicles'
+        })
+        
+        if not inventory_item:
+            raise HTTPException(status_code=400, detail="You don't own this vehicle")
+        
+        await db.users.update_one(
+            {'id': current_user['id']},
+            {'$set': {'active_vehicle': request.inventory_id}}
+        )
+        
+        item = await db.shop_items.find_one({'id': inventory_item['item_id']}, {'_id': 0})
+        
+        return {
+            'message': f"Vehicle set to {item['name']}!",
+            'vehicle': {
+                'inventory_id': inventory_item['id'],
+                'name': item['name'],
+                'icon': item['icon'],
+                'rarity': item.get('rarity', 'common')
+            }
+        }
+    else:
+        await db.users.update_one(
+            {'id': current_user['id']},
+            {'$unset': {'active_vehicle': ''}}
+        )
+        return {'message': 'Vehicle cleared', 'vehicle': None}
+
+
+@router.get("/available-vehicles")
+async def get_available_vehicles(current_user: dict = Depends(get_current_user)):
+    """Get all vehicles user owns for selection"""
+    inventory_items = await db.user_inventory.find({
+        'user_id': current_user['id'],
+        'category': 'vehicles'
+    }, {'_id': 0}).to_list(100)
+    
+    vehicles = []
+    for inv_item in inventory_items:
+        item = await db.shop_items.find_one({'id': inv_item['item_id']}, {'_id': 0})
+        if item:
+            vehicles.append({
+                'inventory_id': inv_item['id'],
+                'item_id': item['id'],
+                'name': item['name'],
+                'icon': item['icon'],
+                'description': item.get('description', ''),
+                'rarity': item.get('rarity', 'common')
+            })
+    
+    user = await db.users.find_one({'id': current_user['id']}, {'_id': 0, 'active_vehicle': 1})
+    current_active = user.get('active_vehicle') if user else None
+    
+    return {
+        'vehicles': vehicles,
+        'current_active': current_active
+    }
 
 
 @router.post("/use-shield")

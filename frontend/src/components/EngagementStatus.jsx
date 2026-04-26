@@ -299,6 +299,22 @@ const EngagementStatus = () => {
           </div>
         </div>
 
+        {/* Vehicle Flex */}
+        {status?.active_vehicle && (
+          <div 
+            onClick={() => navigate('/profile')}
+            className="flex items-center gap-2 p-2 bg-zinc-950 rounded-lg cursor-pointer hover:bg-zinc-900 transition-colors"
+            data-testid="dashboard-vehicle-flex"
+          >
+            <span className="text-2xl">{status.active_vehicle.icon}</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-white truncate">{status.active_vehicle.name}</p>
+              <p className="text-xs text-zinc-500 capitalize">{status.active_vehicle.rarity}</p>
+            </div>
+            <span className="text-xs text-zinc-600">My Ride</span>
+          </div>
+        )}
+
         {/* XP Progress */}
         <XPProgressBar levelInfo={status?.level_info} />
       </div>
