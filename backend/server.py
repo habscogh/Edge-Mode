@@ -256,13 +256,19 @@ async def startup_scheduler():
         replace_existing=True
     )
     
-    # Weekly summaries - every Sunday at 2 PM UTC (10 AM Eastern)
-    scheduler.add_job(
-        send_weekly_summaries_job,
-        CronTrigger(day_of_week='sun', hour=14, minute=0),
-        id="weekly_summaries",
-        replace_existing=True
-    )
+    # Weekly summaries - DISABLED (auto-scheduler off, use manual trigger via /api/admin/trigger-weekly-summary)
+    # Check if admin has enabled weekly summaries via feature flag
+    weekly_enabled = await db.app_settings.find_one({'_id': 'weekly_summary_enabled'})
+    if weekly_enabled and weekly_enabled.get('enabled'):
+        scheduler.add_job(
+            send_weekly_summaries_job,
+            CronTrigger(day_of_week='sun', hour=14, minute=0),
+            id="weekly_summaries",
+            replace_existing=True
+        )
+        logger.info("Weekly summary scheduler ENABLED (admin toggled on)")
+    else:
+        logger.info("Weekly summary scheduler DISABLED (use /api/admin/toggle-weekly-summary to enable)")
     
     # Inactive user reminders - daily at 6 PM UTC (2 PM Eastern)
     scheduler.add_job(

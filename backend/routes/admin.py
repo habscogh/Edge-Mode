@@ -1386,3 +1386,34 @@ async def trigger_weekly_summary(current_user: dict = Depends(require_admin)):
     except Exception as e:
         logger.error(f"Manual weekly summary trigger failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/toggle-weekly-summary")
+async def toggle_weekly_summary(current_user: dict = Depends(require_admin)):
+    """Toggle the automatic weekly summary scheduler on/off.
+    When off, no weekly summaries are sent automatically.
+    You can still manually trigger via /api/admin/trigger-weekly-summary."""
+    current = await db.app_settings.find_one({'_id': 'weekly_summary_enabled'})
+    new_state = not (current.get('enabled', False) if current else False)
+    
+    await db.app_settings.update_one(
+        {'_id': 'weekly_summary_enabled'},
+        {'$set': {'enabled': new_state, 'toggled_at': datetime.now(timezone.utc).isoformat(), 'toggled_by': current_user['email']}},
+        upsert=True
+    )
+    
+    return {
+        'weekly_summary_enabled': new_state,
+        'message': f"Weekly summary scheduler {'ENABLED' if new_state else 'DISABLED'}. {'Will run every Sunday at 10 AM ET.' if new_state else 'No automatic emails will be sent.'} Restart app for changes to take effect."
+    }
+
+
+@router.get("/weekly-summary-status")
+async def get_weekly_summary_status(current_user: dict = Depends(require_admin)):
+    """Check if the weekly summary auto-scheduler is enabled or disabled."""
+    setting = await db.app_settings.find_one({'_id': 'weekly_summary_enabled'})
+    return {
+        'weekly_summary_enabled': setting.get('enabled', False) if setting else False,
+        'toggled_at': setting.get('toggled_at') if setting else None,
+        'toggled_by': setting.get('toggled_by') if setting else None
+    }
